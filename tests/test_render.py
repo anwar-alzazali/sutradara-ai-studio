@@ -68,5 +68,5 @@ def test_rencana_bisa_memilih_permukaan_dan_tanah_bawaan_bertekstur():
     svg = adegan.susun(shot)
     assert latar.PERMUKAAN_BAWAAN["dhuha"] == "tanah_berbatu"
     assert "tanah_tekstur_clip" in svg
-    assert svg.index("tanah_tekstur_clip") < svg.index('class="tokoh"')
+    assert svg.index("tanah_tekstur_clip") < svg.index('stroke-width="26"')
     assert 'filter="url(#kabur)"' not in svg
