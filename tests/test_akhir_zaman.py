@@ -74,7 +74,7 @@ def test_rencana_yajuj_memakai_manusia_biasa_dan_dalil_yang_ditandai_belum():
     temuan = periksa(rencana)
     assert not any(x.tingkat == "GAGAL" for x in temuan)
     assert {d["status"] for d in rencana["dalil"]} == {"belum"}
-    assert sum(x.kode == "DALIL_BELUM_DICEK" for x in temuan) == 2
+    assert sum(x.kode == "DALIL_BELUM_DICEK" for x in temuan) == 3
     for beat in rencana["beat"]:
         ET.fromstring(adegan.susun(beat["shot"][0], 2.0))
 
