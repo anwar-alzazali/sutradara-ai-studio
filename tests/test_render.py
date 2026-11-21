@@ -70,3 +70,36 @@ def test_rencana_bisa_memilih_permukaan_dan_tanah_bawaan_bertekstur():
     assert "tanah_tekstur_clip" in svg
     assert svg.index("tanah_tekstur_clip") < svg.index('stroke-width="26"')
     assert 'filter="url(#kabur)"' not in svg
+
+
+def test_tekstur_tanah_cukup_terlihat_di_layar_kecil_dan_batu_membesar_ke_depan():
+    import re
+    from sutradara.gaya import latar
+    svg = latar.tekstur_tanah("senja", 1250, jenis="tanah_berbatu", seed=3)
+    opasitas = [float(x) for x in re.findall(r'opacity="([0-9.]+)"', svg)]
+    assert any(0.30 <= x <= 0.60 for x in opasitas)
+    assert 'opacity=".46"' in svg
+    assert 'rx="' in svg
+
+
+def test_shot_pembuka_nuh_memuat_seluruh_haluan_dalam_bingkai():
+    rencana = json.loads((CONTOH / "nuh_mengejek.json").read_text(encoding="utf-8"))
+    shot = rencana["beat"][0]["shot"][0]
+    kamera = shot["kamera"]
+    zoom = kamera["zoom"][-1][1]
+    pusat = kamera["x"]
+    kapal = shot["benda"][0]
+    kiri = kapal["x"] - 460 * kapal["s"]
+    kanan = kapal["x"] + 530 * kapal["s"]
+    assert 540 + (kiri - pusat) * zoom > 0
+    assert 540 + (kanan - pusat) * zoom < 1080
+
+
+def test_pilar_nuh_shot_terakhir_berjarak_dari_ujung_lambung():
+    rencana = json.loads((CONTOH / "nuh_mengejek.json").read_text(encoding="utf-8"))
+    shot = rencana["beat"][-1]["shot"][-1]
+    kapal = shot["benda"][0]
+    pilar = shot["nur"][0]
+    ujung_kiri_lambung = kapal["x"] - 460 * kapal["s"]
+    tepi_pendar_pilar = pilar["x"] + 155
+    assert ujung_kiri_lambung - tepi_pendar_pilar >= 20

@@ -116,7 +116,7 @@ def _tekstur_tanah_cache(preset: str, y0: float, jenis: str, seed: int) -> str:
         s = skala(y)
         x = rnd.uniform(-1080, 2160)
         warna = terang if rnd.random() < .48 else gelap
-        op = rnd.uniform(.055, .105)
+        op = rnd.uniform(.30, .46)
         elemen.append(f'<path d="{_bentuk_bercak(rnd, x, y, rnd.uniform(80, 210)*s, rnd.uniform(10, 26)*s)}" fill="{warna}" opacity="{op:.3f}"/>')
 
     # Guratan pasir berbentuk riak; tanah padat memakai retak/serat yang pendek.
@@ -134,20 +134,20 @@ def _tekstur_tanah_cache(preset: str, y0: float, jenis: str, seed: int) -> str:
 
     # Kerikil dibatasi pada area bawah dan diberi sorot tipis; tidak memakai filter/blur.
     if jenis in ("tanah_berbatu", "batu"):
-        jumlah = 94 if jenis == "tanah_berbatu" else 132
+        jumlah = 116 if jenis == "tanah_berbatu" else 144
         for _ in range(jumlah):
             y = rnd.uniform(y0 + 8, 1910)
             s = skala(y)
             x = rnd.uniform(-1080, 2160)
             besar = rnd.random() < .10 or jenis == "batu" and rnd.random() < .18
-            rx = rnd.uniform(10, 22) * s if besar else rnd.uniform(2.8, 6.5) * s
+            rx = rnd.uniform(18, 32) * s if besar else rnd.uniform(3.8, 8.5) * s
             ry = rx * rnd.uniform(.48, .72)
             isi = _campur_warna(warna_atas, gelap, rnd.uniform(.18, .42))
             bentuk = _bentuk_bercak(rnd, x, y, rx, ry, 7)
             sorot = _bentuk_bercak(rnd, x-rx*.18, y-ry*.22, rx*.48, ry*.30, 6)
-            elemen.append(f'<ellipse cx="{x+rx*.18:.1f}" cy="{y+ry*.42:.1f}" rx="{rx*1.12:.1f}" ry="{ry*.42:.1f}" fill="#000000" opacity=".12"/>'
-                          f'<path d="{bentuk}" fill="{isi}"/>'
-                          f'<path d="{sorot}" fill="{terang}" opacity=".22"/>')
+            elemen.append(f'<ellipse cx="{x+rx*.18:.1f}" cy="{y+ry*.42:.1f}" rx="{rx*1.12:.1f}" ry="{ry*.42:.1f}" fill="#000000" opacity=".28"/>'
+                          f'<path d="{bentuk}" fill="{isi}" opacity="{rnd.uniform(.42, .56):.2f}"/>'
+                          f'<path d="{sorot}" fill="{terang}" opacity=".46"/>')
 
     if jenis in ("tanah_berbatu", "tanah"):
         for _ in range(7):

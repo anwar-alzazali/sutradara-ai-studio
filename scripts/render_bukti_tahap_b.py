@@ -51,6 +51,14 @@ def main():
             sesudah.pop("permukaan_tanah", None)
             render.png(adegan.susun(sebelum, 1.0), OUT / f"{nama}-sebelum.jpg", halaman=pg)
             render.png(adegan.susun(sesudah, 1.0), OUT / f"{nama}-sesudah.jpg", halaman=pg)
+        # Crop persegi 1:1 dari render tanah saja untuk memeriksa keterbacaan tekstur di layar HP.
+        shot_tanah = {"preset": "senja", "belakang": [], "tanah_y": 1000, "depan": False}
+        tanah_penuh = OUT / "tanah-tekstur-full.jpg"
+        render.png(adegan.susun(shot_tanah, 0.0), tanah_penuh, halaman=pg)
+        tanah = Image.open(tanah_penuh).convert("RGB")
+        tanah.crop((284, 1120, 796, 1632)).resize((512, 512)).save(
+            OUT / "tanah-tekstur-1x1.jpg", quality=92, optimize=True
+        )
     baris=(len(gambar)+2)//3
     lembar=Image.new("RGB",(290*3,525*baris),(238,238,238))
     for i,im in enumerate(gambar):
