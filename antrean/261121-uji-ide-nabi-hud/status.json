@@ -1,9 +1,9 @@
 {
  "id": "261121-uji-ide-nabi-hud",
- "judul": "Uji: Nabi Hud dan kaum 'Ad",
+ "judul": "Kaum 'Ad yang Sombong Karena Kekuatan Mereka, Lalu Allah Hancurkan dengan Angin Kencang",
  "sumber": "ide",
  "tahap": {
-  "diterima": "jalan",
+  "diterima": "gagal",
   "dalil": "belum",
   "tinjau": "belum",
   "narasi": "belum",
@@ -13,8 +13,11 @@
   "kirim": "belum"
  },
  "ket": {
-  "diterima": "mengantre di GitHub Actions…"
+  "diterima": "beat 7: merujuk dalil 'hud53' yang tidak ada di daftar dalil"
  },
  "dibuat": "2026-11-21T10:05:47+00:00",
- "diperbarui": "2026-11-21T10:05:47+00:00"
+ "diperbarui": "2026-11-21T10:06:51+00:00",
+ "pesan_kartu": 393,
+ "token_ai": 2657,
+ "penyedia_ai": "Claude claude-sonnet-4-5 — Gemini gagal (Gemini galat 503), pindah ke Claude"
 }
