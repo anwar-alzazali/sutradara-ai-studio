@@ -34,8 +34,8 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 - Warna: **kuning** = fakta kunci/janji/harapan · **putih** = netral · **merah** = azab/ancaman/kesombongan.
 - Sumber dalil kecil di atas (`QS HUD 38`, `HR. MUSLIM 2934`) di setiap shot yang isinya dari dalil itu.
 - Subtitle satu baris di bawah, kata penting disorot kuning.
-- **Kartu dalil bertahap**: pita bawah, satu potongan Arab + terjemah (masing-masing <= 2 baris) sekaligus; Arab disapu,
-  terjemah diketik, lalu diganti potongan berikutnya. Adegan tetap terlihat di atasnya. Hadis: matan saja (kutipan persis).
+- **Kartu dalil bertahap**: pita ATAS yang tembus pandang (warna mengikuti preset suasana: senja, malam, malam_merah, fajar, dhuha), satu potongan Arab + terjemah (masing-masing <= 2 baris) sekaligus; Arab disapu,
+  terjemah diketik, lalu diganti potongan berikutnya. Adegan tetap terlihat di bawahnya; judul & label sumber disembunyikan selama kartu tampil. Hadis: matan saja (kutipan persis).
 
 ## 5. Yang dilarang
 Boneka "kamu" sebagai avatar penonton · siluet sebagai bawaan · nur berbentuk lampu sorot kerucut · sosok manusia dari cahaya

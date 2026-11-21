@@ -92,7 +92,7 @@ Status: ✔ selesai · ▶ aktif · ○ belum. **Kriteria selesai selalu berupa 
 - **Bukti:** 9 tes dalil; Bukhari 7123 & Muslim 2934/2941 terverifikasi dari dataset; ayat diverifikasi lewat workflow (butuh rahasia QF).
 
 ### ✔ Fase 3b — Kartu dalil bertahap (21 Nov 2026, permintaan pemilik)
-- Bukan satu kartu besar yang menutupi layar: pita bawah berisi SATU potongan (Arab <= 2 baris + terjemah <= 2 baris),
+- Bukan satu kartu besar yang menutupi layar: pita ATAS tembus pandang (warna ikut preset suasana) berisi SATU potongan (Arab <= 2 baris + terjemah <= 2 baris),
   Arab disapu kanan->kiri, terjemah diketik, lalu diganti potongan berikutnya (`sutradara/gaya/kartu.py`).
 - Pemotongan (`sutradara/dalil/segmen.py`): terjemah dipotong lebih dulu di akhir kalimat/kata sambung, Arab di tanda
   waqaf/kata sambung و ف pada proporsi yang sama. Gabungan potongan = teks utuh terverifikasi (dites). Pasangan
@@ -155,3 +155,4 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 - 21 Nov 2026 — Penataan panggung: pemilik melihat NPC lebih dekat ke kapal daripada Nabi Nuh. Contoh diperbaiki dan aturan dijadikan pemeriksaan penjaga.
 - 21 Nov 2026 — Fase 3 didahulukan. Dataset hadis tidak dimasukkan ke git (±18 MB); dibangun ulang dari sumber + cache CI. Rahasia: QURAN_FOUNDATION_CLIENT_ID/_SECRET, ELEVENLABS_API_KEY, ANTHROPIC_API_KEY.
 - 21 Nov 2026 — Kunci Quran Foundation valid di produksi tetapi belum diberi scope `content` (diagnosa: 403 'access token does not have the required scopes'). Sementara verifikasi ayat otomatis memakai API publik quran.com (penyedia sama), ditandai di `sumber_teks`. Ternyata scope sudah diberikan dalam bentuk RINCI (`content.quran.read`, `content.translations.read`, …); kode kini memintanya dan jalur resmi berkunci terbukti jalan (HTTP 200). Cadangan publik tetap ada untuk gangguan.
+- 21 Nov 2026 — Kartu dalil dipindah ke atas, lebih transparan, warna ikut suasana (permintaan pemilik). Render ulang ditunda sampai uji suara.
