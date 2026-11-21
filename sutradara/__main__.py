@@ -24,8 +24,15 @@ def main(argv=None) -> int:
     b.add_argument("--semua", action="store_true", help="render semua shot, bukan hanya shot pertama tiap beat")
     c = sub.add_parser("video"); c.add_argument("rencana"); c.add_argument("-o", "--keluar", default="keluaran/video.mp4")
     c.add_argument("--fps", type=int, default=30); c.add_argument("--lembar", action="store_true", help="buat juga lembar kontak .jpg")
+    sub.add_parser("diagnosa-quran", help="cek kunci Quran Foundation per lingkungan/scope (tanpa mencetak rahasia)")
     v = sub.add_parser("verifikasi"); v.add_argument("rencana"); v.add_argument("-o", "--keluar", help="bawaan: timpa berkas rencana")
     arg = ap.parse_args(argv)
+
+    if arg.perintah == "diagnosa-quran":
+        from .dalil.quran import QuranFoundation
+        for b in QuranFoundation(cache=None).diagnosa():
+            print(" | ".join(f"{k}={v}" for k, v in b.items()))
+        return 0
 
     if arg.perintah == "verifikasi":
         import os

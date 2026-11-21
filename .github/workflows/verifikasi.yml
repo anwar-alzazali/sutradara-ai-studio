@@ -32,6 +32,12 @@ jobs:
           key: hadis-${{ hashFiles('sutradara/dalil/unduh_hadis.py') }}
       - name: Unduh dataset hadis (bila belum ada di cache)
         run: test -f data/hadis/bukhari.json.gz || python -m sutradara.dalil.unduh_hadis
+      - name: Diagnosa Quran Foundation (tanpa mencetak rahasia)
+        env:
+          QURAN_FOUNDATION_CLIENT_ID: ${{ secrets.QURAN_FOUNDATION_CLIENT_ID }}
+          QURAN_FOUNDATION_CLIENT_SECRET: ${{ secrets.QURAN_FOUNDATION_CLIENT_SECRET }}
+        run: python -m sutradara diagnosa-quran | tee -a "$GITHUB_STEP_SUMMARY"
+        continue-on-error: true
       - name: Verifikasi
         env:
           QURAN_FOUNDATION_CLIENT_ID: ${{ secrets.QURAN_FOUNDATION_CLIENT_ID }}

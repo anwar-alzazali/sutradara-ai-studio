@@ -95,7 +95,11 @@ def verifikasi(rencana: dict, *, quran=None) -> tuple[dict, list[str]]:
             if quran is None:
                 laporan.append(f"… {d['label']}: dilewati (klien Quran tidak tersedia)")
                 continue
-            laporan.append(verifikasi_quran(d, quran))
+            try:
+                laporan.append(verifikasi_quran(d, quran))
+            except RuntimeError as e:  # gangguan layanan/izin: ayat ini tetap 'belum', yang lain jalan terus
+                d.update(status="belum", alasan=f"Quran Foundation: {e}")
+                laporan.append(f"✗ {d['label']}: {e}")
         else:
             laporan.append(verifikasi_hadis(d))
     return r, laporan
