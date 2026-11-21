@@ -116,7 +116,7 @@ def _tekstur_tanah_cache(preset: str, y0: float, jenis: str, seed: int) -> str:
         s = skala(y)
         x = rnd.uniform(-1080, 2160)
         warna = terang if rnd.random() < .48 else gelap
-        op = rnd.uniform(.30, .46)
+        op = rnd.uniform(.46, .64)
         elemen.append(f'<path d="{_bentuk_bercak(rnd, x, y, rnd.uniform(80, 210)*s, rnd.uniform(10, 26)*s)}" fill="{warna}" opacity="{op:.3f}"/>')
 
     # Guratan pasir berbentuk riak; tanah padat memakai retak/serat yang pendek.
@@ -127,27 +127,27 @@ def _tekstur_tanah_cache(preset: str, y0: float, jenis: str, seed: int) -> str:
         x = rnd.uniform(-1080, 2160)
         if jenis == "pasir":
             panjang = rnd.uniform(45, 115) * s
-            elemen.append(f'<path d="M{x:.1f} {y:.1f} q {panjang*.25:.1f} {-3*s:.1f} {panjang*.5:.1f} 0 t {panjang*.5:.1f} 0" fill="none" stroke="{gelap}" stroke-width="{.65 + .65*s:.2f}" opacity=".16"/>')
+            elemen.append(f'<path d="M{x:.1f} {y:.1f} q {panjang*.25:.1f} {-3*s:.1f} {panjang*.5:.1f} 0 t {panjang*.5:.1f} 0" fill="none" stroke="{gelap}" stroke-width="{.65 + .65*s:.2f}" opacity=".25"/>')
         else:
             panjang = rnd.uniform(12, 34) * s
-            elemen.append(f'<path d="M{x:.1f} {y:.1f} l {panjang:.1f} {rnd.uniform(-2,2)*s:.1f} l {panjang*.55:.1f} {rnd.uniform(-2,2)*s:.1f}" fill="none" stroke="{gelap}" stroke-width="{.7 + .55*s:.2f}" opacity=".20" stroke-linecap="round"/>')
+            elemen.append(f'<path d="M{x:.1f} {y:.1f} l {panjang:.1f} {rnd.uniform(-2,2)*s:.1f} l {panjang*.55:.1f} {rnd.uniform(-2,2)*s:.1f}" fill="none" stroke="{gelap}" stroke-width="{.7 + .55*s:.2f}" opacity=".28" stroke-linecap="round"/>')
 
     # Kerikil dibatasi pada area bawah dan diberi sorot tipis; tidak memakai filter/blur.
     if jenis in ("tanah_berbatu", "batu"):
-        jumlah = 116 if jenis == "tanah_berbatu" else 144
+        jumlah = 150 if jenis == "tanah_berbatu" else 168
         for _ in range(jumlah):
             y = rnd.uniform(y0 + 8, 1910)
             s = skala(y)
             x = rnd.uniform(-1080, 2160)
             besar = rnd.random() < .10 or jenis == "batu" and rnd.random() < .18
-            rx = rnd.uniform(18, 32) * s if besar else rnd.uniform(3.8, 8.5) * s
+            rx = rnd.uniform(24, 42) * s if besar else rnd.uniform(5.5, 12) * s
             ry = rx * rnd.uniform(.48, .72)
             isi = _campur_warna(warna_atas, gelap, rnd.uniform(.18, .42))
             bentuk = _bentuk_bercak(rnd, x, y, rx, ry, 7)
             sorot = _bentuk_bercak(rnd, x-rx*.18, y-ry*.22, rx*.48, ry*.30, 6)
-            elemen.append(f'<ellipse cx="{x+rx*.18:.1f}" cy="{y+ry*.42:.1f}" rx="{rx*1.12:.1f}" ry="{ry*.42:.1f}" fill="#000000" opacity=".28"/>'
-                          f'<path d="{bentuk}" fill="{isi}" opacity="{rnd.uniform(.42, .56):.2f}"/>'
-                          f'<path d="{sorot}" fill="{terang}" opacity=".46"/>')
+            elemen.append(f'<ellipse cx="{x+rx*.18:.1f}" cy="{y+ry*.42:.1f}" rx="{rx*1.12:.1f}" ry="{ry*.42:.1f}" fill="#000000" opacity=".34"/>'
+                          f'<path d="{bentuk}" fill="{isi}" opacity="{rnd.uniform(.56, .70):.2f}"/>'
+                          f'<path d="{sorot}" fill="{terang}" opacity=".62"/>')
 
     if jenis in ("tanah_berbatu", "tanah"):
         for _ in range(7):
