@@ -12,7 +12,7 @@
  "hook": {"dari_beat":0,"teks":["DINDING","AKHIRNYA TERBUKA"]},
  "dalil": [
   {
-   "id":"anbiya96","jenis":"quran","label":"QS AL-ANBIYA 96","status":"belum",
+   "id":"anbiya96","jenis":"quran","label":"QS AL-ANBYA 96","status":"belum",
    "rujukan":"https://quran.com/21/96","surah":21,"ayat":"96"
   },
   {
@@ -34,7 +34,7 @@
       {"x":650,"y":1510,"s":0.78,"gerak":"gali","kepala":"kopiah","peran":"yajuj"},
       {"x":820,"y":1540,"s":0.84,"gerak":"gali","kepala":"kain","peran":"yajuj"}
      ],
-     "teks":{"sumber":"QS AL-ANBIYA 96","judul":["MEREKA","MENGGALI"],"warna":"putih","subtitle":"lubang semakin lebar","sorot":"lebar"},
+     "teks":{"sumber":"QS AL-ANBYA 96","judul":["MEREKA","MENGGALI"],"warna":"putih","subtitle":"lubang semakin lebar","sorot":"lebar"},
      "durasi":4
     }
    ]
@@ -55,7 +55,7 @@
       {"x":830,"y":1610,"s":0.7,"gerak":"lari","kepala":"kain","peran":"yajuj"},
       {"x":980,"y":1670,"s":0.6,"gerak":"lari","kepala":"kopiah","peran":"yajuj"}
      ],
-     "teks":{"sumber":"QS AL-ANBIYA 96","judul":["DARI SEGALA","TEMPAT TINGGI"],"warna":"kuning","subtitle":"mereka turun dengan cepat","sorot":"cepat"},
+     "teks":{"sumber":"QS AL-ANBYA 96","judul":["DARI SEGALA","TEMPAT TINGGI"],"warna":"kuning","subtitle":"mereka turun dengan cepat","sorot":"cepat"},
      "durasi":4
     }
    ]
