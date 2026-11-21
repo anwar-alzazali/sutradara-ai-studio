@@ -145,7 +145,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     wanita = jenis == "wanita"
     kepala = kepala or ("kerudung" if wanita else "imamah")
     sudut = _arah_derajat(arah, t)
-    proyeksi = max(0.22, abs(math.cos(math.radians(sudut))))
+    proyeksi = 0.55 + 0.45 * abs(math.cos(math.radians(sudut)))
     tampak_wajah = max(0.0, min(1.0, (105.0 - abs(sudut)) / 40.0))
     membelakangi = abs(sudut) > 135.0
     profil = 45.0 <= abs(sudut) <= 135.0
@@ -205,7 +205,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         g.append(f'<path d="M{kl + 4:.1f} {hem - 10:.1f} Q {(kl + kr) / 2:.1f} {hem} {kr - 4:.1f} {hem - 10:.1f}" stroke="{aksen}" stroke-width="5" fill="none" opacity=".7"/>')
     # leher & kepala
     sudut_k = J["tubuh"] + J["kepala"]
-    g.append(f'<g transform="translate({pk[0]:.1f},{pk[1]:.1f}) rotate({sudut_k:.2f})">')
+    g.append(f'<g transform="translate({pk[0]:.1f},{pk[1]:.1f}) rotate({sudut_k:.2f}) scale({1.18 if usia == "anak" else 1.0:.2f})">')
     g.append(f'<rect x="-11" y="20" width="22" height="22" fill="{kulit}"/><circle r="{R_KEPALA}" fill="{kulit}"/>')
     if membelakangi and not siluet and kepala != "kerudung":
         g.append('<path d="M-33 -7 Q-42 -43 0 -47 Q42 -43 33 -7 Q20 4 0 0 Q-20 4 -33 -7Z" fill="#2a1b14"/>')
