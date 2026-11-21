@@ -101,9 +101,11 @@ def test_pilar_nuh_shot_terakhir_berjarak_dari_ujung_lambung():
     kapal = shot["benda"][0]
     pilar = shot["nur"][0]
     ujung_kiri_lambung = kapal["x"] - 460 * kapal["s"]
-    tepi_pendar_pilar = pilar["x"] + 155
+    tepi_pendar_pilar = pilar["x"] + pilar.get("pendar_rx", 155)
     assert ujung_kiri_lambung - tepi_pendar_pilar >= 20
     kamera = shot["kamera"]
     zoom = kamera["zoom"][-1][1]
     pusat_layar = 540 + (pilar["x"] - kamera["x"]) * zoom
     assert pusat_layar > 100  # label/pilar tidak terpotong tepi kiri
+    assert pilar["x"] == 205  # posisi pelaku tetap dekat dengan kapal
+    assert pilar["lebar"] == 72 and pilar["pendar_rx"] == 45

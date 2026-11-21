@@ -109,7 +109,8 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
         tengah.append((m["y"] - 1, s))
     for n in sp.get("nur", []):
         tengah.append((n["y"], NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
-                                        tinggi=n.get("tinggi", 400), t=tg)))
+                                        tinggi=n.get("tinggi", 400), lebar=n.get("lebar", 118),
+                                        pendar_rx=n.get("pendar_rx", 155), pendar_ry=n.get("pendar_ry", 190), t=tg)))
     for d in sp.get("dajjal", []):
         tengah.append((d["y"], DJ.belakang(d["x"], d["y"], d.get("s", 1), t=tg, jalan=d.get("jalan", False), jubah_berkibar=d.get("jubah_berkibar", 0.0), buka=d.get("buka", 0.0)) if d.get("arah") == "belakang" else DJ.sosok(d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"))))
     for i, (tk, asli) in enumerate(zip(sp.get("tokoh", []), shot.get("tokoh", []))):

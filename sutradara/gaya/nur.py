@@ -10,7 +10,7 @@ import math
 import random
 
 
-def pilar(x: float, y: float, *, tinggi: float = 400, lebar: float = 118, nama: str | None = None,
+def pilar(x: float, y: float, *, tinggi: float = 400, lebar: float = 118, pendar_rx: float = 155, pendar_ry: float = 190, nama: str | None = None,
           sinar_ke: str | None = "kanan", seed: int = 7, t: float = 0.0) -> str:
     """Pilar cahaya dengan dasar di (x, y). `nama` tampil kecil di bawah (mis. 'Nabi Nuh a.s.').
     `t` = waktu global (detik): butiran melayang naik, sinar berdenyut pelan, pendar bernapas."""
@@ -18,7 +18,7 @@ def pilar(x: float, y: float, *, tinggi: float = 400, lebar: float = 118, nama: 
     top = y - tinggi
     s = ['<g class="nur">',
          f'<ellipse cx="{x}" cy="{y}" rx="170" ry="36" fill="url(#genangan)" filter="url(#b10)" opacity=".32"/>',
-         f'<ellipse cx="{x}" cy="{y - tinggi / 2}" rx="{155 + 8 * math.sin(t * 1.3):.1f}" ry="{190 + 10 * math.sin(t * 1.3):.1f}" fill="url(#pendar)" filter="url(#b28)" opacity=".42"/>']
+         f'<ellipse cx="{x}" cy="{y - tinggi / 2}" rx="{pendar_rx + 8 * math.sin(t * 1.3):.1f}" ry="{pendar_ry + 10 * math.sin(t * 1.3):.1f}" fill="url(#pendar)" filter="url(#b28)" opacity=".42"/>']
     cx, cy = x, y - tinggi * 0.55
     for i in range(28):  # semburan sinar halus
         a = -math.pi / 2 + (i / 27 - .5) * math.pi * 1.9 + rnd.uniform(-.05, .05)
