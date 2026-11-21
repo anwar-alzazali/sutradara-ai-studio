@@ -183,15 +183,13 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - [ ] Render ulang video Nuh untuk tinjauan pemilik: kartu dalil di atas + warna suasana, kaum berjalan lalu mengejek, suara.
 
 ### Visual & tokoh
-- [ ] Tampak samping / berbalik badan (berjalan menyamping, menoleh penuh); kini semua tokoh tampak depan.
+- [x] Arah pandang depan/samping/belakang dengan interpolasi smoothstep; proyeksi tubuh dan visibilitas wajah mengikuti arah. Uji render visual masih perlu tinjauan manusia.
 - [ ] Kamera shot pembuka Nuh lebih dekat ke kapal (visual inti masih kecil di layar).
-- [ ] Ragam tokoh: anak, lansia, pakaian per zaman/wilayah, variasi perempuan.
-- [ ] Set pose Dajjal desain B: berjalan, dari belakang, jauh di tengah pengikut; jubah berkibar, lengan membuka perlahan.
-- [ ] Ya'juj Ma'juj: manusia biasa, kengerian dari jumlah & gerak (turun dari setiap tempat tinggi, QS Al-Anbiya 96),
-      menggali dinding, meminum habis danau; tanpa ciri ras/bentuk aneh.
-- [ ] Buraq: hewan putih antara keledai & bagal, langkah sejauh pandangan; tanpa sayap, tanpa wajah manusia,
-      tidak pernah dengan penunggang (penunggang = pilar cahaya).
-- [ ] Dabbatul Ard adegan lanjutan: "berbicara kepada manusia" (teks + narator), tanda di wajah orang pasar (abstrak, berlabel ilustrasi).
+- [x] Parameter anak/lansia, variasi busana Mesir kuno/umum, dan variasi kerudung tetap memakai rangka yang sama.
+- [ ] Set pose Dajjal desain B: opsi arah depan/belakang dan bobbing langkah ditambahkan; komposisi jauh di tengah pengikut, animasi jubah, dan pembukaan lengan bertahap belum selesai.
+- [ ] Ya'juj Ma'juj: komponen dinding berlubang dan danau surut tersedia; contoh rencana dan verifikasi dalil QS Al-Anbiya 96 belum selesai.
+- [x] Komponen Buraq putih berkaki empat tanpa sayap/wajah manusia; penjaga menolak penunggang yang ditandai eksplisit. Proporsi dan jarak langkah masih perlu tinjauan visual.
+- [x] Contoh Dabbah menambahkan dialog narasi/teks dan tanda abstrak berlabel ilustrasi; tidak menambahkan klaim hadis untuk tanda.
 
 ### Dalil
 - [ ] Bacaan latin ayat di kartu (transliterasi Quran Foundation) — hanya bila pemilik meminta.
