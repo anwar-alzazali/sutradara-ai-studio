@@ -88,6 +88,14 @@
        "warna": "#2e6b8a"
       }
      ],
+     "akhir_zaman": [
+      {
+       "jenis": "tanda_wajah",
+       "x": 170,
+       "y": 1430,
+       "s": 0.6
+      }
+     ],
      "tokoh": [
       {
        "x": 170,
@@ -108,7 +116,7 @@
       {
        "x": 790,
        "y": 1540,
-       "s": 1,
+       "s": 1.0,
        "pose": "berdiri",
        "wajah": "datar",
        "kepala": "imamah",
@@ -159,7 +167,7 @@
    ]
   },
   {
-   "narasi": "Lalu bumi terbelah, dan sesuatu keluar menghadap manusia.",
+   "narasi": "Lalu bumi terbelah, dan sesuatu keluar menghadap manusia. Makhluk itu berbicara kepada mereka.",
    "preset": "dhuha",
    "keadaan": "kabut_keluar",
    "dalil": [
@@ -217,7 +225,7 @@
       {
        "x": 790,
        "y": 1540,
-       "s": 1,
+       "s": 1.0,
        "pose": "tutup",
        "wajah": "takut",
        "kepala": "imamah",
@@ -263,80 +271,11 @@
      "teks": {
       "sumber": "QS AN-NAML 82 · HR. MUSLIM 2941",
       "judul": [
-       "IA BERBICARA"
+       "KELUAR",
+       "DARI BUMI"
       ],
-      "subtitle": "makhluk itu berbicara kepada manusia",
+      "subtitle": "di waktu dhuha",
       "sorot": "dhuha"
-     },
-     "akhir_zaman": [
-      {
-       "jenis": "tanda_wajah",
-       "x": 170,
-       "y": 1430,
-       "s": 0.6
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "narasi": "Makhluk itu berbicara kepada manusia tentang ayat-ayat Allah.",
-   "preset": "dhuha",
-   "keadaan": "kabut_keluar",
-   "dalil": [
-    "naml82"
-   ],
-   "peran_tampil": [
-    "dabbah",
-    "orang"
-   ],
-   "shot": [
-    {
-     "preset": "dhuha",
-     "belakang": [
-      "kota"
-     ],
-     "tanah_y": 1170,
-     "akhir_zaman": [
-      {
-       "jenis": "tanda_wajah",
-       "x": 170,
-       "y": 1430,
-       "s": 0.6
-      },
-      {
-       "jenis": "tanda_wajah",
-       "x": 790,
-       "y": 1450,
-       "s": 0.6
-      }
-     ],
-     "tokoh": [
-      {
-       "x": 330,
-       "y": 1560,
-       "s": 1.05,
-       "pose": "kaget",
-       "wajah": "takut",
-       "kepala": "kain"
-      },
-      {
-       "x": 790,
-       "y": 1540,
-       "s": 1,
-       "pose": "tutup",
-       "wajah": "takut",
-       "kepala": "imamah",
-       "balik": true
-      }
-     ],
-     "teks": {
-      "sumber": "QS AN-NAML 82",
-      "judul": [
-       "IA BERBICARA"
-      ],
-      "subtitle": "kepada manusia",
-      "sorot": "manusia"
      }
     }
    ]
