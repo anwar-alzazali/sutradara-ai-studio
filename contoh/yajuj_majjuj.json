@@ -47,13 +47,13 @@
      "preset":"senja","belakang":["gunung"],"tanah_y":1320,
      "akhir_zaman":[{"jenis":"dinding_yajuj","x":540,"y":1480,"s":0.72,"lubang":1}],
      "tokoh":[
-      {"x":90,"y":1510,"s":0.58,"gerak":"lari","kepala":"kain","peran":"yajuj"},
-      {"x":230,"y":1570,"s":0.66,"gerak":"lari","kepala":"imamah","peran":"yajuj"},
-      {"x":370,"y":1480,"s":0.6,"gerak":"lari","kepala":"kopiah","peran":"yajuj"},
-      {"x":520,"y":1610,"s":0.72,"gerak":"lari","kepala":"kain","peran":"yajuj"},
-      {"x":680,"y":1530,"s":0.64,"gerak":"lari","kepala":"imamah","peran":"yajuj"},
-      {"x":830,"y":1600,"s":0.7,"gerak":"lari","kepala":"kain","peran":"yajuj"},
-      {"x":980,"y":1490,"s":0.6,"gerak":"lari","kepala":"kopiah","peran":"yajuj"}
+      {"x":90,"y":1300,"s":0.58,"gerak":"lari","kepala":"kain","peran":"yajuj"},
+      {"x":230,"y":1360,"s":0.66,"gerak":"lari","kepala":"imamah","peran":"yajuj"},
+      {"x":370,"y":1420,"s":0.6,"gerak":"lari","kepala":"kopiah","peran":"yajuj"},
+      {"x":520,"y":1490,"s":0.72,"gerak":"lari","kepala":"kain","peran":"yajuj"},
+      {"x":680,"y":1550,"s":0.64,"gerak":"lari","kepala":"imamah","peran":"yajuj"},
+      {"x":830,"y":1610,"s":0.7,"gerak":"lari","kepala":"kain","peran":"yajuj"},
+      {"x":980,"y":1670,"s":0.6,"gerak":"lari","kepala":"kopiah","peran":"yajuj"}
      ],
      "teks":{"sumber":"QS AL-ANBIYA 96","judul":["DARI SEGALA","TEMPAT TINGGI"],"warna":"kuning","subtitle":"mereka turun dengan cepat","sorot":"cepat"},
      "durasi":4
