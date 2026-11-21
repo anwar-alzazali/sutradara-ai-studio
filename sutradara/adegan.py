@@ -106,12 +106,12 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
         tengah.append((n["y"], NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
                                         tinggi=n.get("tinggi", 400), t=tg)))
     for d in sp.get("dajjal", []):
-        tengah.append((d["y"], DJ.sosok(d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"))))
+        tengah.append((d["y"], DJ.sosok(d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"), arah=d.get("arah", "depan"), t=tg, jalan=d.get("jalan", False), jubah_berkibar=d.get("jubah_berkibar", 0.0))))
     for i, (tk, asli) in enumerate(zip(sp.get("tokoh", []), shot.get("tokoh", []))):
         # gerak & wajah boleh jadwal [[detik, nama]] -> diambil dari spesifikasi ASLI (bukan hasil `pada`)
         tengah.append((tk["y"], TK.orang(tk["x"], tk["y"], tk.get("s", 1), gerak=asli.get("gerak", asli.get("pose", "berdiri")),
                                          t=t + i * 0.37, indeks=tk.get("indeks", i), mode=tk.get("mode", "pakaian"),
-                                         kepala=tk.get("kepala"), jenis=tk.get("jenis", "pria"), wajah=asli.get("wajah", "datar"),
+                                         kepala=tk.get("kepala"), jenis=tk.get("jenis", "pria"), wajah=asli.get("wajah", "datar"), arah=asli.get("arah", tk.get("arah", "depan")), usia=tk.get("usia", "dewasa"), zaman=tk.get("zaman", "arab_kuno"),
                                          bicara=asli.get("bicara"), balik=tk.get("balik", False))))
     dunia += [s for _, s in sorted(tengah, key=lambda a: a[0])]
     lapis = [f'<g transform="{KM.transform(sp.get("kamera"), t)}">' + "\n".join(dunia) + "</g>"]
