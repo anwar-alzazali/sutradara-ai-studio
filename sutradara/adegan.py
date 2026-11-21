@@ -67,7 +67,11 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     dunia = [LT.langit(p, matahari=tuple(sp["matahari"]) if sp.get("matahari") else None)]
     for b in sp.get("belakang", ["gunung"]):
         dunia.append({"gunung": LT.gunung, "kota": LT.kota}[b](p))
-    dunia.append(LT.tanah(p, sp.get("tanah_y", 1250)))
+    tanah_y = sp.get("tanah_y", 1250)
+    dunia.append(LT.tanah(p, tanah_y))
+    permukaan = sp.get("permukaan_tanah", LT.PERMUKAAN_BAWAAN[p])
+    if permukaan != "tanpa":
+        dunia.append(LT.tekstur_tanah(p, tanah_y, jenis=permukaan, seed=sp.get("seed_tanah", 3)))
     for b in sp.get("buraq", []):
         dunia.append(AZ.buraq(b["x"], b["y"], b.get("s", 1), t=tg))
     tanda_overlay = []
