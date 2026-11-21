@@ -215,6 +215,23 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
 1. **Workflow `buat_video.yml`** (`workflow_dispatch`, masukan naskah) menjalankan berurutan: verifikasi dalil,
    narasi, sutradara, render, campur suara, periksa/kritikus, lalu kirim ke Telegram untuk disetujui.
    - Nama rahasia Telegram diusulkan di PR. Pemilik yang mengisinya; jangan meminta nilainya.
+1b. **Persetujuan lewat Telegram: pindahkan dari bot yang sudah terbukti.** Sumbernya `mesin-video/bot/worker.js`
+   (Cloudflare Worker `mesin-konten`, 624 baris). Yang diambil hanya pola yang dibutuhkan, dengan baris `Asal:`:
+   - webhook Telegram dengan `secret_token` (`/tg`, `/pasang`);
+   - tombol inline dan `callback_query`;
+   - commit berkas ke repo lewat GitHub Contents API (`simpanTeks`);
+   - memicu workflow (`dispatch`).
+   Saldo/QRIS, proyek pengguna, chat pribadi, balas komentar, dan Studio TIDAK dibawa.
+   - Alur: video dikirim dengan tombol **✅ Setujui / ❌ Tolak**. Tolak memunculkan alasan cepat (hook lemah · visual
+     tidak sesuai · suara/efek · dalil/isi · terlalu panjang · lainnya → ketik). Keputusan, alasan, dan waktunya
+     dicommit ke berkas data video tersebut di repo.
+   - Satu token bot hanya bisa punya satu webhook. Pilih salah satu cara, jelaskan alasannya, dan tulis langkah
+     pasangnya untuk pemilik:
+     - bot baru dengan Worker baru yang kecil (direkomendasikan; bot Mesin KONTEN lama tidak ikut terganggu);
+     - menambah fitur ke Worker lama.
+     Kode Worker berada di repo ini (folder sendiri). Rahasianya disimpan di Cloudflare (token bot, chat id, secret
+     webhook, token GitHub fine-grained dengan akses repo ini saja). Tidak ada nilai rahasia di berkas.
+   - Cadangan tanpa Worker: workflow `schedule` setiap jam yang membaca `getUpdates` dan mencatat jawaban.
 2. **Antrean naskah dan tugas terjadwal** (satu video per hari):
    - hanya mengirim untuk disetujui;
    - tidak pernah mengunggah ke TikTok atau Facebook sendiri;
@@ -227,7 +244,21 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
    tunjukkan log dan berkas hasilnya. Kriteria akhir fase ini, yaitu 5 hari berturut-turut dengan ≥3 video disetujui
    pemilik, dinilai setelah merge, bukan di PR.
 
-## Sesudah Tahap F
-Fase 7 (perluasan: genre lain sebagai "engine" terpisah, pustaka tokoh lebih luas) **tidak dibuka** sebelum Fase 6
-terbukti berjalan dan pemilik menyetujuinya secara tertulis. Ini sesuai keputusan pemilik bahwa Kisah Islami harus
+## Tahap G — Belajar dari hasil (Fase 6b; baru setelah Tahap F berjalan dan video rutin tayang)
+Tujuan: mesin makin baik dari keputusan pemilik dan respons penonton, tanpa melatih model sendiri (datanya terlalu
+sedikit), dan tanpa pernah melonggarkan batas wajib.
+1. **Catatan per video:** keputusan sutradara (resep, jenis hook, durasi, preset, efek), keputusan pemilik dan
+   alasannya (dari Tahap F), serta angka penonton bila ada. Untuk angka penonton, cek dulu apa yang benar-benar bisa
+   diambil lewat API TikTok/Facebook dan laporkan. Bila tidak bisa, sediakan cara isi manual yang mudah lewat bot
+   (misalnya mengirim tangkapan layar statistik).
+2. **Eksperimen otomatis** (multi-armed bandit) hanya pada pilihan yang setara dan aman (gaya hook, ritme, pilihan
+   resep), dengan eksplorasi yang tetap ada dan bisa dimatikan.
+3. **Laporan mingguan** berupa angka dan grafik dari kode biasa, tanpa LLM.
+4. **Usulan perbaikan:** bawaannya laporan ditempel pemilik ke AI gratis. Opsi LLM otomatis (di balik bendera,
+   biaya dicatat) membuat PR usulan perubahan resep. Mesin tidak pernah mengubah dirinya sendiri tanpa persetujuan.
+5. **Pagar:** dalil, penjaga, dan batas wajib tidak pernah menjadi bahan eksperimen atau optimasi. Ada tes yang
+   membuktikan sinyal penonton tidak bisa mendorong pelanggaran (misalnya topik berat dibuat sensasional).
+
+## Sesudah Tahap G
+Fase 7 (perluasan genre) **tidak dibuka** sebelum Fase 6 terbukti berjalan, pematangan (Tahap G) menunjukkan hasil dan pemilik menyetujuinya secara tertulis. Ini sesuai keputusan pemilik bahwa Kisah Islami harus
 konsisten dulu. Jangan memulai Fase 7 atas inisiatif sendiri.

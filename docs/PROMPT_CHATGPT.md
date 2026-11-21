@@ -3,7 +3,7 @@
 Pemilik cukup menempel blok di bawah ini, satu per sesi, sesuai urutan. Aturan lengkap tiap tahap ada di
 `docs/TAHAP_LANJUT.md`. Claude mengaudit semua PR secara berurutan setelah kuotanya aktif lagi.
 
-Urutan: **B → C → D → E → F.** (Tahap A sudah di-merge.)
+Urutan: **B → C → D → E → F → G.** (G baru setelah F berjalan dan video rutin tayang.) (Tahap A sudah di-merge.)
 Setiap tahap boleh dimulai walaupun tahap sebelumnya belum diaudit Claude, dengan **mode bertumpuk** di bawah.
 
 ---
