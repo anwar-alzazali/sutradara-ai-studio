@@ -23,8 +23,8 @@ def dinding_yajuj(x: float, y: float, s: float = 1.0, *, lubang: float = 0.0) ->
     dinding = ('M-500 0 L-500 -350 Q-250 -390 0 -350 Q250 -390 500 -350 '
                'L500 0Z')
     sambungan = ''.join(
-        f'<path d="M{-470 + k * 94} -330 l18 300" stroke="#202a30" '
-        f'stroke-width="5" opacity=".55"/>' for k in range(10)
+        f'<path d="M-470 {yy} H470" stroke="#202a30" '
+        f'stroke-width="5" opacity=".34"/>' for yy in (-255, -165, -75)
     )
     lapis_tembaga = (
         '<path d="M-500 -350 Q-250 -390 0 -350 Q250 -390 500 -350" '
