@@ -24,13 +24,33 @@ jobs:
             exit 1
           fi
           python3 - <<'PY'
-          import json, os, urllib.request
-          badan = {"chat_id": os.environ["CHAT"],
+          import json, os, re, urllib.error, urllib.request
+          mentah = os.environ["TOKEN"]
+          token = mentah.strip()
+          if token.lower().startswith("bot"):
+              token = token[3:]
+          # diagnosa bentuk token TANPA mencetak isinya
+          print("panjang token:", len(mentah), "| ada spasi/baris baru di tepi:", mentah != mentah.strip(),
+                "| diawali 'bot':", mentah.strip().lower().startswith("bot"),
+                "| bentuk angka:kode cocok:", bool(re.fullmatch(r"\d{6,12}:[A-Za-z0-9_-]{30,40}", token)))
+          print("chat id bentuk angka:", bool(re.fullmatch(r"-?\d+", os.environ["CHAT"].strip())))
+          def panggil(metode, badan=None):
+              req = urllib.request.Request(f"https://api.telegram.org/bot{token}/{metode}",
+                                           data=json.dumps(badan).encode() if badan else None,
+                                           headers={"Content-Type": "application/json"})
+              try:
+                  return json.load(urllib.request.urlopen(req, timeout=30))
+              except urllib.error.HTTPError as e:
+                  return {"ok": False, "kode": e.code, "keterangan": json.loads(e.read() or b"{}").get("description")}
+          me = panggil("getMe")
+          print("getMe:", me.get("ok"), me.get("result", {}).get("username") or me.get("keterangan"))
+          if not me.get("ok"):
+              raise SystemExit("Token bot ditolak Telegram: isi ulang Secret TELEGRAM_BOT_TOKEN persis seperti dari BotFather.")
+          r = panggil("sendMessage", {"chat_id": os.environ["CHAT"].strip(),
                    "text": "🎬 " + os.environ["PESAN"] + "\n(uji kiriman dari repo baru; tombol di bawah hanya contoh tampilan)",
                    "reply_markup": {"inline_keyboard": [[{"text": "✅ Setujui", "callback_data": "uji:ok"},
-                                                         {"text": "❌ Tolak", "callback_data": "uji:no"}]]}}
-          req = urllib.request.Request(f"https://api.telegram.org/bot{os.environ['TOKEN']}/sendMessage",
-                                       data=json.dumps(badan).encode(), headers={"Content-Type": "application/json"})
-          r = json.load(urllib.request.urlopen(req, timeout=30))
-          print("terkirim:", r.get("ok"), "message_id:", r.get("result", {}).get("message_id"))
+                                                         {"text": "❌ Tolak", "callback_data": "uji:no"}]]}})
+          print("sendMessage:", r.get("ok"), r.get("keterangan") or "")
+          if not r.get("ok"):
+              raise SystemExit(1)
           PY
