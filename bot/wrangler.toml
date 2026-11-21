@@ -1,0 +1,12 @@
+name = "mesin-konten"
+main = "worker.js"
+compatibility_date = "2025-10-01"
+keep_vars = true  # jangan hapus variabel yang diisi di dashboard Cloudflare
+
+[vars]
+GH_REPO = "anwar-alzazali/sutradara-ai-studio"
+GH_BRANCH = "main"
+
+# Rahasia (isi di Cloudflare > Worker mesin-konten > Settings > Variables and Secrets, JANGAN di berkas ini):
+# TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, WEBHOOK_SECRET, GH_TOKEN (fine-grained: repo ini saja, Contents RW),
+# ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY. Opsional: MODEL_CHAT, KURS.

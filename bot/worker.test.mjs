@@ -1,0 +1,28 @@
+// node --test bot/
+import test from "node:test";
+import assert from "node:assert/strict";
+import { bacaTombol, tombolPersetujuan, tombolAlasan, idAman, catatanKeputusan, bolehAkses, ALASAN } from "./worker.js";
+
+test("tombol persetujuan dapat dibaca balik dan muat batas 64 byte Telegram", () => {
+  const id = idAman("2026-11-21 Nuh Mengejek / versi 2");
+  for (const b of [...tombolPersetujuan(id).flat(), ...tombolAlasan(id).flat()]) {
+    assert.ok(new TextEncoder().encode(b.callback_data).length <= 64);
+    assert.ok(bacaTombol(b.callback_data));
+  }
+  assert.deepEqual(bacaTombol(`st:${id}`), { aksi: "st", id, alasan: null });
+  assert.deepEqual(bacaTombol(`al:${id}:hook`), { aksi: "al", id, alasan: "hook" });
+});
+
+test("data tombol asing atau berbahaya ditolak", () => {
+  for (const d of ["", "x", "nom:10000", "st:../../etc", "al:abc:ngawur", "st:A B", "uji:ok"]) assert.equal(bacaTombol(d), null, d);
+});
+
+test("catatan keputusan berisi alasan yang terbaca", () => {
+  const c = catatanKeputusan("nuh-1", "ditolak", "visual", null, "2026-11-21T00:00:00Z");
+  assert.equal(c.alasan, ALASAN.visual); assert.equal(c.kode_alasan, "visual"); assert.equal(c.keputusan, "ditolak");
+});
+
+test("hanya pemilik yang boleh memakai bot", () => {
+  assert.ok(bolehAkses({ TELEGRAM_CHAT_ID: "123\n" }, 123));
+  assert.ok(!bolehAkses({ TELEGRAM_CHAT_ID: "123" }, 456));
+});
