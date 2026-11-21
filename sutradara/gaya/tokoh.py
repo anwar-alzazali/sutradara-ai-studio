@@ -1,4 +1,4 @@
-"""Tokoh manusia biasa dengan RANGKA BERSENDI (kaum, NPC, orang beriman, pihak lawan).
+"""Tokoh manusia biasa dan sahabat dengan RANGKA BERSENDI.
 
 Tubuh dihitung dari sudut sendi (sutradara/gerak.py): panggul, badan, kepala, lengan atas/bawah, paha/betis.
 Gamis mengikuti bahu-pinggul-lutut sehingga ikut berayun saat berjalan/berlari dan menjuntai saat duduk.
@@ -6,13 +6,14 @@ Mode tampil: "pakaian" (bawaan) atau "siluet" (bentuk sama, gelap, tepi tersinar
 Jenis: "pria" (janggut, imamah/kain/kopiah) atau "wanita" (kerudung, tanpa janggut).
 Wajah: datar, senyum, tertawa, ejek, cemberut, sedih, marah, takut, kaget, pejam (+ kedip otomatis, mulut bicara).
 
-DILARANG dipakai untuk nabi, malaikat, sahabat (pakai `nur.pilar`). Penjaga ada di `sutradara.rencana`.
+Nabi dan malaikat tidak dirender dengan rangka ini. Sahabat memakai `wajah_cahaya=True`: tubuh berbaju tetap beraksi, tetapi wajah tanpa fitur. Penjaga ada di `sutradara.rencana`.
 """
 from __future__ import annotations
 
 import math
 
 from .. import gerak as G
+from . import benda as BD
 
 KULIT = ["#c98b62", "#a86a45", "#d9a07a", "#8d5a3b", "#b97a52"]
 BAJU = [("#7a3b2e", "#d9b26a"), ("#3f5a6b", "#c9b48a"), ("#6b5a2e", "#e0d2b0"),
@@ -23,7 +24,22 @@ GELAP = "#150f1d"
 RAMBUT = "#2a1b14"
 
 PAHA, BETIS, BADAN, LENGAN_A, LENGAN_B, R_KEPALA = 78, 74, 110, 64, 58, 34
-WAJAH = ("datar", "senyum", "tertawa", "ejek", "cemberut", "sedih", "marah", "takut", "kaget", "pejam")
+WAJAH = ("datar", "senyum", "tertawa", "ejek", "cemberut", "sedih", "marah", "takut", "kaget", "pejam",
+         "kepergok_panik", "jijik_ilfil", "sinis", "curiga", "heran")
+WAJAH_DASAR = {
+    "kepergok_panik": "takut",
+    "jijik_ilfil": "cemberut",
+    "sinis": "ejek",
+    "curiga": "datar",
+    "heran": "datar",
+}
+EKSPRESI_DETAIL = {
+    "kepergok_panik": {"kelopak": -0.9, "lirikan": 0.0, "alis_dalam": -1.0, "alis_luar": 0.15, "alis_rapat": 0.15, "kerut_hidung": 0.65, "mulut_bulat": 0.9},
+    "jijik_ilfil": {"kelopak": 0.35, "lirikan": -0.2, "alis_dalam": 0.65, "alis_luar": 0.35, "alis_rapat": 0.9, "kerut_hidung": 1.0, "mulut_bulat": 0.0},
+    "sinis": {"kelopak": 0.4, "lirikan": 0.65, "alis_dalam": 0.15, "alis_luar": -0.7, "alis_rapat": 0.1, "kerut_hidung": 0.0, "mulut_bulat": 0.0},
+    "curiga": {"kelopak": 0.55, "lirikan": 0.8, "alis_dalam": 0.25, "alis_luar": -0.35, "alis_rapat": 0.35, "kerut_hidung": 0.25, "mulut_bulat": 0.0},
+    "heran": {"kelopak": -0.45, "lirikan": 0.0, "alis_dalam": -0.85, "alis_luar": -0.85, "alis_rapat": 0.0, "kerut_hidung": 0.0, "mulut_bulat": 0.45},
+}
 KEPALA = ("imamah", "kain", "kopiah", "kerudung", "tanpa")
 POSE = G.SEMUA  # nama gerak yang sah (termasuk pose lama: tunjuk, tertawa, silang, angkat, kaget, mundur, tutup, berdiri)
 
@@ -74,9 +90,32 @@ def _putar(dx, dy, derajat):
     return dx * math.cos(r) - dy * math.sin(r), dx * math.sin(r) + dy * math.cos(r)
 
 
-def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: float, profil: bool = False) -> list[str]:
+def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: float,
+           profil: bool = False, janggut: str = "pendek", warna_janggut: str | None = None,
+           detail_wajah: dict | None = None) -> list[str]:
+    # Peta lokal menjaga renderer tetap mandiri saat dipanggil dari jalur impor alternatif.
+    preset_detail = {
+        "kepergok_panik": {"kelopak": -0.9, "lirikan": 0.0, "alis_dalam": -1.0, "alis_luar": 0.15, "alis_rapat": 0.15, "kerut_hidung": 0.65, "mulut_bulat": 0.9},
+        "jijik_ilfil": {"kelopak": 0.35, "lirikan": -0.2, "alis_dalam": 0.65, "alis_luar": 0.35, "alis_rapat": 0.9, "kerut_hidung": 1.0, "mulut_bulat": 0.0},
+        "sinis": {"kelopak": 0.4, "lirikan": 0.65, "alis_dalam": 0.15, "alis_luar": -0.7, "alis_rapat": 0.1, "kerut_hidung": 0.0, "mulut_bulat": 0.0},
+        "curiga": {"kelopak": 0.55, "lirikan": 0.8, "alis_dalam": 0.25, "alis_luar": -0.35, "alis_rapat": 0.35, "kerut_hidung": 0.25, "mulut_bulat": 0.0},
+        "heran": {"kelopak": -0.45, "lirikan": 0.0, "alis_dalam": -0.85, "alis_luar": -0.85, "alis_rapat": 0.0, "kerut_hidung": 0.0, "mulut_bulat": 0.45},
+    }
+    detail = dict(preset_detail.get(jenis, {}))
+    detail.update(detail_wajah or {})
+    jenis = {"kepergok_panik": "takut", "jijik_ilfil": "cemberut", "sinis": "ejek",
+             "curiga": "datar", "heran": "datar"}.get(jenis, jenis)
     W, M = RAMBUT, "#5a1e1e"
-    g = [] if wanita else [f'<path d="M-30 14 Q 0 60 30 14 Q 26 36 0 42 Q -26 36 -30 14Z" fill="{W}"/>']  # janggut (pusat kepala = 0,0)
+    warna_janggut = warna_janggut or W
+    bentuk_janggut = {
+        "tanpa": "",
+        "tipis": f'<path d="M-24 16 Q 0 45 24 16 Q 18 31 0 33 Q -18 31 -24 16Z" fill="{warna_janggut}" opacity=".72"/>',
+        "pendek": f'<path d="M-30 14 Q 0 60 30 14 Q 26 36 0 42 Q -26 36 -30 14Z" fill="{warna_janggut}"/>',
+        "panjang": f'<path d="M-30 14 Q 0 60 30 14 L24 48 Q 0 72 -24 48Z" fill="{warna_janggut}"/>',
+    }
+    if janggut not in bentuk_janggut:
+        raise ValueError("janggut harus tanpa, tipis, pendek, atau panjang")
+    g = [] if wanita else ([bentuk_janggut[janggut]] if bentuk_janggut[janggut] else [])
     if wanita:
         g.append('<ellipse cx="-17" cy="10" rx="6" ry="3.5" fill="#e07a6a" opacity=".35"/><ellipse cx="17" cy="10" rx="6" ry="3.5" fill="#e07a6a" opacity=".35"/>')
     e = lambda s: f'<g transform="translate({ox:.1f},{oy:.1f})">{s}</g>'
@@ -120,12 +159,41 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
         mulut = f'<ellipse cx="0" cy="17" rx="{8 + 2 * buka:.1f}" ry="{1.5 + 7 * buka:.1f}" fill="{M}"/>'
     hidung = '<path d="M1 -5 L10 4 L2 7" stroke="#704631" stroke-width="2.5" fill="none" stroke-linecap="round"/>' if profil else ""
     g.append(e(mata + f'<path d="{alis}" stroke="{W}" stroke-width="3.5" fill="none" stroke-linecap="round"/>' + hidung + mulut))
+    if detail:
+        # Lapisan mikro menambah kendali mata dan alis tanpa mengubah ekspresi lama.
+        kelopak = max(-1.0, min(1.0, float(detail.get("kelopak", 0.0))))
+        lirikan = max(-1.0, min(1.0, float(detail.get("lirikan", 0.0))))
+        dalam = max(-1.0, min(1.0, float(detail.get("alis_dalam", 0.0))))
+        luar = max(-1.0, min(1.0, float(detail.get("alis_luar", 0.0))))
+        rapat = max(0.0, min(1.0, float(detail.get("alis_rapat", 0.0))))
+        kerut = max(0.0, min(1.0, float(detail.get("kerut_hidung", 0.0))))
+        bulat = max(0.0, min(1.0, float(detail.get("mulut_bulat", 0.0))))
+        tinggi_mata = 5.0 + (1.0 - kelopak) * 3.0
+        pupil_x = 3.5 * lirikan
+        mata_halus = (f'<ellipse cx="-11" cy="-6" rx="7.5" ry="{tinggi_mata:.1f}" fill="#fff"/>'
+                      f'<ellipse cx="11" cy="-6" rx="7.5" ry="{tinggi_mata:.1f}" fill="#fff"/>'
+                      f'<circle cx="{-11 + pupil_x:.1f}" cy="-6" r="3.4" fill="{W}"/>'
+                      f'<circle cx="{11 + pupil_x:.1f}" cy="-6" r="3.4" fill="{W}"/>')
+        rapat_y = rapat * 3.5
+        alis_halus = (f'<path d="M-19 {-17 + luar * 5 + rapat_y:.1f} L-6 {-17 + dalam * 5 + rapat_y:.1f} '
+                      f'M6 {-17 + dalam * 5 + rapat_y:.1f} L19 {-17 + luar * 5 + rapat_y:.1f}" '
+                      f'stroke="{W}" stroke-width="3.8" fill="none" stroke-linecap="round"/>')
+        kerut_svg = (f'<path d="M-7 2 l-4 5 M0 1 l0 6 M7 2 l4 5" stroke="#704631" '
+                     f'stroke-width="{1.2 + 1.8 * kerut:.1f}" opacity="{kerut:.2f}" stroke-linecap="round"/>')
+        mulut_svg = (f'<ellipse cx="0" cy="17" rx="{3 + 6 * bulat:.1f}" ry="{2 + 7 * bulat:.1f}" '
+                     f'fill="{M}" opacity="{max(bulat, buka):.2f}"/>') if bulat > 0 else ""
+        g.append(e(mata_halus + alis_halus + kerut_svg + mulut_svg))
     return g
 
 
 def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = None, t: float = 0.0, indeks: int = 0,
           mode: str = "pakaian", kepala: str | None = None, jenis: str = "pria", wajah="datar", bicara=None,
-          rinci: bool = True, balik: bool = False, alat: str | None = None, arah='depan', usia='dewasa', zaman='arab_kuno') -> str:
+          rinci: bool = True, balik: bool = False, alat: str | None = None, arah='depan', usia='dewasa', zaman='arab_kuno',
+          wajah_cahaya: bool = False, barang: list[dict] | None = None,
+          target_tangan: dict | None = None, detail_wajah: dict | None = None, warna_kulit: str | None = None,
+          warna_baju: str | None = None, warna_aksen: str | None = None,
+          rambut: str | None = None, janggut: str = "pendek",
+          warna_janggut: str | None = None) -> str:
     """Satu tokoh, kaki di (x, y), tinggi ±360 px pada s=1. `gerak`/`wajah` boleh jadwal [[detik, nama], ...];
     `bicara` = daftar [mulai, akhir] (detik) saat mulut bergerak. `pose` = nama lama untuk `gerak`.
     `alat` = "palu" | "beliung" di tangan kanan; bawaan otomatis bila jadwal gerak memuat palu/gali."""
@@ -157,8 +225,9 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     palet_zaman = {"arab_kuno": None, "mesir_kuno": (("#8a6a32", "#e2c36e"), ("#3f6470", "#d7b86a")),
                    "umum": (("#52634a", "#c8b995"), ("#6b526b", "#d7b995"))}
     siluet = mode == "siluet"
-    kulit = GELAP if siluet else KULIT[indeks % len(KULIT)]
-    baju, aksen = (GELAP, GELAP) if siluet else BAJU[indeks % len(BAJU)]
+    kulit = GELAP if siluet else (warna_kulit or KULIT[indeks % len(KULIT)])
+    baju, aksen = (GELAP, GELAP) if siluet else (warna_baju or BAJU[indeks % len(BAJU)][0],
+                                                  warna_aksen or BAJU[indeks % len(BAJU)][1])
     if not siluet and palet_zaman[zaman]:
         baju, aksen = palet_zaman[zaman][indeks % 2]
     celana = GELAP if siluet else CELANA
@@ -176,6 +245,17 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     bahu = {}
     for sisi in (+1, -1):
         bx, by = _putar(sisi * 40, 12, J["tubuh"]); bahu[sisi] = (leher[0] + bx, leher[1] + by)
+    # Target serah-terima memakai koordinat dunia; sudut sendi dihitung ulang dengan IK yang sama.
+    if target_tangan:
+        skala_x = (-1 if balik else 1) * s * proyeksi * skala_usia
+        skala_y = s * skala_usia
+        for sisi, k in ((+1, "ka"), (-1, "ki")):
+            if k in target_tangan:
+                gx, gy = target_tangan[k]
+                lx, ly = (gx - x) / skala_x, (gy - y) / skala_y
+                dx = (lx - bahu[sisi][0]) * sisi
+                dy = ly - bahu[sisi][1]
+                J[f"la_{k}"], J[f"sa_{k}"] = G.ik(dx, dy)
     siku, tangan = {}, {}
     for sisi, k in ((+1, "ka"), (-1, "ki")):
         siku[sisi] = _ruas(*bahu[sisi], J[f"la_{k}"] + sisi * 0 - J["tubuh"] * sisi, LENGAN_A, sisi)
@@ -208,35 +288,44 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     g.append(f'<g transform="translate({pk[0]:.1f},{pk[1]:.1f}) rotate({sudut_k:.2f}) scale({1.18 if usia == "anak" else 1.0:.2f})">')
     g.append(f'<rect x="-11" y="20" width="22" height="22" fill="{kulit}"/><circle r="{R_KEPALA}" fill="{kulit}"/>')
     if membelakangi and not siluet and kepala != "kerudung":
-        g.append('<path d="M-33 -7 Q-42 -43 0 -47 Q42 -43 33 -7 Q20 4 0 0 Q-20 4 -33 -7Z" fill="#2a1b14"/>')
+        g.append(f'<path d="M-33 -7 Q-42 -43 0 -47 Q42 -43 33 -7 Q20 4 0 0 Q-20 4 -33 -7Z" fill="{rambut or RAMBUT}"/>')
     if kepala == "kerudung" and not siluet:
         warna_k = KERUDUNG[indeks % len(KERUDUNG)]
         g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{warna_k}"/>')
         if not membelakangi:
             g.append(f'<ellipse cx="0" cy="2" rx="28" ry="31" fill="{kulit}"/>')
     if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
-        jw = G.nilai_jadwal(wajah, t, "datar")
-        if jw not in WAJAH:
-            raise ValueError(f"wajah tak dikenal: {jw} (pilihan: {', '.join(WAJAH)})")
-        bc = 0.0
-        for a, b in (bicara or []):
-            if a <= t <= b:
-                bc = 0.5 + 0.5 * math.sin(t * 15)
-        kedip = (t + indeks * 0.9) % 3.7 < 0.12
-        g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7, profil=profil)
+        if wajah_cahaya:
+            # Wajah sahabat tidak diberi fitur atau ekspresi; cahaya menutup bidang wajah dari depan maupun profil.
+            lebar_wajah = 22 if profil else 32
+            g.append(f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah}" ry="34" fill="#fff8df" opacity=".96"/>'
+                     f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah + 7}" ry="39" fill="#fff0bd" opacity=".36" filter="url(#b10)"/>')
+        else:
+            jw = G.nilai_jadwal(wajah, t, "datar")
+            if jw not in WAJAH:
+                raise ValueError(f"wajah tak dikenal: {jw} (pilihan: {', '.join(WAJAH)})")
+            bc = 0.0
+            for a, b in (bicara or []):
+                if a <= t <= b:
+                    bc = 0.5 + 0.5 * math.sin(t * 15)
+            kedip = (t + indeks * 0.9) % 3.7 < 0.12
+            g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
+                        profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
     tutup = GELAP if siluet else aksen
     if kepala == "imamah":
         g += [f'<path d="M-37 -8 Q -40 -48 0 -52 Q 40 -48 37 -8 Q 0 -20 -37 -8Z" fill="{tutup}"/>',
               f'<path d="M30 -14 Q 46 18 40 52" stroke="{tutup}" stroke-width="12" fill="none" stroke-linecap="round"/>']
     elif kepala == "kain":
         g += [f'<path d="M-40 2 Q -44 -52 0 -54 Q 44 -52 40 2 L 48 60 L 30 48 L 34 -2 Q 0 -22 -34 -2 L -30 48 L -48 60Z" fill="{tutup}"/>',
-              f'<path d="M-38 -24 Q 0 -38 38 -24" stroke="{RAMBUT}" stroke-width="6" fill="none"/>']
+              f'<path d="M-38 -24 Q 0 -38 38 -24" stroke="{rambut or RAMBUT}" stroke-width="6" fill="none"/>']
     elif kepala == "kopiah":
         g.append(f'<path d="M-30 -20 Q -30 -44 0 -44 Q 30 -44 30 -20Z" fill="{tutup}"/>')
     elif kepala == "kerudung" and siluet:
         g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{GELAP}"/>')
     g.append("</g>")
     # lengan (digambar SETELAH kepala supaya tangan bisa menutup wajah/mulut/telinga)
+    if barang and (siluet or alat):
+        raise ValueError("barang genggam tidak boleh digabung dengan siluet atau alat kerja lama")
     for sisi in (+1, -1):
         bx, by = bahu[sisi]; sx, sy = siku[sisi]; tx, ty = tangan[sisi]
         g.append(f'<path d="M{bx:.1f} {by:.1f} L{sx:.1f} {sy:.1f}" stroke="{baju}" stroke-width="26" stroke-linecap="round"/>'
@@ -244,6 +333,14 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
                  f'<circle cx="{tx:.1f}" cy="{ty:.1f}" r="13" fill="{kulit}"/>')
         if alat and sisi == +1:
             g.insert(len(g) - 1, _alat(alat, (sx, sy), (tx, ty), GELAP if siluet else None))
+    for item in (barang or []):
+        sisi = +1 if item.get("tangan", "ka") == "ka" else -1
+        if item.get("tangan", "ka") not in ("ka", "ki"):
+            raise ValueError("tangan barang harus 'ka' atau 'ki'")
+        sx, sy = siku[sisi]; tx, ty = tangan[sisi]
+        sudut_barang = math.degrees(math.atan2(ty - sy, tx - sx))
+        g.append(BD.barang(tx, ty, item["jenis"], angle=sudut_barang,
+                           s=item.get("skala", .72), warna=item.get("warna")))
     if siluet:  # tepi tersinari hanya di sisi kiri (arah cahaya)
         mid = f"m{indeks}_{int(x)}_{int(y)}"
         g.insert(1, f'<mask id="{mid}" maskUnits="userSpaceOnUse" x="-300" y="-560" width="600" height="600">'

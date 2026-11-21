@@ -1,0 +1,416 @@
+{
+  "judul": "Uji visual Tahap B2 — adab tokoh dan serah-terima barang",
+  "catatan": "Contoh teknis untuk menguji bentuk malaikat, wajah cahaya sahabat, identitas pemeran, dan barang lintas-shot. Bukan narasi atau klaim riwayat.",
+  "visual_inti": {
+    "benda": "surat_amanah",
+    "jalur_keadaan": [
+      "diulurkan",
+      "diterima",
+      "di sisi pilar",
+      "diserahkan ke nabi"
+    ]
+  },
+  "peran": [
+    {
+      "id": "pemberi",
+      "nama": "Pemberi",
+      "kategori": "manusia",
+      "tampil": "pakaian"
+    },
+    {
+      "id": "penerima",
+      "nama": "Penerima",
+      "kategori": "manusia",
+      "tampil": "pakaian"
+    },
+    {
+      "id": "sahabat",
+      "nama": "Sahabat (contoh visual)",
+      "kategori": "sahabat",
+      "tampil": "wajah_cahaya"
+    },
+    {
+      "id": "nabi",
+      "nama": "Nabi (contoh visual)",
+      "kategori": "nabi",
+      "tampil": "nur"
+    },
+    {
+      "id": "malaikat",
+      "nama": "Malaikat (contoh visual)",
+      "kategori": "malaikat",
+      "tampil": "cahaya_malaikat"
+    }
+  ],
+  "hook": {
+    "dari_beat": 0,
+    "teks": [
+      "SERAH",
+      "TERIMA"
+    ]
+  },
+  "dalil": [],
+  "beat": [
+    {
+      "narasi": "Pemberi mengulurkan surat kepada penerima.",
+      "preset": "senja",
+      "keadaan": "diulurkan",
+      "peran_tampil": [
+        "pemberi",
+        "penerima",
+        "sahabat",
+        "malaikat"
+      ],
+      "shot": [
+        {
+          "preset": "senja",
+          "belakang": [
+            "gunung"
+          ],
+          "matahari": [
+            860,
+            1060
+          ],
+          "tokoh": [
+            {
+              "x": 390,
+              "y": 1390,
+              "s": 0.9,
+              "peran": "pemberi",
+              "gerak": "berdiri",
+              "pemeran_id": "pemberi_pemeran"
+            },
+            {
+              "x": 690,
+              "y": 1390,
+              "s": 0.9,
+              "peran": "penerima",
+              "gerak": "berdiri",
+              "pemeran_id": "penerima_pemeran"
+            },
+            {
+              "x": 900,
+              "y": 1390,
+              "s": 0.82,
+              "peran": "sahabat",
+              "gerak": "tunjuk",
+              "pemeran_id": "sahabat_pemeran"
+            }
+          ],
+          "barang": [
+            {
+              "id": "surat_amanah",
+              "jenis": "surat",
+              "pemilik": "pemberi",
+              "tangan": "ka",
+              "aksi": "ulurkan",
+              "penerima": "penerima",
+              "tangan_pasangan": "ki",
+              "titik_serah": [
+                550,
+                1270
+              ]
+            }
+          ],
+          "durasi": 3.5,
+          "teks": {
+            "judul": [
+              "SERAH-TERIMA"
+            ],
+            "warna": "kuning",
+            "subtitle": "Barang berpindah lewat tangan"
+          },
+          "nur": [
+            {
+              "x": 180,
+              "y": 1300,
+              "nama": "Malaikat (contoh visual)",
+              "peran": "malaikat",
+              "tinggi": 1500,
+              "lebar": 180
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "narasi": "Penerima memegang surat yang telah diserahkan.",
+      "preset": "senja",
+      "keadaan": "diterima",
+      "peran_tampil": [
+        "pemberi",
+        "penerima",
+        "sahabat",
+        "malaikat"
+      ],
+      "shot": [
+        {
+          "preset": "senja",
+          "belakang": [
+            "gunung"
+          ],
+          "matahari": [
+            860,
+            1060
+          ],
+          "tokoh": [
+            {
+              "x": 390,
+              "y": 1390,
+              "s": 0.9,
+              "peran": "pemberi",
+              "gerak": "berdiri",
+              "pemeran_id": "pemberi_pemeran"
+            },
+            {
+              "x": 690,
+              "y": 1390,
+              "s": 0.9,
+              "peran": "penerima",
+              "gerak": "berdiri",
+              "pemeran_id": "penerima_pemeran"
+            },
+            {
+              "x": 900,
+              "y": 1390,
+              "s": 0.82,
+              "peran": "sahabat",
+              "gerak": "berdiri",
+              "pemeran_id": "sahabat_pemeran"
+            }
+          ],
+          "barang": [
+            {
+              "id": "surat_amanah",
+              "jenis": "surat",
+              "pemilik": "penerima",
+              "tangan": "ki",
+              "aksi": "terima",
+              "pemberi": "pemberi",
+              "tangan_pasangan": "ka",
+              "titik_serah": [
+                550,
+                1270
+              ]
+            }
+          ],
+          "durasi": 3.5,
+          "teks": {
+            "judul": [
+              "SURAT DITERIMA"
+            ],
+            "warna": "putih",
+            "subtitle": "Identitas sahabat tetap"
+          },
+          "nur": [
+            {
+              "x": 180,
+              "y": 1300,
+              "nama": "Malaikat (contoh visual)",
+              "peran": "malaikat",
+              "tinggi": 1500,
+              "lebar": 180
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "narasi": "Sahabat mengulurkan tongkat ke arah pilar nabi.",
+      "preset": "senja",
+      "keadaan": "diserahkan ke nabi",
+      "peran_tampil": [
+        "nabi",
+        "sahabat"
+      ],
+      "shot": [
+        {
+          "preset": "senja",
+          "belakang": [
+            "gunung"
+          ],
+          "matahari": [
+            860,
+            1060
+          ],
+          "nur": [
+            {
+              "x": 440,
+              "y": 1340,
+              "nama": "Nabi (contoh visual)",
+              "peran": "nabi",
+              "di_belakang_benda": true
+            }
+          ],
+          "tokoh": [
+            {
+              "x": 820,
+              "y": 1390,
+              "s": 0.86,
+              "peran": "sahabat",
+              "gerak": "menengadah",
+              "pemeran_id": "sahabat_pemeran"
+            }
+          ],
+          "barang": [
+            {
+              "id": "tongkat_nabi",
+              "jenis": "tongkat",
+              "pemilik": "sahabat",
+              "tangan": "ka",
+              "aksi": "ulurkan",
+              "penerima": "nabi",
+              "tangan_pasangan": "ka",
+              "titik_serah": [
+                550,
+                1270
+              ]
+            }
+          ],
+          "durasi": 3.5,
+          "teks": {
+            "judul": [
+              "DIULURKAN KE PILAR"
+            ],
+            "warna": "kuning",
+            "subtitle": "Tongkat menuju pilar"
+          }
+        }
+      ]
+    },
+    {
+      "narasi": "Tongkat berada di sisi pilar nabi, tanpa tangan atau tubuh.",
+      "preset": "senja",
+      "keadaan": "di sisi pilar",
+      "peran_tampil": [
+        "nabi",
+        "sahabat"
+      ],
+      "shot": [
+        {
+          "preset": "senja",
+          "belakang": [
+            "gunung"
+          ],
+          "matahari": [
+            860,
+            1060
+          ],
+          "nur": [
+            {
+              "x": 440,
+              "y": 1340,
+              "nama": "Nabi (contoh visual)",
+              "peran": "nabi",
+              "di_belakang_benda": true
+            }
+          ],
+          "tokoh": [
+            {
+              "x": 820,
+              "y": 1390,
+              "s": 0.86,
+              "peran": "sahabat",
+              "gerak": "menengadah",
+              "pemeran_id": "sahabat_pemeran"
+            }
+          ],
+          "barang": [
+            {
+              "id": "tongkat_nabi",
+              "jenis": "tongkat",
+              "pemilik": "nabi",
+              "tangan": "ka",
+              "aksi": "terima",
+              "pemberi": "sahabat",
+              "tangan_pasangan": "ka",
+              "titik_serah": [
+                550,
+                1270
+              ],
+              "skala": 0.9,
+              "sisi_x": 110,
+              "sisi_y": -55
+            }
+          ],
+          "durasi": 3.5,
+          "teks": {
+            "judul": [
+              "DITERIMA DI SISI PILAR"
+            ],
+            "warna": "kuning",
+            "subtitle": "Tongkat di sisi pilar"
+          }
+        }
+      ]
+    }
+  ],
+  "pemeran": [
+    {
+      "id": "pemberi_pemeran",
+      "nama": "Pemberi",
+      "identitas": {
+        "jenis": "pria",
+        "usia": "dewasa",
+        "zaman": "arab_kuno",
+        "indeks": 0,
+        "warna_kulit": "#c98b62",
+        "rambut": "#2a1b14",
+        "janggut": "pendek",
+        "penutup_kepala": "imamah",
+        "warna_baju": "#7a3b2e",
+        "warna_aksen": "#d9b26a",
+        "aksesori": [
+          "ikat pinggang kain"
+        ],
+        "suara": "pria dewasa rendah",
+        "ciri_wajah": "ciri wajah tetap untuk konsistensi antar-shot"
+      },
+      "saluran_id": "kisah_islami"
+    },
+    {
+      "id": "penerima_pemeran",
+      "nama": "Penerima",
+      "identitas": {
+        "jenis": "pria",
+        "usia": "dewasa",
+        "zaman": "arab_kuno",
+        "indeks": 1,
+        "warna_kulit": "#a86a45",
+        "rambut": "#2a1b14",
+        "janggut": "pendek",
+        "penutup_kepala": "kain",
+        "warna_baju": "#3f5a6b",
+        "warna_aksen": "#c9b48a",
+        "aksesori": [
+          "ikat pinggang kain"
+        ],
+        "suara": "pria dewasa sedang",
+        "ciri_wajah": "ciri wajah tetap untuk konsistensi antar-shot"
+      },
+      "saluran_id": "kisah_islami"
+    },
+    {
+      "id": "sahabat_pemeran",
+      "nama": "Sahabat (contoh visual)",
+      "identitas": {
+        "jenis": "pria",
+        "usia": "dewasa",
+        "zaman": "arab_kuno",
+        "indeks": 3,
+        "warna_kulit": "#d9a07a",
+        "rambut": "#2a1b14",
+        "janggut": "pendek",
+        "penutup_kepala": "kopiah",
+        "warna_baju": "#4b3a5e",
+        "warna_aksen": "#c99a5a",
+        "aksesori": [
+          "selempang kain"
+        ],
+        "suara": "pria dewasa tenang",
+        "ciri_wajah": "ciri wajah tetap untuk konsistensi antar-shot"
+      },
+      "saluran_id": "kisah_islami"
+    }
+  ]
+}

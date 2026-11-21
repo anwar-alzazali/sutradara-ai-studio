@@ -1,4 +1,4 @@
-"""Penanda kehadiran nabi, malaikat, sahabat: PILAR CAHAYA, bukan sosok.
+"""Penanda kehadiran nabi: PILAR CAHAYA, bukan sosok.
 
 Pilar putih tebal setinggi tokoh, sudut membulat penuh (kapsul) TANPA lekuk kepala, bahu, atau tangan,
 ditambah pendar besar, semburan sinar halus, butiran cahaya, dan genangan cahaya di tanah.
