@@ -36,7 +36,9 @@
    "jenis": "quran",
    "label": "QS HUD 38",
    "status": "belum",
-   "rujukan": "https://quran.com/11/38"
+   "rujukan": "https://quran.com/11/38",
+   "surah": 11,
+   "ayat": "38"
   }
  ],
  "beat": [

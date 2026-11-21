@@ -14,7 +14,7 @@ Ukuran keberhasilan proyek: **video yang disetujui pemilik**, bukan jumlah kode,
  naskah terstruktur (pengguna + AI gratis memakai templat)          [fase 4]
         │
         ▼
- penjaga dalil  ── Quran Foundation (ayat) · sunnah.com / dataset hadis (derajat)   [fase 3]
+ penjaga dalil  ── Quran Foundation (ayat) · sunnah.com / dataset hadis (derajat)   [fase 3 ✔]
         │
         ▼
  SUTRADARA  ── menyusun RENCANA (resep G): visual inti + jalur keadaan, preset suasana,
@@ -45,6 +45,7 @@ Lapisan yang sudah ada di repo:
 | `sutradara/rencana/` | skema rencana sutradara + penjaga keselamatan/resep |
 | `sutradara/render.py` | SVG → PNG lewat Chromium headless |
 | `sutradara/waktu.py`, `kamera.py`, `video.py` | keyframe, kamera, render MP4 + lembar kontak |
+| `sutradara/dalil/` | dataset hadis (sunnah.com), Quran Foundation, verifikasi dalil |
 | `contoh/` | tiga rencana contoh: Nuh diejek, Dabbatul Ard, Dajjal dua sungai |
 
 ---
@@ -76,13 +77,19 @@ Status: ✔ selesai · ▶ aktif · ○ belum. **Kriteria selesai selalu berupa 
 5. Workflow `buat_suara.yml` **hanya `workflow_dispatch`** (memakai rahasia ElevenLabs).
 - **Kriteria selesai:** video Nuh ±30–45 dtk dengan narasi, potongan shot jatuh di kata kunci (dicek dari waktu kata), audio tidak clipping.
 
-### ○ Fase 3 — Penjaga dalil
-1. Ayat: Quran Foundation API (salin `motion-studio-ai/providers/quran_foundation.py`), cocokkan surah:ayat + teks Arab.
-2. Hadis: sunnah.com API (minta kunci lewat issue di repo sunnah-com/api) atau dataset hadis lokal berlisensi jelas
-   (mis. fawazahmed0/hadith-api) sebagai cadangan; simpan derajat & penilai.
-3. `status` dalil di rencana diisi otomatis oleh modul ini, bukan diketik tangan. Rencana `--final` gagal bila ada dalil belum terverifikasi.
-4. Pencocokan makna tetap ditandai "perlu tinjauan pemilik" (mesin hanya menjamin dalil ada, nomor benar, derajat sahih/hasan).
-- **Kriteria selesai:** tes dengan dalil benar (lulus), nomor salah (gagal), hadis daif (gagal), kutipan karangan (gagal).
+### ✔ Fase 3 — Penjaga dalil (21 Nov 2026, dikerjakan sebelum fase 2 atas permintaan pemilik)
+- **Hadis** (`sutradara/dalil/hadis.py`): dataset lokal dari github.com/fawazahmed0/hadith-api (Unlicense, teks sunnah.com),
+  6 kitab (Bukhari, Muslim, Abu Dawud, Tirmidzi, Nasa'i, Ibnu Majah), Arab + Indonesia + Inggris + penilaian derajat.
+  Penomoran = sunnah.com (Muslim memakai `arabicnumber` Fuad Abdul Baqi, riwayat berhuruf 2934a/b). Dibangun dengan
+  `python -m sutradara.dalil.unduh_hadis` ke `data/hadis/` (±18 MB, tidak masuk git; di CI disimpan di cache).
+- **Derajat**: Bukhari/Muslim sahih; kitab lain menurut Al-Albani (mursal/munkar/maudu/syadz = ditolak); tanpa Al-Albani
+  = mayoritas, seri ditolak. Penilai lain yang menolak dicatat (`DERAJAT_DIPERSELISIHKAN`); mauquf/maqtu ditandai (`BUKAN_MARFU`).
+- **Ayat** (`sutradara/dalil/quran.py`): Quran Foundation API (port dari motion-studio-ai), terjemah Kemenag, cache 7 hari.
+- **Verifikasi** (`python -m sutradara verifikasi rencana.json`, workflow `verifikasi dalil`): mengisi status, derajat,
+  teks Arab, terjemah, tautan, tanda `diverifikasi_oleh`. Penjaga `--final` menolak status yang diketik tangan,
+  dalil tanpa rujukan terstruktur, hadis daif, nomor tidak ditemukan, dan kitab di luar dataset (mis. Musnad Ahmad).
+- Makna pemakaian dalil tetap `perlu_tinjauan_pemilik`.
+- **Bukti:** 9 tes dalil; Bukhari 7123 & Muslim 2934/2941 terverifikasi dari dataset; ayat diverifikasi lewat workflow (butuh rahasia QF).
 
 ### ○ Fase 4 — Sutradara otomatis v1
 Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang lulus penjaga.
@@ -134,3 +141,4 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 - 21 Nov 2026 — Repo public: runner Actions gratis; workflow berahasia hanya `workflow_dispatch`.
 - 21 Nov 2026 — Fase 1: lapis depan dikeluarkan dari kamera (kalau ikut zoom, batu jadi bercak hitam besar).
 - 21 Nov 2026 — Penataan panggung: pemilik melihat NPC lebih dekat ke kapal daripada Nabi Nuh. Contoh diperbaiki dan aturan dijadikan pemeriksaan penjaga.
+- 21 Nov 2026 — Fase 3 didahulukan. Dataset hadis tidak dimasukkan ke git (±18 MB); dibangun ulang dari sumber + cache CI. Rahasia: QURAN_FOUNDATION_CLIENT_ID/_SECRET, ELEVENLABS_API_KEY, ANTHROPIC_API_KEY.

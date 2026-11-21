@@ -36,15 +36,18 @@
    "jenis": "quran",
    "label": "QS AN-NAML 82",
    "status": "belum",
-   "rujukan": "https://quran.com/27/82"
+   "rujukan": "https://quran.com/27/82",
+   "surah": 27,
+   "ayat": "82"
   },
   {
    "id": "m2941",
    "jenis": "hadis",
    "label": "HR. MUSLIM 2941",
-   "derajat": "sahih",
-   "status": "terverifikasi",
-   "rujukan": "https://sunnah.com/muslim:2941a"
+   "status": "belum",
+   "rujukan": "https://sunnah.com/muslim:2941a",
+   "kitab": "muslim",
+   "nomor": "2941"
   }
  ],
  "beat": [

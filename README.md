@@ -12,8 +12,12 @@ Mesin produksi video pendek **Kisah Islami** yang bertindak seperti sutradara: n
 pip install -r requirements.txt
 python -m playwright install chromium        # atau set CHROME_PATH ke Chrome yang terpasang
 python -m pytest -q
+python -m sutradara.dalil.unduh_hadis               # dataset hadis lokal (±18 MB, sekali saja)
+python -m sutradara verifikasi contoh/dajjal_dua_sungai.json
 python -m sutradara periksa contoh/nuh_mengejek.json
 python -m sutradara gambar contoh/dajjal_dua_sungai.json -o keluaran --semua
 ```
 
 Font: Nunito & Amiri Quran (SIL Open Font License, lihat `aset/font/`).
+
+Dataset hadis: [fawazahmed0/hadith-api](https://github.com/fawazahmed0/hadith-api) (Unlicense), teks dari sunnah.com.
