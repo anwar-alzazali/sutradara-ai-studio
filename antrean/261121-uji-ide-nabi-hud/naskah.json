@@ -1,219 +1,319 @@
 {
- "judul": "Kaum 'Ad yang Sombong Karena Kekuatan Mereka, Lalu Allah Hancurkan dengan Angin Kencang",
- "inti": "Kaum 'Ad yang sangat kuat justru binasa karena kesombongan mereka menolak Nabi Hud",
+ "judul": "Kaum Paling Kuat di Bumi Dihancurkan dalam 7 Malam",
+ "inti": "Kaum 'Ad yang merasa paling kuat di dunia musnah karena kesombongan mereka menolak peringatan Nabi Hud.",
  "dalil": [
   {
-   "id": "hud50",
+   "id": "ahqaf21",
    "jenis": "quran",
-   "label": "QS HUD 50",
-   "surah": 11,
-   "ayat": "50"
-  },
-  {
-   "id": "hud52",
-   "jenis": "quran",
-   "label": "QS HUD 52",
-   "surah": 11,
-   "ayat": "52"
-  },
-  {
-   "id": "hud58",
-   "jenis": "quran",
-   "label": "QS HUD 58",
-   "surah": 11,
-   "ayat": "58"
+   "label": "QS AL-AHQAF 21",
+   "surah": 46,
+   "ayat": "21",
+   "status": "terverifikasi",
+   "teks_ar": "۞ وَٱذْكُرْ أَخَا عَادٍ إِذْ أَنذَرَ قَوْمَهُۥ بِٱلْأَحْقَافِ وَقَدْ خَلَتِ ٱلنُّذُرُ مِنۢ بَيْنِ يَدَيْهِ وَمِنْ خَلْفِهِۦٓ أَلَّا تَعْبُدُوٓا۟ إِلَّا ٱللَّهَ إِنِّىٓ أَخَافُ عَلَيْكُمْ عَذَابَ يَوْمٍ عَظِيمٍ",
+   "terjemah": "Dan ingatlah (Hud) saudara kaum 'Ād, yaitu ketika dia mengingatkan kaumnya tentang bukit-bukit pasir, dan sesungguhnya telah berlalu beberapa orang pemberi peringatan sebelumnya dan setelahnya (dengan berkata), \"Janganlah kamu menyembah selain Allah, aku sungguh khawatir nanti kamu ditimpa azab pada hari yang besar.\"",
+   "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
+   "rujukan": "https://quran.com/46/21",
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
   },
   {
    "id": "fussilat15",
    "jenis": "quran",
    "label": "QS FUSSILAT 15",
    "surah": 41,
-   "ayat": "15"
+   "ayat": "15",
+   "status": "terverifikasi",
+   "teks_ar": "فَأَمَّا عَادٌ فَٱسْتَكْبَرُوا۟ فِى ٱلْأَرْضِ بِغَيْرِ ٱلْحَقِّ وَقَالُوا۟ مَنْ أَشَدُّ مِنَّا قُوَّةً ۖ أَوَلَمْ يَرَوْا۟ أَنَّ ٱللَّهَ ٱلَّذِى خَلَقَهُمْ هُوَ أَشَدُّ مِنْهُمْ قُوَّةً ۖ وَكَانُوا۟ بِـَٔايَـٰتِنَا يَجْحَدُونَ",
+   "terjemah": "Maka adapun kaum 'Ād, mereka menyombongkan diri di bumi tanpa (mengindahkan) kebenaran, dan mereka berkata, \"Siapakah yang lebih hebat kekuatannya dari kami?\" Tidakkah mereka memperhatikan bahwa sesungguhnya Allah yang menciptakan mereka. Dia lebih hebat kekuatan-Nya dari mereka? Dan mereka telah mengingkari tanda-tanda (kebesaran) Kami.",
+   "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
+   "rujukan": "https://quran.com/41/15",
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
+  },
+  {
+   "id": "hud50",
+   "jenis": "quran",
+   "label": "QS HUD 50",
+   "surah": 11,
+   "ayat": "50",
+   "status": "terverifikasi",
+   "teks_ar": "وَإِلَىٰ عَادٍ أَخَاهُمْ هُودًا ۚ قَالَ يَـٰقَوْمِ ٱعْبُدُوا۟ ٱللَّهَ مَا لَكُم مِّنْ إِلَـٰهٍ غَيْرُهُۥٓ ۖ إِنْ أَنتُمْ إِلَّا مُفْتَرُونَ",
+   "terjemah": "Dan kepada kaum 'Ād (Kami utus) saudara mereka, Hud. Dia berkata, \"Wahai kaumku! Sembahlah Allah, tidak ada tuhan bagimu selain Dia. (Selama ini) kamu hanyalah mengada-ada.",
+   "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
+   "rujukan": "https://quran.com/11/50",
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
+  },
+  {
+   "id": "haqqah6",
+   "jenis": "quran",
+   "label": "QS AL-HAQQAH 6-7",
+   "surah": 69,
+   "ayat": "6-7",
+   "status": "terverifikasi",
+   "teks_ar": "وَأَمَّا عَادٌ فَأُهْلِكُوا۟ بِرِيحٍ صَرْصَرٍ عَاتِيَةٍ سَخَّرَهَا عَلَيْهِمْ سَبْعَ لَيَالٍ وَثَمَـٰنِيَةَ أَيَّامٍ حُسُومًا فَتَرَى ٱلْقَوْمَ فِيهَا صَرْعَىٰ كَأَنَّهُمْ أَعْجَازُ نَخْلٍ خَاوِيَةٍ",
+   "terjemah": "sedangkan kaum 'Ād, mereka telah dibinasakan dengan angin topan yang sangat dingin, Allah menimpakan angin itu kepada mereka selama tujuh malam delapan hari terus-menerus; maka kamu melihat kaum 'Ād pada waktu itu mati bergelimpangan seperti batang-batang pohon kurma yang telah kosong (lapuk).",
+   "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
+   "rujukan": "https://quran.com/69/6",
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
   },
   {
    "id": "fussilat16",
    "jenis": "quran",
    "label": "QS FUSSILAT 16",
    "surah": 41,
-   "ayat": "16"
+   "ayat": "16",
+   "status": "terverifikasi",
+   "teks_ar": "فَأَرْسَلْنَا عَلَيْهِمْ رِيحًا صَرْصَرًا فِىٓ أَيَّامٍ نَّحِسَاتٍ لِّنُذِيقَهُمْ عَذَابَ ٱلْخِزْىِ فِى ٱلْحَيَوٰةِ ٱلدُّنْيَا ۖ وَلَعَذَابُ ٱلْـَٔاخِرَةِ أَخْزَىٰ ۖ وَهُمْ لَا يُنصَرُونَ",
+   "terjemah": "Maka Kami tiupkan angin yang sangat bergemuruh kepada mereka dalam beberapa hari yang nahas, karena Kami ingin agar mereka itu merasakan siksaan yang menghinakan dalam kehidupan di dunia. Sedangkan azab akhirat pasti lebih menghinakan dan mereka tidak diberi pertolongan.",
+   "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
+   "rujukan": "https://quran.com/41/16",
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
   },
   {
-   "id": "haqqah6",
+   "id": "haqqah8",
    "jenis": "quran",
-   "label": "QS AL-HAQQAH 6-8",
+   "label": "QS AL-HAQQAH 8",
    "surah": 69,
-   "ayat": "6-8"
-  },
-  {
-   "id": "fajr6",
-   "jenis": "quran",
-   "label": "QS AL-FAJR 6-8",
-   "surah": 89,
-   "ayat": "6-8"
+   "ayat": "8",
+   "status": "terverifikasi",
+   "teks_ar": "فَهَلْ تَرَىٰ لَهُم مِّنۢ بَاقِيَةٍ",
+   "terjemah": "Maka adakah kamu melihat seorang pun yang masih tersisa di antara mereka?",
+   "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
+   "rujukan": "https://quran.com/69/8",
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
   }
  ],
  "beat": [
   {
-   "narasi": "Bayangkan kamu punya tubuh yang sangat tinggi dan kuat, sampai tidak ada manusia lain yang bisa menandingimu. Apa yang akan kamu lakukan dengan kekuatan itu?",
+   "narasi": "Bayangkan kamu hidup di zaman ada bangsa yang mengklaim diri mereka paling kuat di muka bumi, tidak ada yang bisa mengalahkan mereka.",
    "dalil": [],
    "suasana": "dhuha",
    "kata_kunci": [
-    "sosok tinggi besar",
-    "manusia kuat",
-    "siluet perkasa"
+    "gurun luas",
+    "bangunan megah",
+    "orang kuat bertubuh besar"
    ]
   },
   {
-   "narasi": "Ini kisah nyata kaum 'Ad, bangsa yang Allah ciptakan dengan tubuh sangat besar dan kuat, hidup di tanah yang subur dengan istana-istana megah.",
+   "narasi": "Mereka adalah kaum 'Ad, bangsa yang tinggal di wilayah Al-Ahqaf, padang pasir berpasir tinggi di selatan Jazirah Arab.",
    "dalil": [
-    "fajr6"
+    "ahqaf21"
    ],
    "suasana": "dhuha",
    "kata_kunci": [
-    "istana megah",
-    "tanah subur",
-    "bangunan tinggi menjulang"
+    "gurun pasir tinggi",
+    "pemukiman megah",
+    "orang Arab kuno"
    ]
   },
   {
-   "narasi": "Mereka terkenal karena membangun pilar-pilar tinggi yang belum pernah ada bangsanya di negeri manapun. Kekuatan mereka luar biasa.",
-   "dalil": [
-    "fajr6"
-   ],
-   "suasana": "senja",
+   "narasi": "Allah memberkahi mereka dengan tubuh yang sangat tinggi dan kuat, melebihi manusia lainnya.",
+   "dalil": [],
+   "suasana": "dhuha",
    "kata_kunci": [
-    "pilar tinggi",
-    "konstruksi megah",
-    "bangunan kokoh"
+    "pria tinggi besar",
+    "otot kekar",
+    "berdiri gagah"
    ]
   },
   {
-   "narasi": "Tapi kekuatan itu justru membuat mereka sombong. Mereka berkata, siapa yang lebih kuat dari kami?",
+   "narasi": "Mereka membangun istana dan benteng di setiap bukit tinggi, bukan untuk pertahanan, tapi hanya untuk pamer kekuatan.",
+   "dalil": [],
+   "suasana": "dhuha",
+   "kata_kunci": [
+    "istana megah di bukit",
+    "benteng batu besar",
+    "konstruksi raksasa"
+   ]
+  },
+  {
+   "narasi": "Mereka membuat bendungan dan sistem irigasi canggih untuk kebun dan tanaman mereka yang subur.",
+   "dalil": [],
+   "suasana": "dhuha",
+   "kata_kunci": [
+    "kebun hijau",
+    "sistem air",
+    "tanaman subur"
+   ]
+  },
+  {
+   "narasi": "Kesombongan mereka sampai pada puncaknya ketika mereka berkata: Siapa yang lebih kuat dari kami?",
    "dalil": [
     "fussilat15"
    ],
-   "suasana": "senja",
+   "suasana": "dhuha",
    "kata_kunci": [
-    "wajah sombong",
+    "orang sombong menatap",
     "gestur angkuh",
     "ekspresi meremehkan"
    ]
   },
   {
-   "narasi": "Allah kemudian mengutus Nabi Hud dari kalangan mereka sendiri untuk mengingatkan. Hud berkata, wahai kaumku, sembahlah Allah, tidak ada Tuhan selain Dia.",
+   "narasi": "Allah mengutus Nabi Hud dari kalangan mereka sendiri untuk memperingatkan.",
    "dalil": [
     "hud50"
    ],
    "suasana": "dhuha",
    "kata_kunci": [
-    "nabi muda berdakwah",
-    "berdiri di tengah kaum",
-    "berbicara tegas"
+    "pria bijak berjubah",
+    "berdiri tenang",
+    "wajah penuh kasih"
    ]
   },
   {
-   "narasi": "Hud menasihati mereka untuk bertobat dan meminta ampun kepada Allah, agar Allah menurunkan hujan yang berlimpah dan menambah kekuatan mereka.",
+   "narasi": "Hud berkata kepada kaumnya: Wahai kaumku, sembahlah Allah, kalian tidak punya tuhan selain Dia, kalian hanya mengada-ada.",
    "dalil": [
-    "hud52"
+    "hud50"
    ],
    "suasana": "dhuha",
    "kata_kunci": [
-    "hujan turun",
-    "tanah hijau",
-    "keberkahan"
+    "Nabi Hud berbicara",
+    "orang mendengar",
+    "suasana berkumpul"
    ]
   },
   {
-   "narasi": "Tapi kaum 'Ad malah menolak. Mereka menuduh Hud pembohong dan tetap menyembah berhala-berhala mereka.",
-   "dalil": [
-    "hud53"
-   ],
-   "suasana": "malam",
+   "narasi": "Tapi mereka menolak mentah-mentah, mereka bilang Hud pembohong dan gila.",
+   "dalil": [],
+   "suasana": "dhuha",
    "kata_kunci": [
-    "penolakan keras",
-    "berpaling",
-    "patung berhala"
+    "orang mengejek",
+    "menunjuk jari",
+    "ekspresi menghina"
    ]
   },
   {
-   "narasi": "Mereka begitu percaya diri dengan kekuatan fisik mereka, sampai lupa bahwa Allah yang memberi kekuatan itu bisa mencabutnya kapan saja.",
-   "dalil": [
-    "fussilat15"
-   ],
-   "suasana": "malam",
+   "narasi": "Bertahun-tahun Hud berdakwah dengan sabar, tapi hanya segelintir yang beriman, mayoritas tetap sombong.",
+   "dalil": [],
+   "suasana": "senja",
    "kata_kunci": [
-    "otot kekar",
-    "sombong",
-    "lupa diri"
+    "Nabi Hud sendiri",
+    "beberapa pengikut",
+    "banyak orang membelakangi"
    ]
   },
   {
-   "narasi": "Karena penolakan mereka, Allah kirimkan azab berupa angin yang sangat kencang dan dingin, selama tujuh malam delapan hari tanpa henti.",
-   "dalil": [
-    "haqqah6",
-    "fussilat16"
-   ],
-   "suasana": "malam_merah",
+   "narasi": "Lalu Allah menghentikan hujan di wilayah mereka, kekeringan mulai melanda, tapi mereka masih tidak sadar.",
+   "dalil": [],
+   "suasana": "dhuha",
    "kata_kunci": [
-    "angin topan dahsyat",
-    "badai mengerikan",
-    "langit gelap"
+    "tanah kering retak",
+    "tanaman layu",
+    "langit terik"
    ]
   },
   {
-   "narasi": "Angin itu begitu keras sampai merobohkan orang-orang 'Ad seperti batang pohon kurma yang tumbang dan kosong.",
+   "narasi": "Suatu hari, mereka melihat awan hitam tebal mendekat dari cakrawala.",
+   "dalil": [],
+   "suasana": "senja",
+   "kata_kunci": [
+    "awan hitam besar",
+    "langit gelap mendung",
+    "orang menengadah"
+   ]
+  },
+  {
+   "narasi": "Mereka bersorak gembira: Ini awan yang akan menurunkan hujan untuk kami!",
+   "dalil": [],
+   "suasana": "senja",
+   "kata_kunci": [
+    "orang bersorak",
+    "tangan terangkat",
+    "ekspresi senang"
+   ]
+  },
+  {
+   "narasi": "Tapi Nabi Hud tahu, itu bukan hujan biasa, itu azab yang mereka minta-minta sendiri.",
+   "dalil": [],
+   "suasana": "senja",
+   "kata_kunci": [
+    "Nabi Hud menatap khawatir",
+    "wajah sedih",
+    "tangan mengepal"
+   ]
+  },
+  {
+   "narasi": "Allah menurunkan angin kencang yang sangat dingin dan mengerikan selama tujuh malam dan delapan hari tanpa henti.",
    "dalil": [
     "haqqah6"
    ],
-   "suasana": "malam_merah",
+   "suasana": "malam",
    "kata_kunci": [
-    "pohon tumbang",
-    "kehancuran total",
-    "reruntuhan"
+    "angin topan dahsyat",
+    "debu beterbangan",
+    "gelap mencekam"
    ]
   },
   {
-   "narasi": "Tubuh besar dan kekuatan luar biasa mereka tidak ada artinya di hadapan kekuasaan Allah. Semua hancur.",
+   "narasi": "Angin itu bukan angin biasa, kekuatannya luar biasa menghancurkan, merobohkan istana-istana megah mereka seperti rumah kartu.",
    "dalil": [
-    "fussilat15"
+    "fussilat16"
    ],
-   "suasana": "malam_merah",
+   "suasana": "malam",
    "kata_kunci": [
-    "kehancuran kaum",
-    "azab menimpa",
-    "binasa"
+    "bangunan runtuh",
+    "puing beterbangan",
+    "kehancuran total"
    ]
   },
   {
-   "narasi": "Hanya Nabi Hud dan orang-orang yang beriman bersamanya yang Allah selamatkan dari azab itu.",
+   "narasi": "Tubuh-tubuh kuat mereka yang dulu jadi kebanggaan, dilempar angin seperti batang pohon kurma yang tumbang.",
    "dalil": [
-    "hud58"
+    "haqqah6"
+   ],
+   "suasana": "malam",
+   "kata_kunci": [
+    "tubuh terlempar",
+    "seperti pohon roboh",
+    "kekacauan total"
+   ]
+  },
+  {
+   "narasi": "Ketika azab berakhir, tidak ada satu pun dari kaum 'Ad yang tersisa, kecuali Nabi Hud dan orang-orang yang beriman bersamanya.",
+   "dalil": [
+    "haqqah8"
    ],
    "suasana": "fajar",
    "kata_kunci": [
-    "sekelompok orang selamat",
-    "cahaya keselamatan",
-    "harapan"
+    "reruntuhan luas",
+    "puing bangunan",
+    "suasana sunyi"
    ]
   },
   {
-   "narasi": "Pelajaran buat kita: kekuatan, harta, atau apapun yang kamu punya adalah titipan Allah. Jangan sampai itu membuatmu sombong dan lupa siapa yang memberinya.",
+   "narasi": "Peradaban yang dulu mengklaim paling kuat di bumi, lenyap total, tidak ada yang bisa kamu temukan dari mereka hari ini.",
+   "dalil": [
+    "haqqah8"
+   ],
+   "suasana": "fajar",
+   "kata_kunci": [
+    "gurun kosong",
+    "bekas reruntuhan",
+    "angin sepoi"
+   ]
+  },
+  {
+   "narasi": "Kisah kaum 'Ad jadi pengingat buat kamu: kekuatan, harta, dan kedudukan bukan jaminan keselamatan.",
    "dalil": [],
    "suasana": "fajar",
    "kata_kunci": [
-    "refleksi diri",
-    "tangan terbuka",
-    "kerendahan hati"
+    "matahari terbit",
+    "cahaya lembut",
+    "harapan baru"
    ]
   },
   {
-   "narasi": "Karena kesombongan itu bisa menghancurkan kamu, bahkan ketika kamu merasa paling kuat sekalipun.",
+   "narasi": "Yang menyelamatkan adalah keimanan dan kerendahan hati di hadapan Allah, bukan kesombongan atas nikmat yang Dia berikan.",
    "dalil": [],
    "suasana": "fajar",
    "kata_kunci": [
-    "hati tenang",
-    "tunduk syukur",
-    "kedamaian"
+    "tangan berdoa",
+    "wajah khusyuk",
+    "cahaya hangat"
    ]
   }
  ]

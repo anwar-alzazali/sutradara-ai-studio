@@ -1,11 +1,11 @@
 {
  "id": "261121-uji-ide-nabi-hud",
- "judul": "Kaum 'Ad yang Sombong Karena Kekuatan Mereka, Lalu Allah Hancurkan dengan Angin Kencang",
+ "judul": "Kaum Paling Kuat di Bumi Dihancurkan dalam 7 Malam",
  "sumber": "ide",
  "tahap": {
-  "diterima": "gagal",
-  "dalil": "belum",
-  "tinjau": "belum",
+  "diterima": "selesai",
+  "dalil": "selesai",
+  "tinjau": "jalan",
   "narasi": "belum",
   "sutradara": "belum",
   "render": "belum",
@@ -13,11 +13,21 @@
   "kirim": "belum"
  },
  "ket": {
-  "diterima": "beat 7: merujuk dalil 'hud53' yang tidak ada di daftar dalil"
+  "diterima": "21 beat, 6 dalil · Claude",
+  "dalil": "6/6",
+  "tinjau": "menunggu Anda membaca naskah"
  },
  "dibuat": "2026-11-21T10:05:47+00:00",
- "diperbarui": "2026-11-21T10:06:51+00:00",
- "pesan_kartu": 393,
- "token_ai": 2657,
- "penyedia_ai": "Claude claude-sonnet-4-5 — Gemini gagal (Gemini galat 503), pindah ke Claude"
+ "diperbarui": "2026-11-21T10:16:02+00:00",
+ "token_ai": 5843,
+ "penyedia_ai": "Claude claude-sonnet-4-5 — Gemini gagal (The read operation timed out), pindah ke Claude",
+ "laporan_dalil": [
+  "✓ QS AL-AHQAF 21",
+  "✓ QS FUSSILAT 15",
+  "✓ QS HUD 50",
+  "✓ QS AL-HAQQAH 6-7",
+  "✓ QS FUSSILAT 16",
+  "✓ QS AL-HAQQAH 8"
+ ],
+ "pesan_kartu": 396
 }
