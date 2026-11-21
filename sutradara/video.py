@@ -7,6 +7,7 @@ Antar-shot = potongan keras (resep B1: potongan jatuh di kata kunci; waktu kata 
 """
 from __future__ import annotations
 
+import copy
 import json
 import shutil
 import subprocess
@@ -19,7 +20,33 @@ from .gaya import dasar
 
 
 def daftar_shot(rencana: dict) -> list[dict]:
-    return [s for b in rencana["beat"] for s in b["shot"]]
+    """Salinan shot dengan metadata peran internal agar renderer memilih bentuk adab yang benar."""
+    peran = {p["id"]: p for p in rencana.get("peran", [])}
+    pemeran = {p["id"]: p for p in rencana.get("pemeran", [])}
+    hasil = []
+    for beat in rencana["beat"]:
+        for asli in beat["shot"]:
+            shot = copy.deepcopy(asli)
+            for tokoh in shot.get("tokoh", []):
+                p = peran.get(tokoh.get("peran"))
+                if p:
+                    tokoh["_kategori_peran"] = p["kategori"]
+                    tokoh["_cara_tampil"] = p["tampil"]
+                    kartu = pemeran.get(tokoh.get("pemeran_id"))
+                    tokoh["_identitas"] = copy.deepcopy(
+                        kartu.get("identitas", {}) if kartu else p.get("identitas", {})
+                    )
+                    if kartu:
+                        tokoh["_id_pemeran"] = kartu["id"]
+            for cahaya in shot.get("nur", []):
+                p = peran.get(cahaya.get("peran"))
+                if p is None and cahaya.get("nama"):
+                    p = next((item for item in peran.values() if item.get("nama") == cahaya["nama"]), None)
+                if p:
+                    cahaya["_kategori_peran"] = p["kategori"]
+                    cahaya["_cara_tampil"] = p["tampil"]
+            hasil.append(shot)
+    return hasil
 
 
 def peta_dalil(rencana: dict) -> dict:

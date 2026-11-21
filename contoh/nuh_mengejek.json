@@ -20,13 +20,47 @@
       "id": "kaum",
       "nama": "Kaum Nabi Nuh",
       "kategori": "manusia",
-      "tampil": "pakaian"
+      "tampil": "pakaian",
+      "identitas": {
+        "jenis": "pria",
+        "usia": "dewasa",
+        "zaman": "arab_kuno",
+        "indeks": 0,
+        "warna_kulit": "#c98b62",
+        "rambut": "#2a1b14",
+        "janggut": "pendek",
+        "penutup_kepala": "imamah",
+        "warna_baju": "#7a3b2e",
+        "warna_aksen": "#d9b26a",
+        "aksesori": [
+          "ikat pinggang kain"
+        ],
+        "suara": "pria dewasa rendah",
+        "ciri_wajah": "rahang lebar dan hidung sedang"
+      }
     },
     {
       "id": "pengikut_beriman",
       "nama": "Pengikut Nabi Nuh",
       "kategori": "manusia",
-      "tampil": "pakaian"
+      "tampil": "pakaian",
+      "identitas": {
+        "jenis": "pria",
+        "usia": "dewasa",
+        "zaman": "arab_kuno",
+        "indeks": 1,
+        "warna_kulit": "#a86a45",
+        "rambut": "#2a1b14",
+        "janggut": "tipis",
+        "penutup_kepala": "kain",
+        "warna_baju": "#3f5a6b",
+        "warna_aksen": "#c9b48a",
+        "aksesori": [
+          "selempang kain"
+        ],
+        "suara": "pria dewasa sedang",
+        "ciri_wajah": "wajah oval dan alis tebal"
+      }
     }
   ],
   "hook": {
@@ -91,7 +125,8 @@
               "lebar": 88,
               "pendar_rx": 70,
               "pendar_ry": 125,
-              "di_belakang_benda": true
+              "di_belakang_benda": true,
+              "peran": "nuh"
             }
           ],
           "tokoh": [
@@ -201,7 +236,8 @@
               "x": 205,
               "y": 1330,
               "nama": "Nabi Nuh a.s.",
-              "sinar_ke": "kiri"
+              "sinar_ke": "kiri",
+              "peran": "nuh"
             }
           ],
           "tokoh": [
@@ -444,7 +480,8 @@
               "x": 205,
               "y": 1330,
               "nama": "Nabi Nuh a.s.",
-              "sinar_ke": "kiri"
+              "sinar_ke": "kiri",
+              "peran": "nuh"
             }
           ],
           "tokoh": [
@@ -599,7 +636,8 @@
               "x": 205,
               "y": 1330,
               "nama": "Nabi Nuh a.s.",
-              "sinar_ke": "kiri"
+              "sinar_ke": "kiri",
+              "peran": "nuh"
             }
           ],
           "tokoh": [
@@ -702,9 +740,10 @@
               "y": 1330,
               "nama": "Nabi Nuh a.s.",
               "sinar_ke": "kiri",
-              "lebar": 88,
-              "pendar_rx": 72,
-              "pendar_ry": 130
+              "lebar": 72,
+              "pendar_rx": 45,
+              "pendar_ry": 130,
+              "peran": "nuh"
             }
           ],
           "tokoh": [

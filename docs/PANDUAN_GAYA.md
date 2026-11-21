@@ -6,7 +6,9 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 
 | Peran | Cara tampil | Kode |
 |---|---|---|
-| Nabi, malaikat, sahabat | **Pilar cahaya putih** setinggi tokoh, kapsul tanpa lekuk kepala/bahu/tangan, semburan sinar halus, butiran cahaya, genangan cahaya di tanah. Nama kecil di bawah saat diperkenalkan/saat ucapannya dibacakan. Kehadiran terasa lewat cahaya yang jatuh ke orang sekitar & reaksi mereka. | `gaya/nur.py` |
+| Nabi | **Pilar cahaya putih** khusus nabi: kapsul tanpa lekuk kepala/bahu/tangan, semburan sinar halus, butiran cahaya, genangan cahaya di tanah. Nama kecil di bawah saat diperkenalkan/saat ucapannya dibacakan. | `gaya/nur.py` |
+| Malaikat | **Berkas/sinar dari atas tanpa wujud**: bidang cahaya terbuka dari tepi atas, sinar menyebar, partikel halus; tidak ada kapsul, siluet, tubuh, wajah, atau anggota badan. | `gaya/malaikat.py` |
+| Sahabat Nabi Muhammad ﷺ (semua) | **Tubuh manusia berbaju** dengan rangka, gerak, gestur, dan barang tetap berfungsi. Bidang wajah diganti cahaya lembut tanpa mata, hidung, mulut, janggut wajah, atau ekspresi; dari depan/profil wajah tetap cahaya, dari belakang tidak menampilkan wajah. | `gaya/tokoh.py` mode `wajah_cahaya=True` |
 | Allah | **Tidak pernah** digambar dalam bentuk apa pun. Firman = teks + cahaya dari atas tanpa sosok. | — |
 | Manusia biasa, kaum, orang beriman | **Berpakaian** (bawaan): gamis berwarna, ikat pinggang, imamah/kain kepala/kopiah, wajah berekspresi. | `gaya/tokoh.py` mode `pakaian` |
 | NPC / kerumunan jauh | Tetap berpakaian, **kecil, tanpa detail wajah, pudar oleh kabut** (perspektif udara). Bukan siluet. | `adegan.npc_jauh` + `latar.kabut_jauh` |
@@ -16,6 +18,15 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 | Dajjal | **Desain B**: berpakaian penguasa (jubah merah tua bersulam emas = pilihan gaya), mata kanan buta menonjol seperti anggur & keruh tanpa pupil (Bukhari 7123), ك ف ر di antara kedua mata (Bukhari 7131, Muslim 2933), rambut sangat keriting, muda. Tanpa gore, tanpa taring/tanduk, tanpa ciri ras. Boleh siluet di awal untuk misteri. | `gaya/dajjal.py` |
 | Ya'juj Ma'juj | **Manusia biasa** (keturunan Adam, Bukhari 3348): tinggi bervariasi, pakaian compang-camping, tanpa wajah bila siluet. Kengerian dari **jumlah & gerak** (turun dari setiap tempat tinggi, QS Al-Anbiya 96), bukan bentuk aneh. Tanpa telinga raksasa/tanduk (riwayat lemah) dan tanpa ciri ras. | fase 7 |
 | Buraq | Hewan putih, lebih besar dari keledai & lebih kecil dari bagal, langkahnya sejauh pandangan. **Tanpa sayap, tanpa wajah manusia, tidak pernah digambar dengan penunggang** (penunggang = pilar cahaya). Agung, bukan kartun lucu. Komponen dasar dan penjaga penunggang tersedia; penilaian proporsi visual tetap diperlukan. | `gaya/akhir_zaman.py` |
+
+### Kartu identitas pemeran dan barang
+
+- Setiap tokoh individual yang berulang memakai satu kartu pada `pemeran[]` dengan `id` stabil. Shot merujuknya lewat `tokoh[].pemeran_id`; kategori adab tetap dirujuk terpisah lewat `tokoh[].peran`. Kartu memuat ciri wajah (deskripsi), warna kulit, rambut/janggut, penutup kepala, palet baju, aksesori, dan suara. `saluran_id` menyiapkan namespace pustaka pemeran per saluran untuk pemakaian lintas-episode; penyimpanan pustaka persisten belum dibangun pada tahap ini.
+- Renderer memakai ciri yang didukung rig (jenis, usia, zaman, indeks palet, warna kulit/baju/aksen, rambut, janggut, penutup kepala). Ciri lain tetap menjadi kartu data untuk kesinambungan dan pengembangan pustaka pemeran. Rencana lama boleh memakai `peran[].identitas` sebagai fallback kompatibilitas.
+- Perbedaan shot dari kartu identitas menghasilkan temuan `PERIKSA: IDENTITAS_BERUBAH`, bukan kegagalan otomatis. Bila perubahan kostum/gaya memang disengaja, isi `perubahan_gaya` dengan alasan.
+- Barang adegan ditulis per shot pada `barang[]` dengan `id`, `jenis`, dan `pemilik` (id peran). Id barang yang sama menandai benda yang sama antar-shot. Gunakan `tangan` dan `posisi_genggam` agar lengan mengikuti barang melalui IK.
+- Serah-terima memakai `aksi: "ulurkan"`, `penerima`, dan `titik_serah`; shot penerimaan memakai `aksi: "terima"`, `pemberi`, dan titik yang sama. Perubahan pemilik tanpa pasangan aksi akan ditolak penjaga.
+- Barang milik nabi tidak ditempelkan pada tangan atau tubuh: renderer meletakkannya di sisi pilar cahaya dengan pendar. Serah-terima manusia–nabi ditunjukkan dengan tangan manusia menuju/dari titik di dekat pilar; nabi tetap hanya pilar.
 
 ## 1b. Gerak & ekspresi
 - Arah tokoh memakai `arah`: `depan`, `samping`, `belakang`, atau jadwal `[[detik, arah], ...]`. Perubahan sudut memakai smoothstep; tampilan wajah memudar saat tokoh membelakangi kamera.
@@ -32,7 +43,7 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 - **Tanah bertekstur adalah BAWAAN untuk semua adegan yang memiliki permukaan tanah, bukan aturan wajib.** Tekstur boleh dimatikan per adegan (`permukaan_tanah: "tanpa"`) bila ada alasan artistik yang jelas, misalnya mimpi/kilas balik minimalis, fokus hening, atau adegan di atas air. Jenis tekstur dapat diatur per shot: `tanah_berbatu` (bawaan), `pasir`, `tanah`, `batu`, atau `tanpa`. `seed_tanah` mengunci pola agar konsisten antar-bingkai. Tekstur mengikuti kamera karena berada di koordinat dunia dan digambar di bawah benda/tokoh. Ukuran kerikil meningkat ke arah kamera; sorot dan bayangan harus terbaca di ponsel tetapi tidak mengalahkan tokoh atau visual inti.
 - Kabut cakrawala adalah lapisan atmosfer belakang, bukan overlay: harus berada di bawah tanah, bahtera/benda, NPC, dan tokoh agar tidak membentuk pita yang menimpa visual inti.
 - Kerikil disebar secara alami dalam gerombol dan area renggang/kosong, dengan ukuran bervariasi; hindari jarak dan kepadatan yang tampak seperti kisi. Pola tetap deterministik melalui `seed_tanah`.
-- **Keterbacaan tekstur tanah:** bercak, guratan, dan kerikil harus terbaca pada pratinjau ponsel tanpa menyaingi visual inti; uji dengan crop persegi dari render nyata.\n- **Pilar nur:** inti tetap putih terang; pendar, sinar arah, dan semburan dibatasi agar tidak melunturkan area layar yang luas.\n- Waktu kejadian mengikuti dalil (Dabbah keluar di waktu **dhuha**, Muslim 2941 → adegan terang, bukan malam). Tekstur tidak memakai blur.
+- Waktu kejadian mengikuti dalil (Dabbah keluar di waktu **dhuha**, Muslim 2941 → adegan terang, bukan malam). Tekstur tidak memakai blur.
 
 ## 3. Penataan panggung (siapa berdiri di mana)
 - **Pelaku aksi berdiri di dekat visual inti yang ia kerjakan** (yang membangun kapal di samping kapal). Tidak boleh ada
