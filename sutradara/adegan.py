@@ -30,6 +30,7 @@ import random
 from . import kamera as KM
 from .gaya import benda as BD, dajjal as DJ, dasar, kartu as KT, latar as LT, makhluk as MK, nur as NR, teks as TX, tokoh as TK
 from .waktu import pada
+from .gaya import akhir_zaman as AZ
 
 DURASI_BAWAAN = 3.0
 
@@ -67,6 +68,18 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     for b in sp.get("belakang", ["gunung"]):
         dunia.append({"gunung": LT.gunung, "kota": LT.kota}[b](p))
     dunia.append(LT.tanah(p, sp.get("tanah_y", 1250)))
+    for b in sp.get("buraq", []):
+        dunia.append(AZ.buraq(b["x"], b["y"], b.get("s", 1), t=tg))
+    for b in sp.get("akhir_zaman", []):
+        j = b["jenis"]
+        if j == "dinding_yajuj":
+            dunia.append(AZ.dinding_yajuj(b["x"], b["y"], b.get("s", 1), lubang=b.get("lubang", 0)))
+        elif j == "danau_surut":
+            dunia.append(AZ.danau_surut(b["x"], b["y"], b.get("s", 1), surut=b.get("surut", 0)))
+        elif j == "tanda_wajah":
+            dunia.append(AZ.tanda_wajah(b["x"], b["y"], b.get("s", 1)))
+        else:
+            raise ValueError(f"komponen akhir zaman tak dikenal: {j}")
     for b in sp.get("benda", []):
         j = b["jenis"]
         if j == "bahtera":
