@@ -1,6 +1,6 @@
 {
  "id": "261121-uji-ide-nabi-hud",
- "judul": "Kaum Paling Kuat di Bumi Dihancurkan dalam 7 Malam",
+ "judul": "Kesombongan Kaum Ad dan Azab Badai Dahsyat",
  "sumber": "ide",
  "tahap": {
   "diterima": "selesai",
@@ -13,21 +13,16 @@
   "kirim": "belum"
  },
  "ket": {
-  "diterima": "21 beat, 6 dalil · Claude",
-  "dalil": "6/6",
+  "diterima": "5 beat, 1 dalil · Gemini",
+  "dalil": "1/1",
   "tinjau": "menunggu Anda membaca naskah"
  },
  "dibuat": "2026-11-21T10:05:47+00:00",
- "diperbarui": "2026-11-21T10:16:02+00:00",
- "token_ai": 5843,
- "penyedia_ai": "Claude claude-sonnet-4-5 — Gemini gagal (The read operation timed out), pindah ke Claude",
+ "diperbarui": "2026-11-21T10:26:05+00:00",
+ "token_ai": 6903,
+ "penyedia_ai": "Gemini gemini-3.5-flash-lite (gratis)",
  "laporan_dalil": [
-  "✓ QS AL-AHQAF 21",
-  "✓ QS FUSSILAT 15",
-  "✓ QS HUD 50",
-  "✓ QS AL-HAQQAH 6-7",
-  "✓ QS FUSSILAT 16",
-  "✓ QS AL-HAQQAH 8"
+  "✓ QS HUD 50"
  ],
- "pesan_kartu": 396
+ "pesan_kartu": 398
 }
