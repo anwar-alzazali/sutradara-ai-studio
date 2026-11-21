@@ -119,8 +119,8 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     dunia += tanda_overlay
     lapis = [f'<g transform="{KM.transform(sp.get("kamera"), t)}">' + "\n".join(dunia) + "</g>"]
     if sp.get("depan", True):
-        # lapis depan tidak ikut zoom kamera (kalau ikut, batu membesar jadi bercak hitam); hanya bergeser
-        # lebih jauh dari dunia saat kamera menyamping -> rasa kedalaman (parallax)
+        # Lapis depan berupa siluet tajam (tanpa blur bawaan); tidak ikut zoom kamera,
+        # hanya bergeser untuk parallax saat kamera menyamping.
         kx = float((sp.get("kamera") or {}).get("x", 540))
         lapis.append(f'<g transform="translate({-(kx - 540) * 0.35:.1f},0)">{LT.batu_depan(sp.get("warna_depan", "#120c16"))}</g>')
     tx = sp.get("teks") or {}
