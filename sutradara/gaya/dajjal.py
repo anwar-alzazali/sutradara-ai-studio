@@ -83,4 +83,5 @@ def belakang(x: float, y: float, s: float = 1.0, *, t: float = 0.0, jalan: bool 
             f'<path d="M-82 -304 Q0 -318 82 -304 Q{118+30*kibas:.1f} -160 {124+25*kibas:.1f} 0 Q0 14 {-124-25*kibas:.1f} 0 Q{-118-30*kibas:.1f} -160 -82 -304Z" fill="{JUBAH}"/>'
             f'<path d="M-82 -296 Q{tangan_kiri[0]:.1f} {tangan_kiri[1]:.1f} -205 -175 M82 -296 Q{tangan_kanan[0]:.1f} {tangan_kanan[1]:.1f} 205 -175" stroke="{JUBAH}" stroke-width="44" fill="none" stroke-linecap="round"/>'
             f'<path d="M-42 -390 Q0 -430 42 -390 L48 -330 Q0 -300 -48 -330Z" fill="#1c1210"/>'
-            f'<path d="M-30 -300 L-18 0 M30 -300 L18 0" stroke="{EMAS}" stroke-width="4" opacity=".7"/></g>')
+            f'<path d="M-30 -300 L-18 0 M30 -300 L18 0" stroke="{EMAS}" stroke-width="4" opacity=".7"/>'
+            + (f'<path d="M-38 -8 L{-52 + 16*math.sin(t*4):.1f} 48 L{-64 + 16*math.sin(t*4):.1f} 58 M38 -8 L{52 - 16*math.sin(t*4):.1f} 48 L{64 - 16*math.sin(t*4):.1f} 58" stroke="#241a18" stroke-width="22" stroke-linecap="round" fill="none"/>' if jalan else '') + '</g>')
