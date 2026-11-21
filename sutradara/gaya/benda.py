@@ -5,25 +5,88 @@ import math
 import random
 
 
-def bahtera(x: float, y: float, s: float = 1.0, *, jadi: float = 0.6) -> str:
-    """Kapal Nabi Nuh di darat. jadi=0 rangka awal, 1 = lambung tertutup penuh. (x, y) = ujung kiri lunas."""
-    jadi = max(0.0, min(1.0, jadi))
-    g = [f'<g class="bahtera" transform="translate({x},{y}) scale({s})">',
-         '<path d="M0 0 Q 260 120 540 0 L 520 -30 Q 260 80 20 -30Z" fill="#6b4630"/>']
-    n = 11
-    for i in range(n):
-        xx = 40 + i * 46; h = 150 + 40 * math.sin(i / (n - 1) * math.pi)
-        g.append(f'<path d="M{xx} {-20 + 30 * math.sin(i / 10 * math.pi):.0f} Q {xx - 10} {-h * .6:.0f} {xx + 6} {-h:.0f}" '
-                 f'fill="none" stroke="#7a5236" stroke-width="12" stroke-linecap="round"/>')
-    papan = int(round(jadi * 7))
-    for j in range(papan):  # papan lambung dipasang dari bawah ke atas
-        yy = -30 - j * 18
-        g.append(f'<path d="M30 {yy} Q 270 {yy + 70 - j * 6} 510 {yy}" fill="none" stroke="#8a6040" stroke-width="16"/>')
-    g.append('<path d="M40 -150 Q 270 -205 500 -150" fill="none" stroke="#5a3a26" stroke-width="8"/>')
-    if jadi < 1:
-        g.append('<g stroke="#4a3020" stroke-width="7"><line x1="560" y1="0" x2="600" y2="-190"/><line x1="600" y1="0" x2="640" y2="-190"/>'
-                 + "".join(f'<line x1="{564 + i * 8}" y1="{-i * 38}" x2="{604 + i * 8}" y2="{-i * 38}"/>' for i in range(1, 5)) + "</g>")
-    g.append("</g>")
+def _klem(v: float) -> float:
+    return max(0.0, min(1.0, v))
+
+
+def bahtera(x: float, y: float, s: float = 1.0, *, jadi: float = 1.0, goyang: float = 0.0, cahaya: float = 0.8,
+            pintu: float = 0.0, orang: int = 0, darat: bool = True, t: float = 0.0) -> str:
+    """Kapal Nabi Nuh dari papan dan pasak (QS Al-Qamar 13), tampak samping. (x, y) = tengah lunas.
+
+    Asal: mesin-video/papan/cerita.js jenis "bahtera" (16 Nov 2026), di-port ke Python tanpa mengubah desain.
+    jadi 0..1 : rusuk saja -> papan berpasak naik mengisi lambung (0,12-0,67) -> rumah geladak berjendela (0,7-1).
+    goyang    : derajat ayunan di air (0 di darat). cahaya 0..1: lampu jendela & tepi emas. pintu 0..1: pintu menyala + titian.
+    orang     : jumlah penumpang kecil di geladak. darat: penyangga kayu + bayangan di tanah. Lebar ±990 px pada s=1.
+    """
+    W, H = 460, 250
+    rnd = random.Random(11)
+    jd, ch, pt = _klem(jadi), _klem(cahaya), _klem(pintu)
+    pp, rh = _klem((jd - 0.12) / 0.55), _klem((jd - 0.7) / 0.3)
+    lamb = f"M {-W} {-H} Q {-W + 20} -50 {-W + 190} 0 L {W - 170} 0 Q {W + 10} -70 {W + 70} {-H - 46} L {W - 20} {-H} Z"
+    uid = f"bh{int(x)}_{int(y)}"
+    g = [f'<g class="bahtera" transform="translate({x:.1f},{y:.1f}) scale({s})">',
+         f'<defs><linearGradient id="{uid}k" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a6638"/>'
+         f'<stop offset=".6" stop-color="#5e3a20"/><stop offset="1" stop-color="#2a180e"/></linearGradient>'
+         f'<linearGradient id="{uid}s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity="0"/>'
+         f'<stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient><clipPath id="{uid}c"><path d="{lamb}"/></clipPath>'
+         f'<radialGradient id="{uid}l"><stop offset="0" stop-color="#fff3c8"/><stop offset=".5" stop-color="#ffc45a" stop-opacity=".8"/>'
+         f'<stop offset="1" stop-color="#ff9a3a" stop-opacity="0"/></radialGradient></defs>']
+    if darat:
+        g.append('<ellipse cx="20" cy="14" rx="560" ry="30" fill="#000" opacity=".4"/>')
+        for px in (-330, -150, 60, 250):
+            g.append(f'<path d="M {px - 46} 14 L {px} -64 L {px + 46} 14" stroke="#3a2416" stroke-width="16" fill="none" stroke-linecap="round"/>'
+                     f'<path d="M {px - 50} 10 L {px - 4} -68" stroke="#c08a50" stroke-width="4" fill="none" opacity=".5"/>')
+    g.append(f'<g transform="translate(0 {goyang * 3 * math.sin(t * 0.9 + 1):.1f}) rotate({goyang * math.sin(t * 1.3):.2f})">')
+    if pp < 0.99:  # rusuk lengkung + kilau
+        for i in range(12):
+            xx = -W + 70 + i * ((2 * W - 150) / 11); kl = (xx / W) * 34
+            g.append(f'<path d="M {xx:.1f} -4 Q {xx + kl * .3:.1f} {-H * .5} {xx + kl:.1f} {-H - 8}" stroke="#7a4f2b" stroke-width="13" fill="none" stroke-linecap="round"/>'
+                     f'<path d="M {xx - 5:.1f} -6 Q {xx + kl * .3 - 5:.1f} {-H * .5} {xx + kl - 5:.1f} {-H - 8}" stroke="#e0a868" stroke-width="3" fill="none" opacity=".55"/>')
+    g.append(f'<path d="M {-W + 150} 0 L {W - 150} 0" stroke="#3a2416" stroke-width="22" stroke-linecap="round"/>')  # lunas
+    if pp > 0.01:
+        yt = -(H + 60) * pp
+        g.append(f'<g clip-path="url(#{uid}c)"><rect x="{-W - 20}" y="{yt:.1f}" width="{2 * W + 140}" height="{-yt + 20:.1f}" fill="url(#{uid}k)"/>')
+        r0 = 0
+        while r0 * 36 < -yt:  # lajur papan berselang-seling + pasak
+            yy = -r0 * 36
+            g.append(f'<line x1="{-W - 20}" y1="{yy}" x2="{W + 100}" y2="{yy}" stroke="#1d120b" stroke-width="5"/>'
+                     f'<line x1="{-W - 20}" y1="{yy + 5}" x2="{W + 100}" y2="{yy + 5}" stroke="#e0a868" stroke-width="2" opacity=".25"/>')
+            for c0 in range(9):
+                xx = -W + 40 + c0 * 118 + (r0 % 2) * 59 + rnd.random() * 20
+                g.append(f'<line x1="{xx:.1f}" y1="{yy}" x2="{xx:.1f}" y2="{yy - 36}" stroke="#1d120b" stroke-width="3"/>'
+                         f'<circle cx="{xx - 12:.1f}" cy="{yy - 18}" r="4.5" fill="#1a100a"/><circle cx="{xx + 12:.1f}" cy="{yy - 18}" r="4.5" fill="#1a100a"/>')
+            r0 += 1
+        g.append(f'<rect x="{-W - 20}" y="{yt:.1f}" width="{2 * W + 140}" height="{-yt + 20:.1f}" fill="url(#{uid}s)"/>')
+        if pt > 0.01:
+            g.append(f'<rect x="-70" y="-190" width="140" height="170" rx="10" fill="#1a0f08"/><rect x="-58" y="-180" width="116" height="160" rx="8" fill="#ffd27a" opacity="{pt:.2f}"/>')
+        g.append("</g>")
+        if pt > 0.01:
+            g.append(f'<circle cx="0" cy="-100" r="{230 * pt:.1f}" fill="url(#{uid}l)" opacity="{.55 * pt:.2f}"/>'
+                     f'<path d="M -72 -22 L 72 -22 L 250 96 L -250 96 Z" fill="#4a2e1a" opacity="{pt:.2f}"/>'
+                     f'<path d="M -72 -22 L 72 -22" stroke="#e0a868" stroke-width="5" opacity="{.7 * pt:.2f}"/>')
+        if pp >= 0.99:  # bibir geladak + tepi emas
+            g.append(f'<path d="M {-W} {-H} L {W - 20} {-H} L {W + 70} {-H - 46}" stroke="#2a180e" stroke-width="20" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+                     f'<path d="M {-W + 4} {-H - 8} L {W - 24} {-H - 8}" stroke="#ffd98a" stroke-width="5" fill="none" opacity="{.35 + .4 * ch:.2f}" stroke-linecap="round"/>'
+                     f'<path d="M {-W - 4} {-H + 6} Q {-W + 14} -56 {-W + 180} -6" stroke="#ffd98a" stroke-width="5" fill="none" opacity="{.25 + .3 * ch:.2f}" stroke-linecap="round"/>')
+    if rh > 0.01:  # rumah geladak tumbuh ke atas
+        hh, y0 = 150 * rh, -H - 10
+        g.append(f'<rect x="-250" y="{y0 - hh:.1f}" width="470" height="{hh:.1f}" fill="#6b4324"/><rect x="-250" y="{y0 - hh:.1f}" width="470" height="{hh:.1f}" fill="url(#{uid}s)"/>')
+        r0 = 1
+        while r0 * 34 < hh:
+            g.append(f'<line x1="-250" y1="{y0 - r0 * 34}" x2="220" y2="{y0 - r0 * 34}" stroke="#1d120b" stroke-width="4"/>'); r0 += 1
+        if rh > 0.9:
+            g.append(f'<path d="M -290 {y0 - hh:.1f} L -15 {y0 - hh - 96:.1f} L 260 {y0 - hh:.1f} Z" fill="#3a2416"/>'
+                     f'<path d="M -290 {y0 - hh:.1f} L -15 {y0 - hh - 96:.1f}" stroke="#ffd98a" stroke-width="6" opacity="{.4 + .4 * ch:.2f}" stroke-linecap="round"/>')
+            for wx in (-180, -70, 40, 150):
+                g.append(f'<rect x="{wx - 26}" y="{y0 - 108}" width="52" height="62" rx="8" fill="#1a0f08"/>'
+                         f'<rect x="{wx - 20}" y="{y0 - 102}" width="40" height="50" rx="6" fill="#ffd27a" opacity="{ch:.2f}"/>'
+                         f'<circle cx="{wx}" cy="{y0 - 78}" r="70" fill="url(#{uid}l)" opacity="{.35 * ch:.2f}"/>')
+    for i in range(orang):  # penumpang kecil di geladak (berwarna, bukan siluet hitam; lihat PANDUAN_GAYA)
+        ox, oh = 262 + i * 44 + (i % 2) * 8, 62 + (i % 3) * 8
+        warna = ["#7a3b2e", "#3f5a6b", "#6b5a2e", "#4b3a5e", "#2f4a3a"][i % 5]
+        g.append(f'<g transform="translate({ox} {-H - 10})"><rect x="-13" y="{-oh}" width="26" height="{oh}" rx="12" fill="{warna}"/>'
+                 f'<circle cy="{-oh - 13}" r="14" fill="#b97a52"/><path d="M -13 {-oh + 6} Q -15 {-oh - 24} 0 {-oh - 28}" stroke="#ffcf7a" stroke-width="4" fill="none" opacity=".7"/></g>')
+    g.append("</g></g>")
     return "\n".join(g)
 
 
