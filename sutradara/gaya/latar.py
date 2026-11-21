@@ -132,22 +132,35 @@ def _tekstur_tanah_cache(preset: str, y0: float, jenis: str, seed: int) -> str:
             panjang = rnd.uniform(12, 34) * s
             elemen.append(f'<path d="M{x:.1f} {y:.1f} l {panjang:.1f} {rnd.uniform(-2,2)*s:.1f} l {panjang*.55:.1f} {rnd.uniform(-2,2)*s:.1f}" fill="none" stroke="{gelap}" stroke-width="{.7 + .55*s:.2f}" opacity=".20" stroke-linecap="round"/>')
 
-    # Kerikil dibatasi pada area bawah dan diberi sorot tipis; tidak memakai filter/blur.
+    # Kerikil memakai bayangan jatuh dan bidang sorot dari kiri-atas.
+    # Senja mendapat ukuran/kontras lebih tegas; preset lain (termasuk Dhuha/Dabbah) tetap.
     if jenis in ("tanah_berbatu", "batu"):
-        jumlah = 116 if jenis == "tanah_berbatu" else 144
+        senja = preset == "senja"
+        jumlah = (136 if jenis == "tanah_berbatu" else 144) if senja else (116 if jenis == "tanah_berbatu" else 144)
         for _ in range(jumlah):
-            y = rnd.uniform(y0 + 8, 1910)
+            u = rnd.random()
+            y = y0 + (u ** .72) * (1910 - y0) if senja else rnd.uniform(y0 + 8, 1910)
             s = skala(y)
             x = rnd.uniform(-1080, 2160)
-            besar = rnd.random() < .10 or jenis == "batu" and rnd.random() < .18
-            rx = rnd.uniform(18, 32) * s if besar else rnd.uniform(3.8, 8.5) * s
-            ry = rx * rnd.uniform(.48, .72)
+            besar = rnd.random() < (.22 if senja else .10) or jenis == "batu" and rnd.random() < .18
+            if senja:
+                rx = rnd.uniform(26, 42) * s if besar else rnd.uniform(5.5, 10.5) * s
+                ry = rx * rnd.uniform(.55, .78)
+            else:
+                rx = rnd.uniform(18, 32) * s if besar else rnd.uniform(3.8, 8.5) * s
+                ry = rx * rnd.uniform(.48, .72)
             isi = _campur_warna(warna_atas, gelap, rnd.uniform(.18, .42))
             bentuk = _bentuk_bercak(rnd, x, y, rx, ry, 7)
-            sorot = _bentuk_bercak(rnd, x-rx*.18, y-ry*.22, rx*.48, ry*.30, 6)
-            elemen.append(f'<ellipse cx="{x+rx*.18:.1f}" cy="{y+ry*.42:.1f}" rx="{rx*1.12:.1f}" ry="{ry*.42:.1f}" fill="#000000" opacity=".28"/>'
-                          f'<path d="{bentuk}" fill="{isi}" opacity="{rnd.uniform(.42, .56):.2f}"/>'
-                          f'<path d="{sorot}" fill="{terang}" opacity=".46"/>')
+            sorot = _bentuk_bercak(rnd, x-rx*.22, y-ry*.30, rx*.56, ry*.38, 6)
+            if senja:
+                elemen.append(f'<ellipse cx="{x+rx*.22:.1f}" cy="{y+ry*.48:.1f}" rx="{rx*1.28:.1f}" ry="{ry*.55:.1f}" fill="#09070b" opacity=".38"/>'
+                              f'<path d="{bentuk}" fill="{isi}" opacity="{rnd.uniform(.62, .76):.2f}" stroke="{gelap}" stroke-width="{max(1.2, s*1.4):.2f}" stroke-opacity=".42"/>'
+                              f'<path d="{sorot}" fill="{terang}" opacity=".72"/>'
+                              f'<path d="M{x-rx*.52:.1f} {y-ry*.12:.1f} Q{x-rx*.18:.1f} {y-ry*.72:.1f} {x+rx*.36:.1f} {y-ry*.42:.1f}" fill="none" stroke="{terang}" stroke-width="{max(1.2, s*1.8):.2f}" opacity=".66" stroke-linecap="round"/>')
+            else:
+                elemen.append(f'<ellipse cx="{x+rx*.18:.1f}" cy="{y+ry*.42:.1f}" rx="{rx*1.12:.1f}" ry="{ry*.42:.1f}" fill="#000000" opacity=".28"/>'
+                              f'<path d="{bentuk}" fill="{isi}" opacity="{rnd.uniform(.42, .56):.2f}"/>'
+                              f'<path d="{sorot}" fill="{terang}" opacity=".46"/>')
 
     if jenis in ("tanah_berbatu", "tanah"):
         for _ in range(7):
