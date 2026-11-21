@@ -184,12 +184,12 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 
 ### Visual & tokoh
 - [x] Arah pandang depan/samping/belakang dengan interpolasi smoothstep; proyeksi tubuh dan visibilitas wajah mengikuti arah. Uji render visual masih perlu tinjauan manusia.
-- [ ] Kamera shot pembuka Nuh lebih dekat ke kapal (visual inti masih kecil di layar).
+- [x] Kamera shot pembuka Nuh diperketat; lambung bahtera dinaikkan dan terlihat pada lembar kontak Tahap B. Komposisi akhir masih menunggu persetujuan pemilik.
 - [x] Parameter anak/lansia, variasi busana Mesir kuno/umum, dan variasi kerudung tetap memakai rangka yang sama.
-- [ ] Set pose Dajjal desain B: opsi arah depan/belakang dan bobbing langkah ditambahkan; komposisi jauh di tengah pengikut, animasi jubah, dan pembukaan lengan bertahap belum selesai.
-- [ ] Ya'juj Ma'juj: komponen dinding berlubang dan danau surut tersedia; contoh rencana dan verifikasi dalil QS Al-Anbiya 96 belum selesai.
+- [x] Dajjal desain B: arah belakang, langkah/bobbing, jubah berkibar, dan pembukaan lengan bertahap tersedia serta diuji. Komposisi gerak utuh masih menunggu tinjauan visual pemilik.
+- [x] Ya'juj Ma'juj: contoh rencana penggalian, turun dari tempat tinggi, dan danau surut tersedia; QS Al-Anbiya 96 dan HR. Tirmidzi 2240 diverifikasi workflow (sahih).
 - [x] Komponen Buraq putih berkaki empat tanpa sayap/wajah manusia; penjaga menolak penunggang yang ditandai eksplisit. Proporsi dan jarak langkah masih perlu tinjauan visual.
-- [x] Contoh Dabbah menambahkan dialog narasi/teks dan tanda abstrak berlabel ilustrasi; tidak menambahkan klaim hadis untuk tanda.
+- [x] Dabbah ditampilkan hanya sebagai gumpalan kabut/debu tanpa anatomi dan tanpa tanda wajah; dialog disampaikan melalui narasi/teks. Tidak mengarang bentuk yang tidak dijelaskan dalil.
 
 ### Dalil
 - [ ] Bacaan latin ayat di kartu (transliterasi Quran Foundation) — hanya bila pemilik meminta.
@@ -204,7 +204,7 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
       otomatis** (pelaku di samping visual inti), gerak & ekspresi dari kata kerja narasi, perpustakaan resep adegan.
 - [ ] Fase 5 kritikus: periksa teknis (port `periksa.py`), lembar kontak otomatis, kritik visual opsional.
 - [ ] Fase 6: workflow `buat_video` → kirim Telegram → persetujuan; tugas terjadwal harian; laporan biaya.
-- [ ] Percepat render (sekarang ±10 dtk kerja per 1 dtk video untuk adegan berat): paralel per shot di Actions.
+- [x] Paralel render per shot diterapkan dan diukur pada runner GitHub Actions yang sama; bukti benchmark Tahap B mencatat percepatan tanpa perbedaan sampel piksel.
 
 ### Rumah tangga repo
 - [ ] Hapus cabang yang sudah digabung di repo ini (`fondasi`, `fase1-gerak`, …) — sesi pengembang tidak bisa menghapus cabang.
@@ -234,3 +234,6 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - 21 Nov 2026 — Fase 1b didahulukan (permintaan pemilik). Tokoh lama (pose diam) diganti rangka bersendi; nama pose lama tetap berlaku.
 - 21 Nov 2026 — Tahap A efek terikat aksi: keterlihatan kamera/lapis depan, variasi ketukan, permukaan/fallback, tawa/NPC/kabut/retakan, sumber palu Nuh, ekor efek, batas 40 ketukan, tes render dan workflow manual; rekaman khusus tetap menunggu dispatch pemilik.
 - 21 Nov 2026 — Aset suara lama dipakai sebagai fallback sesuai kebutuhan Tahap A; provenance/lisensi aset lama belum terdokumentasi penuh. Rekaman dari workflow tunduk pada ketentuan lisensi akun ElevenLabs pemilik; PR tidak menyatakan asetnya public-domain.
+
+
+- 21 Nov 2026 — Tahap B: dokumentasi audit delapan kriteria diperbarui; bukti teknis dan batas tinjauan visual dicatat di `docs/TAHAP_B_AUDIT.md`. Dabbah dikunci sebagai kabut tanpa wujud dan tanpa penanda wajah.
