@@ -1,0 +1,47 @@
+name: Bukti visual Tahap B
+on:
+  push:
+    branches:
+      - fix/tahap-b-tekstur-crop-nur
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-bukti:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Pasang ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Pasang dependensi
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Tes Python lengkap
+        run: python -m pytest -q
+      - name: Render video Nuh dan lembar kontak
+        run: python -m sutradara video contoh/nuh_mengejek.json -o keluaran/nuh_bisu.mp4 --lembar
+      - name: Buat crop tanah 1:1 dari render
+        run: python scripts/crop_tanah_tahap_b.py keluaran/nuh_bisu.mp4 -o keluaran/crop-tanah-1x1.jpg
+      - name: Unggah bukti render dan crop
+        uses: actions/upload-artifact@v4
+        with:
+          name: bukti-visual-tahap-b
+          path: |
+            keluaran/nuh_bisu.mp4
+            keluaran/nuh_bisu.jpg
+            keluaran/crop-tanah-1x1.jpg
+          if-no-files-found: error
