@@ -60,6 +60,8 @@ def test_hadis_lemah_ditolak():
 
 def test_dalil_belum_dicek_gagal_saat_final():
     r = muat("nuh_mengejek.json")
+    assert not kode(periksa(r, final=True))  # contoh sudah diverifikasi mesin (workflow 'verifikasi dalil')
+    r["dalil"][0]["status"] = "belum"
     assert "DALIL_BELUM_DICEK" in kode(periksa(r), "PERIKSA")
     assert "DALIL_BELUM_DICEK" in kode(periksa(r, final=True))
 
