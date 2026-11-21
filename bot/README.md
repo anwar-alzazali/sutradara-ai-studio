@@ -8,7 +8,7 @@ Fitur:
   Bot menyimpan masukan ke `antrean/<id>/` lalu memicu workflow `naskah` (sutradara/antrean.py): naskah disusun/dirapikan
   Claude (narasi tempelan TIDAK boleh berubah, dicek otomatis), dalil diverifikasi, naskah dikirim balik untuk dicek.
   **Kartu status** diperbarui di tempat per tahap; tombol ✅ Lanjut / ✏️ Revisi (catatan → Claude merevisi) / ❌ Batal.
-  `/status` = daftar antrean. Butuh Secret GitHub `ANTHROPIC_API_KEY`, `QURAN_FOUNDATION_*`, `TELEGRAM_*`, dan token
+  `/status` = daftar antrean. Butuh Secret GitHub `GEMINI_API_KEY` (gratis, utama), `ANTHROPIC_API_KEY` (cadangan), `QURAN_FOUNDATION_*`, `TELEGRAM_*`, dan token
   bot dengan izin *Actions: Read and write* (memicu workflow).
 - **Persetujuan video:** tombol ✅ Setujui / ❌ Tolak, lalu alasan cepat atau "Lainnya" + ketik. Keputusan dicommit
   ke `data/persetujuan/<id>.json` di repo ini. Pesan video dikirim workflow dengan `callback_data` `st:<id>` / `tl:<id>`.

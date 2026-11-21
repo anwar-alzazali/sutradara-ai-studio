@@ -191,6 +191,69 @@ def tanya_claude(sistem: str, isi: str, *, model: str, maks: int = 4000) -> tupl
     return "".join(c.get("text", "") for c in j.get("content", [])), u.get("input_tokens", 0) + u.get("output_tokens", 0)
 
 
+# ---------------- Gemini (gratis) dengan cadangan Claude ----------------
+GEMINI = "https://generativelanguage.googleapis.com/v1beta"
+_GEMINI_TERPILIH: dict = {}
+
+
+def pilih_model_gemini(nama: list[str]) -> str | None:
+    """Dari daftar model akun, pilih 'gemini-X.Y-flash' versi tertinggi yang stabil (bukan lite/preview/exp/image/tts/live)."""
+    calon = []
+    for n in nama:
+        n = n.split("/")[-1]
+        m = re.fullmatch(r"gemini-(\d+(?:\.\d+)?)-flash", n)
+        if m:
+            calon.append((float(m.group(1)), n))
+    return max(calon)[1] if calon else None
+
+
+def _gemini_req(path: str, kunci: str, badan: dict | None = None) -> dict:
+    req = urllib.request.Request(f"{GEMINI}/{path}", data=json.dumps(badan).encode() if badan else None,
+                                 method="POST" if badan else "GET",
+                                 headers={"x-goog-api-key": kunci, "content-type": "application/json"})
+    try:
+        return json.load(urllib.request.urlopen(req, timeout=240))
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"Gemini galat {e.code}") from None
+
+
+def tanya_gemini(sistem: str, isi: str, *, model: str | None = None, maks: int = 8000) -> tuple[str, int]:
+    kunci = (os.environ.get("GEMINI_API_KEY") or "").strip()
+    if not kunci:
+        raise RuntimeError("GEMINI_API_KEY belum diisi")
+    m = os.environ.get("GEMINI_MODEL") or _GEMINI_TERPILIH.get("m")
+    if not m:
+        daftar = _gemini_req("models?pageSize=200", kunci).get("models", [])
+        m = pilih_model_gemini([x["name"] for x in daftar if "generateContent" in x.get("supportedGenerationMethods", [])])
+        if not m:
+            raise RuntimeError("tidak ada model Gemini Flash yang tersedia untuk kunci ini")
+        _GEMINI_TERPILIH["m"] = m
+    j = _gemini_req(f"models/{m}:generateContent", kunci, {
+        "systemInstruction": {"parts": [{"text": sistem}]},
+        "contents": [{"role": "user", "parts": [{"text": isi}]}],
+        "generationConfig": {"responseMimeType": "application/json", "maxOutputTokens": maks, "temperature": 0.7}})
+    teks = "".join(p.get("text", "") for c in j.get("candidates", [])[:1] for p in c.get("content", {}).get("parts", []))
+    if not teks.strip():
+        raise RuntimeError(f"Gemini tidak memberi jawaban ({(j.get('candidates') or [{}])[0].get('finishReason', '?')})")
+    return teks, (j.get("usageMetadata") or {}).get("totalTokenCount", 0)
+
+
+def tanya_otomatis(sistem: str, isi: str, *, model: str, maks: int = 4000) -> tuple[str, int]:
+    """Gemini gratis dulu; bila tidak ada kunci, kena batas, atau gagal -> Claude (berbayar). Penyedia dicatat."""
+    try:
+        teks, token = tanya_gemini(sistem, isi)
+        PENYEDIA["terakhir"] = f"Gemini {_GEMINI_TERPILIH.get('m') or os.environ.get('GEMINI_MODEL', '')} (gratis)"
+        return teks, token
+    except Exception as e:  # noqa: BLE001
+        PENYEDIA["catatan"] = f"Gemini gagal ({str(e)[:80]}), pindah ke Claude"
+    teks, token = tanya_claude(sistem, isi, model=model, maks=maks)
+    PENYEDIA["terakhir"] = f"Claude {model}"
+    return teks, token
+
+
+PENYEDIA: dict = {}
+
+
 def baca_json(teks: str) -> dict:
     t = re.sub(r"^```(?:json)?\s*|\s*```$", "", teks.strip())
     return json.loads(t[t.index("{"): t.rindex("}") + 1])
@@ -213,7 +276,8 @@ def paragraf(teks: str) -> tuple[str | None, list[str]]:
     return judul, isi
 
 
-def buat_naskah(mode: str, masukan: str, naskah_lama: dict | None = None, *, tanya=tanya_claude) -> tuple[dict, int]:
+def buat_naskah(mode: str, masukan: str, naskah_lama: dict | None = None, *, tanya=None) -> tuple[dict, int]:
+    tanya = tanya or tanya_otomatis
     if mode == "tempel":  # narasi diambil APA ADANYA dari teks pemilik; AI hanya memetakan beat & dalil
         judul, par = paragraf(masukan)
         isi = "Naskah dari pemilik (paragraf bernomor):\n" + "\n".join(f"[{i}] {p}" for i, p in enumerate(par, 1))
@@ -310,7 +374,7 @@ def teks_tinjauan(n: dict) -> list[str]:
 
 
 # ---------------- proses satu antrean ----------------
-def proses(id_: str, mode: str, *, folder: Path = ANTREAN, tanya=tanya_claude, quran=None, kirim_tg: bool = True) -> dict:
+def proses(id_: str, mode: str, *, folder: Path = ANTREAN, tanya=None, quran=None, kirim_tg: bool = True) -> dict:
     d = folder / id_
     st = json.loads((d / "status.json").read_text(encoding="utf-8"))
     masukan = (d / ("catatan.txt" if mode == "revisi" else "masukan.txt")).read_text(encoding="utf-8")
@@ -331,11 +395,14 @@ def proses(id_: str, mode: str, *, folder: Path = ANTREAN, tanya=tanya_claude, q
         return st
     st["judul"] = n.get("judul") or st.get("judul")
     st["token_ai"] = st.get("token_ai", 0) + token
+    if PENYEDIA.get("terakhir"):
+        st["penyedia_ai"] = PENYEDIA["terakhir"] + (f" — {PENYEDIA['catatan']}" if PENYEDIA.get("catatan") else "")
     if galat:
         atur(st, "diterima", "gagal", "; ".join(galat)[:300])
         _tulis(d, st, n, kirim_tg)
         return st
-    atur(st, "diterima", "selesai", f"{len(n['beat'])} beat, {len(n.get('dalil', []))} dalil")
+    atur(st, "diterima", "selesai", f"{len(n['beat'])} beat, {len(n.get('dalil', []))} dalil"
+         + (f" · {PENYEDIA['terakhir'].split(' (')[0].split(' ')[0]}" if PENYEDIA.get("terakhir") else ""))
     atur(st, "dalil", "jalan")
     _tulis(d, st, n, kirim_tg)
     from .dalil.verifikasi import verifikasi
@@ -372,5 +439,5 @@ if __name__ == "__main__":  # python -m sutradara.antrean <id> <ide|tempel|revis
     from .dalil.quran import QuranBertingkat, QuranComPublik, QuranFoundation
     q = QuranBertingkat(QuranFoundation() if os.environ.get("QURAN_FOUNDATION_CLIENT_ID") else None, QuranComPublik())
     hasil = proses(sys.argv[1], sys.argv[2], quran=q)
-    print(kartu(hasil))
+    print(kartu(hasil)); print("penyedia AI:", hasil.get("penyedia_ai", "-"))
     sys.exit(1 if "gagal" in hasil["tahap"]["diterima"] else 0)
