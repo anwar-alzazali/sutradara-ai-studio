@@ -220,6 +220,8 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - Bot & Studio lama, film3d, cabang hasil per video, berkas audio/video lama.
 
 ## Log keputusan
+- 21 Nov 2026 — Tanah bertekstur menjadi bawaan preset; jenis dan seed dapat diatur per shot. Tekstur statis di koordinat dunia, berkontras rendah, dan dirender di bawah benda/tokoh. Batu foreground tetap tajam tanpa blur.
+
 - 21 Nov 2026 — Repo baru tanpa riwayat; mesin-video & motion-studio-ai jadi arsip rujukan.
 - 21 Nov 2026 — Gaya visual dikunci (lihat PANDUAN_GAYA): tokoh berpakaian, NPC jauh pudar oleh kabut, nur = pilar cahaya,
   Dabbah = kabut tanah gelap, Dajjal = desain B (ciri hadis tampil), Ya'juj Ma'juj = manusia.
