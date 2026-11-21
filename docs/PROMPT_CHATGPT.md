@@ -11,7 +11,7 @@ Setiap tahap boleh dimulai walaupun tahap sebelumnya belum diaudit Claude, denga
 ## Prompt umum: ganti `X` dengan huruf tahap
 
 ```
-Kerjakan Tahap X di docs/TAHAP_LANJUT.md di repo anwar-alzazali/sutradara-ai-studio, dengan kemampuan maksimal.
+Kerjakan Tahap X di docs/TAHAP_LANJUT.md (baca dari cabang main) di repo anwar-alzazali/sutradara-ai-studio, dengan kemampuan maksimal.
 Baca dulu docs/PROMPT_CHATGPT.md bagian "Cara kerja" dan "Mode bertumpuk", lalu ikuti aturan umum di
 docs/TAHAP_LANJUT.md. Tuntaskan semua poin. Serahkan PR berstatus siap ditinjau hanya bila CI hijau dan
 swa-audit (daftar periksa audit di docs/PROMPT_CHATGPT.md) sudah lulus. Jangan merge.
@@ -38,6 +38,10 @@ ditinjau lagi hanya bila CI hijau dan ringkasan audit sudah diperbarui:
 ---
 
 ## Cara kerja (lingkungan yang tidak bisa clone atau menjalankan program)
+
+0. **Dokumen aturan SELALU dibaca dari cabang `main`**: `AGENTS.md`, `docs/TAHAP_LANJUT.md`, `docs/PROMPT_CHATGPT.md`,
+   `docs/ROADMAP.md`, `docs/PANDUAN_GAYA.md`, `docs/RESEP_SUTRADARA.md`. Cabang kerja bisa tertinggal: tahap baru atau
+   aturan baru mungkin hanya ada di main. Bila cabang kerja tertinggal dari main, merge main ke cabang kerja dulu.
 
 1. Buat cabang tahap dan buka **PR draft sejak awal**. Draft dipakai sebagai ruang kerja agar CI (`uji.yml`) berjalan.
    Yang dilarang hanya menyerahkan PR untuk diaudit sebelum selesai.
