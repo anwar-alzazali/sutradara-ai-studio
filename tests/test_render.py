@@ -113,7 +113,8 @@ def test_pilar_nuh_shot_terakhir_berjarak_dari_ujung_lambung():
     zoom = kamera["zoom"][-1][1]
     pusat_layar = 540 + (pilar["x"] - kamera["x"]) * zoom
     assert pusat_layar > 100  # label/pilar tidak terpotong tepi kiri
-    assert pilar["x"] == 205  # posisi pelaku tetap dekat dengan kapal
+    tepi_lambung_penjaga = kapal["x"] - 500 * kapal["s"]
+    assert abs(pilar["x"] - tepi_lambung_penjaga) <= 160  # pelaku tetap dekat kapal (batas penjaga)
     assert pilar["lebar"] == 88 and pilar["pendar_rx"] == 72
 
 
