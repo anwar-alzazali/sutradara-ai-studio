@@ -15,9 +15,11 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 | Makhluk yang wujudnya dijelaskan dalil | Digambar **hanya** dengan ciri dari dalil; sisanya netral. | per tokoh |
 | Dajjal | **Desain B**: berpakaian penguasa (jubah merah tua bersulam emas = pilihan gaya), mata kanan buta menonjol seperti anggur & keruh tanpa pupil (Bukhari 7123), ك ف ر di antara kedua mata (Bukhari 7131, Muslim 2933), rambut sangat keriting, muda. Tanpa gore, tanpa taring/tanduk, tanpa ciri ras. Boleh siluet di awal untuk misteri. | `gaya/dajjal.py` |
 | Ya'juj Ma'juj | **Manusia biasa** (keturunan Adam, Bukhari 3348): tinggi bervariasi, pakaian compang-camping, tanpa wajah bila siluet. Kengerian dari **jumlah & gerak** (turun dari setiap tempat tinggi, QS Al-Anbiya 96), bukan bentuk aneh. Tanpa telinga raksasa/tanduk (riwayat lemah) dan tanpa ciri ras. | fase 7 |
-| Buraq | Hewan putih, lebih besar dari keledai & lebih kecil dari bagal, langkahnya sejauh pandangan. **Tanpa sayap, tanpa wajah manusia, tidak pernah digambar dengan penunggang** (penunggang = pilar cahaya). Agung, bukan kartun lucu. | fase 7 |
+| Buraq | Hewan putih, lebih besar dari keledai & lebih kecil dari bagal, langkahnya sejauh pandangan. **Tanpa sayap, tanpa wajah manusia, tidak pernah digambar dengan penunggang** (penunggang = pilar cahaya). Agung, bukan kartun lucu. Komponen dasar dan penjaga penunggang tersedia; penilaian proporsi visual tetap diperlukan. | `gaya/akhir_zaman.py` |
 
 ## 1b. Gerak & ekspresi
+- Arah tokoh memakai `arah`: `depan`, `samping`, `belakang`, atau jadwal `[[detik, arah], ...]`. Perubahan sudut memakai smoothstep; tampilan wajah memudar saat tokoh membelakangi kamera.
+- Ragam anatomi memakai `usia`: `anak`, `dewasa`, `lansia`; busana memakai `zaman`: `arab_kuno`, `mesir_kuno`, `umum`. Semua pilihan memakai rangka bersendi yang sama.
 - Gerak dan ekspresi melayani cerita: pilih yang dinyatakan narasi (yang "lewat" berjalan, yang "mengejek" tertawa/menunjuk
   dengan mulut bergerak, yang "takut" mundur/menutup telinga). Daftar lengkap: `python -c "from sutradara import gerak; print(gerak.SEMUA)"`.
 - Tidak ada gerak tanpa alasan di latar: NPC jauh hanya bernapas/bergerak kecil.
