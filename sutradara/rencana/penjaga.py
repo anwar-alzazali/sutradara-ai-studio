@@ -105,9 +105,17 @@ def periksa(rencana: dict, *, final: bool = False) -> list[Temuan]:
                 if "penunggang" in buraq or buraq.get("naik_di") == "buraq":
                     t.append(Temuan("GAGAL", "PENUNGGANG_BURAQ",
                                     f"beat {i} shot {j} Buraq {bi}: Buraq tidak boleh digambar dengan penunggang; hadirkan pilar nur terpisah bila diperlukan"))
-                if any(tk.get("naik_di") == "buraq" for tk in s.get("tokoh", [])):
-                    t.append(Temuan("GAGAL", "PENUNGGANG_BURAQ",
-                                    f"beat {i} shot {j}: tokoh manusia tidak boleh ditempatkan menunggang Buraq"))
+                for tokoh in s.get("tokoh", []):
+                    tx, ty = tokoh.get("x"), tokoh.get("y")
+                    bs = float(buraq.get("s", 1)) if isinstance(buraq.get("s", 1), (int, float)) else 1.0
+                    bx, by = buraq.get("x"), buraq.get("y")
+                    if tokoh.get("naik_di") == "buraq" or (
+                        isinstance(tx, (int, float)) and isinstance(ty, (int, float))
+                        and isinstance(bx, (int, float)) and isinstance(by, (int, float))
+                        and abs(tx - bx) < 150 * bs and by - 330 * bs < ty < by - 80 * bs
+                    ):
+                        t.append(Temuan("GAGAL", "PENUNGGANG_BURAQ",
+                                        f"beat {i} shot {j}: tokoh berada di area punggung Buraq; penunggang tidak boleh digambar sebagai manusia"))
             t += _periksa_kartu(s, dalil, final, f"beat {i} shot {j}")
             if b.get("pelaku"):
                 t += _periksa_penataan(s, b["pelaku"], vi["benda"], peran, f"beat {i} shot {j}")
