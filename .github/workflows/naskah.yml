@@ -10,6 +10,10 @@ on:
       mode:
         description: "ide | tempel | revisi"
         required: true
+      cadangan:
+        description: "Pakai Claude (berbayar) bila Gemini gagal"
+        type: boolean
+        default: true
 permissions:
   contents: write
 concurrency:
@@ -36,6 +40,7 @@ jobs:
           ID: ${{ inputs.id }}
           MODE: ${{ inputs.mode }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NASKAH_CADANGAN: ${{ inputs.cadangan == false && '0' || '1' }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           QURAN_FOUNDATION_CLIENT_ID: ${{ secrets.QURAN_FOUNDATION_CLIENT_ID }}
           QURAN_FOUNDATION_CLIENT_SECRET: ${{ secrets.QURAN_FOUNDATION_CLIENT_SECRET }}
