@@ -7,11 +7,11 @@ concurrency:
   group: uji-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 permissions:
-  contents: read
+  contents: write
 jobs:
   tes:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -25,6 +25,32 @@ jobs:
         run: python -m pytest -q
       - name: Render bukti Nuh dengan narasi tiruan
         run: python scripts/render_bukti_nuh.py
+      - name: Benchmark render serial dan paralel pada runner yang sama
+        run: python scripts/benchmark_render_tahap_b.py
+      - name: Render lembar kontak visual Tahap B
+        run: python scripts/render_bukti_tahap_b.py
+      - name: Simpan bukti JPG hanya ke cabang bukti
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          mkdir -p /tmp/tahap-b-bukti
+          cp keluaran-bukti/tahap-b/lembar-kontak.jpg /tmp/tahap-b-bukti/lembar-kontak.jpg
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin bukti >/dev/null 2>&1; then
+            git fetch origin bukti
+            git checkout -B bukti origin/bukti
+          else
+            git checkout --orphan bukti
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          mkdir -p bukti/tahap-b
+          cp /tmp/tahap-b-bukti/lembar-kontak.jpg bukti/tahap-b/lembar-kontak-${GITHUB_SHA}.jpg
+          git add bukti/tahap-b
+          git commit -m "Bukti visual Tahap B ${GITHUB_SHA}"
+          git push origin HEAD:bukti
       - name: Unggah artefak render Nuh
         if: always()
         uses: actions/upload-artifact@v4
