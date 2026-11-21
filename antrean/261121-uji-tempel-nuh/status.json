@@ -1,6 +1,6 @@
 {
  "id": "261121-uji-tempel-nuh",
- "judul": "Nuh Diejek Kaumnya",
+ "judul": "Nuh diejek kaumnya",
  "sumber": "tempel",
  "tahap": {
   "diterima": "gagal",
@@ -13,10 +13,10 @@
   "kirim": "belum"
  },
  "ket": {
-  "diterima": "beat 2: narasi tidak sama dengan naskah asli (\"Setiap kali pemuka kaumnya lewat, mereka mengejek Nuh.…\")"
+  "diterima": "dalil 1: jenis harus 'quran' atau 'hadis'; beat 1: suasana 'Tegas, penuh tanggung jawab' tidak dikenal (senja, dhuha, malam, malam_merah, fajar); beat 2: suasana 'Merendahkan, penuh ejekan' tidak dikenal (senja, dhuha, malam, malam_merah, fajar); beat 3: suasana 'Tegas, tidak tunduk' tidak dikenal ("
  },
  "dibuat": "2026-11-21T09:12:19+00:00",
- "diperbarui": "2026-11-21T09:12:46+00:00",
+ "diperbarui": "2026-11-21T09:16:14+00:00",
  "pesan_kartu": 383,
- "token_ai": 1137
+ "token_ai": 2180
 }

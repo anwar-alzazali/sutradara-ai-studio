@@ -1,48 +1,48 @@
 {
- "judul": "Nuh Diejek Kaumnya",
- "inti": "Nabi Nuh tetap teguh membangun kapal meski dikejek kaumnya, dan menanggapi ejekan mereka dengan keyakinan penuh.",
+ "judul": "Nuh diejek kaumnya",
+ "inti": "Ketika Nabi Nuh menerima perintah Allah untuk membuat kapal, kaumnya justru mengejeknya. Nuh merespons dengan tegas: ejakan mereka akan dibalas dengan ejakan kami.",
  "dalil": [
   {
-   "id": "hud38",
-   "jenis": "quran",
-   "label": "QS HUD 38",
-   "surah": 11,
-   "ayat": "38"
+   "id": "1",
+   "rujukan": "QS 11:38",
+   "topik": "Perintah membuat kapal dan ejekan kaum"
   }
  ],
  "beat": [
   {
    "narasi": "Atas perintah Allah, Nabi Nuh mulai membuat kapal.",
-   "dalil": [],
-   "suasana": "dhuha",
+   "dalil": [
+    "1"
+   ],
+   "suasana": "Tegas, penuh tanggung jawab",
    "kata_kunci": [
     "perintah Allah",
-    "kapal",
-    "Nabi Nuh"
+    "membuat kapal",
+    "Nuh"
    ]
   },
   {
-   "narasi": "Setiap kali pemuka kaumnya lewat, mereka mengejek Nuh.",
+   "narasi": "Setiap kali pemuka kaumnya lewat, mereka mengejeknya.",
    "dalil": [
-    "hud38"
+    "1"
    ],
-   "suasana": "dhuha",
+   "suasana": "Merendahkan, penuh ejekan",
    "kata_kunci": [
-    "ejekan",
     "pemuka kaum",
-    "penghinaan"
+    "mengejek",
+    "lewat"
    ]
   },
   {
    "narasi": "Nuh menjawab: jika kalian mengejek kami, kami pun akan mengejek kalian.",
    "dalil": [
-    "hud38"
+    "1"
    ],
-   "suasana": "dhuha",
+   "suasana": "Tegas, tidak tunduk",
    "kata_kunci": [
-    "jawaban tegas",
+    "ejakan dibalas",
     "keyakinan",
-    "tidak takut diremehkan"
+    "sikap teguh"
    ]
   }
  ]
