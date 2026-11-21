@@ -115,7 +115,8 @@ def test_dinding_yajuj_berupa_tembok_masif_besi_dan_tembaga_bukan_jeruji():
     assert 'class="dinding-yajuj"' in svg
     assert 'stroke="#c77b43"' in svg
     assert 'fill="#59636a"' in svg
-    assert 'M-470 -255 H470' in svg
+    assert 'M-620 -330 H620' in svg  # lapis balok besi melintang
+    assert '-1500' in svg  # jauh lebih tinggi dari manusia
     assert 'l18 300' not in svg
 
 

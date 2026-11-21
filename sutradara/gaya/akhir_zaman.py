@@ -15,23 +15,34 @@ def buraq(x: float, y: float, s: float = 1.0, *, t: float = 0.0) -> str:
             '<circle cx="142" cy="-235" r="4" fill="#51483f"/></g>')
 
 def dinding_yajuj(x: float, y: float, s: float = 1.0, *, lubang: float = 0.0) -> str:
-    """Tembok masif dari susunan besi yang dicor tembaga; lubang menembus ketebalan dinding."""
+    """Tembok raksasa dari balok besi yang dicor tembaga (QS Al-Kahfi 96).
+
+    Jauh lebih tinggi dari manusia (puncaknya keluar bingkai pada skala biasa) dan
+    selebar lembah, supaya penggali tampak kecil di kakinya. Lubang ada di dasar,
+    setinggi tangan penggali, dan menembus ketebalan dinding.
+    """
     u = max(0.0, min(1.0, float(lubang)))
     rx = 8 + 178 * u
     ry = 7 + 112 * u
-    # Bidang besi padat; tidak memakai jeruji, kisi, atau batang vertikal.
-    dinding = ('M-500 0 L-500 -350 Q-250 -390 0 -350 Q250 -390 500 -350 '
-               'L500 0Z')
+    L, T = 640, 1500  # setengah lebar, tinggi
+    # Bidang besi padat; tidak memakai jeruji, kisi, atau batang vertikal penuh.
+    dinding = f'M-{L} 0 L-{L} -{T} L{L} -{T} L{L} 0Z'
+    lapis = range(90, T, 120)
     sambungan = ''.join(
-        f'<path d="M-470 {yy} H470" stroke="#202a30" '
-        f'stroke-width="5" opacity=".34"/>' for yy in (-255, -165, -75)
+        f'<path d="M-{L-20} -{yy} H{L-20}" stroke="#202a30" stroke-width="6" opacity=".42"/>'
+        for yy in lapis
+    )
+    # Sambungan balok pendek berselang-seling (susunan bata besi, bukan kisi).
+    balok = ''.join(
+        f'<path d="M{xx + (110 if i % 2 else 0)} -{yy} v-120" stroke="#202a30" '
+        f'stroke-width="5" opacity=".3"/>'
+        for i, yy in enumerate(lapis) for xx in range(-L + 110, L - 60, 220)
     )
     lapis_tembaga = (
-        '<path d="M-500 -350 Q-250 -390 0 -350 Q250 -390 500 -350" '
-        'fill="none" stroke="#c77b43" stroke-width="24" stroke-linecap="round"/>'
-        '<path d="M-500 -18 H500" fill="none" stroke="#a95f32" stroke-width="18"/>'
-        '<path d="M-475 -318 Q-250 -355 0 -318 Q250 -355 475 -318" '
-        'fill="none" stroke="#e4a36a" stroke-width="7" opacity=".85"/>'
+        f'<path d="M-{L} -18 H{L}" fill="none" stroke="#a95f32" stroke-width="18"/>'
+        + ''.join(f'<path d="M-{L} -{yy} H{L}" fill="none" stroke="#c77b43" '
+                  f'stroke-width="12" opacity=".75"/>' for yy in (450, 930, 1410))
+        + f'<path d="M-{L-30} -{T-60} H{L-30}" fill="none" stroke="#e4a36a" stroke-width="6" opacity=".5"/>'
     )
     lubang_dinding = (
         f'<ellipse cx="0" cy="-178" rx="{rx:.1f}" ry="{ry:.1f}" '
@@ -41,7 +52,7 @@ def dinding_yajuj(x: float, y: float, s: float = 1.0, *, lubang: float = 0.0) ->
     )
     return (f'<g class="dinding-yajuj" transform="translate({x:.1f},{y:.1f}) scale({s})">'
             f'<path d="{dinding}" fill="#59636a" stroke="#252d32" stroke-width="22"/>'
-            + sambungan + lapis_tembaga + lubang_dinding + '</g>')
+            + sambungan + balok + lapis_tembaga + lubang_dinding + '</g>')
 
 def danau_surut(x: float, y: float, s: float = 1.0, *, surut: float = 0.0) -> str:
     """Danau menyusut menuju garis air tipis."""
