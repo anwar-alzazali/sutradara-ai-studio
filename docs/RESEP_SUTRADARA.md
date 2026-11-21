@@ -105,12 +105,17 @@ Selain kamera, selalu ada yang bergerak: hujan bertingkat (`hujan` dianimasikan 
 |---|---|---|
 | Ambience panjang per babak | `laut_malam`, `drone_gelap`, `angin_gurun`, `jangkrik`, `malam_hening` | satu bed per preset suasana, `ulang=True`, sampai babak berganti |
 | Hentakan di kata kunci | `braam`, `hentak_serius`, `guntur_hujan` | sinkron dengan `guncang`/`hentak` kamera |
-| Diegetik sinkron gerak | `palu_kayu` (membuat kapal), denting beliung 3,4×/dtk mengikuti animasi | bunyi benda yang sedang terlihat bergerak |
+| Diegetik sinkron gerak | `satu/palu`, `satu/gali`, `satu/langkah`, `satu/langkah_lari` | satu ketukan pada titik kena; posisi, ukuran, keterlihatan, dan bahan dinilai saat kejadian |
+| Bahan langkah/pukulan | `aksi/langkah_pasir`, `aksi/langkah_kayu`, `aksi/langkah_air`, `aksi/langkah_batu_besi`, `aksi/palu_kayu`, `aksi/palu_batu_besi` | pakai rekaman khusus bila tersedia; fallback ke aset lama tanpa menggagalkan render |
+| Aksi/lingkungan lain | `aksi/tawa_ejekan`, `aksi/kerumunan_jauh`, `aksi/kabut_keluar`, `aksi/tanah_retak` | satu tawa kelompok, ambience NPC jauh, dan tekstur hanya saat kabut/retakan benar-benar berkembang |
 | Kilau / wahyu | `kilau_cahaya` | saat nur muncul, cahaya dari atas, kalimat harapan |
 | Emosi penutup | `dengung_haru`, `senandung_haru` | dari pelajaran sampai akhir video |
 | Ketegangan | `detak_jantung` | adegan menunggu keputusan (anak di tebing) |
 
 Volume 0,3–0,9: bed rendah (0,2–0,45), hentakan tinggi (0,6–0,9).
+Gerak diam seperti berdiri/bernapas/menunjuk tidak diberi bunyi tanpa kontak yang terdengar. Ketukan berulang
+divariasikan ringan secara deterministik; satu ketukan per tokoh yang paling terlihat diprioritaskan sebelum
+slot berikutnya dibagikan. Efek satu-kali dekat batas shot mendapat ekor minimum + fade pendek.
 
 ---
 

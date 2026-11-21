@@ -16,7 +16,7 @@ ATURAN EFEK TERIKAT AKSI (permintaan pemilik 21 Nov 2026): bunyi mengikuti apa y
 - Efek satu-kali BERHENTI di akhir shot tempat ia mulai (fade 0,3 dtk), kecuali ditandai `"lewat": true`.
   Suasana dan musik diatur terpisah, tidak terkena aturan ini.
 Ducking: efek & musik ditekan sidechain oleh narasi, jadi kata tetap jelas tanpa angka volume tetap di tiap efek.
-Target akhir sekitar -15 LUFS, puncak -1,5 dBTP (titik awal teknis, bukan alasan merusak dinamika).
+Target akhir sekitar -15 LUFS; true-peak target -2 dBTP memberi ruang untuk AAC agar hasil akhir tetap di bawah -1 dBTP.
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from .. import gerak as GR
+from . import aksi as AK
 from ..garis_waktu import Garis, _cocok
 from ..waktu import adalah_kf
 
@@ -34,11 +34,6 @@ SUASANA = {"senja": "angin_sejuk", "dhuha": "angin_gurun", "malam": "jangkrik", 
            "fajar": "malam_hening"}
 VOL_SUASANA = 0.32
 # gerak -> (sampel satu-ketukan, volume dasar pada tokoh s=1)
-AKSI = {"palu": ("satu/palu", 0.7), "gali": ("satu/gali", 0.8), "jalan": ("satu/langkah", 0.35),
-        "lari": ("satu/langkah_lari", 0.45), "lompat": ("satu/langkah", 0.6)}
-MAKS_KETUK_PER_SHOT = 40  # kerumunan besar: batasi supaya tidak jadi dengung
-
-
 def _pan(x: float) -> float:
     return max(-0.7, min(0.7, (x - 540) / 540 * 0.7))
 
@@ -50,37 +45,8 @@ def _sisa(shot: dict, at_lokal: float) -> dict:
 
 
 def efek_aksi(shot: dict, mulai: float) -> list[dict]:
-    """Ketukan/langkah dari aksi di dalam satu shot (waktu video)."""
-    dur, rek = shot["durasi"], []
-    for i, tk in enumerate(shot.get("tokoh", [])):
-        sp = tk.get("gerak", tk.get("pose", "berdiri"))
-        jad = [(0.0, sp)] if isinstance(sp, str) else sorted((float(a), b) for a, b in sp)
-        off = i * 0.37  # sama dengan adegan.susun: tokoh ke-i memakai waktu t + i*0,37
-        s = tk.get("s", 1.0) if not adalah_kf(tk.get("s")) else tk["s"][0][1]
-        x = tk.get("x", 540) if not adalah_kf(tk.get("x")) else tk["x"][0][1]
-        for k, (a, nama) in enumerate(jad):
-            if nama not in AKSI:
-                continue
-            b = jad[k + 1][0] if k + 1 < len(jad) else dur + off
-            a0, b0 = max(a, off), min(b, dur + off)
-            if b0 <= a0:
-                continue
-            sampel, vol = AKSI[nama]
-            for tc in GR.titik_kena(nama, a0, b0):
-                rek.append({"berkas": sampel, "at": mulai + tc - off, "vol": round(vol * min(1.3, s), 3), "pan": _pan(x),
-                            "sebab": f"tokoh {i + 1} {nama}"})
-    if not any(r["sebab"].endswith("palu") for r in rek):
-        for b in shot.get("benda", []):
-            if b.get("jenis") == "bahtera" and adalah_kf(b.get("jadi")):
-                kf = sorted(b["jadi"])
-                for (t0, v0), (t1, v1) in zip(kf, kf[1:]):
-                    if v1 > v0:
-                        tt = max(0.0, t0) + 0.15
-                        while tt < min(t1, dur):
-                            rek.append({"berkas": "satu/palu", "at": mulai + tt, "vol": round(0.55 * b.get("s", 1), 3),
-                                        "pan": _pan(b.get("x", 540)), "sebab": "bahtera dibangun"})
-                            tt += 1 / 1.4
-    return rek[:MAKS_KETUK_PER_SHOT]
+    """Ketukan diegetik dari aksi yang terlihat, termasuk perspektif kamera."""
+    return AK.efek_aksi(shot, mulai)
 
 
 def berkas(nama: str) -> Path:
@@ -145,8 +111,12 @@ def rancang(rencana: dict, g: Garis) -> list[dict]:
                 if kunci in e:
                     r[kunci] = e[kunci]
             if not e.get("lewat") and "sampai" not in r:  # berhenti di akhir shot tempat ia mulai
+                if at >= g.total:
+                    continue
                 akhir = next((p for p in g.potong[1:] + [g.total] if p > at + 1e-6), g.total)
-                r["sampai"] = round(akhir - at, 3); r.setdefault("keluar", min(0.3, r["sampai"] / 2))
+                # Ekor minimum mencegah satu-kali dekat potongan menjadi klik; fade pendek menyamarkan sambungan.
+                r["sampai"] = round(max(0.18, akhir - at), 3)
+                r.setdefault("keluar", min(0.12, r["sampai"] / 2))
             rek.append(r)
     for r in rek:
         berkas(r["berkas"])  # gagal cepat bila nama salah
@@ -186,6 +156,8 @@ def campur(video: Path, narasi_mp3: Path, g: Garis, rekaman: list[dict], keluar:
                 rantai.append(f"afade=t=in:d={masuk}")
             if kel and r.get("sampai"):
                 rantai.append(f"afade=t=out:st={max(0, r['sampai'] - kel):.3f}:d={kel}")
+            if r.get("kecepatan", 1.0) != 1.0:
+                rantai.append(AK.filter_kecepatan(r))
             if r.get("pan"):
                 p = r["pan"]
                 rantai.append(f"pan=stereo|c0={min(1, 1 - p):.3f}*c0|c1={min(1, 1 + p):.3f}*c1")
@@ -201,7 +173,7 @@ def campur(video: Path, narasi_mp3: Path, g: Garis, rekaman: list[dict], keluar:
         fil.append("[narasi][efekd]amix=inputs=2:normalize=0:duration=first[campur]")
     else:
         fil.append("[kendali]anullsink"); fil.append("[narasi]anull[campur]")
-    fil.append(f"[campur]loudnorm=I={lufs}:TP=-1.5:LRA=11,alimiter=limit=0.89:level=false,aresample=44100[akhir]")
+    fil.append(f"[campur]loudnorm=I={lufs}:TP=-2.0:LRA=11,alimiter=limit=0.84:level=false,aresample=44100[akhir]")
     arg += ["-filter_complex", ";".join(fil), "-map", "0:v", "-map", "[akhir]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
             "-t", f"{dur:.3f}", "-movflags", "+faststart", str(keluar)]
     subprocess.run(arg, check=True)

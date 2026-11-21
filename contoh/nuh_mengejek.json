@@ -21,6 +21,12 @@
    "nama": "Kaum Nabi Nuh",
    "kategori": "manusia",
    "tampil": "pakaian"
+  },
+  {
+   "id": "pengikut_beriman",
+   "nama": "Pengikut Nabi Nuh",
+   "kategori": "manusia",
+   "tampil": "pakaian"
   }
  ],
  "hook": {
@@ -52,7 +58,8 @@
    "preset": "senja",
    "keadaan": "rangka",
    "peran_tampil": [
-    "nuh"
+    "nuh",
+    "pengikut_beriman"
    ],
    "shot": [
     {
@@ -72,7 +79,7 @@
        "jadi": [
         [
          0,
-         0.0
+         0
         ],
         [
          4,
@@ -80,7 +87,7 @@
         ]
        ],
        "s": 0.56,
-       "cahaya": 0.0
+       "cahaya": 0
       }
      ],
      "nur": [
@@ -91,7 +98,32 @@
        "sinar_ke": "kanan"
       }
      ],
-     "tokoh": [],
+     "tokoh": [
+      {
+       "x": 430,
+       "y": 1360,
+       "s": 0.52,
+       "gerak": "palu",
+       "wajah": "datar",
+       "kepala": "imamah",
+       "jenis": "pria",
+       "mode": "pakaian",
+       "permukaan": "kayu",
+       "peran": "pengikut_beriman"
+      },
+      {
+       "x": 760,
+       "y": 1370,
+       "s": 0.48,
+       "gerak": "palu",
+       "wajah": "datar",
+       "kepala": "kain",
+       "jenis": "pria",
+       "mode": "pakaian",
+       "permukaan": "kayu",
+       "peran": "pengikut_beriman"
+      }
+     ],
      "teks": {
       "judul": [
        "MEMBUAT",
@@ -101,9 +133,9 @@
       "subtitle": "jauh dari laut",
       "sorot": "laut",
       "judul_mulai": 0.3,
-      "subtitle_mulai": 0.0
+      "subtitle_mulai": 0
      },
-     "durasi": 4.0,
+     "durasi": 4,
      "kamera": {
       "zoom": [
        [
@@ -138,7 +170,10 @@
      }
     }
    ],
-   "pelaku": "nuh"
+   "pelaku": [
+    "nuh",
+    "pengikut_beriman"
+   ]
   },
   {
    "narasi": "Setiap kali pemuka kaumnya lewat, mereka mengejeknya.",
@@ -171,7 +206,7 @@
        "y": 1235,
        "jadi": 0.5,
        "s": 0.56,
-       "cahaya": 0.0
+       "cahaya": 0
       }
      ],
      "nur": [
@@ -195,7 +230,7 @@
         ]
        ],
        "y": 1520,
-       "s": 1.0,
+       "s": 1,
        "wajah": [
         [
          0,
@@ -414,7 +449,7 @@
        "y": 1235,
        "jadi": 0.62,
        "s": 0.56,
-       "cahaya": 0.0
+       "cahaya": 0
       }
      ],
      "nur": [
@@ -429,7 +464,7 @@
       {
        "x": 700,
        "y": 1520,
-       "s": 1.0,
+       "s": 1,
        "wajah": "ejek",
        "kepala": "imamah",
        "peran": "kaum",
@@ -498,7 +533,7 @@
       "sorot": "mengejek",
       "judul_mulai": 0.1
      },
-     "durasi": 3.0,
+     "durasi": 3,
      "kamera": {
       "zoom": [
        [
@@ -556,14 +591,14 @@
         ],
         [
          3.5,
-         1.0
+         1
         ]
        ],
        "s": 0.56,
        "cahaya": [
         [
          0,
-         0.0
+         0
         ],
         [
          5,
@@ -621,7 +656,7 @@
       "sorot": "kalian",
       "judul_mulai": 0.8
      },
-     "durasi": 5.0,
+     "durasi": 5,
      "kamera": {
       "zoom": [
        [
@@ -669,7 +704,7 @@
        "jenis": "bahtera",
        "x": 600,
        "y": 1235,
-       "jadi": 1.0,
+       "jadi": 1,
        "s": 0.56,
        "cahaya": 0.8
       }
