@@ -43,10 +43,8 @@ def main() -> None:
         lembar.save(OUT / "lembar-kontak-b2.jpg", quality=88, optimize=True)
 
         # Bukti close-up seluruh preset ekspresi; memakai renderer wajah produksi.
-        ekspresi = [
-            "datar", "takut", "cemberut", "ejek", "kaget",
-            "kepergok_panik", "jijik_ilfil", "sinis", "curiga", "heran",
-        ]
+        # Ambil seluruh preset produksi: semua ekspresi lama dan tambahan mikro baru.
+        ekspresi = list(tokoh.WAJAH)
         kartu_wajah = []
         import tempfile
         with tempfile.TemporaryDirectory() as sementara:
@@ -67,9 +65,11 @@ def main() -> None:
                 panel.paste(wajah, ((240 - wajah.width) // 2, 4))
                 ImageDraw.Draw(panel).text((8, 164), nama, fill="black")
                 kartu_wajah.append(panel)
-        lembar_wajah = Image.new("RGB", (240 * 5, 190 * 2), (238, 238, 238))
+        kolom = 5
+        baris = (len(kartu_wajah) + kolom - 1) // kolom
+        lembar_wajah = Image.new("RGB", (240 * kolom, 190 * baris), (238, 238, 238))
         for i, panel in enumerate(kartu_wajah):
-            lembar_wajah.paste(panel, ((i % 5) * 240, (i // 5) * 190))
+            lembar_wajah.paste(panel, ((i % kolom) * 240, (i // kolom) * 190))
         lembar_wajah.save(OUT / "lembar-ekspresi-b2.jpg", quality=92, optimize=True)
 
     for file in sorted(OUT.glob("*.jpg")):
