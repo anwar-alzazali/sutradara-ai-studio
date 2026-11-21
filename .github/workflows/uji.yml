@@ -49,10 +49,10 @@ jobs:
         run: |
           set -e
           test -f data/hadis/bukhari.json.gz || python -m sutradara.dalil.unduh_hadis
+          python -m sutradara verifikasi contoh/yajuj_majjuj.json
+          python -m sutradara periksa contoh/yajuj_majjuj.json --final
           mkdir -p keluaran-bukti/verifikasi
           cp contoh/yajuj_majjuj.json keluaran-bukti/verifikasi/yajuj_majjuj.json
-          python -m sutradara verifikasi keluaran-bukti/verifikasi/yajuj_majjuj.json
-          python -m sutradara periksa keluaran-bukti/verifikasi/yajuj_majjuj.json --final
       - name: Unggah hasil verifikasi dalil
         if: always()
         uses: actions/upload-artifact@v4
