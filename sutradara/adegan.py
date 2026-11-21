@@ -70,6 +70,7 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     dunia.append(LT.tanah(p, sp.get("tanah_y", 1250)))
     for b in sp.get("buraq", []):
         dunia.append(AZ.buraq(b["x"], b["y"], b.get("s", 1), t=tg))
+    tanda_overlay = []
     for b in sp.get("akhir_zaman", []):
         j = b["jenis"]
         if j == "dinding_yajuj":
@@ -77,7 +78,7 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
         elif j == "danau_surut":
             dunia.append(AZ.danau_surut(b["x"], b["y"], b.get("s", 1), surut=b.get("surut", 0)))
         elif j == "tanda_wajah":
-            dunia.append(AZ.tanda_wajah(b["x"], b["y"], b.get("s", 1)))
+            tanda_overlay.append(AZ.tanda_wajah(b["x"], b["y"], b.get("s", 1)))
         else:
             raise ValueError(f"komponen akhir zaman tak dikenal: {j}")
     for b in sp.get("benda", []):
@@ -114,6 +115,8 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
                                          kepala=tk.get("kepala"), jenis=tk.get("jenis", "pria"), wajah=asli.get("wajah", "datar"), arah=asli.get("arah", tk.get("arah", "depan")), usia=tk.get("usia", "dewasa"), zaman=tk.get("zaman", "arab_kuno"),
                                          bicara=asli.get("bicara"), balik=tk.get("balik", False))))
     dunia += [s for _, s in sorted(tengah, key=lambda a: a[0])]
+    # Tanda wajah adalah penanda ilustratif; letakkan di atas tokoh sasaran.
+    dunia += tanda_overlay
     lapis = [f'<g transform="{KM.transform(sp.get("kamera"), t)}">' + "\n".join(dunia) + "</g>"]
     if sp.get("depan", True):
         # lapis depan tidak ikut zoom kamera (kalau ikut, batu membesar jadi bercak hitam); hanya bergeser
