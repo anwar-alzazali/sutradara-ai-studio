@@ -15,12 +15,33 @@ def buraq(x: float, y: float, s: float = 1.0, *, t: float = 0.0) -> str:
             '<circle cx="142" cy="-235" r="4" fill="#51483f"/></g>')
 
 def dinding_yajuj(x: float, y: float, s: float = 1.0, *, lubang: float = 0.0) -> str:
-    """Dinding logam dengan lubang yang membesar secara keyframe 0..1."""
-    u=max(0.0,min(1.0,float(lubang))); rx=10+175*u; ry=8+100*u
-    ruas=''.join(f'<path d="M{-460+k*92} -350 V0" stroke="#303a40" stroke-width="12"/>' for k in range(11))
-    return (f'<g transform="translate({x:.1f},{y:.1f}) scale({s})"><path d="M-500 0 L-500 -360 Q-250 -405 0 -360 Q250 -405 500 -360 L500 0Z" fill="#59636a" stroke="#aeb8bd" stroke-width="16"/>'
-            + ruas + f'<ellipse cx="0" cy="-180" rx="{rx:.1f}" ry="{ry:.1f}" fill="#130f0c" stroke="#252b2f" stroke-width="18"/>'
-            + '<path d="M-500 -350 H500 M-500 -80 H500" stroke="#c3a66b" stroke-width="8" opacity=".6"/></g>')
+    """Tembok masif dari susunan besi yang dicor tembaga; lubang menembus ketebalan dinding."""
+    u = max(0.0, min(1.0, float(lubang)))
+    rx = 8 + 178 * u
+    ry = 7 + 112 * u
+    # Bidang besi padat; tidak memakai jeruji, kisi, atau batang vertikal.
+    dinding = ('M-500 0 L-500 -350 Q-250 -390 0 -350 Q250 -390 500 -350 '
+               'L500 0Z')
+    sambungan = ''.join(
+        f'<path d="M{-470 + k * 94} -330 l18 300" stroke="#202a30" '
+        f'stroke-width="5" opacity=".55"/>' for k in range(10)
+    )
+    lapis_tembaga = (
+        '<path d="M-500 -350 Q-250 -390 0 -350 Q250 -390 500 -350" '
+        'fill="none" stroke="#c77b43" stroke-width="24" stroke-linecap="round"/>'
+        '<path d="M-500 -18 H500" fill="none" stroke="#a95f32" stroke-width="18"/>'
+        '<path d="M-475 -318 Q-250 -355 0 -318 Q250 -355 475 -318" '
+        'fill="none" stroke="#e4a36a" stroke-width="7" opacity=".85"/>'
+    )
+    lubang_dinding = (
+        f'<ellipse cx="0" cy="-178" rx="{rx:.1f}" ry="{ry:.1f}" '
+        'fill="#100d0b" stroke="#c77b43" stroke-width="18"/>'
+        f'<ellipse cx="0" cy="-178" rx="{max(1, rx-13):.1f}" ry="{max(1, ry-13):.1f}" '
+        'fill="#050505"/>'
+    )
+    return (f'<g class="dinding-yajuj" transform="translate({x:.1f},{y:.1f}) scale({s})">'
+            f'<path d="{dinding}" fill="#59636a" stroke="#252d32" stroke-width="22"/>'
+            + sambungan + lapis_tembaga + lubang_dinding + '</g>')
 
 def danau_surut(x: float, y: float, s: float = 1.0, *, surut: float = 0.0) -> str:
     """Danau menyusut menuju garis air tipis."""
