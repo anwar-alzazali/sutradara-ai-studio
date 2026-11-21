@@ -26,6 +26,10 @@ def main():
         ("Ya'juj turun dari bukit", yajuj["beat"][1]["shot"][0], 2.0),
         ("Danau Tiberias surut", yajuj["beat"][2]["shot"][0], 3.0),
         ("Dajjal belakang + pengikut", dajjal["beat"][0]["shot"][0], 3.0),
+        ("Tokoh profil + gali", {"preset":"senja","belakang":[],"tokoh":[{"x":540,"y":1450,"s":1.0,"gerak":"gali","arah":"samping","kepala":"imamah","jenis":"pria"}],"depan":False}, 0.8),
+        ("Tokoh membelakangi", {"preset":"senja","belakang":[],"tokoh":[{"x":540,"y":1450,"s":1.0,"gerak":"jalan","arah":"belakang","kepala":"kain","jenis":"pria"}],"depan":False}, 0.8),
+        ("Perempuan berkerudung", {"preset":"dhuha","belakang":[],"tokoh":[{"x":540,"y":1450,"s":1.0,"gerak":"berdiri","arah":"belakang","kepala":"kerudung","jenis":"wanita"}],"depan":False}, 0.8),
+        ("Anak Mesir kuno", {"preset":"dhuha","belakang":[],"tokoh":[{"x":360,"y":1450,"s":1.0,"usia":"anak","zaman":"mesir_kuno","kepala":"kain"},{"x":700,"y":1450,"s":1.0,"usia":"lansia","zaman":"umum","kepala":"imamah"}],"depan":False}, 0.8),
     ]
     gambar=[]
     with render.peramban() as pg:
