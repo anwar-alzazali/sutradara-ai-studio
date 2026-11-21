@@ -146,11 +146,11 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     skala_usia = 0.72 if usia == "anak" else (1.04 if usia == "lansia" else 1.0)
     palet_zaman = {"arab_kuno": None, "mesir_kuno": (("#8a6a32", "#e2c36e"), ("#3f6470", "#d7b86a")),
                    "umum": (("#52634a", "#c8b995"), ("#6b526b", "#d7b995"))}
-    if not siluet and palet_zaman[zaman]:
-        baju, aksen = palet_zaman[zaman][indeks % 2]
     siluet = mode == "siluet"
     kulit = GELAP if siluet else KULIT[indeks % len(KULIT)]
     baju, aksen = (GELAP, GELAP) if siluet else BAJU[indeks % len(BAJU)]
+    if not siluet and palet_zaman[zaman]:
+        baju, aksen = palet_zaman[zaman][indeks % 2]
     celana = GELAP if siluet else CELANA
 
     # --- rangka ---
