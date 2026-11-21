@@ -2,11 +2,14 @@
 import json
 import subprocess
 from pathlib import Path
+import sys
+
+AKAR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(AKAR))
 
 from sutradara import garis_waktu as GW, video
 from sutradara.suara import campur, narasi
 
-AKAR = Path(__file__).resolve().parents[1]
 NUH = json.loads((AKAR / "contoh/nuh_mengejek.json").read_text(encoding="utf-8"))
 
 
