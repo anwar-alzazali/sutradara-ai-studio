@@ -167,6 +167,12 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 - Dalil, penjaga, dan batas wajib tidak pernah dioptimasi.
 - **Kriteria selesai:** beberapa minggu data menunjukkan resep yang bertahan atau membaik, dan pemilik menyetujui perluasan.
 
+### Kebutuhan pemakaian publik (dicatat 21 Nov 2026; baru setelah Fase 6/6b)
+- Pustaka pemeran per saluran: pemeran dibangkitkan dari kode unik saluran (kombinasi ciri), pemeriksaan kemiripan
+  dengan saluran lain, bisa disetel pengguna. Fondasinya = kartu identitas pemeran (Tahap B2).
+- Ciri khas saluran: palet, huruf judul, gaya kartu dalil, suara narator per saluran.
+- Adab penggambaran tokoh mulia & verifikasi dalil SAMA untuk semua pengguna (batas wajib, bukan pilihan).
+
 ### ○ Fase 7 — Perluasan genre (baru dibuka setelah fase 6 terbukti dan disetujui pemilik)
 - Genre lain (komedi, edukasi, cerita anak) sebagai paket genre di atas inti yang sama (sambungannya disiapkan di Tahap D langkah 0).
 - Catatan: set pose Dajjal, Ya'juj Ma'juj, Buraq, dan ragam tokoh dulu tercatat di sini; sejak 21 Nov 2026 dipindah ke

@@ -132,8 +132,19 @@ Aturan wajibnya ada di `AGENTS.md` (tabel adab saluran). Kerjakan:
 4. **Sistem barang** (memegang, mengulurkan, menerima, pindah pemilik, tetap terbawa antar shot, tangan/lengan
    mengikuti barang): kembangkan dari `alat` dan IK tangan yang sudah ada, jangan membuat sistem kedua. Barang milik
    nabi ditampilkan di sisi pilar dengan cahaya (tanpa tangan); serah-terima dengan nabi = barang bergerak ke/dari pilar.
-5. Perbarui tabel "siapa digambar bagaimana" di `docs/PANDUAN_GAYA.md` sesuai `AGENTS.md`, dan contoh yang terdampak.
-6. Bukti: render tiap golongan berdampingan + adegan serah-terima (manusia–manusia dan manusia–nabi).
+5. **Kartu identitas pemeran + pemeriksa kesinambungan.** Tokoh individual punya identitas tetap (ciri wajah,
+   kulit, rambut/janggut, penutup kepala, palet baju, aksesori, suara) yang dirujuk rencana lewat id, dan tampil sama
+   di semua shot/episode. Pemeriksa membandingkan ciri stabil antar shot: beda ciri = PERIKSA (bukan GAGAL, karena
+   ganti kostum bisa disengaja); perubahan cara tampil (mis. siluet -> terungkap) dicatat sebagai perubahan gaya yang
+   disengaja. Ide ini SUDAH dibangun di mesin-video cabang `feat/short-term-production-intelligence`
+   (`docs/INTELLIGENCE_GOAL_JANGKA_PENDEK.md` bagian "Pemeriksaan kontinuitas identitas tokoh", `docs/AI_STORY_DIRECTOR.md`
+   bagian identitas & serah-terima benda, `docs/PRODUCTION_JSON_V1.md` bagian `characters`, beserta kode/tesnya):
+   pelajari, bawa konsep dan bagian kode yang terbukti dengan baris `Asal:`, sesuaikan ke rig & rencana repo ini.
+   Jangan membawa arsitektur registri/SQLite/kontrak produksi utuhnya.
+   Desain identitas sebagai data sehingga kelak bisa diperluas menjadi pustaka pemeran per saluran (pemakaian publik).
+6. Perbarui tabel "siapa digambar bagaimana" di `docs/PANDUAN_GAYA.md` sesuai `AGENTS.md`, dan contoh yang terdampak.
+7. Bukti: render tiap golongan berdampingan + adegan serah-terima (manusia–manusia dan manusia–nabi) + satu tokoh
+   yang sama di beberapa shot.
 
 ## Tahap C — Penguatan dalil
 1. Pemeriksa hadis kedua memakai scope `content.hadith.read` Quran Foundation. Kalau dua sumber berbeda,
