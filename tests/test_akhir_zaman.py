@@ -84,3 +84,23 @@ def test_tanda_wajah_dabbah_digambar_di_lapisan_atas():
     svg = adegan.susun(rencana["beat"][1]["shot"][0], 1.0)
     ET.fromstring(svg)
     assert svg.rfind("ILUSTRASI TANDA") > svg.rfind('class="tokoh"')
+
+
+def test_tokoh_samping_menampilkan_satu_mata_dan_alat_tetap_terpasang():
+    svg = tokoh.orang(540, 1400, arah="samping", gerak="gali", jenis="pria")
+    assert 'cx="-9" cy="-7"' in svg
+    assert "beliung" not in svg
+    assert "stroke-width=\"11\"" in svg
+
+
+def test_tokoh_belakang_menyembunyikan_wajah_dan_tetap_memegang_alat():
+    svg = tokoh.orang(540, 1400, arah="belakang", gerak="gali", jenis="pria")
+    assert 'cx="-11" cy="-6"' not in svg
+    assert 'cx="11" cy="-6"' not in svg
+    assert "stroke-width=\"11\"" in svg
+
+
+def test_perempuan_berkerudung_tampak_belakang_tidak_memperlihatkan_wajah():
+    svg = tokoh.orang(540, 1400, arah="belakang", jenis="wanita", kepala="kerudung")
+    assert "Q 0 74 -50 62Z" in svg
+    assert 'cx="-11" cy="-6"' not in svg
