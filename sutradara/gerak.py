@@ -104,6 +104,30 @@ def palu(t: float) -> dict:
     return _p(la_ka=40 + 85 * u, sa_ka=60 + 115 * u, tubuh=-3 + 4 * u, naik=2 * (1 - u), la_ki=20, sa_ki=-30)
 
 
+def gali(t: float) -> dict:
+    """Mengayun beliung dengan DUA tangan: terangkat di atas kepala -> menghantam ke bawah-depan (1,1 ayunan/dtk).
+    Tangan kiri memegang gagang di bawah tangan kanan (target IK menyeberang badan; bahu berjarak 80 px)."""
+    u = (math.sin(t * 2 * math.pi * 1.1) + 1) / 2  # 1 = terangkat, 0 = menghantam
+    kx, ky = 30 + (5 - 30) * u, 100 + (-105 - 100) * u          # tangan kanan relatif bahu kanan
+    sx, sy = 40 + kx + (-22 + 14 * u), ky + (-14 + 40 * u)       # tangan kiri di layar (relatif leher)
+    return _p(ka=(kx, ky), ki=(-40 - sx, sy), tubuh=6 * (1 - u) - 2, naik=10 * (1 - u),
+              ba_ka=-12 * (1 - u), ba_ki=-12 * (1 - u), angguk=0.4 * (1 - u))
+
+
+# Detik (waktu tokoh) saat gerak berulang MENGENAI sesuatu -> dipakai suara/campur.py untuk efek yang terikat aksi.
+def titik_kena(nama: str, t0: float, t1: float) -> list[float]:
+    pola = {"palu": (1 / 1.4, 0.75 / 1.4), "gali": (1 / 1.1, 0.75 / 1.1), "jalan": (0.5, 0.0), "lari": (1 / 3.4, 0.0),
+            "lompat": (1.2, 0.9)}
+    if nama not in pola:
+        return []
+    p, f = pola[nama]
+    k = math.ceil((t0 - f) / p - 1e-9)
+    hasil = []
+    while f + k * p < t1:
+        hasil.append(f + k * p); k += 1
+    return hasil
+
+
 def menggeleng(t: float) -> dict:
     return _napas(t, _p(toleh=0.8 * math.sin(t * 2 * math.pi * 1.6)))
 
@@ -135,7 +159,7 @@ POSE = {
     "kepala": _p(ka=(-10, -78), kepala=-6),                      # menggaruk/memegang kepala (bingung, pusing)
 }
 BERULANG = {"jalan": jalan, "lari": lari, "joget": joget, "lompat": lompat, "duduk": duduk, "melambai": melambai,
-            "palu": palu, "menggeleng": menggeleng, "mengangguk": mengangguk, "tertawa": tertawa}
+            "palu": palu, "gali": gali, "menggeleng": menggeleng, "mengangguk": mengangguk, "tertawa": tertawa}
 SEMUA = sorted(set(POSE) | set(BERULANG))
 
 

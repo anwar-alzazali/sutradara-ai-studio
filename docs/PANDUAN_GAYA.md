@@ -35,6 +35,13 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 - Posisi tiap pihak dipertahankan antar-shot (resep A5) supaya penonton tidak bingung arah.
 - Dicek otomatis: tulis `pelaku` di beat → penjaga memberi `PELAKU_JAUH` / `BUKAN_PELAKU_DEKAT`.
 
+## 3b. Suara mengikuti aksi
+- Efek suara terikat pada apa yang SEDANG DILAKUKAN di layar, bukan ditempel menurut detik. Mau bunyi palu? Beri tokoh
+  gerak `palu` (atau tampilkan bahtera yang sedang bertambah papan). Mau bunyi menggali (Ya'juj)? Gerak `gali`.
+  Langkah datang dari `jalan`/`lari`/`lompat`. Mesin meletakkan satu ketukan di setiap titik kena.
+- Efek yang tidak terlihat sumbernya (guntur, kerumunan di luar layar) dipasang di `beat.efek` pada kata (`"kata"`).
+  Ia berhenti di akhir shotnya; tandai `"lewat": true` bila memang disengaja menyambung.
+
 ## 4. Teks
 - Judul layar 1–3 kata kapital yang menamai makna, maksimal 2 baris.
 - Warna: **kuning** = fakta kunci/janji/harapan · **putih** = netral · **merah** = azab/ancaman/kesombongan.

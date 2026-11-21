@@ -79,7 +79,14 @@ Dibawa dari mesin-video (narasi_api.py, dlib.py, campur_rekaman, 47 efek `aset/s
 3. ✔ Subtitle dari waktu kata: frasa putus di tanda baca/jeda/5 kata, kata yang diucapkan kuning, frasa panjang 2 baris.
 4. ✔ `sutradara/suara/campur.py`: suasana per preset, efek dari peristiwa yang dirancang (hentak, guncang, kartu),
    whoosh di pergantian beat, efek bebas per beat di `@kata`, musik opsional; ducking sidechain; -15 LUFS, TP -1,5.
+4b. ✔ **Efek terikat aksi** (permintaan pemilik): bunyi mengikuti yang sedang dilakukan di layar. Satu ketukan/langkah
+   (`aset/suara/satu`, dipotong dari rekaman asli oleh `suara/sampel.py`) di setiap titik kena gerak palu/gali/jalan/
+   lari/lompat, keras-pelan menurut ukuran tokoh, kiri-kanan menurut posisi; bahtera yang sedang bertambah papan
+   berbunyi palu; efek satu-kali berhenti di akhir shotnya kecuali `"lewat": true`. Gerak baru `gali` (beliung dua
+   tangan) + alat di tangan (palu/beliung) otomatis dari jadwal gerak.
 5. ✔ Workflow `suara.yml` (hanya `workflow_dispatch`) -> cabang `suara`; `python -m sutradara naskah` mengecek gratis dulu.
+- **Catatan:** bunyi `gali` sementara dipotong dari `tanah_retak`; bunyi beliung-menghantam-batu yang tepat perlu
+  dibuat lewat ElevenLabs sound-generation (kredit kecil) saat adegan Ya'juj dikerjakan.
 - **Sisa:** narasi asli Nuh setelah naskah disetujui pemilik -> render bersuara -> dengar di ponsel & headphone.
 - **Kriteria selesai:** video Nuh dengan narasi, potongan di kata kunci (diuji otomatis), tanpa clipping (diukur), disetujui pemilik.
 
