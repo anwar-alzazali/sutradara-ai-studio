@@ -27,6 +27,8 @@ jobs:
         run: python -m pytest -q
       - name: Render bukti Nuh dengan narasi tiruan
         run: python scripts/render_bukti_nuh.py
+      - name: Buat crop tanah 1:1 dari render Nuh untuk audit ponsel
+        run: python scripts/crop_tanah_tahap_b.py keluaran-bukti/nuh/nuh_bisu.mp4 -o keluaran-bukti/nuh/crop-tanah-1x1.jpg
       - name: Ukur dampak tekstur tanah pada render Nuh dan Dabbah
         run: python scripts/benchmark_tekstur_tanah.py
       - name: Unggah laporan benchmark tekstur
