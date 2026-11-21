@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import statistics
 import time
 from pathlib import Path
 import sys
@@ -46,21 +47,31 @@ def main():
         halaman.write_text(dasar.html('<div id="k"></div>'), encoding="utf-8")
         pg.goto(halaman.as_uri())
         for nama, shot in sampel.items():
-            # Pemanasan singkat agar biaya peluncuran Chromium tidak masuk hitungan.
+            # Pemanasan kedua jalur, lalu urutan dibalik tiap putaran untuk mengurangi bias urutan.
             ukur(pg, nama, shot, False, frames=3)
-            tanpa = ukur(pg, nama, shot, False)
-            dengan = ukur(pg, nama, shot, True)
+            ukur(pg, nama, shot, True, frames=3)
+            sampel_tanpa, sampel_dengan = [], []
+            for putaran in range(3):
+                urutan = (False, True) if putaran % 2 == 0 else (True, False)
+                for tekstur in urutan:
+                    durasi = ukur(pg, nama, shot, tekstur)
+                    (sampel_dengan if tekstur else sampel_tanpa).append(durasi)
+            tanpa = statistics.median(sampel_tanpa)
+            dengan = statistics.median(sampel_dengan)
             hasil[nama] = {
-                "frames_per_mode": 36,
-                "tanpa_tekstur_seconds": round(tanpa, 3),
-                "dengan_tekstur_seconds": round(dengan, 3),
-                "tambahan_seconds": round(dengan - tanpa, 3),
-                "overhead_percent": round((dengan / tanpa - 1) * 100, 2) if tanpa else None,
-                "tambahan_ms_per_frame": round((dengan - tanpa) * 1000 / 36, 2),
+                "frames_per_mode_per_round": 36,
+                "rounds_per_mode": 3,
+                "tanpa_tekstur_seconds_samples": [round(x, 3) for x in sampel_tanpa],
+                "dengan_tekstur_seconds_samples": [round(x, 3) for x in sampel_dengan],
+                "tanpa_tekstur_median_seconds": round(tanpa, 3),
+                "dengan_tekstur_median_seconds": round(dengan, 3),
+                "tambahan_median_seconds": round(dengan - tanpa, 3),
+                "overhead_median_percent": round((dengan / tanpa - 1) * 100, 2) if tanpa else None,
+                "tambahan_median_ms_per_frame": round((dengan - tanpa) * 1000 / 36, 2),
             }
     laporan = {
-        "metode": "Chromium yang sama, 36 frame per mode, kualitas JPEG 88; mencakup susun SVG dan screenshot",
-        "catatan": "Pengukuran runner CI; angka dipengaruhi beban mesin dan bukan jaminan perangkat pengguna.",
+        "metode": "Chromium yang sama, 3 putaran per mode, 36 frame per putaran, kualitas JPEG 88; urutan kondisi bergantian; mencakup susun SVG dan screenshot",
+        "catatan": "Median CI lebih tahan terhadap noise, tetapi tetap dipengaruhi beban runner dan bukan jaminan perangkat pengguna.",
         "hasil": hasil,
     }
     tujuan = OUT / "benchmark-tekstur.json"
