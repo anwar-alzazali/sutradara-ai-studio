@@ -14,33 +14,18 @@ OUT.mkdir(parents=True, exist_ok=True)
 def main():
     nuh = json.loads(Path("contoh/nuh_mengejek.json").read_text(encoding="utf-8"))
     dabbah = json.loads(Path("contoh/dabbah_dhuha.json").read_text(encoding="utf-8"))
+    yajuj = json.loads(Path("contoh/yajuj_majjuj.json").read_text(encoding="utf-8"))
+    dajjal = json.loads(Path("contoh/dajjal_dua_sungai.json").read_text(encoding="utf-8"))
     shots = [
         ("Nuh", nuh["beat"][0]["shot"][0], 1.0),
         ("Dabbah + tanda wajah", dabbah["beat"][1]["shot"][0], 1.0),
         ("Buraq + nur", {"preset":"dhuha","belakang":[],"tanah_y":1300,
          "buraq":[{"x":540,"y":1450,"s":1.0}],
          "nur":[{"x":540,"y":1120,"nama":"Nabi Muhammad ﷺ","tinggi":280}],"depan":False}, 0.8),
-        ("Dinding Ya'juj", {"preset":"malam","belakang":[],"tanah_y":1300,
-         "akhir_zaman":[{"jenis":"dinding_yajuj","x":540,"y":1400,"s":0.8,"lubang":0.7}],"depan":False}, 0.8),
-        ("Danau surut", {"preset":"dhuha","belakang":[],"tanah_y":1300,
-         "akhir_zaman":[{"jenis":"danau_surut","x":540,"y":1450,"s":1.0,"surut":0.85}],"depan":False}, 0.8),
-        ("Massa Ya'juj", {"preset":"senja","belakang":["gunung"],"tanah_y":1300,"tokoh":[
-            {"x":90,"y":1430,"s":0.62,"gerak":"lari","kepala":"kain"},
-            {"x":220,"y":1480,"s":0.68,"gerak":"lari","kepala":"imamah"},
-            {"x":350,"y":1390,"s":0.58,"gerak":"lari","kepala":"kopiah"},
-            {"x":500,"y":1500,"s":0.72,"gerak":"lari","kepala":"kain"},
-            {"x":650,"y":1410,"s":0.61,"gerak":"lari","kepala":"imamah"},
-            {"x":800,"y":1480,"s":0.69,"gerak":"lari","kepala":"kain"},
-            {"x":960,"y":1370,"s":0.57,"gerak":"lari","kepala":"kopiah"}],"depan":False}, 0.8),
-        ("Dajjal belakang + pengikut", {"preset":"malam_merah","belakang":["gunung"],"tanah_y":1300,
-         "dajjal":[{"x":540,"y":1320,"s":0.72,"arah":"belakang","jalan":True,"jubah_berkibar":0.8,"buka":0.8}],
-         "tokoh":[
-          {"x":220,"y":1480,"s":0.62,"gerak":"jalan","kepala":"kain"},
-          {"x":380,"y":1530,"s":0.7,"gerak":"jalan","kepala":"imamah"},
-          {"x":700,"y":1510,"s":0.66,"gerak":"jalan","kepala":"kopiah"},
-          {"x":850,"y":1580,"s":0.76,"gerak":"jalan","kepala":"kain"}],"depan":False}, 0.8),
-        ("Dajjal depan", {"preset":"malam_merah","belakang":[],"tanah_y":1300,
-         "dajjal":[{"x":540,"y":1450,"s":1.0,"lengan":"terbuka"}],"depan":False}, 0.8),
+        ("Ya'juj menggali", yajuj["beat"][0]["shot"][0], 2.0),
+        ("Ya'juj turun dari bukit", yajuj["beat"][1]["shot"][0], 2.0),
+        ("Danau Tiberias surut", yajuj["beat"][2]["shot"][0], 3.0),
+        ("Dajjal belakang + pengikut", dajjal["beat"][0]["shot"][0], 3.0),
     ]
     gambar=[]
     with render.peramban() as pg:
