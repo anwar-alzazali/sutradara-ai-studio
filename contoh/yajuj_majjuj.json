@@ -1,6 +1,6 @@
 {
  "judul": "Ya'juj dan Ma'juj: Dinding Terbuka",
- "catatan": "Contoh visual Tahap B. Dalil QS Al-Anbiya 96 dan Jami at-Tirmidhi 2240 dicatat sebagai BELUM diverifikasi oleh modul repo; jangan render final atau tayangkan sebelum workflow verifikasi dalil dijalankan.",
+ "catatan": "Contoh visual Tahap B. Dalil QS Al-Anbiya 96 dan Jami at-Tirmidhi 3153 dan 2240 dicatat sebagai BELUM diverifikasi oleh modul repo; jangan render final atau tayangkan sebelum workflow verifikasi dalil dijalankan.",
  "visual_inti": {
   "benda": "dinding_yajuj",
   "jalur_keadaan": ["digali", "hampir_jebol", "terbuka"]
@@ -16,6 +16,10 @@
    "rujukan":"https://quran.com/21/96","surah":21,"ayat":"96"
   },
   {
+   "id":"tirmidhi3153","jenis":"hadis","label":"HR. TIRMIDZI 3153","status":"belum",
+   "rujukan":"https://sunnah.com/tirmidhi:3153","kitab":"tirmidhi","nomor":"3153"
+  },
+  {
    "id":"tirmidhi2240","jenis":"hadis","label":"HR. TIRMIDZI 2240","status":"belum",
    "rujukan":"https://sunnah.com/tirmidhi:2240","kitab":"tirmidhi","nomor":"2240"
   }
@@ -23,7 +27,7 @@
  "beat": [
   {
    "narasi":"Mereka terus menggali dinding itu, sedikit demi sedikit, sampai lubangnya semakin lebar.",
-   "preset":"malam","keadaan":"digali","dalil":["anbiya96"],"peran_tampil":["yajuj"],
+   "preset":"malam","keadaan":"digali","dalil":["tirmidhi3153"],"peran_tampil":["yajuj"],
    "shot":[
     {
      "preset":"malam","belakang":["gunung"],"tanah_y":1320,
@@ -34,7 +38,7 @@
       {"x":650,"y":1510,"s":0.78,"gerak":"gali","kepala":"kopiah","peran":"yajuj"},
       {"x":820,"y":1540,"s":0.84,"gerak":"gali","kepala":"kain","peran":"yajuj"}
      ],
-     "teks":{"sumber":"QS AL-ANBYA 96","judul":["MEREKA","MENGGALI"],"warna":"putih","subtitle":"lubang semakin lebar","sorot":"lebar"},
+     "teks":{"sumber":"HR. TIRMIDZI 3153","judul":["MEREKA","MENGGALI"],"warna":"putih","subtitle":"lubang semakin lebar","sorot":"lebar"},
      "durasi":4
     }
    ]
@@ -55,7 +59,7 @@
       {"x":830,"y":1610,"s":0.7,"gerak":"lari","kepala":"kain","peran":"yajuj"},
       {"x":980,"y":1670,"s":0.6,"gerak":"lari","kepala":"kopiah","peran":"yajuj"}
      ],
-     "teks":{"sumber":"QS AL-ANBYA 96","judul":["DARI SEGALA","TEMPAT TINGGI"],"warna":"kuning","subtitle":"mereka turun dengan cepat","sorot":"cepat"},
+     "teks":{"sumber":"QS AL-ANBIYA 96","judul":["DARI SEGALA","TEMPAT TINGGI"],"warna":"kuning","subtitle":"mereka turun dengan cepat","sorot":"cepat"},
      "durasi":4
     }
    ]
