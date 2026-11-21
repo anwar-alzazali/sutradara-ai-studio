@@ -118,8 +118,9 @@ def _polos(s: str) -> str:
 
 
 def narasi_utuh(n: dict, sumber: str) -> list[str]:
-    """Naskah tempelan: setiap narasi harus ada di teks asli (narasi pemilik tidak boleh diubah AI)."""
-    asal = _polos(sumber)
+    """Naskah tempelan: setiap narasi harus ada di teks asli (narasi pemilik tidak boleh diubah AI). Pengaman kedua;
+    jalur tempel mengambil narasi langsung dari teks pemilik."""
+    asal = _polos(" ".join(paragraf(sumber)[1]))
     return [f"beat {i}: narasi tidak sama dengan naskah asli (\"{b['narasi'][:60]}…\")"
             for i, b in enumerate(n["beat"], 1) if _polos(b["narasi"]) not in asal]
 
@@ -135,7 +136,11 @@ Keluarkan HANYA JSON valid berbentuk:
 
 SISTEM = {
     "ide": "Kamu penulis naskah video pendek Kisah Islami yang jujur dan kuat bercerita. Tulis naskah utuh dari topik pemilik.\n" + ATURAN,
-    "tempel": "Kamu merapikan naskah yang SUDAH JADI dari pemilik ke format JSON. Salin narasi KATA PER KATA (jangan memperbaiki, menambah, atau membuang kalimat). Pecah per paragraf/adegan menjadi beat. Dalil hanya yang DISEBUT di naskah; jangan menambah dalil sendiri. Pilih suasana yang cocok.\n" + ATURAN,
+    "tempel": """Kamu memetakan naskah yang SUDAH JADI dari pemilik. Paragrafnya sudah bernomor; kamu TIDAK menulis ulang narasi.
+Kelompokkan paragraf berurutan menjadi beat (biasanya 1 paragraf = 1 beat), lalu isi dalil yang DISEBUT di naskah (jangan menambah dalil sendiri), suasana, dan kata kunci.
+Rujukan dalil ditulis seperti aturan di bawah (QS = nomor surah + ayat; hadis = kitab + nomor).
+Keluarkan HANYA JSON: {"judul": "...", "inti": "...", "dalil": [...], "beat": [{"paragraf": [1], "dalil": ["id"], "suasana": "...", "kata_kunci": ["..."]}]}
+""" + ATURAN.split("Keluarkan HANYA JSON")[0],
     "revisi": "Kamu merevisi naskah sesuai catatan pemilik. Ubah HANYA yang diminta catatan; bagian lain tetap kata per kata.\n" + ATURAN,
 }
 
@@ -160,15 +165,53 @@ def baca_json(teks: str) -> dict:
     return json.loads(t[t.index("{"): t.rindex("}") + 1])
 
 
+_RUJUKAN = re.compile(r"\s*[\(\[]\s*(?:QS|Q\.S\.|HR|H\.R\.|Hadis|Hadits)[^\)\]]*[\)\]]", re.I)
+
+
+def paragraf(teks: str) -> tuple[str | None, list[str]]:
+    """Naskah tempelan -> (judul bila ada baris 'Judul:', paragraf narasi tanpa catatan rujukan dalam kurung)."""
+    judul, isi = None, []
+    for p in re.split(r"\n\s*\n", teks.strip()):
+        p = " ".join(p.split())
+        m = re.match(r"(?i)^judul\s*:\s*(.+)$", p)
+        if m and judul is None and not isi:
+            judul = m.group(1).strip(); continue
+        p = _RUJUKAN.sub("", p).strip()
+        if p:
+            isi.append(p)
+    return judul, isi
+
+
 def buat_naskah(mode: str, masukan: str, naskah_lama: dict | None = None, *, tanya=tanya_claude) -> tuple[dict, int]:
+    if mode == "tempel":  # narasi diambil APA ADANYA dari teks pemilik; AI hanya memetakan beat & dalil
+        judul, par = paragraf(masukan)
+        isi = "Naskah dari pemilik (paragraf bernomor):\n" + "\n".join(f"[{i}] {p}" for i, p in enumerate(par, 1))
+        isi += "\n\nCatatan rujukan dalil asli dari pemilik:\n" + "\n".join(m.group(0).strip() for m in _RUJUKAN.finditer(masukan))
+        teks, token = tanya(SISTEM["tempel"], isi, model=os.environ.get("MODEL_RAPIKAN", MODEL_RAPIKAN))
+        peta = baca_json(teks)
+        dipakai, beat = set(), []
+        for b in peta.get("beat", []):
+            nomor = [int(x) for x in b.get("paragraf", []) if str(x).isdigit() and 1 <= int(x) <= len(par) and int(x) not in dipakai]
+            if not nomor:
+                continue
+            dipakai.update(nomor)
+            beat.append({"narasi": " ".join(par[i - 1] for i in nomor), "dalil": b.get("dalil", []),
+                         "suasana": b.get("suasana"), "kata_kunci": b.get("kata_kunci", [])})
+        for i in range(1, len(par) + 1):  # paragraf yang terlewat AI tidak boleh hilang
+            if i not in dipakai:
+                beat.append({"narasi": par[i - 1], "dalil": []}); dipakai.add(i)
+        urut = {p: i for i, p in enumerate(par)}
+        beat.sort(key=lambda b: min(urut.get(p, 0) for p in par if p in b["narasi"]))
+        for b in beat:
+            if not b.get("suasana"):
+                b.pop("suasana", None)
+        return {"judul": judul or peta.get("judul") or par[0][:60], "inti": peta.get("inti", ""),
+                "dalil": peta.get("dalil", []), "beat": beat}, token
     if mode == "revisi":
         isi = f"NASKAH SAAT INI:\n{json.dumps(naskah_lama, ensure_ascii=False)}\n\nCATATAN PEMILIK:\n{masukan}"
-    elif mode == "ide":
-        isi = f"Topik/ide dari pemilik:\n{masukan}"
     else:
-        isi = f"Naskah dari pemilik:\n{masukan}"
-    teks, token = tanya(SISTEM[mode], isi, model=os.environ.get("MODEL_IDE", MODEL_IDE) if mode != "tempel"
-                        else os.environ.get("MODEL_RAPIKAN", MODEL_RAPIKAN))
+        isi = f"Topik/ide dari pemilik:\n{masukan}"
+    teks, token = tanya(SISTEM[mode], isi, model=os.environ.get("MODEL_IDE", MODEL_IDE))
     return baca_json(teks), token
 
 
