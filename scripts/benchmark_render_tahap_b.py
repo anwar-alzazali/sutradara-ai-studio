@@ -1,6 +1,5 @@
-"""Bandingkan renderer serial pada main dengan renderer paralel pada branch ini."""
+"""Bandingkan renderer serial dan paralel pada kode/tekstur branch yang sama."""
 from __future__ import annotations
-import importlib.util
 import json
 import subprocess
 import tempfile
@@ -12,20 +11,6 @@ AKAR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(AKAR))
 from PIL import Image, ImageChops
 from sutradara import video
-
-
-def muat_baseline(folder: Path):
-    subprocess.run(["git", "fetch", "--no-tags", "--depth=1", "origin", "main"], check=True)
-    sumber = subprocess.check_output(
-        ["git", "show", "FETCH_HEAD:sutradara/video.py"], text=True
-    )
-    path = folder / "video_baseline.py"
-    path.write_text(sumber, encoding="utf-8")
-    spec = importlib.util.spec_from_file_location("sutradara.video_baseline", path)
-    modul = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = modul
-    spec.loader.exec_module(modul)
-    return modul
 
 
 def ambil_sampel(video_path: Path, folder: Path, nama: str):
@@ -44,28 +29,25 @@ def main():
     rencana = json.loads(Path("contoh/nuh_mengejek.json").read_text(encoding="utf-8"))
     with tempfile.TemporaryDirectory() as d:
         folder = Path(d)
-        baseline = muat_baseline(folder)
         hasil, paths = {}, {}
-        for nama in ("main_serial", "branch_paralel"):
+        for nama in ("branch_serial", "branch_paralel"):
             paths[nama] = folder / (nama + ".mp4")
             mulai = time.perf_counter()
-            if nama == "main_serial":
-                baseline.buat(rencana, paths[nama], fps=30, kabar=lambda m: print("[main] " + m))
-            else:
-                video.buat(rencana, paths[nama], fps=30, workers=2,
-                           kabar=lambda m: print("[branch] " + m))
+            workers = 1 if nama == "branch_serial" else 2
+            video.buat(rencana, paths[nama], fps=30, workers=workers,
+                       kabar=lambda m: print(f"[{nama}] " + m))
             hasil[nama] = time.perf_counter() - mulai
-        a = ambil_sampel(paths["main_serial"], folder, "main")
+        a = ambil_sampel(paths["branch_serial"], folder, "main")
         b = ambil_sampel(paths["branch_paralel"], folder, "branch")
         identik = len(a) == len(b) and all(
             ImageChops.difference(x, y).getbbox() is None for x, y in zip(a, b)
         )
         if not identik:
             raise SystemExit("BINGKAI_MAIN_DAN_BRANCH_BERBEDA")
-        speedup = hasil["main_serial"] / hasil["branch_paralel"] if hasil["branch_paralel"] else 0
+        speedup = hasil["branch_serial"] / hasil["branch_paralel"] if hasil["branch_paralel"] else 0
         print("TAHAP_B_RENDER_BENCHMARK", json.dumps({
-            "baseline": "origin/main:sutradara/video.py (serial, satu Chromium)",
-            "candidate": "branch:sutradara/video.py (2 worker, Chromium per shot)",
+            "baseline": "branch:sutradara/video.py (serial, 1 worker)",
+            "candidate": "branch:sutradara/video.py (paralel, 2 worker)",
             "runner": "same GitHub Actions job",
             "baseline_seconds": round(hasil["main_serial"], 2),
             "candidate_seconds": round(hasil["branch_paralel"], 2),
