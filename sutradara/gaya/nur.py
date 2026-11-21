@@ -17,8 +17,8 @@ def pilar(x: float, y: float, *, tinggi: float = 400, lebar: float = 118, nama: 
     rnd = random.Random(seed)
     top = y - tinggi
     s = ['<g class="nur">',
-         f'<ellipse cx="{x}" cy="{y}" rx="330" ry="70" fill="url(#genangan)" filter="url(#b28)"/>',
-         f'<ellipse cx="{x}" cy="{y - tinggi / 2}" rx="{300 + 14 * math.sin(t * 1.3):.1f}" ry="{360 + 16 * math.sin(t * 1.3):.1f}" fill="url(#pendar)" filter="url(#b60)" opacity=".85"/>']
+         f'<ellipse cx="{x}" cy="{y}" rx="170" ry="36" fill="url(#genangan)" filter="url(#b10)" opacity=".32"/>',
+         f'<ellipse cx="{x}" cy="{y - tinggi / 2}" rx="{155 + 8 * math.sin(t * 1.3):.1f}" ry="{190 + 10 * math.sin(t * 1.3):.1f}" fill="url(#pendar)" filter="url(#b28)" opacity=".42"/>']
     cx, cy = x, y - tinggi * 0.55
     for i in range(28):  # semburan sinar halus
         a = -math.pi / 2 + (i / 27 - .5) * math.pi * 1.9 + rnd.uniform(-.05, .05)
