@@ -38,7 +38,7 @@ def test_visual_kapal_nuh_memiliki_kontur_tegas_dan_batu_depan_eksplisit_tanpa_b
     assert 'filter="url(#kabur)"' not in batu
     assert 'stroke-width="8"' in batu
     svg = adegan.susun({"preset": "senja", "belakang": [], "depan": True})
-    assert "L-60 1920" in svg
+    assert "M-60 1920" in svg
 
 
 def test_pendar_nur_lebih_terlokalisasi_dan_inti_pilar_tetap_terang():
@@ -120,8 +120,8 @@ def test_pilar_nuh_shot_terakhir_berjarak_dari_ujung_lambung():
 def test_lapis_depan_tidak_muncul_bawaan_dan_hanya_aktif_jika_diminta():
     bawaan = adegan.susun({"preset": "senja", "belakang": []})
     eksplisit = adegan.susun({"preset": "senja", "belakang": [], "depan": True})
-    assert "L-60 1920" not in bawaan
-    assert "L-60 1920" in eksplisit
+    assert "M-60 1920" not in bawaan
+    assert "M-60 1920" in eksplisit
 
 
 def test_pilar_pembuka_nuh_utuh_di_bingkai_dan_di_belakang_bahtera():
