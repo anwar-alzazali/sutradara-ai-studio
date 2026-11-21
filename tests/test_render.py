@@ -29,7 +29,7 @@ def test_render_png_berukuran_9x16_dan_tidak_kosong(tmp_path):
     assert len(im.resize((54, 96)).getcolors(maxcolors=10000)) > 200
     assert 'filter="url(#kabur)"' not in adegan.susun(shot)
 
-def test_visual_kapal_nuh_memiliki_kontur_tegas_dan_batu_depan_tanpa_blur():
+def test_visual_kapal_nuh_memiliki_kontur_tegas_dan_batu_depan_eksplisit_tanpa_blur():
     from sutradara.gaya import benda, latar
     kapal = benda.bahtera(650, 1235, s=0.9, jadi=0.9)
     batu = latar.batu_depan()
@@ -37,6 +37,8 @@ def test_visual_kapal_nuh_memiliki_kontur_tegas_dan_batu_depan_tanpa_blur():
     assert 'stroke="#f0bd79" stroke-width="7"' in kapal
     assert 'filter="url(#kabur)"' not in batu
     assert 'stroke-width="8"' in batu
+    svg = adegan.susun({"preset": "senja", "belakang": [], "depan": True})
+    assert "L-60 1920" in svg
 
 
 def test_pendar_nur_lebih_terlokalisasi_dan_inti_pilar_tetap_terang():
@@ -77,9 +79,13 @@ def test_tekstur_tanah_cukup_terlihat_di_layar_kecil_dan_batu_membesar_ke_depan(
     from sutradara.gaya import latar
     svg = latar.tekstur_tanah("senja", 1250, jenis="tanah_berbatu", seed=3)
     opasitas = [float(x) for x in re.findall(r'opacity="([0-9.]+)"', svg)]
-    assert any(0.30 <= x <= 0.60 for x in opasitas)
-    assert 'opacity=".46"' in svg
-    assert 'rx="' in svg
+    assert 'opacity=".72"' in svg
+    assert 'opacity=".38"' in svg
+    assert 'stroke-opacity=".42"' in svg
+    radii = [float(x) for x in re.findall(r'rx="([0-9.]+)"', svg)]
+    assert max(radii) > 60  # batu besar di bidang dekat kamera
+    dhuha = latar.tekstur_tanah("dhuha", 1250, jenis="tanah_berbatu", seed=3)
+    assert 'opacity=".72"' not in dhuha  # tekstur Dabbah tidak ikut diubah
 
 
 def test_shot_pembuka_nuh_memuat_seluruh_haluan_dalam_bingkai():
@@ -109,3 +115,29 @@ def test_pilar_nuh_shot_terakhir_berjarak_dari_ujung_lambung():
     assert pusat_layar > 100  # label/pilar tidak terpotong tepi kiri
     assert pilar["x"] == 205  # posisi pelaku tetap dekat dengan kapal
     assert pilar["lebar"] == 72 and pilar["pendar_rx"] == 45
+
+
+def test_lapis_depan_tidak_muncul_bawaan_dan_hanya_aktif_jika_diminta():
+    bawaan = adegan.susun({"preset": "senja", "belakang": []})
+    eksplisit = adegan.susun({"preset": "senja", "belakang": [], "depan": True})
+    assert "L-60 1920" not in bawaan
+    assert "L-60 1920" in eksplisit
+
+
+def test_pilar_pembuka_nuh_utuh_di_bingkai_dan_di_belakang_bahtera():
+    rencana = json.loads((CONTOH / "nuh_mengejek.json").read_text(encoding="utf-8"))
+    shot = rencana["beat"][0]["shot"][0]
+    pilar = shot["nur"][0]
+    kamera = shot["kamera"]
+    zoom = kamera["zoom"][-1][1]
+    pusat = kamera["x"]
+    x_layar = 540 + (pilar["x"] - pusat) * zoom
+    setengah_kapsul = (pilar["lebar"] / 2 + 10) * zoom
+    setengah_nama = 125 * zoom
+    setengah_pendar = pilar["pendar_rx"] * zoom
+    assert x_layar - setengah_kapsul > 0 and x_layar + setengah_kapsul < 1080
+    assert x_layar - setengah_nama > 0 and x_layar + setengah_nama < 1080
+    assert x_layar - setengah_pendar > 0
+    assert pilar["di_belakang_benda"] is True
+    svg = adegan.susun(shot)
+    assert svg.index('<g class="nur">') < svg.index('stroke="#160d08" stroke-width="22"')
