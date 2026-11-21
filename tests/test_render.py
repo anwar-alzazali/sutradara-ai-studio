@@ -42,8 +42,8 @@ def test_visual_kapal_nuh_memiliki_kontur_tegas_dan_batu_depan_tanpa_blur():
 def test_pendar_nur_lebih_terlokalisasi_dan_inti_pilar_tetap_terang():
     from sutradara.gaya import nur
     svg = nur.pilar(205, 1330)
-    assert 'rx="155.0" ry="190.0"' in svg
-    assert 'opacity=".42"' in svg
+    assert 'rx="72.0" ry="125.0"' in svg
+    assert 'opacity=".28"' in svg
     assert 'fill="#ffffff"' in svg
 
 
@@ -77,8 +77,8 @@ def test_tekstur_tanah_cukup_terlihat_di_layar_kecil_dan_batu_membesar_ke_depan(
     from sutradara.gaya import latar
     svg = latar.tekstur_tanah("senja", 1250, jenis="tanah_berbatu", seed=3)
     opasitas = [float(x) for x in re.findall(r'opacity="([0-9.]+)"', svg)]
-    assert any(0.30 <= x <= 0.60 for x in opasitas)
-    assert 'opacity=".46"' in svg
+    assert any(0.46 <= x <= 0.70 for x in opasitas)
+    assert 'opacity=".62"' in svg
     assert 'rx="' in svg
 
 
