@@ -31,6 +31,7 @@
 - [x] Delapan area Tahap B memiliki implementasi dan cakupan pemeriksaan.
 - [x] Bukti render dan lembar kontak disimpan pada cabang `bukti`; MP4 tidak dimasukkan ke cabang PR.
 - [x] Koreksi kabut dan sebaran batu diterapkan dengan tes regresi.
-- [ ] CI harus hijau pada HEAD PR terakhir sebelum merge.
 
-**Keputusan:** tidak ada celah implementasi Tahap B yang tersisa untuk dikerjakan dalam PR ini. PR dibuka untuk peninjauan akhir; status check CI pada HEAD terakhir tetap menjadi syarat sebelum merge.
+**Gerbang merge:** status check CI pada HEAD PR harus tetap hijau. Status terkini dapat dilihat langsung pada bagian Checks PR; jangan mengandalkan hasil dari commit terdahulu.
+
+**Keputusan:** tidak ada celah implementasi Tahap B yang tersisa untuk dikerjakan dalam PR ini. PR dibuka untuk peninjauan akhir; merge tetap menunggu CI hijau pada HEAD terakhir.
