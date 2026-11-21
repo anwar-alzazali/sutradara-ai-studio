@@ -14,7 +14,7 @@ PR #18 tetap Draft sampai tinjauan visual pemilik selesai. Audit ini membedakan 
 | 4. Ya'juj Ma'juj | `contoh/yajuj_majjuj.json`; manusia berpakaian, dinding berlubang, turun dari tempat tinggi, danau surut; tes `test_lubang_dinding_yajuj_membesar`, `test_danau_menyusut_dengan_keyframe`, `test_rencana_yajuj_memakai_manusia_biasa_dan_dalil_yang_ditandai_belum` | Lulus secara teknis; workflow memverifikasi QS Al-Anbiya 96 dan HR. Tirmidzi 2240 (sahih), tanpa temuan | Tinjauan visual pemilik untuk keterbacaan skala/jumlah manusia |
 | 5. Buraq dan larangan penunggang | `sutradara/gaya/akhir_zaman.py:buraq`; tes putih/empat kaki tanpa sayap/wajah manusia; `test_buraq_guard.py` menguji penolakan penunggang eksplisit dan posisi di punggung | Lulus secara teknis; lembar kontak menampilkan Buraq putih dan pilar nur terpisah | Proporsi dan langkah masih perlu tinjauan visual pemilik |
 | 6. Dabbatul Ard | `contoh/dabbah_dhuha.json` memakai `kabut_tanpa_wujud`; `test_dabbah_hanya_kabut_tanpa_wujud_tanpa_penanda_wajah`; lembar kontak menunjukkan gumpalan kabut tanpa anatomi | Lulus; tidak ada bentuk tubuh/kepala/mata atau tanda wajah yang dikarang | Tinjauan visual pemilik atas adegan lengkap dan sinkron dialog/narator |
-| 7. Shot pembuka Nuh | `contoh/nuh_mengejek.json`; penyangga darat dimatikan, lambung dinaikkan ke `jadi=0.86`, kamera diarahkan ulang; lembar kontak terbaru memperlihatkan lambung/papan bahtera | Lulus secara teknis dan bentuk kapal lebih terbaca dibanding bukti sebelumnya | Pemilik perlu menyetujui komposisi akhir; contoh render bersuara memakai narasi tiruan |
+| 7. Shot pembuka Nuh | `contoh/nuh_mengejek.json`; lambung bahtera tetap pada komposisi yang disetujui; pilar dan label diposisikan utuh di bingkai serta dirender di belakang bahtera | Tes batas layar dan urutan lapisan ditambahkan | Menunggu render nyata dan pemeriksaan crop setelah CI |
 | 8. Paralel render | Benchmark pada runner GitHub Actions yang sama: serial 284,53 dtk; paralel 250,64 dtk; 1,135x; sampel bingkai identik | Lulus; ada percepatan terukur tanpa perbedaan sampel piksel | Tidak ada perubahan kode untuk poin ini |
 
 ## Pemeriksaan CI tambahan
@@ -33,7 +33,17 @@ Seluruh delapan area telah memiliki implementasi dan/atau bukti teknis sesuai ti
 ## Catatan pemilik: kapal Nuh, kesan buram, dan tanah bertekstur
 
 - **Kapal Nuh:** kontur lambung dan papan tetap menjadi visual inti. Tekstur tanah ditempatkan pada lapisan tanah, sebelum benda, NPC, dan tokoh; detail kerikil tidak boleh menutupi siluet kapal atau mengurangi kontras kontur.
-- **Catatan “terasa buram”:** batu foreground harus berupa siluet dengan tepi tegas. Filter `url(#kabur)` tidak dipakai sebagai bawaan; tes render memastikan filter itu tidak muncul pada adegan.
+- **Foreground:** batu siluet pojok bawah dihapus sebagai bawaan. `depan: true` hanya digunakan per shot dengan alasan artistik eksplisit; kedalaman standar berasal dari tekstur tanah berperspektif, skala tokoh, dan kabut jauh.
 - **Tanah:** tekstur bawaan `tanah_berbatu` memakai bercak, guratan dan kerikil berkontras rendah. Rencana dapat memilih `pasir`, `tanah`, `batu`, atau `tanpa`, serta `seed_tanah` untuk pola yang dapat diulang.
 - **Stabilitas visual:** geometri tekstur dibuat deterministik dan di-cache berdasarkan preset, batas tanah, jenis, dan seed. Tekstur berada di koordinat dunia sehingga mengikuti transform kamera/paralaks dan tidak berubah antar-frame.
 - **Batas verifikasi:** CI akan menguji determinisme, pemilihan jenis, urutan lapisan, dan merender bukti Nuh/Dabbah sebelum-sesudah. Angka dampak waktu render dicatat oleh benchmark khusus; penilaian apakah detail tanah terlalu ramai tetap memerlukan tinjauan visual pemilik.
+
+
+## Addendum audit pemilik: komposisi pilar Nuh, kerikil senja, dan foreground (21 Nov 2026)
+
+- **Yang diterima pemilik:** kapal pembuka Nuh, pilar pada shot terakhir, dan tekstur tanah Dabbah sudah baik; ketiganya tidak dirombak.
+- **Pilar pembuka Nuh:** koordinat digeser agar kapsul cahaya dan label `Nabi Nuh a.s.` berada di dalam bingkai. Properti `di_belakang_benda: true` membuat pilar berada di belakang bahtera sehingga tidak menutupi kontur kapal.
+- **Kerikil Nuh/senja:** ukuran kerikil diperbesar bertingkat ke arah kamera, jumlah batu besar ditambah secara terbatas, dan bayangan jatuh serta sorot dari kiri-atas diperjelas. Perubahan dibatasi pada preset `senja`; tekstur `dhuha` untuk Dabbah tidak diubah.
+- **Foreground:** `depan` kini bawaan `false`. Batu siluet hanya muncul dengan `depan: true` yang diminta eksplisit per shot dan harus memiliki alasan pada catatan shot. Ruang bawah untuk subtitle tidak lagi terpotong batu dekoratif.
+- **Tes regresi:** pilar/label dalam batas bingkai, urutan pilar di belakang bahtera, kerikil senja dengan sorot-bayangan, tekstur Dhuha tidak berubah, serta foreground mati secara bawaan dan aktif hanya jika diminta.
+- **Status bukti:** menunggu CI pada head PR terbaru dan pemeriksaan hasil render/crop aktual. Jangan tandai Ready for review sebelum keduanya hijau dan seluruh item audit Tahap B yang masih terbuka sudah disetujui.
