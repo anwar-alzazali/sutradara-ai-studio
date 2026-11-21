@@ -41,7 +41,7 @@ def test_anak_tokoh_memakai_skala_lebih_kecil():
     assert "scale(0.7200,0.7200)" in anak
 
 def test_dajjal_tampak_belakang_tidak_memperlihatkan_wajah_depan():
-    svg = dajjal.belakang(540, 1200, arah="belakang" if False else 1.0, t=1.0, jalan=True, jubah_berkibar=0.8, buka=0.7)
+    svg = dajjal.belakang(540, 1200, t=1.0, jalan=True, jubah_berkibar=0.8, buka=0.7)
     assert 'class="dajjal belakang"' in svg
     assert "ك ف ر" not in svg
     assert "M-82 -296" in svg
