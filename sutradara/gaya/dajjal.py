@@ -17,10 +17,14 @@ KULIT, KULIT_G = "#b98a68", "#9a6e50"
 JUBAH, JUBAH_G, MANTEL, EMAS = "#7a1c2c", "#5a1220", "#2a0c16", "#d9a94a"
 
 
-def sosok(x: float, y: float, s: float = 1.0, *, lengan: str = "terbuka", tepi_merah: bool = True) -> str:
+def sosok(x: float, y: float, s: float = 1.0, *, lengan: str = "terbuka", tepi_merah: bool = True, arah: str = "depan", t: float = 0.0, jalan: bool = False, jubah_berkibar: float = 0.0) -> str:
     """Dajjal dengan kaki di (x, y); tinggi ±420 px pada s=1. lengan: 'terbuka' | 'turun'."""
+    if arah not in ("depan", "belakang"):
+        raise ValueError("arah Dajjal hanya depan atau belakang")
     rnd = random.Random(5)
-    g = [f'<g class="dajjal" transform="translate({x:.1f},{y:.1f}) scale({s})">',
+    ayun = math.sin(t * 4.0) * (5.0 if jalan else 0.0)
+    kibas = max(-1.0, min(1.0, float(jubah_berkibar)))
+    g = [f'<g class="dajjal" transform="translate({x:.1f},{y + ayun:.1f}) scale({s if arah == "depan" else -s},{s})">',
          '<ellipse cx="0" cy="4" rx="150" ry="18" fill="#000" opacity=".4"/>',
          f'<path d="M-92 -300 Q -170 -200 -175 0 L 175 0 Q 170 -200 92 -300Z" fill="{MANTEL}"/>',
          f'<path d="M-82 -304 Q 0 -318 82 -304 Q 118 -160 124 0 Q 0 14 -124 0 Q -118 -160 -82 -304Z" fill="{JUBAH}"/>',
