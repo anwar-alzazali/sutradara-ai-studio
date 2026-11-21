@@ -28,3 +28,12 @@ PR #18 tetap Draft sampai tinjauan visual pemilik selesai. Audit ini membedakan 
 ## Keputusan swa-audit
 
 Seluruh delapan area telah memiliki implementasi dan/atau bukti teknis sesuai tingkat yang dicatat di tabel. Ini **bukan persetujuan visual final**: beberapa aspek proporsi, gerak, dan komposisi masih memerlukan penilaian pemilik. Karena itu PR #18 tetap Draft sampai pemilik menyatakan hasil visual layak.
+
+
+## Catatan pemilik: kapal Nuh, kesan buram, dan tanah bertekstur
+
+- **Kapal Nuh:** kontur lambung dan papan tetap menjadi visual inti. Tekstur tanah ditempatkan pada lapisan tanah, sebelum benda, NPC, dan tokoh; detail kerikil tidak boleh menutupi siluet kapal atau mengurangi kontras kontur.
+- **Catatan “terasa buram”:** batu foreground harus berupa siluet dengan tepi tegas. Filter `url(#kabur)` tidak dipakai sebagai bawaan; tes render memastikan filter itu tidak muncul pada adegan.
+- **Tanah:** tekstur bawaan `tanah_berbatu` memakai bercak, guratan dan kerikil berkontras rendah. Rencana dapat memilih `pasir`, `tanah`, `batu`, atau `tanpa`, serta `seed_tanah` untuk pola yang dapat diulang.
+- **Stabilitas visual:** geometri tekstur dibuat deterministik dan di-cache berdasarkan preset, batas tanah, jenis, dan seed. Tekstur berada di koordinat dunia sehingga mengikuti transform kamera/paralaks dan tidak berubah antar-frame.
+- **Batas verifikasi:** CI akan menguji determinisme, pemilihan jenis, urutan lapisan, dan merender bukti Nuh/Dabbah sebelum-sesudah. Angka dampak waktu render dicatat oleh benchmark khusus; penilaian apakah detail tanah terlalu ramai tetap memerlukan tinjauan visual pemilik.
