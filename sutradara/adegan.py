@@ -114,17 +114,20 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
         kx = float((sp.get("kamera") or {}).get("x", 540))
         lapis.append(f'<g transform="translate({-(kx - 540) * 0.35:.1f},0)">{LT.batu_depan(sp.get("warna_depan", "#120c16"))}</g>')
     tx = sp.get("teks") or {}
+    kd = sp.get("kartu_dalil")
+    kartu_aktif = bool(kd) and t >= kd.get("mulai", 0.0)
+    if kartu_aktif:  # kartu menempati bagian atas: label sumber & judul disembunyikan (sumber sudah ada di kepala kartu)
+        tx = {k: v for k, v in tx.items() if k not in ("sumber", "judul")}
     if tx.get("sumber"):
         lapis.append(TX.sumber(tx["sumber"]))
     if tx.get("judul") and t < tx.get("judul_sampai", 1e9):
         lapis.append(_muncul(TX.judul(tx["judul"], warna=tx.get("warna", "putih")), tx.get("judul_mulai", 0.0), t, 380))
-    kd = sp.get("kartu_dalil")
     if kd:
         d = (dalil or {}).get(kd["dalil"])
         if d is None:
             raise ValueError(f"kartu_dalil merujuk dalil '{kd['dalil']}' yang tidak ada di rencana")
-        lapis.append(KT.kartu(d, KT.potongan(d), t, mulai=kd.get("mulai", 0.0), idx_uid=f"kd{kd['dalil']}"))
-    elif tx.get("subtitle"):  # pita kartu menempati zona subtitle
+        lapis.append(KT.kartu(d, KT.potongan(d), t, mulai=kd.get("mulai", 0.0), idx_uid=f"kd{kd['dalil']}", preset=p))
+    if tx.get("subtitle"):
         lapis.append(_muncul(TX.subtitle(tx["subtitle"], sorot=tx.get("sorot")), tx.get("subtitle_mulai", 0.0), t, 1700))
     return dasar.dokumen("\n".join(lapis))
 
