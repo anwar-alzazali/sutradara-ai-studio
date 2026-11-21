@@ -73,7 +73,32 @@ def _sekarang() -> str:
     return _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds")
 
 
-# ---------------- validasi naskah ----------------
+# ---------------- normalisasi & validasi naskah ----------------
+_JENIS = {"quran": "quran", "qs": "quran", "ayat": "quran", "al-quran": "quran", "alquran": "quran", "al quran": "quran",
+          "hadis": "hadis", "hadits": "hadis", "hadith": "hadis", "hr": "hadis"}
+
+
+def normalisasi(n: dict) -> dict:
+    """Rapikan keluaran AI yang wajar-salah (ejaan jenis, nomor bertipe teks, suasana berupa emosi) sebelum divalidasi.
+    Yang benar-benar salah (kitab tak dikenal, rujukan hilang) tetap dibiarkan supaya tertangkap validasi."""
+    for d in n.get("dalil") or []:
+        j = _JENIS.get(str(d.get("jenis", "")).strip().lower())
+        if j:
+            d["jenis"] = j
+        if d.get("jenis") == "quran" and str(d.get("surah", "")).strip().isdigit():
+            d["surah"] = int(str(d["surah"]).strip())
+        if "ayat" in d:
+            d["ayat"] = str(d["ayat"]).replace(" ", "")
+        if "nomor" in d:
+            d["nomor"] = str(d["nomor"]).strip().lower()
+        if "kitab" in d:
+            d["kitab"] = re.sub(r"[^a-z]", "", str(d["kitab"]).lower()).replace("sahih", "").replace("sunan", "")
+        d.setdefault("label", d.get("id", "dalil"))
+    for b in n.get("beat") or []:
+        if b.get("suasana") not in SUASANA:
+            b.pop("suasana", None)  # suasana hanya saran untuk sutradara; yang tidak dikenal dibuang, bukan gagal
+    return n
+
 def validasi(n: dict) -> list[str]:
     """Galat format dalam bahasa awam (kosong = sah)."""
     g = []
@@ -139,7 +164,13 @@ SISTEM = {
     "tempel": """Kamu memetakan naskah yang SUDAH JADI dari pemilik. Paragrafnya sudah bernomor; kamu TIDAK menulis ulang narasi.
 Kelompokkan paragraf berurutan menjadi beat (biasanya 1 paragraf = 1 beat), lalu isi dalil yang DISEBUT di naskah (jangan menambah dalil sendiri), suasana, dan kata kunci.
 Rujukan dalil ditulis seperti aturan di bawah (QS = nomor surah + ayat; hadis = kitab + nomor).
-Keluarkan HANYA JSON: {"judul": "...", "inti": "...", "dalil": [...], "beat": [{"paragraf": [1], "dalil": ["id"], "suasana": "...", "kata_kunci": ["..."]}]}
+suasana HANYA salah satu: senja, dhuha, malam, malam_merah, fajar (waktu/cahaya adegan, bukan emosi).
+Keluarkan HANYA JSON:
+{"judul": "...", "inti": "...",
+ "dalil": [{"id": "hud38", "jenis": "quran", "label": "QS HUD 38", "surah": 11, "ayat": "38"},
+           {"id": "b3343", "jenis": "hadis", "label": "HR. BUKHARI 3343", "kitab": "bukhari", "nomor": "3343"}],
+ "beat": [{"paragraf": [1], "dalil": ["hud38"], "suasana": "senja", "kata_kunci": ["..."]}]}
+Dalil yang sama (surah+ayat sama) cukup SATU id, dipakai di beberapa beat.
 """ + ATURAN.split("Keluarkan HANYA JSON")[0],
     "revisi": "Kamu merevisi naskah sesuai catatan pemilik. Ubah HANYA yang diminta catatan; bagian lain tetap kata per kata.\n" + ATURAN,
 }
@@ -286,6 +317,7 @@ def proses(id_: str, mode: str, *, folder: Path = ANTREAN, tanya=tanya_claude, q
     _tulis(d, st, None, kirim_tg)
     try:
         n, token = buat_naskah(mode, masukan, lama, tanya=tanya)
+        n = normalisasi(n)
         galat = validasi(n)
         if mode == "tempel" and not galat:
             galat = narasi_utuh(n, masukan)

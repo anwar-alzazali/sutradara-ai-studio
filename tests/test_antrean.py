@@ -91,3 +91,13 @@ def test_teks_tinjauan_memuat_tanda_dalil_dan_muat_telegram():
     n = json.loads(json.dumps(NASKAH)); n["dalil"][0].update(status="terverifikasi", derajat="sahih", terjemah="t" * 500)
     t = A.teks_tinjauan(n)
     assert all(len(x) <= 4096 for x in t) and "✅ HR. BUKHARI 1 (sahih)" in "".join(t)
+
+
+def test_normalisasi_keluaran_ai_yang_wajar_salah():
+    n = {"judul": "x", "dalil": [{"id": "a", "jenis": "QS", "surah": "11", "ayat": "38 "},
+                                 {"id": "b", "jenis": "Hadits", "kitab": "Sahih Muslim", "nomor": " 2934B"}],
+         "beat": [{"narasi": "x", "dalil": ["a", "b"], "suasana": "Tegas, penuh ejekan"}]}
+    A.normalisasi(n)
+    assert A.validasi(n) == []
+    assert n["dalil"][0]["surah"] == 11 and n["dalil"][1]["kitab"] == "muslim" and n["dalil"][1]["nomor"] == "2934b"
+    assert "suasana" not in n["beat"][0]
