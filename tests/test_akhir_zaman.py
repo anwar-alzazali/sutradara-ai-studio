@@ -1,9 +1,12 @@
 from sutradara.gaya import akhir_zaman
 from sutradara.gaya import tokoh, dajjal
+import xml.etree.ElementTree as ET
+from sutradara import adegan
 
 
 def test_buraq_putih_tanpa_sayap_dan_wajah_manusia():
     svg = akhir_zaman.buraq(540, 1200)
+    ET.fromstring(f'<svg xmlns="http://www.w3.org/2000/svg">{svg}</svg>')
     assert 'class="buraq"' in svg
     assert "#f7f4e9" in svg
     assert "<path" in svg
@@ -45,6 +48,16 @@ def test_dajjal_tampak_belakang_tidak_memperlihatkan_wajah_depan():
     assert 'class="dajjal belakang"' in svg
     assert "ك ف ر" not in svg
     assert "M-82 -296" in svg
+    ET.fromstring(f'<svg xmlns="http://www.w3.org/2000/svg">{svg}</svg>')
+
+
+def test_shot_buraq_dan_dajjal_belakang_valid_sebagai_svg():
+    buraq = adegan.susun({"preset":"dhuha","belakang":[],"buraq":[{"x":540,"y":1450,"s":1}],"depan":False},0.5)
+    dajjal_belakang = adegan.susun({"preset":"malam_merah","belakang":[],"dajjal":[{"x":540,"y":1450,"s":0.8,"arah":"belakang","jalan":True,"jubah_berkibar":0.8,"buka":0.8}],"depan":False},0.5)
+    ET.fromstring(buraq)
+    ET.fromstring(dajjal_belakang)
+    assert 'class="buraq"' in buraq
+    assert 'class="dajjal belakang"' in dajjal_belakang
 
 
 def test_jubah_dajjal_berubah_saat_berkibar():
