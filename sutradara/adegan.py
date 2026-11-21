@@ -67,6 +67,10 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     dunia = [LT.langit(p, matahari=tuple(sp["matahari"]) if sp.get("matahari") else None)]
     for b in sp.get("belakang", ["gunung"]):
         dunia.append({"gunung": LT.gunung, "kota": LT.kota}[b](p))
+    # Kabut atmosfer adalah bidang latar: selalu di belakang tanah, bahtera,
+    # NPC, pilar, dan tokoh agar tidak membentuk pita di atas visual inti.
+    if sp.get("npc_jauh"):
+        dunia.append(LT.kabut_jauh(p))
     tanah_y = sp.get("tanah_y", 1250)
     dunia.append(LT.tanah(p, tanah_y))
     permukaan = sp.get("permukaan_tanah", LT.PERMUKAAN_BAWAAN[p])
@@ -107,7 +111,6 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
             raise ValueError(f"benda tak dikenal: {j}")
     if sp.get("npc_jauh"):
         dunia += _npc_jauh(sp["npc_jauh"], tg)
-        dunia.append(LT.kabut_jauh(p))
     tengah: list[tuple[float, str]] = []
     for m in sp.get("kabut_tanpa_wujud", []):
         s = (MK.retakan(m["x"], m["y"]) if m.get("retakan", True) else "") + MK.kabut_tanpa_wujud(
