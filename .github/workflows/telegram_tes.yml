@@ -49,9 +49,9 @@ jobs:
           if not me.get("ok"):
               raise SystemExit("Token bot ditolak Telegram: isi ulang Secret TELEGRAM_BOT_TOKEN persis seperti dari BotFather.")
           r = panggil("sendMessage", {"chat_id": os.environ["CHAT"].strip(),
-                   "text": "🎬 " + os.environ["PESAN"] + "\n(uji kiriman dari repo baru; tombol di bawah hanya contoh tampilan)",
-                   "reply_markup": {"inline_keyboard": [[{"text": "✅ Setujui", "callback_data": "uji:ok"},
-                                                         {"text": "❌ Tolak", "callback_data": "uji:no"}]]}})
+                   "text": "🎬 " + os.environ["PESAN"] + "\n(uji persetujuan: tekan tombol, keputusan tercatat di data/persetujuan/" + vid + ".json)",
+                   "reply_markup": {"inline_keyboard": [[{"text": "✅ Setujui", "callback_data": "st:" + vid},
+                                                         {"text": "❌ Tolak", "callback_data": "tl:" + vid}]]}})
           print("sendMessage:", r.get("ok"), r.get("keterangan") or "")
           if not r.get("ok"):
               raise SystemExit(1)
