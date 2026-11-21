@@ -79,11 +79,14 @@ def test_rencana_yajuj_memakai_manusia_biasa_dan_dalil_yang_ditandai_belum():
         ET.fromstring(adegan.susun(beat["shot"][0], 2.0))
 
 
-def test_tanda_wajah_dabbah_digambar_di_lapisan_atas():
+def test_dabbah_hanya_kabut_tanpa_wujud_tanpa_penanda_wajah():
     rencana = json.loads(Path("contoh/dabbah_dhuha.json").read_text(encoding="utf-8"))
-    svg = adegan.susun(rencana["beat"][1]["shot"][0], 1.0)
+    shot = rencana["beat"][1]["shot"][0]
+    svg = adegan.susun(shot, 1.0)
     ET.fromstring(svg)
-    assert svg.rfind("ILUSTRASI TANDA") > svg.rfind('class="tokoh"')
+    assert shot["kabut_tanpa_wujud"]
+    assert not shot.get("akhir_zaman")
+    assert "ILUSTRASI TANDA" not in svg
 
 
 def test_tokoh_samping_menampilkan_satu_mata_dan_alat_tetap_terpasang():
