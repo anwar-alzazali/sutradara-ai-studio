@@ -60,10 +60,23 @@ def test_proses_ide_lengkap_dengan_ai_dan_dataset_tiruan(tmp_path, monkeypatch):
     assert st["token_ai"] == 123
 
 
-def test_proses_tempel_menolak_narasi_yang_diubah(tmp_path):
-    _siapkan(tmp_path, "tempel", "Kalimat pertama yang kuat.")
-    st = A.proses("u1", "tempel", folder=tmp_path, tanya=lambda *a, **k: (json.dumps(NASKAH), 1), quran=QuranTiruan(), kirim_tg=False)
-    assert st["tahap"]["diterima"] == "gagal" and "tidak sama" in st["ket"]["diterima"]
+def test_tempel_narasi_diambil_apa_adanya_walau_ai_mengubah(tmp_path, monkeypatch):
+    from sutradara.dalil import hadis as H
+    monkeypatch.setattr(H, "DATA", DATA / "hadis")
+    asal = "Judul: Uji Tempel\n\nKalimat pertama, mereka mengejeknya. (QS Hud 38)\n\nKalimat kedua.\n\nKalimat ketiga yang terlewat AI."
+    d = _siapkan(tmp_path, "tempel", asal)
+    peta = {"judul": "Judul karangan AI", "dalil": [{"id": "hud38", "jenis": "quran", "label": "QS HUD 38", "surah": 11, "ayat": "38"}],
+            "beat": [{"paragraf": [2], "dalil": [], "suasana": "malam"}, {"paragraf": [1], "dalil": ["hud38"], "suasana": "senja",
+                      "narasi": "mereka mengejek Nuh (diubah AI, harus diabaikan)"}]}
+    st = A.proses("u1", "tempel", folder=tmp_path, tanya=lambda *a, **k: (json.dumps(peta), 1), quran=QuranTiruan(), kirim_tg=False)
+    n = json.loads((d / "naskah.json").read_text(encoding="utf-8"))
+    assert n["judul"] == "Uji Tempel"
+    assert [b["narasi"] for b in n["beat"]] == ["Kalimat pertama, mereka mengejeknya.", "Kalimat kedua.", "Kalimat ketiga yang terlewat AI."]
+    assert n["beat"][0]["dalil"] == ["hud38"] and st["tahap"]["diterima"] == "selesai"
+
+
+def test_paragraf_membuang_rujukan_dalam_kurung():
+    assert A.paragraf("A (HR. Muslim 2934).\n\nB [QS 11:38]")[1] == ["A.", "B"]
 
 
 def test_proses_ai_gagal_dilaporkan_bukan_meledak(tmp_path):
