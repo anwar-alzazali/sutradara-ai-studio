@@ -20,8 +20,8 @@ def test_buraq_putih_tanpa_sayap_dan_wajah_manusia():
 def test_lubang_dinding_yajuj_membesar():
     kecil = akhir_zaman.dinding_yajuj(540, 1200, lubang=0.1)
     besar = akhir_zaman.dinding_yajuj(540, 1200, lubang=0.9)
-    assert 'rx="27.5"' in kecil
-    assert 'rx="167.5"' in besar
+    assert 'rx="25.8"' in kecil
+    assert 'rx="168.2"' in besar
 
 
 def test_danau_menyusut_dengan_keyframe():
@@ -107,3 +107,29 @@ def test_perempuan_berkerudung_tampak_belakang_tidak_memperlihatkan_wajah():
     svg = tokoh.orang(540, 1400, arah="belakang", jenis="wanita", kepala="kerudung")
     assert "Q 0 74 -50 62Z" in svg
     assert 'cx="-11" cy="-6"' not in svg
+
+
+def test_dinding_yajuj_berupa_tembok_masif_besi_dan_tembaga_bukan_jeruji():
+    svg = akhir_zaman.dinding_yajuj(540, 1200, lubang=0.5)
+    ET.fromstring(f'<svg xmlns="http://www.w3.org/2000/svg">{svg}</svg>')
+    assert 'class="dinding-yajuj"' in svg
+    assert 'stroke="#c77b43"' in svg
+    assert 'fill="#59636a"' in svg
+    assert 'M-460 -350 V0' not in svg
+
+
+def test_penjaga_menandai_non_pelaku_di_dekat_ujung_bahtera():
+    from sutradara.rencana.penjaga import _periksa_penataan
+    peran = {
+        "pembuat": {"nama": "Pembuat kapal", "tampil": "pakaian"},
+        "penonton": {"nama": "Penonton", "tampil": "pakaian"},
+    }
+    shot = {
+        "benda": [{"jenis": "bahtera", "x": 540, "y": 1200, "s": 1.0}],
+        "tokoh": [
+            {"peran": "pembuat", "x": 1240, "y": 1200},
+            {"peran": "penonton", "x": 1030, "y": 1200},
+        ],
+    }
+    temuan = _periksa_penataan(shot, "pembuat", "bahtera", peran, "tes ujung kapal")
+    assert any(x.kode == "BUKAN_PELAKU_DEKAT" for x in temuan)
