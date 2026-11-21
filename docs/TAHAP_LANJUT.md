@@ -1,7 +1,8 @@
 # Tahap lanjutan untuk pengembang AI lain (ChatGPT/Codex, dll.)
 
 Pemilik memberikan satu tahap per sesi kepada pengembang AI. Hasil tiap tahap diaudit oleh Claude sebelum di-merge.
-Tahap berikutnya **baru boleh dimulai setelah tahap sebelumnya lulus audit** dan di-merge ke `main`.
+Idealnya tahap berikutnya dimulai setelah tahap sebelumnya lulus audit dan di-merge. Bila audit Claude belum
+tersedia, pakai **mode bertumpuk** dan prompt siap tempel di `docs/PROMPT_CHATGPT.md`.
 Kalimat untuk ditempel ke pengembang: **"Kerjakan Tahap X di docs/TAHAP_LANJUT.md di repo anwar-alzazali/sutradara-ai-studio."**
 
 ## Aturan umum (berlaku untuk SEMUA tahap)
@@ -121,6 +122,37 @@ Tujuan: tokoh dan adegan cukup kaya untuk kisah-kisah akhir zaman tanpa melangga
 8. **Percepat render:** paralel per shot, baik di mesin lokal maupun di Actions, tanpa mengubah hasil gambar
    (bandingkan bingkai sebelum dan sesudah). Laporkan angka kecepatan sebelum dan sesudah.
 
+## Tahap B2 — Adab penggambaran tokoh mulia + sistem barang (setelah Tahap B di-merge, sebelum D)
+Aturan wajibnya ada di `AGENTS.md` (tabel adab saluran). Kerjakan:
+1. **Bentuk cahaya malaikat** yang jelas berbeda dari pilar nabi (mis. berkas sinar dari atas / cahaya tanpa wujud).
+2. **Mode tokoh "wajah cahaya" untuk sahabat:** tubuh berbaju, gerak, gestur, dan barang tetap berfungsi; wajah
+   diganti cahaya lembut (tanpa mata/mulut/ekspresi wajah). Tetap santun di semua arah hadap (depan/samping/belakang).
+3. **Penjaga:** peran nabi -> wajib pilar; malaikat -> wajib bentuk malaikat; sahabat -> wajib wajah cahaya; pilar
+   dilarang untuk selain nabi; wajah sahabat tidak boleh punya ekspresi/rincian. Tes untuk setiap pelanggaran.
+4. **Sistem barang** (memegang, mengulurkan, menerima, pindah pemilik, tetap terbawa antar shot, tangan/lengan
+   mengikuti barang): kembangkan dari `alat` dan IK tangan yang sudah ada, jangan membuat sistem kedua. Barang milik
+   nabi ditampilkan di sisi pilar dengan cahaya (tanpa tangan); serah-terima dengan nabi = barang bergerak ke/dari pilar.
+5. **Kartu identitas pemeran + pemeriksa kesinambungan.** Tokoh individual punya identitas tetap (ciri wajah,
+   kulit, rambut/janggut, penutup kepala, palet baju, aksesori, suara) yang dirujuk rencana lewat id, dan tampil sama
+   di semua shot/episode. Pemeriksa membandingkan ciri stabil antar shot: beda ciri = PERIKSA (bukan GAGAL, karena
+   ganti kostum bisa disengaja); perubahan cara tampil (mis. siluet -> terungkap) dicatat sebagai perubahan gaya yang
+   disengaja. Ide ini SUDAH dibangun di mesin-video cabang `feat/short-term-production-intelligence`
+   (`docs/INTELLIGENCE_GOAL_JANGKA_PENDEK.md` bagian "Pemeriksaan kontinuitas identitas tokoh", `docs/AI_STORY_DIRECTOR.md`
+   bagian identitas & serah-terima benda, `docs/PRODUCTION_JSON_V1.md` bagian `characters`, beserta kode/tesnya):
+   pelajari, bawa konsep dan bagian kode yang terbukti dengan baris `Asal:`, sesuaikan ke rig & rencana repo ini.
+   Jangan membawa arsitektur registri/SQLite/kontrak produksi utuhnya.
+   Desain identitas sebagai data sehingga kelak bisa diperluas menjadi pustaka pemeran per saluran (pemakaian publik).
+6. **Ekspresi wajah yang lebih halus** (referensi pemilik: akun TikTok Sibuntel — emosi hampir seluruhnya lewat mata,
+   tubuh nyaris diam). Tambah kendali wajah: kelopak mata (setengah turun–terangkat), arah lirikan, alis (naik/turun,
+   miring ujung dalam/luar, merapat), kerutan pangkal hidung, mulut kecil bulat. Ekspresi baru minimal:
+   **kepergok/panik** (alis cemas: ujung dalam naik; mata melotot tegang; kerut hidung; mulut "eh…"), **jijik/ilfil**
+   (alis turun merapat; kerut hidung), **sinis**, **curiga**, **heran**. Pelajaran: garis wajah yang sama terbaca
+   berbeda tergantung bentuk alis — alis harus bisa diatur halus. Untuk Kisah Islami dipakai lebih tertahan (meremehkan,
+   bukan lucu). Wajah cahaya (sahabat) dan pilar (nabi) TIDAK memakai ekspresi wajah.
+7. Perbarui tabel "siapa digambar bagaimana" di `docs/PANDUAN_GAYA.md` sesuai `AGENTS.md`, dan contoh yang terdampak.
+8. Bukti: lembar ekspresi (semua ekspresi lama+baru berdampingan), render tiap golongan berdampingan + adegan serah-terima (manusia–manusia dan manusia–nabi) + satu tokoh
+   yang sama di beberapa shot.
+
 ## Tahap C — Penguatan dalil
 1. Pemeriksa hadis kedua memakai scope `content.hadith.read` Quran Foundation. Kalau dua sumber berbeda,
    tandai untuk ditinjau pemilik; jangan memilih sendiri.
@@ -160,7 +192,8 @@ sudah ada supaya kesulitannya tidak bertambah seiring kode membesar.
 
 Tujuan: dari naskah terstruktur menjadi rencana lengkap yang lulus penjaga, dengan mutu setara video yang
 disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMAP Fase 4.
-1. **Templat naskah untuk AI gratis.**
+1. **Templat naskah untuk AI gratis.** FORMAT NASKAH SUDAH DITETAPKAN di `sutradara/antrean.py` (dipakai bot: antrean
+   `antrean/<id>/naskah.json` yang disetujui pemilik = masukan sutradara). Jangan membuat format kedua; perluas bila perlu.
    - Format per beat: narasi, kata kunci, dalil (rujukan saja; teks diambil oleh verifikasi), suasana, dan peran.
    - Templatnya juga harus mendorong mutu cerita: fakta terkuat di depan, cerita utuh dalam satu video, setiap
      kalimat menambah informasi atau ketegangan.
@@ -173,6 +206,10 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
 3. **Penataan panggung otomatis:** sutradara yang menentukan koordinat. Pelaku aksi ditempatkan di samping visual
    inti, pihak lawan di seberang atau melintas, posisi konsisten antar-shot, dan tidak saling menutupi. Penjaga
    `PELAKU_JAUH`/`BUKAN_PELAKU_DEKAT` harus lulus tanpa koordinat yang ditulis tangan.
+3b. **Liputan dialog (shot–reverse shot)**: dari naskah, sutradara tahu siapa bicara dan siapa menjawab, lalu kamera
+   bergantian dekat (setengah badan) ke pembicara, dengan sisipan reaksi pendengar bila reaksinya penting. Konsep
+   `dialogue_exchanges` (pembicara -> penjawab) sudah ada di mesin-video cabang `feat/short-term-production-intelligence`
+   (`docs/AI_STORY_DIRECTOR.md`): bawa konsepnya. Layar tenang/gerak minimal boleh bila dialog yang membawa cerita.
 4. **Keputusan tingkat shot:**
    - pecah enumerasi menjadi shot per kata dan eskalasi pada pengulangan;
    - kamera mengikuti posisi beat;
@@ -214,6 +251,13 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
 1. **Workflow `buat_video.yml`** (`workflow_dispatch`, masukan naskah) menjalankan berurutan: verifikasi dalil,
    narasi, sutradara, render, campur suara, periksa/kritikus, lalu kirim ke Telegram untuk disetujui.
    - Nama rahasia Telegram diusulkan di PR. Pemilik yang mengisinya; jangan meminta nilainya.
+1b. **Persetujuan lewat Telegram: SUDAH dikerjakan Claude (F1, 21 Nov 2026).** Bot Mesin KONTEN dipindah ke `bot/`
+   (lihat `bot/README.md`): persetujuan Setujui/Tolak + alasan → `data/persetujuan/<id>.json`, balas komentar, chat
+   pribadi. Di tahap ini cukup: kirim video ke Telegram dengan tombol `st:<id>`/`tl:<id>` (seperti workflow
+   `tes telegram`), dan baca `data/persetujuan/` sebagai masukan antrean & Tahap G. Workflow pengirim memakai Secret
+   `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` repo ini (sudah terisi dan teruji).
+   - **Syarat sebelum mesin-video boleh dihapus:** bot sudah berjalan dari repo ini dan teruji, dan `periksa.py` sudah
+     dipindah di Tahap E.
 2. **Antrean naskah dan tugas terjadwal** (satu video per hari):
    - hanya mengirim untuk disetujui;
    - tidak pernah mengunggah ke TikTok atau Facebook sendiri;
@@ -226,7 +270,21 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
    tunjukkan log dan berkas hasilnya. Kriteria akhir fase ini, yaitu 5 hari berturut-turut dengan ≥3 video disetujui
    pemilik, dinilai setelah merge, bukan di PR.
 
-## Sesudah Tahap F
-Fase 7 (perluasan: genre lain sebagai "engine" terpisah, pustaka tokoh lebih luas) **tidak dibuka** sebelum Fase 6
-terbukti berjalan dan pemilik menyetujuinya secara tertulis. Ini sesuai keputusan pemilik bahwa Kisah Islami harus
+## Tahap G — Belajar dari hasil (Fase 6b; baru setelah Tahap F berjalan dan video rutin tayang)
+Tujuan: mesin makin baik dari keputusan pemilik dan respons penonton, tanpa melatih model sendiri (datanya terlalu
+sedikit), dan tanpa pernah melonggarkan batas wajib.
+1. **Catatan per video:** keputusan sutradara (resep, jenis hook, durasi, preset, efek), keputusan pemilik dan
+   alasannya (dari Tahap F), serta angka penonton bila ada. Untuk angka penonton, cek dulu apa yang benar-benar bisa
+   diambil lewat API TikTok/Facebook dan laporkan. Bila tidak bisa, sediakan cara isi manual yang mudah lewat bot
+   (misalnya mengirim tangkapan layar statistik).
+2. **Eksperimen otomatis** (multi-armed bandit) hanya pada pilihan yang setara dan aman (gaya hook, ritme, pilihan
+   resep), dengan eksplorasi yang tetap ada dan bisa dimatikan.
+3. **Laporan mingguan** berupa angka dan grafik dari kode biasa, tanpa LLM.
+4. **Usulan perbaikan:** bawaannya laporan ditempel pemilik ke AI gratis. Opsi LLM otomatis (di balik bendera,
+   biaya dicatat) membuat PR usulan perubahan resep. Mesin tidak pernah mengubah dirinya sendiri tanpa persetujuan.
+5. **Pagar:** dalil, penjaga, dan batas wajib tidak pernah menjadi bahan eksperimen atau optimasi. Ada tes yang
+   membuktikan sinyal penonton tidak bisa mendorong pelanggaran (misalnya topik berat dibuat sensasional).
+
+## Sesudah Tahap G
+Fase 7 (perluasan genre) **tidak dibuka** sebelum Fase 6 terbukti berjalan, pematangan (Tahap G) menunjukkan hasil dan pemilik menyetujuinya secara tertulis. Ini sesuai keputusan pemilik bahwa Kisah Islami harus
 konsisten dulu. Jangan memulai Fase 7 atas inisiatif sendiri.

@@ -1,0 +1,58 @@
+{
+ "judul": "Nuh diejek kaumnya",
+ "inti": "Nabi Nuh tetap teguh melaksanakan perintah Allah membangun kapal meskipun terus-menerus diejek kaumnya, dan merespons dengan bijak tanpa terpengaruh oleh penghinaan mereka.",
+ "dalil": [
+  {
+   "id": "hud38",
+   "jenis": "quran",
+   "label": "QS HUD 38",
+   "surah": 11,
+   "ayat": "38",
+   "status": "terverifikasi",
+   "teks_ar": "وَيَصْنَعُ ٱلْفُلْكَ وَكُلَّمَا مَرَّ عَلَيْهِ مَلَأٌ مِّن قَوْمِهِۦ سَخِرُوا۟ مِنْهُ ۚ قَالَ إِن تَسْخَرُوا۟ مِنَّا فَإِنَّا نَسْخَرُ مِنكُمْ كَمَا تَسْخَرُونَ",
+   "terjemah": "Dan mulailah dia (Nuh) membuat kapal. Setiap kali pemimpin kaumnya berjalan melewatinya, mereka mengejeknya. Dia (Nuh) berkata, \"Jika kamu mengejek kami, maka kami (pun) akan mengejekmu sebagaimana kamu mengejek (kami).",
+   "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
+   "rujukan": "https://quran.com/11/38",
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
+  }
+ ],
+ "beat": [
+  {
+   "narasi": "Atas perintah Allah, Nabi Nuh mulai membuat kapal.",
+   "dalil": [
+    "hud38"
+   ],
+   "suasana": "fajar",
+   "kata_kunci": [
+    "perintah Allah",
+    "kapal",
+    "keteguhan"
+   ]
+  },
+  {
+   "narasi": "Setiap kali pemuka kaumnya lewat, mereka mengejeknya.",
+   "dalil": [
+    "hud38"
+   ],
+   "suasana": "dhuha",
+   "kata_kunci": [
+    "ejekan",
+    "pemuka kaum",
+    "cemooh"
+   ]
+  },
+  {
+   "narasi": "Nuh menjawab: jika kalian mengejek kami, kami pun akan mengejek kalian.",
+   "dalil": [
+    "hud38"
+   ],
+   "suasana": "dhuha",
+   "kata_kunci": [
+    "jawaban bijak",
+    "tidak terpengaruh",
+    "toleransi"
+   ]
+  }
+ ]
+}

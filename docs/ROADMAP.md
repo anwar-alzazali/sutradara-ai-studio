@@ -161,10 +161,44 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 3. Laporan biaya per video (ElevenLabs, model AI).
 - **Kriteria selesai:** 5 hari berturut-turut video harian sampai ke Telegram tanpa sentuhan manual, ≥3 disetujui pemilik.
 
-### ○ Fase 7 — Perluasan (baru dibuka setelah fase 6 terbukti)
-- Set pose per tokoh (Dajjal: berjalan, dari belakang, jauh di tengah pengikut; Ya'juj Ma'juj; Buraq tanpa penunggang).
-- Pustaka tokoh lebih kaya (perempuan berkerudung, anak, lansia, pakaian per zaman).
-- Genre lain (edukasi, cerita anak) sebagai "engine" terpisah di atas fondasi yang sama.
+### ○ Fase 6b — Pematangan: belajar dari hasil (Tahap G)
+- Data per video (keputusan sutradara + persetujuan pemilik + angka penonton) → eksperimen bandit pada pilihan setara
+  → laporan mingguan → usulan perubahan resep yang disetujui pemilik. Tanpa melatih model; LLM opsional.
+- Dalil, penjaga, dan batas wajib tidak pernah dioptimasi.
+- **Kriteria selesai:** beberapa minggu data menunjukkan resep yang bertahan atau membaik, dan pemilik menyetujui perluasan.
+
+### Referensi gaya dari pemilik (21 Nov 2026)
+- **Sibuntel** (TikTok): 2D datar sederhana, dua tokoh, kamera bergantian saat dialog, ekspresi lewat mata/alis, gerak
+  minimal -> ekspresi halus (Tahap B2) + liputan dialog (Tahap D). Hampir siap pakai untuk genre komedi kelak.
+- **Meja Putih** (TikTok): tokoh kartun 2D di atas latar 3D sederhana (piramida, balok, gurun) dengan kamera bergerak di
+  ruang 3D dan latar kabur/tokoh tajam -> rencana latar 3D sebagai PUSTAKA KLIP yang dirender sekali lalu dipakai ulang
+  (Three.js low-poly/toon, palet preset sama). Belajar dari film3d mesin-video: render 3D tanpa GPU ±1 dtk/bingkai,
+  jadi jangan dirender per video. Dikerjakan setelah Tahap D–F; uji pertama: banjir Nuh.
+
+### Kebutuhan pemakaian publik (dicatat 21 Nov 2026; baru setelah Fase 6/6b)
+- Pustaka pemeran per saluran: pemeran dibangkitkan dari kode unik saluran (kombinasi ciri), pemeriksaan kemiripan
+  dengan saluran lain, bisa disetel pengguna. Fondasinya = kartu identitas pemeran (Tahap B2).
+- Ciri khas saluran: palet, huruf judul, gaya kartu dalil, suara narator per saluran.
+- Adab penggambaran tokoh mulia & verifikasi dalil SAMA untuk semua pengguna (batas wajib, bukan pilihan).
+
+### ○ Fase 7 — Perluasan genre (baru dibuka setelah fase 6 terbukti dan disetujui pemilik)
+- Genre lain (komedi, edukasi, cerita anak) sebagai paket genre di atas inti yang sama (sambungannya disiapkan di Tahap D langkah 0).
+- Catatan: set pose Dajjal, Ya'juj Ma'juj, Buraq, dan ragam tokoh dulu tercatat di sini; sejak 21 Nov 2026 dipindah ke
+  Tahap B karena itu kebutuhan Kisah Islami sendiri, bukan perluasan genre.
+
+## Peta tahap kerja (A–F) ke fase
+Fase = tahapan produk di dokumen ini. Tahap = paket kerja untuk pengembang AI (`docs/TAHAP_LANJUT.md`).
+| Tahap | Isi | Fase |
+|---|---|---|
+| A | Celah efek suara terikat aksi (selesai) | 2 |
+| B | Visual & tokoh: tampak samping, ragam tokoh, Dajjal, Ya'juj, Buraq, Dabbah, render cepat | 1b lanjutan |
+| B2 | Adab tokoh mulia (pilar khusus nabi, malaikat beda, sahabat wajah cahaya) + sistem barang | 1b lanjutan |
+| C | Penguatan dalil | 3 lanjutan |
+| D | Pisah inti/genre + sutradara otomatis | 4 |
+| E | Periksa & kritikus | 5 |
+| F | Otomatisasi penuh (F1 bot pindah + persetujuan: selesai, tunggu langkah pindah pemilik) | 6 |
+| G | Belajar dari hasil (pematangan) | 6b |
+| — | Genre lain | 7 (belum dibuka) |
 
 ---
 
@@ -204,7 +238,7 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
       otomatis** (pelaku di samping visual inti), gerak & ekspresi dari kata kerja narasi, perpustakaan resep adegan.
 - [ ] Fase 5 kritikus: periksa teknis (port `periksa.py`), lembar kontak otomatis, kritik visual opsional.
 - [ ] Fase 6: workflow `buat_video` → kirim Telegram → persetujuan; tugas terjadwal harian; laporan biaya.
-- [x] Paralel render per shot diterapkan dan diukur pada runner GitHub Actions yang sama; bukti benchmark Tahap B mencatat percepatan tanpa perbedaan sampel piksel.
+- [ ] Percepat render (sekarang ±10 dtk kerja per 1 dtk video untuk adegan berat): paralel per shot di Actions.
 
 ### Rumah tangga repo
 - [ ] Hapus cabang yang sudah digabung di repo ini (`fondasi`, `fase1-gerak`, …) — sesi pengembang tidak bisa menghapus cabang.
@@ -221,7 +255,8 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 
 ## Log keputusan
 - 21 Nov 2026 — Tanah bertekstur menjadi bawaan preset; jenis dan seed dapat diatur per shot. Tekstur statis di koordinat dunia, berkontras rendah, dan dirender di bawah benda/tokoh. Batu foreground tetap tajam tanpa blur.
-
+- 21 Nov 2026 — Tahap B: dokumentasi audit delapan kriteria diperbarui; bukti teknis dan batas tinjauan visual dicatat di `docs/TAHAP_B_AUDIT.md`. Dabbah dikunci sebagai kabut tanpa wujud dan tanpa penanda wajah.
+- 21 Nov 2026 — Tanah bertekstur menjadi bawaan preset; jenis dan seed dapat diatur per shot. Tekstur statis di koordinat dunia, berkontras rendah, dan dirender di bawah benda/tokoh. Batu foreground tetap tajam tanpa blur.
 - 21 Nov 2026 — Repo baru tanpa riwayat; mesin-video & motion-studio-ai jadi arsip rujukan.
 - 21 Nov 2026 — Gaya visual dikunci (lihat PANDUAN_GAYA): tokoh berpakaian, NPC jauh pudar oleh kabut, nur = pilar cahaya,
   Dabbah = kabut tanah gelap, Dajjal = desain B (ciri hadis tampil), Ya'juj Ma'juj = manusia.
@@ -232,10 +267,11 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - 21 Nov 2026 — Fase 3 didahulukan. Dataset hadis tidak dimasukkan ke git (±18 MB); dibangun ulang dari sumber + cache CI. Rahasia: QURAN_FOUNDATION_CLIENT_ID/_SECRET, ELEVENLABS_API_KEY, ANTHROPIC_API_KEY.
 - 21 Nov 2026 — Kunci Quran Foundation valid di produksi tetapi belum diberi scope `content` (diagnosa: 403 'access token does not have the required scopes'). Sementara verifikasi ayat otomatis memakai API publik quran.com (penyedia sama), ditandai di `sumber_teks`. Ternyata scope sudah diberikan dalam bentuk RINCI (`content.quran.read`, `content.translations.read`, …); kode kini memintanya dan jalur resmi berkunci terbukti jalan (HTTP 200). Cadangan publik tetap ada untuk gangguan.
 - 21 Nov 2026 — Kartu dalil dipindah ke atas, lebih transparan, warna ikut suasana (permintaan pemilik). Render ulang ditunda sampai uji suara.
+- 21 Nov 2026 — mesin-video & motion-studio-ai akan dihapus. Bot Mesin KONTEN dipindah ke repo ini di Tahap F (bot/token/Worker tetap); syarat hapus mesin-video: bot jalan dari repo ini + periksa.py terpindah.
+- 21 Nov 2026 — Adab saluran (AGENTS.md): pilar cahaya khusus nabi; malaikat cahaya bentuk lain; semua sahabat tubuh berbaju + wajah cahaya; orang saleh lain tokoh manusia. Alasan: kedudukan nabi tidak disamakan. Dikerjakan di Tahap B2.
+- 21 Nov 2026 — Bot jadi pintu masuk naskah: /naskah, /ide, kartu status per tahap, /status. Format naskah ditetapkan (`sutradara/antrean.py`) sebagai masukan Tahap D; naskah disetujui menunggu sutradara otomatis.
+- 21 Nov 2026 — F1 dikerjakan Claude: `bot/` (Worker mesin-konten) = persetujuan + balas komentar + chat pribadi; fitur saldo/proyek/Studio ditinggal. Aktif setelah pemilik memindah sumber build Cloudflare (bot/README.md).
 - 21 Nov 2026 — Struktur inti vs paket genre (`kisah_islami` dulu) dipisah di awal Tahap D, sebelum resep sutradara dibangun, agar genre lain kelak tidak menyentuh inti. Genre lain tetap belum dibangun.
 - 21 Nov 2026 — Fase 1b didahulukan (permintaan pemilik). Tokoh lama (pose diam) diganti rangka bersendi; nama pose lama tetap berlaku.
 - 21 Nov 2026 — Tahap A efek terikat aksi: keterlihatan kamera/lapis depan, variasi ketukan, permukaan/fallback, tawa/NPC/kabut/retakan, sumber palu Nuh, ekor efek, batas 40 ketukan, tes render dan workflow manual; rekaman khusus tetap menunggu dispatch pemilik.
 - 21 Nov 2026 — Aset suara lama dipakai sebagai fallback sesuai kebutuhan Tahap A; provenance/lisensi aset lama belum terdokumentasi penuh. Rekaman dari workflow tunduk pada ketentuan lisensi akun ElevenLabs pemilik; PR tidak menyatakan asetnya public-domain.
-
-
-- 21 Nov 2026 — Tahap B: dokumentasi audit delapan kriteria diperbarui; bukti teknis dan batas tinjauan visual dicatat di `docs/TAHAP_B_AUDIT.md`. Dabbah dikunci sebagai kabut tanpa wujud dan tanpa penanda wajah.

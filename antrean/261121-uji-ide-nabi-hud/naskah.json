@@ -1,0 +1,74 @@
+{
+ "judul": "Kesombongan Kaum Ad dan Azab Badai Dahsyat",
+ "inti": "Kekuatan fisik dan kekayaan yang membuat kaum Ad sombong tidak mampu menyelamatkan mereka dari azab angin yang membinasakan.",
+ "dalil": [
+  {
+   "id": "hud50",
+   "jenis": "quran",
+   "label": "QS HUD 50",
+   "surah": 11,
+   "ayat": "50",
+   "status": "terverifikasi",
+   "teks_ar": "وَإِلَىٰ عَادٍ أَخَاهُمْ هُودًا ۚ قَالَ يَـٰقَوْمِ ٱعْبُدُوا۟ ٱللَّهَ مَا لَكُم مِّنْ إِلَـٰهٍ غَيْرُهُۥٓ ۖ إِنْ أَنتُمْ إِلَّا مُفْتَرُونَ",
+   "terjemah": "Dan kepada kaum 'Ād (Kami utus) saudara mereka, Hud. Dia berkata, \"Wahai kaumku! Sembahlah Allah, tidak ada tuhan bagimu selain Dia. (Selama ini) kamu hanyalah mengada-ada.",
+   "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
+   "rujukan": "https://quran.com/11/50",
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
+  }
+ ],
+ "beat": [
+  {
+   "narasi": "Pernahkah kamu merasa begitu kuat hingga mengira tidak ada yang bisa menjatuhkanmu? Kamu harus tahu kisah kaum Ad yang memiliki kekuatan fisik luar biasa di masanya.",
+   "dalil": [],
+   "suasana": "malam",
+   "kata_kunci": [
+    "kuat",
+    "kaum Ad",
+    "fisik"
+   ]
+  },
+  {
+   "narasi": "Mereka membangun bangunan megah di setiap dataran tinggi dan menyombongkan diri dengan berkata, siapakah yang lebih kuat dari kami?",
+   "dalil": [],
+   "suasana": "senja",
+   "kata_kunci": [
+    "sombong",
+    "megah",
+    "kuat"
+   ]
+  },
+  {
+   "narasi": "Nabi Hud datang memperingatkan mereka untuk bertakwa kepada Allah, namun mereka menolak dan mendustakan dakwah tersebut.",
+   "dalil": [
+    "hud50"
+   ],
+   "suasana": "malam_merah",
+   "kata_kunci": [
+    "Nabi Hud",
+    "peringatan",
+    "takwa"
+   ]
+  },
+  {
+   "narasi": "Allah kemudian mengirimkan angin kencang yang sangat dingin dan membawa azab pedih selama tujuh malam dan delapan hari terus menerus.",
+   "dalil": [],
+   "suasana": "malam",
+   "kata_kunci": [
+    "angin kencang",
+    "azab",
+    "binasa"
+   ]
+  },
+  {
+   "narasi": "Kesombongan mereka musnah seketika, menyisakan reruntuhan sebagai pelajaran bagi siapa saja yang enggan bersyukur atas nikmat.",
+   "dalil": [],
+   "suasana": "fajar",
+   "kata_kunci": [
+    "musnah",
+    "reruntuhan",
+    "pelajaran"
+   ]
+  }
+ ]
+}

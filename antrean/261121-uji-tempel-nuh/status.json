@@ -1,0 +1,27 @@
+{
+ "id": "261121-uji-tempel-nuh",
+ "judul": "Nuh diejek kaumnya",
+ "sumber": "tempel",
+ "tahap": {
+  "diterima": "selesai",
+  "dalil": "selesai",
+  "tinjau": "jalan",
+  "narasi": "belum",
+  "sutradara": "belum",
+  "render": "belum",
+  "periksa": "belum",
+  "kirim": "belum"
+ },
+ "ket": {
+  "diterima": "3 beat, 1 dalil",
+  "dalil": "1/1",
+  "tinjau": "menunggu Anda membaca naskah"
+ },
+ "dibuat": "2026-11-21T09:12:19+00:00",
+ "diperbarui": "2026-11-21T09:20:04+00:00",
+ "token_ai": 3395,
+ "laporan_dalil": [
+  "✓ QS HUD 38"
+ ],
+ "pesan_kartu": 386
+}
