@@ -69,13 +69,19 @@ Status: ✔ selesai · ▶ aktif · ○ belum. **Kriteria selesai selalu berupa 
 - **Bukti:** `contoh/nuh_mengejek.json` → MP4 15,5 dtk, 4 shot, kapal bertambah papan dari rangka sampai jadi.
 - Catatan kecepatan: ±10 dtk render per 1 dtk video (30 fps, 1 peramban). Paralel per shot dikerjakan bila mengganggu (fase 6).
 
-### ▶ Fase 2 — Suara dan waktu kata
-1. Narasi ElevenLabs satu permintaan per video, ambil waktu per kata (salin dari `mesin-video/narasi_api.py`, `papan/kisah/dlib.py`).
-2. Shot dipotong di kata kunci (`potong_di`), teks layar muncul tepat saat kata diucapkan (resep B1, C).
-3. Subtitle per frasa/tanda baca (maks ±4 kata, satu baris).
-4. Efek suara berlapis (resep D) dengan cache per prompt (salin konsep `efek.yml` + `aset/suara`), campur & normalisasi ±-15 LUFS, puncak ≤ -1 dBTP.
-5. Workflow `buat_suara.yml` **hanya `workflow_dispatch`** (memakai rahasia ElevenLabs).
-- **Kriteria selesai:** video Nuh ±30–45 dtk dengan narasi, potongan shot jatuh di kata kunci (dicek dari waktu kata), audio tidak clipping.
+### ▶ Fase 2 — Suara dan waktu kata (mesin selesai 21 Nov 2026; tinggal uji suara asli)
+Dibawa dari mesin-video (narasi_api.py, dlib.py, campur_rekaman, 47 efek `aset/suara`) lalu disempurnakan:
+1. ✔ `sutradara/suara/narasi.py`: SATU permintaan ElevenLabs (with-timestamps) untuk seluruh video, cache per sidik isi
+   (naskah+suara+model+setelan+lafal), kamus lafal dikembalikan ke tulisan asli di subtitle, penjaga Arab sebelum kirim.
+2. ✔ `sutradara/garis_waktu.py`: durasi shot dari waktu kata; potongan 0,1 dtk sebelum kata `potong_di`
+   (imbuhan -nya/-lah/... dikenali); semua waktu koreografi di dalam shot diskala ke durasi baru; kartu dalil =
+   sisipan sesudah narasi beat (narasi diam selama dibaca); titik potong dibulatkan ke bingkai global.
+3. ✔ Subtitle dari waktu kata: frasa putus di tanda baca/jeda/5 kata, kata yang diucapkan kuning, frasa panjang 2 baris.
+4. ✔ `sutradara/suara/campur.py`: suasana per preset, efek dari peristiwa yang dirancang (hentak, guncang, kartu),
+   whoosh di pergantian beat, efek bebas per beat di `@kata`, musik opsional; ducking sidechain; -15 LUFS, TP -1,5.
+5. ✔ Workflow `suara.yml` (hanya `workflow_dispatch`) -> cabang `suara`; `python -m sutradara naskah` mengecek gratis dulu.
+- **Sisa:** narasi asli Nuh setelah naskah disetujui pemilik -> render bersuara -> dengar di ponsel & headphone.
+- **Kriteria selesai:** video Nuh dengan narasi, potongan di kata kunci (diuji otomatis), tanpa clipping (diukur), disetujui pemilik.
 
 ### ✔ Fase 1b — Tokoh bergerak (21 Nov 2026, permintaan pemilik)
 - Tokoh dibangun ulang dengan **rangka bersendi** (`sutradara/gaya/tokoh.py`): panggul, badan, kepala, lengan atas/bawah,

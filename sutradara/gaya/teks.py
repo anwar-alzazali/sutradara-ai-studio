@@ -30,3 +30,22 @@ def subtitle(teks: str, *, sorot: str | None = None, y: float = 1720) -> str:
         isi = f'{escape(a)}<tspan fill="{KUNING}">{escape(sorot)}</tspan>{escape(b)}'
     return (f'<text x="540" y="{y}" text-anchor="middle" font-size="60" font-weight="800" fill="#fff" stroke="#000" '
             f'stroke-width="8" paint-order="stroke">{isi}</text>')
+
+
+def subtitle_frasa(kata: list[str], aktif: int | None = None, *, y: float = 1720, uk: float = 60, lebar: float = 940) -> str:
+    """Subtitle dari waktu kata: kata yang sedang diucapkan kuning. Frasa panjang dipecah jadi 2 baris / huruf mengecil."""
+    lebar_kata = lambda ws, u: sum(len(w) for w in ws) * u * 0.56 + (len(ws) - 1) * u * 0.28
+    baris = [list(range(len(kata)))]
+    if lebar_kata(kata, uk) > lebar and len(kata) > 1:
+        terbaik = min(range(1, len(kata)), key=lambda c: max(lebar_kata(kata[:c], uk), lebar_kata(kata[c:], uk)))
+        baris = [list(range(terbaik)), list(range(terbaik, len(kata)))]
+    u = uk
+    while u > 40 and max(lebar_kata([kata[j] for j in b], u) for b in baris) > lebar:
+        u -= 2
+    y0 = y - (len(baris) - 1) * u * 1.15
+    out = []
+    for n, b in enumerate(baris):
+        isi = " ".join((f'<tspan fill="{KUNING}">{escape(kata[j])}</tspan>' if j == aktif else escape(kata[j])) for j in b)
+        out.append(f'<text x="540" y="{y0 + n * u * 1.15:.0f}" text-anchor="middle" font-size="{u}" font-weight="800" fill="#fff" '
+                   f'stroke="#000" stroke-width="{u * 0.13:.1f}" paint-order="stroke">{isi}</text>')
+    return "".join(out)

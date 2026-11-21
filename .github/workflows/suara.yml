@@ -1,0 +1,43 @@
+name: suara (narasi ElevenLabs)
+# Memakai rahasia ELEVENLABS_API_KEY -> HANYA workflow_dispatch (lihat AGENTS.md). Jangan tambah pemicu lain.
+# Hasil (data/suara/<sidik>.mp3 + .json) di-commit ke cabang `suara`; narasi yang sudah ada tidak dibayar ulang.
+on:
+  workflow_dispatch:
+    inputs:
+      rencana:
+        description: "Berkas rencana (pisahkan dengan spasi), mis. contoh/nuh_mengejek.json"
+        required: true
+permissions:
+  contents: write
+concurrency:
+  group: suara
+  cancel-in-progress: false
+jobs:
+  narasi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt
+      - name: Ambil narasi yang sudah ada (cache cabang suara)
+        run: |
+          if git fetch --depth=1 origin suara; then git checkout FETCH_HEAD -- data/suara || true; fi
+      - name: Cek naskah (gratis, sebelum membayar)
+        env: { RENCANA: "${{ inputs.rencana }}" }
+        run: for f in $RENCANA; do python -m sutradara naskah "$f"; done
+      - name: Buat narasi
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          RENCANA: ${{ inputs.rencana }}
+        run: python -m sutradara suara $RENCANA | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Simpan ke cabang suara
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          mkdir -p /tmp/hasil && cp -r data/suara/. /tmp/hasil/
+          if git fetch --depth=1 origin suara; then git checkout -B suara FETCH_HEAD; else git checkout --orphan suara && git rm -rqf .; fi
+          mkdir -p data/suara && cp -r /tmp/hasil/. data/suara/
+          git add -f data/suara
+          git diff --cached --quiet || (git commit -m "Narasi (workflow #${{ github.run_number }})" && git push origin suara)
