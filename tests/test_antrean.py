@@ -101,3 +101,10 @@ def test_normalisasi_keluaran_ai_yang_wajar_salah():
     assert A.validasi(n) == []
     assert n["dalil"][0]["surah"] == 11 and n["dalil"][1]["kitab"] == "muslim" and n["dalil"][1]["nomor"] == "2934b"
     assert "suasana" not in n["beat"][0]
+
+
+def test_terjemah_dalil_yang_sama_cukup_sekali():
+    n = json.loads(json.dumps(NASKAH)); n["dalil"][0].update(status="terverifikasi", derajat="sahih", terjemah="TERJEMAH")
+    n["beat"][1]["dalil"] = ["b1"]
+    t = "".join(A.teks_tinjauan(n))
+    assert t.count("TERJEMAH") == 1 and "(terjemah di atas)" in t
