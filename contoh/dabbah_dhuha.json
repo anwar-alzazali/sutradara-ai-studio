@@ -88,14 +88,6 @@
        "warna": "#2e6b8a"
       }
      ],
-     "akhir_zaman": [
-      {
-       "jenis": "tanda_wajah",
-       "x": 170,
-       "y": 1160,
-       "s": 0.6
-      }
-     ],
      "tokoh": [
       {
        "x": 170,
@@ -205,6 +197,14 @@
        "y": 1330
       }
      ],
+     "akhir_zaman": [
+      {
+       "jenis": "tanda_wajah",
+       "x": 170,
+       "y": 1350,
+       "s": 0.6
+      }
+     ],
      "tokoh": [
       {
        "x": 170,
@@ -270,10 +270,6 @@
      "warna_depan": "#4a3020",
      "teks": {
       "sumber": "QS AN-NAML 82 · HR. MUSLIM 2941",
-      "judul": [
-       "KELUAR",
-       "DARI BUMI"
-      ],
       "judul": [
        "IA BERBICARA"
       ],
