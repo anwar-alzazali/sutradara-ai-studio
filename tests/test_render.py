@@ -45,3 +45,28 @@ def test_pendar_nur_lebih_terlokalisasi_dan_inti_pilar_tetap_terang():
     assert 'rx="155.0" ry="190.0"' in svg
     assert 'opacity=".42"' in svg
     assert 'fill="#ffffff"' in svg
+
+
+def test_tekstur_tanah_deterministik_perspektif_dan_jenis():
+    from sutradara.gaya import latar
+    a = latar.tekstur_tanah("senja", 1250, jenis="tanah_berbatu", seed=17)
+    b = latar.tekstur_tanah("senja", 1250, jenis="tanah_berbatu", seed=17)
+    c = latar.tekstur_tanah("senja", 1250, jenis="tanah_berbatu", seed=18)
+    pasir = latar.tekstur_tanah("senja", 1250, jenis="pasir", seed=17)
+    assert a == b
+    assert a != c and a != pasir
+    assert 'clip-path="url(#tanah_tekstur_clip)"' in a
+    assert 'filter="url(#kabur)"' not in a
+    assert "ellipse" in a
+
+
+def test_rencana_bisa_memilih_permukaan_dan_tanah_bawaan_bertekstur():
+    from sutradara import adegan
+    from sutradara.gaya import latar
+    shot = {"preset": "dhuha", "belakang": [], "permukaan_tanah": "pasir",
+            "seed_tanah": 29, "tokoh": [{"x": 540, "y": 1500}]}
+    svg = adegan.susun(shot)
+    assert latar.PERMUKAAN_BAWAAN["dhuha"] == "tanah_berbatu"
+    assert "tanah_tekstur_clip" in svg
+    assert svg.index("tanah_tekstur_clip") < svg.index('class="tokoh"')
+    assert 'filter="url(#kabur)"' not in svg
