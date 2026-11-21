@@ -1,42 +1,78 @@
-"""Benchmark render serial dan paralel pada runner yang sama."""
+"""Bandingkan renderer serial pada main dengan renderer paralel pada branch ini."""
 from __future__ import annotations
+import importlib.util
 import json
+import subprocess
 import tempfile
 import time
-import subprocess
-import sys
 from pathlib import Path
+import sys
+
 AKAR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(AKAR))
 from PIL import Image, ImageChops
 from sutradara import video
 
-def main():
-    rencana=json.loads(Path("contoh/nuh_mengejek.json").read_text(encoding="utf-8"))
-    with tempfile.TemporaryDirectory() as d:
-        hasil={}
-        paths={}
-        for nama,workers in (("serial",1),("paralel",2)):
-            paths[nama]=Path(d)/(nama+".mp4")
-            mulai=time.perf_counter()
-            video.buat(rencana,paths[nama],fps=30,workers=workers,
-                       kabar=lambda pesan: print("["+nama+"] "+pesan))
-            hasil[nama]=time.perf_counter()-mulai
-        bingkai={}
-        for nama,path in paths.items():
-            pola=Path(d)/(nama+"_%02d.jpg")
-            subprocess.run(["ffmpeg","-v","error","-y","-i",str(path),"-vf",
-                            "select='eq(n,0)+eq(n,100)+eq(n,200)'","-vsync","0","-q:v","2",str(pola)],check=True)
-            bingkai[nama]=[Image.open(Path(d)/(nama+"_"+str(i).zfill(2)+".jpg")).convert("RGB") for i in range(1,4)]
-        identik=all(ImageChops.difference(a,b).getbbox() is None for a,b in zip(bingkai["serial"],bingkai["paralel"]))
-        if not identik:
-            raise SystemExit("BINGKAI_SERIAL_PARAREL_BERBEDA")
-        speedup=hasil["serial"]/hasil["paralel"] if hasil["paralel"] else 0
-        print("TAHAP_B_RENDER_BENCHMARK",json.dumps({
-            "runner":"same GitHub Actions job","serial_workers":1,"parallel_workers":2,
-            "serial_seconds":round(hasil["serial"],2),"parallel_seconds":round(hasil["paralel"],2),
-            "speedup":round(speedup,3),"sampled_frames_pixel_identical":identik
-        },sort_keys=True))
 
-if __name__=="__main__":
+def muat_baseline(folder: Path):
+    subprocess.run(["git", "fetch", "--no-tags", "--depth=1", "origin", "main"], check=True)
+    sumber = subprocess.check_output(
+        ["git", "show", "FETCH_HEAD:sutradara/video.py"], text=True
+    )
+    path = folder / "video_baseline.py"
+    path.write_text(sumber, encoding="utf-8")
+    spec = importlib.util.spec_from_file_location("sutradara.video_baseline", path)
+    modul = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = modul
+    spec.loader.exec_module(modul)
+    return modul
+
+
+def ambil_sampel(video_path: Path, folder: Path, nama: str):
+    pola = folder / (nama + "_%02d.jpg")
+    subprocess.run([
+        "ffmpeg", "-v", "error", "-y", "-i", str(video_path), "-vf",
+        "select='eq(n,0)+eq(n,100)+eq(n,200)'", "-vsync", "0", "-q:v", "2", str(pola)
+    ], check=True)
+    return [
+        Image.open(folder / (nama + "_" + str(i).zfill(2) + ".jpg")).convert("RGB")
+        for i in range(1, 4)
+    ]
+
+
+def main():
+    rencana = json.loads(Path("contoh/nuh_mengejek.json").read_text(encoding="utf-8"))
+    with tempfile.TemporaryDirectory() as d:
+        folder = Path(d)
+        baseline = muat_baseline(folder)
+        hasil, paths = {}, {}
+        for nama in ("main_serial", "branch_paralel"):
+            paths[nama] = folder / (nama + ".mp4")
+            mulai = time.perf_counter()
+            if nama == "main_serial":
+                baseline.buat(rencana, paths[nama], fps=30, kabar=lambda m: print("[main] " + m))
+            else:
+                video.buat(rencana, paths[nama], fps=30, workers=2,
+                           kabar=lambda m: print("[branch] " + m))
+            hasil[nama] = time.perf_counter() - mulai
+        a = ambil_sampel(paths["main_serial"], folder, "main")
+        b = ambil_sampel(paths["branch_paralel"], folder, "branch")
+        identik = len(a) == len(b) and all(
+            ImageChops.difference(x, y).getbbox() is None for x, y in zip(a, b)
+        )
+        if not identik:
+            raise SystemExit("BINGKAI_MAIN_DAN_BRANCH_BERBEDA")
+        speedup = hasil["main_serial"] / hasil["branch_paralel"] if hasil["branch_paralel"] else 0
+        print("TAHAP_B_RENDER_BENCHMARK", json.dumps({
+            "baseline": "origin/main:sutradara/video.py (serial, satu Chromium)",
+            "candidate": "branch:sutradara/video.py (2 worker, Chromium per shot)",
+            "runner": "same GitHub Actions job",
+            "baseline_seconds": round(hasil["main_serial"], 2),
+            "candidate_seconds": round(hasil["branch_paralel"], 2),
+            "speedup": round(speedup, 3),
+            "sampled_frames_pixel_identical": identik
+        }, sort_keys=True))
+
+
+if __name__ == "__main__":
     main()
