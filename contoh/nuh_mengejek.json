@@ -1,0 +1,378 @@
+{
+ "judul": "Mereka Mengejek Kapal di Daratan (contoh fase 0)",
+ "catatan": "Contoh rencana untuk menguji penjaga dan perender. Dalil QS Hud 38 belum diverifikasi lewat modul dalil (fase 3).",
+ "visual_inti": {
+  "benda": "bahtera",
+  "jalur_keadaan": [
+   "rangka",
+   "setengah",
+   "jadi"
+  ]
+ },
+ "peran": [
+  {
+   "id": "nuh",
+   "nama": "Nabi Nuh a.s.",
+   "kategori": "nabi",
+   "tampil": "nur"
+  },
+  {
+   "id": "kaum",
+   "nama": "Kaum Nabi Nuh",
+   "kategori": "manusia",
+   "tampil": "pakaian"
+  }
+ ],
+ "hook": {
+  "dari_beat": 1,
+  "teks": [
+   "MEREKA",
+   "MENGEJEK"
+  ]
+ },
+ "dalil": [
+  {
+   "id": "hud38",
+   "jenis": "quran",
+   "label": "QS HUD 38",
+   "status": "belum",
+   "rujukan": "https://quran.com/11/38"
+  }
+ ],
+ "beat": [
+  {
+   "narasi": "Nabi Nuh mulai membuat kapal di tengah daratan, jauh dari laut.",
+   "preset": "senja",
+   "keadaan": "rangka",
+   "peran_tampil": [
+    "nuh"
+   ],
+   "shot": [
+    {
+     "preset": "senja",
+     "matahari": [
+      860,
+      1060
+     ],
+     "belakang": [
+      "gunung"
+     ],
+     "benda": [
+      {
+       "jenis": "bahtera",
+       "x": 520,
+       "y": 1215,
+       "jadi": 0.0
+      }
+     ],
+     "nur": [
+      {
+       "x": 270,
+       "y": 1330,
+       "nama": "Nabi Nuh a.s."
+      }
+     ],
+     "tokoh": [],
+     "teks": {
+      "judul": [
+       "MEMBUAT",
+       "KAPAL"
+      ],
+      "warna": "kuning",
+      "subtitle": "jauh dari laut",
+      "sorot": "laut"
+     }
+    }
+   ]
+  },
+  {
+   "narasi": "Setiap kali pemuka kaumnya lewat, mereka mengejeknya.",
+   "preset": "senja",
+   "keadaan": "setengah",
+   "potong_di": [
+    "mengejek"
+   ],
+   "dalil": [
+    "hud38"
+   ],
+   "peran_tampil": [
+    "nuh",
+    "kaum"
+   ],
+   "shot": [
+    {
+     "preset": "senja",
+     "matahari": [
+      860,
+      1060
+     ],
+     "belakang": [
+      "gunung"
+     ],
+     "benda": [
+      {
+       "jenis": "bahtera",
+       "x": 520,
+       "y": 1215,
+       "jadi": 0.45
+      }
+     ],
+     "nur": [
+      {
+       "x": 270,
+       "y": 1330,
+       "nama": "Nabi Nuh a.s."
+      }
+     ],
+     "tokoh": [
+      {
+       "x": 620,
+       "y": 1395,
+       "s": 0.92,
+       "pose": "tunjuk",
+       "wajah": "ejek",
+       "kepala": "imamah",
+       "peran": "kaum"
+      },
+      {
+       "x": 790,
+       "y": 1360,
+       "s": 0.82,
+       "pose": "tertawa",
+       "wajah": "tertawa",
+       "kepala": "kain",
+       "peran": "kaum"
+      },
+      {
+       "x": 930,
+       "y": 1420,
+       "s": 0.98,
+       "pose": "angkat",
+       "wajah": "ejek",
+       "kepala": "imamah",
+       "peran": "kaum"
+      },
+      {
+       "x": 720,
+       "y": 1520,
+       "s": 1.12,
+       "pose": "silang",
+       "wajah": "ejek",
+       "kepala": "kain",
+       "peran": "kaum"
+      },
+      {
+       "x": 1010,
+       "y": 1300,
+       "s": 0.7,
+       "pose": "tertawa",
+       "wajah": "tertawa",
+       "kepala": "imamah",
+       "peran": "kaum"
+      }
+     ],
+     "teks": {
+      "sumber": "QS HUD 38",
+      "subtitle": "setiap kali pemuka kaumnya lewat",
+      "sorot": "lewat"
+     },
+     "npc_jauh": {
+      "n": 11,
+      "x0": 470,
+      "x1": 1000,
+      "y": 1262
+     }
+    },
+    {
+     "preset": "senja",
+     "matahari": [
+      860,
+      1060
+     ],
+     "belakang": [
+      "gunung"
+     ],
+     "benda": [
+      {
+       "jenis": "bahtera",
+       "x": 520,
+       "y": 1215,
+       "jadi": 0.45
+      }
+     ],
+     "nur": [
+      {
+       "x": 270,
+       "y": 1330,
+       "nama": "Nabi Nuh a.s."
+      }
+     ],
+     "tokoh": [
+      {
+       "x": 620,
+       "y": 1395,
+       "s": 0.92,
+       "pose": "tunjuk",
+       "wajah": "ejek",
+       "kepala": "imamah",
+       "peran": "kaum"
+      },
+      {
+       "x": 790,
+       "y": 1360,
+       "s": 0.82,
+       "pose": "tertawa",
+       "wajah": "tertawa",
+       "kepala": "kain",
+       "peran": "kaum"
+      },
+      {
+       "x": 930,
+       "y": 1420,
+       "s": 0.98,
+       "pose": "angkat",
+       "wajah": "ejek",
+       "kepala": "imamah",
+       "peran": "kaum"
+      },
+      {
+       "x": 720,
+       "y": 1520,
+       "s": 1.12,
+       "pose": "silang",
+       "wajah": "ejek",
+       "kepala": "kain",
+       "peran": "kaum"
+      },
+      {
+       "x": 1010,
+       "y": 1300,
+       "s": 0.7,
+       "pose": "tertawa",
+       "wajah": "tertawa",
+       "kepala": "imamah",
+       "peran": "kaum"
+      }
+     ],
+     "teks": {
+      "sumber": "QS HUD 38",
+      "judul": [
+       "MEREKA",
+       "MENGEJEK"
+      ],
+      "subtitle": "mereka mengejeknya",
+      "sorot": "mengejek"
+     },
+     "npc_jauh": {
+      "n": 11,
+      "x0": 470,
+      "x1": 1000,
+      "y": 1262
+     }
+    }
+   ]
+  },
+  {
+   "narasi": "Nuh menjawab: jika kalian mengejek kami, kami pun akan mengejek kalian.",
+   "preset": "senja",
+   "keadaan": "jadi",
+   "dalil": [
+    "hud38"
+   ],
+   "peran_tampil": [
+    "nuh",
+    "kaum"
+   ],
+   "shot": [
+    {
+     "preset": "senja",
+     "matahari": [
+      860,
+      1060
+     ],
+     "belakang": [
+      "gunung"
+     ],
+     "benda": [
+      {
+       "jenis": "bahtera",
+       "x": 520,
+       "y": 1215,
+       "jadi": 1.0
+      }
+     ],
+     "nur": [
+      {
+       "x": 270,
+       "y": 1330,
+       "nama": "Nabi Nuh a.s."
+      }
+     ],
+     "tokoh": [
+      {
+       "x": 620,
+       "y": 1395,
+       "s": 0.92,
+       "pose": "tunjuk",
+       "wajah": "ejek",
+       "kepala": "imamah",
+       "peran": "kaum"
+      },
+      {
+       "x": 790,
+       "y": 1360,
+       "s": 0.82,
+       "pose": "tertawa",
+       "wajah": "tertawa",
+       "kepala": "kain",
+       "peran": "kaum"
+      },
+      {
+       "x": 930,
+       "y": 1420,
+       "s": 0.98,
+       "pose": "angkat",
+       "wajah": "ejek",
+       "kepala": "imamah",
+       "peran": "kaum"
+      },
+      {
+       "x": 720,
+       "y": 1520,
+       "s": 1.12,
+       "pose": "silang",
+       "wajah": "ejek",
+       "kepala": "kain",
+       "peran": "kaum"
+      },
+      {
+       "x": 1010,
+       "y": 1300,
+       "s": 0.7,
+       "pose": "tertawa",
+       "wajah": "tertawa",
+       "kepala": "imamah",
+       "peran": "kaum"
+      }
+     ],
+     "teks": {
+      "sumber": "QS HUD 38",
+      "judul": [
+       "“KAMI PUN AKAN",
+       "MENGEJEK KALIAN”"
+      ],
+      "warna": "kuning",
+      "subtitle": "kami pun akan mengejek kalian",
+      "sorot": "kalian"
+     },
+     "npc_jauh": {
+      "n": 11,
+      "x0": 470,
+      "x1": 1000,
+      "y": 1262
+     }
+    }
+   ]
+  }
+ ]
+}
