@@ -5,7 +5,7 @@ import math
 def buraq(x: float, y: float, s: float = 1.0, *, t: float = 0.0) -> str:
     """Hewan putih berkaki empat; tanpa sayap, wajah manusia, atau penunggang."""
     langkah = math.sin(t * 2.2) * 24
-    return (f'<g class="buraq" transform="translate({x:.1f},{y:.1f}) scale({s})>'
+    return (f'<g class="buraq" transform="translate({x:.1f},{y:.1f}) scale({s})">'
             '<ellipse cx="0" cy="4" rx="112" ry="13" fill="#000" opacity=".22"/>'
             '<path d="M-92 -118 Q-130 -190 -76 -230 Q-30 -255 42 -218 L88 -166 Q105 -116 64 -78 L-62 -76Z" fill="#f7f4e9" stroke="#b9b5aa" stroke-width="5"/>'
             '<path d="M42 -212 Q74 -286 128 -270 Q153 -245 120 -198 L92 -150Z" fill="#f7f4e9" stroke="#b9b5aa" stroke-width="5"/>'
