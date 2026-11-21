@@ -9,3 +9,4 @@ data/hadis/
 data/cache/
 # efek suara bawaan repo (ElevenLabs, dibawa dari mesin-video) tetap ikut git
 !aset/suara/*.mp3
+!aset/suara/satu/*.mp3

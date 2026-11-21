@@ -117,3 +117,35 @@ def test_campur_menghasilkan_audio_dan_kenyaringan(narasi_nuh, tmp_path):
     assert -17.5 < u["lufs"] < -12.5 and u["puncak_dbtp"] <= -0.5
     info = json.loads(subprocess.check_output(["ffprobe", "-v", "error", "-show_streams", "-of", "json", str(out)]))
     assert {s["codec_type"] for s in info["streams"]} == {"video", "audio"}
+
+
+def test_titik_kena_palu_sinkron_dengan_ayunan():
+    from sutradara import gerak as GR
+    for tc in GR.titik_kena("palu", 0, 3):
+        u = GR.palu(tc)  # saat kena: lengan atas paling turun (u=0 -> la_ka = 40)
+        assert abs(u["la_ka"] - 40) < 0.5
+    assert len(GR.titik_kena("jalan", 0, 2)) == 4 and GR.titik_kena("berdiri", 0, 2) == []
+
+
+def test_efek_aksi_mengikuti_jadwal_gerak():
+    shot = {"durasi": 4.0, "tokoh": [{"x": 900, "s": 1.0, "gerak": [[0, "berdiri"], [2, "palu"]]}]}
+    rek = campur.efek_aksi(shot, 10.0)
+    assert rek and all(12.0 <= r["at"] < 14.0 for r in rek)   # hanya selama memalu, di waktu video
+    assert all(r["berkas"] == "satu/palu" and r["pan"] > 0 for r in rek)  # tokoh di kanan -> suara di kanan
+
+
+def test_bahtera_dibangun_berbunyi_hanya_saat_bertambah():
+    shot = {"durasi": 6.0, "benda": [{"jenis": "bahtera", "x": 600, "s": 0.5, "jadi": [[0, 0.1], [3, 0.6], [6, 0.6]]}]}
+    rek = campur.efek_aksi(shot, 0.0)
+    assert rek and max(r["at"] for r in rek) < 3.0
+
+
+def test_efek_bebas_berhenti_di_akhir_shot_kecuali_lewat(narasi_nuh):
+    _, n = narasi_nuh
+    g = GW.susun(NUH, n)
+    r = copy.deepcopy(NUH)
+    r["beat"][0]["efek"] = [{"berkas": "palu_kayu", "kata": "kapal"}, {"berkas": "guntur_hujan", "kata": "kapal", "lewat": True}]
+    rek = campur.rancang(r, g)
+    palu = next(x for x in rek if x["berkas"] == "palu_kayu")
+    assert abs(palu["at"] + palu["sampai"] - g.potong[1]) < 1e-3
+    assert "sampai" not in next(x for x in rek if x["berkas"] == "guntur_hujan")

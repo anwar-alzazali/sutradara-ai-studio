@@ -33,6 +33,22 @@ def _ruas(x, y, sudut, panjang, sisi, pendek=1.0):
     return x + sisi * math.sin(r) * panjang * pendek, y + math.cos(r) * panjang * pendek
 
 
+def _alat(jenis: str, siku, tangan, warna=None) -> str:
+    """Gagang searah lengan bawah (diteruskan dari tangan), kepala alat tegak lurus di ujung gagang."""
+    (sx, sy), (tx, ty) = siku, tangan
+    dx, dy = tx - sx, ty - sy; n = math.hypot(dx, dy) or 1; ux, uy = dx / n, dy / n
+    gagang = 62 if jenis == "palu" else 92
+    ex, ey = tx + ux * gagang, ty + uy * gagang
+    px, py = -uy, ux  # tegak lurus
+    kayu, besi = (warna, warna) if warna else ("#7a4f2a", "#5d6270")
+    if jenis == "palu":
+        kep = f'<path d="M{ex - px * 20:.1f} {ey - py * 20:.1f} L{ex + px * 14:.1f} {ey + py * 14:.1f}" stroke="{besi}" stroke-width="20" stroke-linecap="round"/>'
+    else:  # beliung: mata melengkung runcing ke dua arah
+        kep = (f'<path d="M{ex - px * 42 + ux * 10:.1f} {ey - py * 42 + uy * 10:.1f} Q {ex - ux * 6:.1f} {ey - uy * 6:.1f} '
+               f'{ex + px * 42 + ux * 10:.1f} {ey + py * 42 + uy * 10:.1f}" fill="none" stroke="{besi}" stroke-width="11" stroke-linecap="round"/>')
+    return (f'<path d="M{tx - ux * 10:.1f} {ty - uy * 10:.1f} L{ex:.1f} {ey:.1f}" stroke="{kayu}" stroke-width="9" stroke-linecap="round"/>' + kep)
+
+
 def _putar(dx, dy, derajat):
     r = math.radians(derajat)
     return dx * math.cos(r) - dy * math.sin(r), dx * math.sin(r) + dy * math.cos(r)
@@ -85,15 +101,19 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
 
 def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = None, t: float = 0.0, indeks: int = 0,
           mode: str = "pakaian", kepala: str | None = None, jenis: str = "pria", wajah="datar", bicara=None,
-          rinci: bool = True, balik: bool = False) -> str:
+          rinci: bool = True, balik: bool = False, alat: str | None = None) -> str:
     """Satu tokoh, kaki di (x, y), tinggi ±360 px pada s=1. `gerak`/`wajah` boleh jadwal [[detik, nama], ...];
-    `bicara` = daftar [mulai, akhir] (detik) saat mulut bergerak. `pose` = nama lama untuk `gerak`."""
+    `bicara` = daftar [mulai, akhir] (detik) saat mulut bergerak. `pose` = nama lama untuk `gerak`.
+    `alat` = "palu" | "beliung" di tangan kanan; bawaan otomatis bila jadwal gerak memuat palu/gali."""
     if mode not in ("pakaian", "siluet"):
         raise ValueError("mode harus 'pakaian' atau 'siluet'")
     sp = gerak if gerak is not None else (pose or "berdiri")
     if isinstance(sp, str) and sp not in G.SEMUA:
         raise ValueError(f"gerak/pose tak dikenal: {sp} (pilihan: {', '.join(G.SEMUA)})")
     J = G.pada(sp, t)
+    if alat is None:
+        nama_gerak = [sp] if isinstance(sp, str) else [b for _, b in sp]
+        alat = "beliung" if "gali" in nama_gerak else ("palu" if "palu" in nama_gerak else None)
     wanita = jenis == "wanita"
     kepala = kepala or ("kerudung" if wanita else "imamah")
     siluet = mode == "siluet"
@@ -177,6 +197,8 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         g.append(f'<path d="M{bx:.1f} {by:.1f} L{sx:.1f} {sy:.1f}" stroke="{baju}" stroke-width="26" stroke-linecap="round"/>'
                  f'<path d="M{sx:.1f} {sy:.1f} L{tx:.1f} {ty:.1f}" stroke="{baju}" stroke-width="22" stroke-linecap="round"/>'
                  f'<circle cx="{tx:.1f}" cy="{ty:.1f}" r="13" fill="{kulit}"/>')
+        if alat and sisi == +1:
+            g.insert(len(g) - 1, _alat(alat, (sx, sy), (tx, ty), GELAP if siluet else None))
     if siluet:  # tepi tersinari hanya di sisi kiri (arah cahaya)
         mid = f"m{indeks}_{int(x)}_{int(y)}"
         g.insert(1, f'<mask id="{mid}" maskUnits="userSpaceOnUse" x="-300" y="-560" width="600" height="600">'
