@@ -44,14 +44,16 @@ def main():
             gambar.append(kanvas)
     # Bukti pasangan sebelum/sesudah: sebelum = bidang tanah polos, sesudah = tekstur bawaan.
     # Kode foreground saat ini tetap tajam pada kedua hasil; perbandingan ini mengisolasi perubahan tanah.
-    for nama, shot in (("nuh", nuh["beat"][0]["shot"][0]),
-                       ("dabbah", dabbah["beat"][1]["shot"][0])):
-        sebelum = dict(shot)
-        sebelum["permukaan_tanah"] = "tanpa"
-        sesudah = dict(shot)
-        sesudah.pop("permukaan_tanah", None)
-        render.png(adegan.susun(sebelum, 1.0), OUT / f"{nama}-sebelum.jpg", halaman=pg)
-        render.png(adegan.susun(sesudah, 1.0), OUT / f"{nama}-sesudah.jpg", halaman=pg)
+    # Peramban baru diperlukan karena konteks di atas sudah ditutup setelah lembar kontak.
+    with render.peramban() as pg:
+        for nama, shot in (("nuh", nuh["beat"][0]["shot"][0]),
+                           ("dabbah", dabbah["beat"][1]["shot"][0])):
+            sebelum = dict(shot)
+            sebelum["permukaan_tanah"] = "tanpa"
+            sesudah = dict(shot)
+            sesudah.pop("permukaan_tanah", None)
+            render.png(adegan.susun(sebelum, 1.0), OUT / f"{nama}-sebelum.jpg", halaman=pg)
+            render.png(adegan.susun(sesudah, 1.0), OUT / f"{nama}-sesudah.jpg", halaman=pg)
     baris=(len(gambar)+2)//3
     lembar=Image.new("RGB",(290*3,525*baris),(238,238,238))
     for i,im in enumerate(gambar):
