@@ -124,6 +124,33 @@ def test_lapis_depan_tidak_muncul_bawaan_dan_hanya_aktif_jika_diminta():
     assert "M-60 1920" in eksplisit
 
 
+def test_kabut_jauh_berada_di_belakang_bahtera_dan_npc():
+    rencana = json.loads((CONTOH / "nuh_mengejek.json").read_text(encoding="utf-8"))
+    shot = rencana["beat"][1]["shot"][0]
+    svg = adegan.susun(shot)
+    kabut = 'fill="#a5546a" opacity="0.38"'
+    kapal = 'stroke="#160d08" stroke-width="22"'
+    npc = 'stroke-width="26"'
+    assert kabut in svg and kapal in svg
+    assert svg.index(kabut) < svg.index(kapal)
+    assert svg.index(kabut) < svg.index(npc)
+
+
+def test_sebaran_kerikil_memiliki_gerombol_dan_area_kosong():
+    from sutradara.gaya import latar
+    import random
+    posisi = latar._sebaran_kerikil(random.Random(31), 1250, 136)
+    # Petakan bidang dunia menjadi 8 kolom; gerombol membuat kepadatan berbeda,
+    # sementara beberapa kolom tetap jarang/kosong, bukan kisi seragam.
+    kolom = [0] * 8
+    for x, _ in posisi:
+        idx = min(7, max(0, int((x + 1080) / 3240 * 8)))
+        kolom[idx] += 1
+    assert max(kolom) >= min(kolom) * 1.6
+    assert max(kolom) - min(kolom) >= 8
+    assert len({round(x, 1) for x, _ in posisi}) == len(posisi)
+
+
 def test_pilar_pembuka_nuh_utuh_di_bingkai_dan_di_belakang_bahtera():
     rencana = json.loads((CONTOH / "nuh_mengejek.json").read_text(encoding="utf-8"))
     shot = rencana["beat"][0]["shot"][0]
