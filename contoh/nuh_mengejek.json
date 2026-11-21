@@ -184,41 +184,173 @@
      ],
      "tokoh": [
       {
-       "x": 700,
+       "x": [
+        [
+         0,
+         1120
+        ],
+        [
+         2.2,
+         700
+        ]
+       ],
        "y": 1520,
        "s": 1.0,
-       "pose": "tunjuk",
-       "wajah": "ejek",
+       "wajah": [
+        [
+         0,
+         "datar"
+        ],
+        [
+         2.2,
+         "ejek"
+        ]
+       ],
        "kepala": "imamah",
        "peran": "kaum",
-       "balik": false
+       "balik": false,
+       "gerak": [
+        [
+         0,
+         "jalan"
+        ],
+        [
+         2.2,
+         "tunjuk"
+        ]
+       ],
+       "bicara": [
+        [
+         2.3,
+         3.4
+        ]
+       ]
       },
       {
-       "x": 860,
+       "x": [
+        [
+         0,
+         1280
+        ],
+        [
+         2.2,
+         860
+        ]
+       ],
        "y": 1480,
        "s": 0.9,
-       "pose": "tertawa",
-       "wajah": "tertawa",
+       "wajah": [
+        [
+         0,
+         "datar"
+        ],
+        [
+         2.2,
+         "tertawa"
+        ]
+       ],
        "kepala": "kain",
-       "peran": "kaum"
+       "peran": "kaum",
+       "gerak": [
+        [
+         0,
+         "jalan"
+        ],
+        [
+         2.2,
+         "tertawa"
+        ]
+       ],
+       "bicara": [
+        [
+         2.3,
+         3.4
+        ]
+       ]
       },
       {
-       "x": 990,
+       "x": [
+        [
+         0,
+         1410
+        ],
+        [
+         2.2,
+         990
+        ]
+       ],
        "y": 1560,
        "s": 1.05,
-       "pose": "angkat",
-       "wajah": "ejek",
+       "wajah": [
+        [
+         0,
+         "datar"
+        ],
+        [
+         2.2,
+         "ejek"
+        ]
+       ],
        "kepala": "imamah",
-       "peran": "kaum"
+       "peran": "kaum",
+       "gerak": [
+        [
+         0,
+         "jalan"
+        ],
+        [
+         2.2,
+         "angkat"
+        ]
+       ],
+       "bicara": [
+        [
+         2.3,
+         3.4
+        ]
+       ]
       },
       {
-       "x": 800,
+       "x": [
+        [
+         0,
+         1220
+        ],
+        [
+         2.2,
+         800
+        ]
+       ],
        "y": 1640,
        "s": 1.15,
-       "pose": "silang",
-       "wajah": "ejek",
+       "wajah": [
+        [
+         0,
+         "datar"
+        ],
+        [
+         2.2,
+         "ejek"
+        ]
+       ],
        "kepala": "kain",
-       "peran": "kaum"
+       "peran": "kaum",
+       "gerak": [
+        [
+         0,
+         "jalan"
+        ],
+        [
+         2.2,
+         "silang"
+        ]
+       ],
+       "bicara": [
+        [
+         2.3,
+         3.4
+        ]
+       ]
       }
      ],
      "teks": {
@@ -298,38 +430,62 @@
        "x": 700,
        "y": 1520,
        "s": 1.0,
-       "pose": "tunjuk",
        "wajah": "ejek",
        "kepala": "imamah",
        "peran": "kaum",
-       "balik": false
+       "balik": false,
+       "gerak": "tunjuk",
+       "bicara": [
+        [
+         0.2,
+         2.6
+        ]
+       ]
       },
       {
        "x": 860,
        "y": 1480,
        "s": 0.9,
-       "pose": "tertawa",
        "wajah": "tertawa",
        "kepala": "kain",
-       "peran": "kaum"
+       "peran": "kaum",
+       "gerak": "tertawa",
+       "bicara": [
+        [
+         0.2,
+         2.6
+        ]
+       ]
       },
       {
        "x": 990,
        "y": 1560,
        "s": 1.05,
-       "pose": "angkat",
        "wajah": "ejek",
        "kepala": "imamah",
-       "peran": "kaum"
+       "peran": "kaum",
+       "gerak": "angkat",
+       "bicara": [
+        [
+         0.2,
+         2.6
+        ]
+       ]
       },
       {
        "x": 800,
        "y": 1640,
        "s": 1.15,
-       "pose": "silang",
        "wajah": "ejek",
        "kepala": "kain",
-       "peran": "kaum"
+       "peran": "kaum",
+       "gerak": "silang",
+       "bicara": [
+        [
+         0.2,
+         2.6
+        ]
+       ]
       }
      ],
      "teks": {

@@ -77,6 +77,21 @@ Status: ✔ selesai · ▶ aktif · ○ belum. **Kriteria selesai selalu berupa 
 5. Workflow `buat_suara.yml` **hanya `workflow_dispatch`** (memakai rahasia ElevenLabs).
 - **Kriteria selesai:** video Nuh ±30–45 dtk dengan narasi, potongan shot jatuh di kata kunci (dicek dari waktu kata), audio tidak clipping.
 
+### ✔ Fase 1b — Tokoh bergerak (21 Nov 2026, permintaan pemilik)
+- Tokoh dibangun ulang dengan **rangka bersendi** (`sutradara/gaya/tokoh.py`): panggul, badan, kepala, lengan atas/bawah,
+  paha/betis; gamis mengikuti bahu-pinggul-lutut (berayun saat jalan, menjuntai saat duduk), celana + kaki terlihat.
+- **Pustaka gerak** (`sutradara/gerak.py`): jalan, lari, joget, lompat, duduk (+bangku otomatis), melambai, palu,
+  menggeleng, mengangguk, tertawa; pose: berdiri, tunjuk, angkat, silang, kaget, mundur, tutup (mulut), tutup_telinga,
+  tutup_wajah, berdoa, menengadah, lemas, pinggang, dagu (berpikir), kepala (bingung).
+  Gestur yang menyentuh tubuh memakai **IK**: tangan diarahkan ke titik tujuan (telinga, mulut, wajah, pinggang).
+- **Ekspresi**: datar, senyum, tertawa, ejek, cemberut, sedih, marah, takut, kaget, pejam; kedip otomatis; mulut bicara.
+- Jadwal di shot: `"gerak": [[0, "jalan"], [2.2, "tunjuk"]]`, `"wajah": [[0, "datar"], [2.2, "ejek"]]`,
+  `"bicara": [[2.3, 3.4]]`, posisi `x` beranimasi untuk berjalan melintas. Perpindahan gerak dicampur halus 0,35 dtk.
+- Tokoh wanita (`"jenis": "wanita"`): kerudung, tanpa janggut.
+- **Bukti:** `contoh/demo_gerak.json` (11,5 dtk: berjalan masuk lalu melambai, duduk sambil bicara, joget, lompat,
+  tertawa, kaget→mundur, menutup telinga, lari keluar); 47 tes gerak/ekspresi baru.
+- Berikutnya: gerak dipicu kata kunci narasi (fase 2), set pose khusus tokoh (Dajjal berjalan, dsb., fase 7).
+
 ### ✔ Fase 3 — Penjaga dalil (21 Nov 2026, dikerjakan sebelum fase 2 atas permintaan pemilik)
 - **Hadis** (`sutradara/dalil/hadis.py`): dataset lokal dari github.com/fawazahmed0/hadith-api (Unlicense, teks sunnah.com),
   6 kitab (Bukhari, Muslim, Abu Dawud, Tirmidzi, Nasa'i, Ibnu Majah), Arab + Indonesia + Inggris + penilaian derajat.
@@ -156,3 +171,4 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 - 21 Nov 2026 — Fase 3 didahulukan. Dataset hadis tidak dimasukkan ke git (±18 MB); dibangun ulang dari sumber + cache CI. Rahasia: QURAN_FOUNDATION_CLIENT_ID/_SECRET, ELEVENLABS_API_KEY, ANTHROPIC_API_KEY.
 - 21 Nov 2026 — Kunci Quran Foundation valid di produksi tetapi belum diberi scope `content` (diagnosa: 403 'access token does not have the required scopes'). Sementara verifikasi ayat otomatis memakai API publik quran.com (penyedia sama), ditandai di `sumber_teks`. Ternyata scope sudah diberikan dalam bentuk RINCI (`content.quran.read`, `content.translations.read`, …); kode kini memintanya dan jalur resmi berkunci terbukti jalan (HTTP 200). Cadangan publik tetap ada untuk gangguan.
 - 21 Nov 2026 — Kartu dalil dipindah ke atas, lebih transparan, warna ikut suasana (permintaan pemilik). Render ulang ditunda sampai uji suara.
+- 21 Nov 2026 — Fase 1b didahulukan (permintaan pemilik). Tokoh lama (pose diam) diganti rangka bersendi; nama pose lama tetap berlaku.
