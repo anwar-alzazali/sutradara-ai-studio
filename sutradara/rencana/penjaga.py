@@ -101,6 +101,13 @@ def periksa(rencana: dict, *, final: bool = False) -> list[Temuan]:
                 t.append(Temuan("GAGAL", "PERAN_TAK_TERDAFTAR", f"beat {i}: peran '{pid}' tidak terdaftar"))
         for j, s in enumerate(b["shot"]):
             t += _periksa_shot(s, peran, f"beat {i} shot {j}")
+            for bi, buraq in enumerate(s.get("buraq", [])):
+                if "penunggang" in buraq or buraq.get("naik_di") == "buraq":
+                    t.append(Temuan("GAGAL", "PENUNGGANG_BURAQ",
+                                    f"beat {i} shot {j} Buraq {bi}: Buraq tidak boleh digambar dengan penunggang; hadirkan pilar nur terpisah bila diperlukan"))
+                if any(tk.get("naik_di") == "buraq" for tk in s.get("tokoh", [])):
+                    t.append(Temuan("GAGAL", "PENUNGGANG_BURAQ",
+                                    f"beat {i} shot {j}: tokoh manusia tidak boleh ditempatkan menunggang Buraq"))
             t += _periksa_kartu(s, dalil, final, f"beat {i} shot {j}")
             if b.get("pelaku"):
                 t += _periksa_penataan(s, b["pelaku"], vi["benda"], peran, f"beat {i} shot {j}")
