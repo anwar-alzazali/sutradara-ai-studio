@@ -55,6 +55,12 @@ Nuh: ayah (kapal, kanan) dan anak (tebing, kiri) dipertahankan di posisi yang sa
 
 ## B. Keputusan tingkat shot
 
+### B0. Arah tokoh dan skala usia
+Arah pandang tokoh memakai arah depan/samping/belakang atau jadwal waktu yang diinterpolasi smoothstep. Skala anak/lansia dan palet zaman mengubah tampilan, bukan rangka sendi. Tokoh yang membelakangi kamera tidak menampilkan ekspresi wajah.
+
+### B0b. Komponen akhir zaman yang dapat dipakai ulang
+Dinding Ya'juj Ma'juj memakai parameter lubang 0..1, danau memakai surut 0..1. Tanda wajah hanya grafis abstrak dengan label ilustrasi, bukan rincian hadis. Buraq adalah hewan putih tanpa sayap/wajah manusia; penjaga menolak atribut penunggang eksplisit.
+
 ### B1. Potongan shot jatuh tepat di kata kunci
 Semua pergantian shot dihitung dari waktu kata TTS (`W(beat, "kata")`), bukan dibagi rata. Satu beat bisa berisi beberapa shot bila narasinya berisi **daftar/enumerasi**:
 - Nuh beat 3: "siang | malam | terang-terangan | diam-diam" → 4 shot, palet berganti siang/malam.

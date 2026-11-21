@@ -217,15 +217,13 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - [ ] Render ulang video Nuh untuk tinjauan pemilik: kartu dalil di atas + warna suasana, kaum berjalan lalu mengejek, suara.
 
 ### Visual & tokoh
-- [ ] Tampak samping / berbalik badan (berjalan menyamping, menoleh penuh); kini semua tokoh tampak depan.
-- [ ] Kamera shot pembuka Nuh lebih dekat ke kapal (visual inti masih kecil di layar).
-- [ ] Ragam tokoh: anak, lansia, pakaian per zaman/wilayah, variasi perempuan.
-- [ ] Set pose Dajjal desain B: berjalan, dari belakang, jauh di tengah pengikut; jubah berkibar, lengan membuka perlahan.
-- [ ] Ya'juj Ma'juj: manusia biasa, kengerian dari jumlah & gerak (turun dari setiap tempat tinggi, QS Al-Anbiya 96),
-      menggali dinding, meminum habis danau; tanpa ciri ras/bentuk aneh.
-- [ ] Buraq: hewan putih antara keledai & bagal, langkah sejauh pandangan; tanpa sayap, tanpa wajah manusia,
-      tidak pernah dengan penunggang (penunggang = pilar cahaya).
-- [ ] Dabbatul Ard adegan lanjutan: "berbicara kepada manusia" (teks + narator), tanda di wajah orang pasar (abstrak, berlabel ilustrasi).
+- [x] Arah pandang depan/samping/belakang dengan interpolasi smoothstep; proyeksi tubuh dan visibilitas wajah mengikuti arah. Uji render visual masih perlu tinjauan manusia.
+- [x] Kamera shot pembuka Nuh diperketat; lambung bahtera dinaikkan dan terlihat pada lembar kontak Tahap B. Komposisi akhir masih menunggu persetujuan pemilik.
+- [x] Parameter anak/lansia, variasi busana Mesir kuno/umum, dan variasi kerudung tetap memakai rangka yang sama.
+- [x] Dajjal desain B: arah belakang, langkah/bobbing, jubah berkibar, dan pembukaan lengan bertahap tersedia serta diuji. Komposisi gerak utuh masih menunggu tinjauan visual pemilik.
+- [x] Ya'juj Ma'juj: contoh rencana penggalian, turun dari tempat tinggi, dan danau surut tersedia; QS Al-Anbiya 96 dan HR. Tirmidzi 2240 diverifikasi workflow (sahih).
+- [x] Komponen Buraq putih berkaki empat tanpa sayap/wajah manusia; penjaga menolak penunggang yang ditandai eksplisit. Proporsi dan jarak langkah masih perlu tinjauan visual.
+- [x] Dabbah ditampilkan hanya sebagai gumpalan kabut/debu tanpa anatomi dan tanpa tanda wajah; dialog disampaikan melalui narasi/teks. Tidak mengarang bentuk yang tidak dijelaskan dalil.
 
 ### Dalil
 - [ ] Bacaan latin ayat di kartu (transliterasi Quran Foundation) — hanya bila pemilik meminta.
@@ -256,6 +254,9 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - Bot & Studio lama, film3d, cabang hasil per video, berkas audio/video lama.
 
 ## Log keputusan
+- 21 Nov 2026 — Tanah bertekstur menjadi bawaan preset; jenis dan seed dapat diatur per shot. Tekstur statis di koordinat dunia, berkontras rendah, dan dirender di bawah benda/tokoh. Batu foreground tetap tajam tanpa blur.
+- 21 Nov 2026 — Tahap B: dokumentasi audit delapan kriteria diperbarui; bukti teknis dan batas tinjauan visual dicatat di `docs/TAHAP_B_AUDIT.md`. Dabbah dikunci sebagai kabut tanpa wujud dan tanpa penanda wajah.
+- 21 Nov 2026 — Tanah bertekstur menjadi bawaan preset; jenis dan seed dapat diatur per shot. Tekstur statis di koordinat dunia, berkontras rendah, dan dirender di bawah benda/tokoh. Batu foreground tetap tajam tanpa blur.
 - 21 Nov 2026 — Repo baru tanpa riwayat; mesin-video & motion-studio-ai jadi arsip rujukan.
 - 21 Nov 2026 — Gaya visual dikunci (lihat PANDUAN_GAYA): tokoh berpakaian, NPC jauh pudar oleh kabut, nur = pilar cahaya,
   Dabbah = kabut tanah gelap, Dajjal = desain B (ciri hadis tampil), Ya'juj Ma'juj = manusia.

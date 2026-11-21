@@ -15,9 +15,11 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 | Makhluk yang wujudnya dijelaskan dalil | Digambar **hanya** dengan ciri dari dalil; sisanya netral. | per tokoh |
 | Dajjal | **Desain B**: berpakaian penguasa (jubah merah tua bersulam emas = pilihan gaya), mata kanan buta menonjol seperti anggur & keruh tanpa pupil (Bukhari 7123), ك ف ر di antara kedua mata (Bukhari 7131, Muslim 2933), rambut sangat keriting, muda. Tanpa gore, tanpa taring/tanduk, tanpa ciri ras. Boleh siluet di awal untuk misteri. | `gaya/dajjal.py` |
 | Ya'juj Ma'juj | **Manusia biasa** (keturunan Adam, Bukhari 3348): tinggi bervariasi, pakaian compang-camping, tanpa wajah bila siluet. Kengerian dari **jumlah & gerak** (turun dari setiap tempat tinggi, QS Al-Anbiya 96), bukan bentuk aneh. Tanpa telinga raksasa/tanduk (riwayat lemah) dan tanpa ciri ras. | fase 7 |
-| Buraq | Hewan putih, lebih besar dari keledai & lebih kecil dari bagal, langkahnya sejauh pandangan. **Tanpa sayap, tanpa wajah manusia, tidak pernah digambar dengan penunggang** (penunggang = pilar cahaya). Agung, bukan kartun lucu. | fase 7 |
+| Buraq | Hewan putih, lebih besar dari keledai & lebih kecil dari bagal, langkahnya sejauh pandangan. **Tanpa sayap, tanpa wajah manusia, tidak pernah digambar dengan penunggang** (penunggang = pilar cahaya). Agung, bukan kartun lucu. Komponen dasar dan penjaga penunggang tersedia; penilaian proporsi visual tetap diperlukan. | `gaya/akhir_zaman.py` |
 
 ## 1b. Gerak & ekspresi
+- Arah tokoh memakai `arah`: `depan`, `samping`, `belakang`, atau jadwal `[[detik, arah], ...]`. Perubahan sudut memakai smoothstep; tampilan wajah memudar saat tokoh membelakangi kamera.
+- Ragam anatomi memakai `usia`: `anak`, `dewasa`, `lansia`; busana memakai `zaman`: `arab_kuno`, `mesir_kuno`, `umum`. Semua pilihan memakai rangka bersendi yang sama.
 - Gerak dan ekspresi melayani cerita: pilih yang dinyatakan narasi (yang "lewat" berjalan, yang "mengejek" tertawa/menunjuk
   dengan mulut bergerak, yang "takut" mundur/menutup telinga). Daftar lengkap: `python -c "from sutradara import gerak; print(gerak.SEMUA)"`.
 - Tidak ada gerak tanpa alasan di latar: NPC jauh hanya bernapas/bergerak kecil.
@@ -25,8 +27,12 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 
 ## 2. Suasana & lapisan
 - Preset suasana (`gaya/latar.py`): `senja`, `dhuha`, `malam`, `malam_merah`, `fajar`. Dipakai ulang, dipetakan ke busur emosi.
-- Selalu 3 lapis: belakang (langit, gunung/kota) · tengah (visual inti, tokoh) · depan (batu kabur di pojok).
-- Waktu kejadian mengikuti dalil (Dabbah keluar di waktu **dhuha**, Muslim 2941 → adegan terang, bukan malam).
+- Lapis dunia: belakang (langit, gunung/kota) · tanah bertekstur · tengah (visual inti, tokoh). **Lapis depan bukan bawaan dan harus dihilangkan secara default.** Kedalaman cukup dibangun dari tekstur tanah berperspektif, skala tokoh, dan kabut jauh.
+- Batu/siluet foreground hanya boleh dipakai bila diminta eksplisit per shot (`depan: true`) dan disertai alasan artistik yang jelas pada catatan shot, misalnya sudut mengintip, gua, atau suasana mencekam. Jangan gunakan batu pojok bawah sebagai dekorasi rutin atau sampai mengurangi ruang subtitle. Jika dipakai, ukurannya tidak boleh menutupi area bawah secara dominan.
+- **Tanah bertekstur adalah BAWAAN untuk semua adegan yang memiliki permukaan tanah, bukan aturan wajib.** Tekstur boleh dimatikan per adegan (`permukaan_tanah: "tanpa"`) bila ada alasan artistik yang jelas, misalnya mimpi/kilas balik minimalis, fokus hening, atau adegan di atas air. Jenis tekstur dapat diatur per shot: `tanah_berbatu` (bawaan), `pasir`, `tanah`, `batu`, atau `tanpa`. `seed_tanah` mengunci pola agar konsisten antar-bingkai. Tekstur mengikuti kamera karena berada di koordinat dunia dan digambar di bawah benda/tokoh. Ukuran kerikil meningkat ke arah kamera; sorot dan bayangan harus terbaca di ponsel tetapi tidak mengalahkan tokoh atau visual inti.
+- Kabut cakrawala adalah lapisan atmosfer belakang, bukan overlay: harus berada di bawah tanah, bahtera/benda, NPC, dan tokoh agar tidak membentuk pita yang menimpa visual inti.
+- Kerikil disebar secara alami dalam gerombol dan area renggang/kosong, dengan ukuran bervariasi; hindari jarak dan kepadatan yang tampak seperti kisi. Pola tetap deterministik melalui `seed_tanah`.
+- **Keterbacaan tekstur tanah:** bercak, guratan, dan kerikil harus terbaca pada pratinjau ponsel tanpa menyaingi visual inti; uji dengan crop persegi dari render nyata.\n- **Pilar nur:** inti tetap putih terang; pendar, sinar arah, dan semburan dibatasi agar tidak melunturkan area layar yang luas.\n- Waktu kejadian mengikuti dalil (Dabbah keluar di waktu **dhuha**, Muslim 2941 → adegan terang, bukan malam). Tekstur tidak memakai blur.
 
 ## 3. Penataan panggung (siapa berdiri di mana)
 - **Pelaku aksi berdiri di dekat visual inti yang ia kerjakan** (yang membangun kapal di samping kapal). Tidak boleh ada

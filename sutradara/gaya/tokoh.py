@@ -28,6 +28,26 @@ KEPALA = ("imamah", "kain", "kopiah", "kerudung", "tanpa")
 POSE = G.SEMUA  # nama gerak yang sah (termasuk pose lama: tunjuk, tertawa, silang, angkat, kaget, mundur, tutup, berdiri)
 
 
+def _arah_derajat(arah, t: float) -> float:
+    """Sudut depan/samping/belakang dengan interpolasi smoothstep."""
+    sudut = {"depan": 0.0, "samping": 90.0, "belakang": 180.0}
+    if isinstance(arah, str):
+        if arah not in sudut:
+            raise ValueError("arah harus depan, samping, atau belakang")
+        return sudut[arah]
+    jadwal = sorted((float(a), sudut[b]) for a, b in arah)
+    if not jadwal:
+        return 0.0
+    if t <= jadwal[0][0]:
+        return jadwal[0][1]
+    for (a, v), (b, w) in zip(jadwal, jadwal[1:]):
+        if t <= b:
+            u = max(0.0, min(1.0, (t-a)/max(b-a, 1e-9)))
+            u = u*u*(3-2*u)
+            return v + (w-v)*u
+    return jadwal[-1][1]
+
+
 def _ruas(x, y, sudut, panjang, sisi, pendek=1.0):
     r = math.radians(sudut)
     return x + sisi * math.sin(r) * panjang * pendek, y + math.cos(r) * panjang * pendek
@@ -54,7 +74,7 @@ def _putar(dx, dy, derajat):
     return dx * math.cos(r) - dy * math.sin(r), dx * math.sin(r) + dy * math.cos(r)
 
 
-def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: float) -> list[str]:
+def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: float, profil: bool = False) -> list[str]:
     W, M = RAMBUT, "#5a1e1e"
     g = [] if wanita else [f'<path d="M-30 14 Q 0 60 30 14 Q 26 36 0 42 Q -26 36 -30 14Z" fill="{W}"/>']  # janggut (pusat kepala = 0,0)
     if wanita:
@@ -79,6 +99,9 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
         mata = mata_tutup.replace("q 6 4 12 0", "h12") if kedip else f'<path d="M-17 -6 h11 M6 -6 h11" stroke="{W}" stroke-width="5" stroke-linecap="round"/>'
     else:
         mata = mata_tutup if kedip else mata_titik
+    if profil:
+        mata = f'<path d="M-17 -7 Q -9 -14 -2 -7 Q -9 0 -17 -7Z" fill="#fff"/><circle cx="-9" cy="-7" r="3" fill="{W}"/>'
+        alis = "M-19 -18 Q -10 -23 -2 -17"
     buka = max(0.0, min(1.0, bicara))
     mulut = {
         "datar": f'<path d="M-9 16 h18" stroke="{M}" stroke-width="3.5" stroke-linecap="round"/>',
@@ -95,13 +118,14 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
     }[jenis]
     if buka > 0.05 and jenis not in ("tertawa", "takut", "kaget"):
         mulut = f'<ellipse cx="0" cy="17" rx="{8 + 2 * buka:.1f}" ry="{1.5 + 7 * buka:.1f}" fill="{M}"/>'
-    g.append(e(mata + f'<path d="{alis}" stroke="{W}" stroke-width="3.5" fill="none" stroke-linecap="round"/>' + mulut))
+    hidung = '<path d="M1 -5 L10 4 L2 7" stroke="#704631" stroke-width="2.5" fill="none" stroke-linecap="round"/>' if profil else ""
+    g.append(e(mata + f'<path d="{alis}" stroke="{W}" stroke-width="3.5" fill="none" stroke-linecap="round"/>' + hidung + mulut))
     return g
 
 
 def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = None, t: float = 0.0, indeks: int = 0,
           mode: str = "pakaian", kepala: str | None = None, jenis: str = "pria", wajah="datar", bicara=None,
-          rinci: bool = True, balik: bool = False, alat: str | None = None) -> str:
+          rinci: bool = True, balik: bool = False, alat: str | None = None, arah='depan', usia='dewasa', zaman='arab_kuno') -> str:
     """Satu tokoh, kaki di (x, y), tinggi ±360 px pada s=1. `gerak`/`wajah` boleh jadwal [[detik, nama], ...];
     `bicara` = daftar [mulai, akhir] (detik) saat mulut bergerak. `pose` = nama lama untuk `gerak`.
     `alat` = "palu" | "beliung" di tangan kanan; bawaan otomatis bila jadwal gerak memuat palu/gali."""
@@ -111,14 +135,32 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     if isinstance(sp, str) and sp not in G.SEMUA:
         raise ValueError(f"gerak/pose tak dikenal: {sp} (pilihan: {', '.join(G.SEMUA)})")
     J = G.pada(sp, t)
+    if usia == "lansia":
+        J = dict(J)
+        J["tubuh"] += 5.0
+        J["kepala"] += 2.0
     if alat is None:
         nama_gerak = [sp] if isinstance(sp, str) else [b for _, b in sp]
         alat = "beliung" if "gali" in nama_gerak else ("palu" if "palu" in nama_gerak else None)
     wanita = jenis == "wanita"
     kepala = kepala or ("kerudung" if wanita else "imamah")
+    sudut = _arah_derajat(arah, t)
+    proyeksi = 0.55 + 0.45 * abs(math.cos(math.radians(sudut)))
+    tampak_wajah = max(0.0, min(1.0, (105.0 - abs(sudut)) / 40.0))
+    membelakangi = abs(sudut) > 135.0
+    profil = 45.0 <= abs(sudut) <= 135.0
+    if usia not in ("anak", "dewasa", "lansia"):
+        raise ValueError("usia harus anak, dewasa, atau lansia")
+    if zaman not in ("arab_kuno", "mesir_kuno", "umum"):
+        raise ValueError("zaman harus arab_kuno, mesir_kuno, atau umum")
+    skala_usia = 0.72 if usia == "anak" else (1.04 if usia == "lansia" else 1.0)
+    palet_zaman = {"arab_kuno": None, "mesir_kuno": (("#8a6a32", "#e2c36e"), ("#3f6470", "#d7b86a")),
+                   "umum": (("#52634a", "#c8b995"), ("#6b526b", "#d7b995"))}
     siluet = mode == "siluet"
     kulit = GELAP if siluet else KULIT[indeks % len(KULIT)]
     baju, aksen = (GELAP, GELAP) if siluet else BAJU[indeks % len(BAJU)]
+    if not siluet and palet_zaman[zaman]:
+        baju, aksen = palet_zaman[zaman][indeks % 2]
     celana = GELAP if siluet else CELANA
 
     # --- rangka ---
@@ -140,7 +182,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         tangan[sisi] = _ruas(*siku[sisi], J[f"sa_{k}"] - J["tubuh"] * sisi, LENGAN_B, sisi)
     kx, ky = _putar(0, -38, J["tubuh"] + J["kepala"]); pk = (leher[0] + kx, leher[1] + ky)
 
-    g = [f'<g transform="translate({x:.1f},{y:.1f}) scale({-s if balik else s},{s})">',
+    g = [f'<g transform="translate({x:.1f},{y:.1f}) scale({(-1 if balik else 1) * s * proyeksi * skala_usia:.4f},{s * skala_usia:.4f})">',
          f'<ellipse cx="{px:.1f}" cy="4" rx="{70 * (1 - min(.5, max(0, -J["naik"]) / 240)):.1f}" ry="12" fill="#000" opacity=".35"/>']
     if J["bangku"] > 0.5:
         g.append(f'<rect x="{px - 72:.1f}" y="{py + 8:.1f}" width="144" height="{-py - 8:.1f}" rx="8" fill="#6b4630"/>'
@@ -163,13 +205,16 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         g.append(f'<path d="M{kl + 4:.1f} {hem - 10:.1f} Q {(kl + kr) / 2:.1f} {hem} {kr - 4:.1f} {hem - 10:.1f}" stroke="{aksen}" stroke-width="5" fill="none" opacity=".7"/>')
     # leher & kepala
     sudut_k = J["tubuh"] + J["kepala"]
-    g.append(f'<g transform="translate({pk[0]:.1f},{pk[1]:.1f}) rotate({sudut_k:.2f})">')
+    g.append(f'<g transform="translate({pk[0]:.1f},{pk[1]:.1f}) rotate({sudut_k:.2f}) scale({1.18 if usia == "anak" else 1.0:.2f})">')
     g.append(f'<rect x="-11" y="20" width="22" height="22" fill="{kulit}"/><circle r="{R_KEPALA}" fill="{kulit}"/>')
+    if membelakangi and not siluet and kepala != "kerudung":
+        g.append('<path d="M-33 -7 Q-42 -43 0 -47 Q42 -43 33 -7 Q20 4 0 0 Q-20 4 -33 -7Z" fill="#2a1b14"/>')
     if kepala == "kerudung" and not siluet:
         warna_k = KERUDUNG[indeks % len(KERUDUNG)]
-        g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{warna_k}"/>'
-                 f'<ellipse cx="0" cy="2" rx="28" ry="31" fill="{kulit}"/>')
-    if not siluet and rinci:
+        g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{warna_k}"/>')
+        if not membelakangi:
+            g.append(f'<ellipse cx="0" cy="2" rx="28" ry="31" fill="{kulit}"/>')
+    if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
         jw = G.nilai_jadwal(wajah, t, "datar")
         if jw not in WAJAH:
             raise ValueError(f"wajah tak dikenal: {jw} (pilihan: {', '.join(WAJAH)})")
@@ -178,7 +223,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
             if a <= t <= b:
                 bc = 0.5 + 0.5 * math.sin(t * 15)
         kedip = (t + indeks * 0.9) % 3.7 < 0.12
-        g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7)
+        g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7, profil=profil)
     tutup = GELAP if siluet else aksen
     if kepala == "imamah":
         g += [f'<path d="M-37 -8 Q -40 -48 0 -52 Q 40 -48 37 -8 Q 0 -20 -37 -8Z" fill="{tutup}"/>',

@@ -17,10 +17,14 @@ KULIT, KULIT_G = "#b98a68", "#9a6e50"
 JUBAH, JUBAH_G, MANTEL, EMAS = "#7a1c2c", "#5a1220", "#2a0c16", "#d9a94a"
 
 
-def sosok(x: float, y: float, s: float = 1.0, *, lengan: str = "terbuka", tepi_merah: bool = True) -> str:
+def sosok(x: float, y: float, s: float = 1.0, *, lengan: str = "terbuka", tepi_merah: bool = True, arah: str = "depan", t: float = 0.0, jalan: bool = False, jubah_berkibar: float = 0.0) -> str:
     """Dajjal dengan kaki di (x, y); tinggi ±420 px pada s=1. lengan: 'terbuka' | 'turun'."""
+    if arah not in ("depan", "belakang"):
+        raise ValueError("arah Dajjal hanya depan atau belakang")
     rnd = random.Random(5)
-    g = [f'<g class="dajjal" transform="translate({x:.1f},{y:.1f}) scale({s})">',
+    ayun = math.sin(t * 4.0) * (5.0 if jalan else 0.0)
+    kibas = max(-1.0, min(1.0, float(jubah_berkibar)))
+    g = [f'<g class="dajjal" transform="translate({x:.1f},{y + ayun:.1f}) scale({s if arah == "depan" else -s},{s})">',
          '<ellipse cx="0" cy="4" rx="150" ry="18" fill="#000" opacity=".4"/>',
          f'<path d="M-92 -300 Q -170 -200 -175 0 L 175 0 Q 170 -200 92 -300Z" fill="{MANTEL}"/>',
          f'<path d="M-82 -304 Q 0 -318 82 -304 Q 118 -160 124 0 Q 0 14 -124 0 Q -118 -160 -82 -304Z" fill="{JUBAH}"/>',
@@ -63,3 +67,21 @@ def sosok(x: float, y: float, s: float = 1.0, *, lengan: str = "terbuka", tepi_m
               '<ellipse cx="0" cy="-372" rx="54" ry="58" fill="none" stroke="#ff7a4a" stroke-width="4" opacity=".35" filter="url(#b4)"/>']
     g.append("</g>")
     return "\n".join(g)
+
+def belakang(x: float, y: float, s: float = 1.0, *, t: float = 0.0, jalan: bool = False,
+             jubah_berkibar: float = 0.0, buka: float = 0.0) -> str:
+    """Tampak belakang Dajjal; jubah bergerak dan lengan membuka perlahan."""
+    kibas = max(-1.0, min(1.0, float(jubah_berkibar)))
+    u = max(0.0, min(1.0, float(buka)))
+    ayun = math.sin(t * 4.0) * (5.0 if jalan else 0.0)
+    sudut = 18 + 52 * u
+    tangan_kiri = (-82 - 120 * math.sin(math.radians(sudut)), -280 - 90 * math.sin(math.radians(sudut)))
+    tangan_kanan = (82 + 120 * math.sin(math.radians(sudut)), -280 - 90 * math.sin(math.radians(sudut)))
+    return (f'<g class="dajjal belakang" transform="translate({x:.1f},{y+ayun:.1f}) scale({s})">'
+            '<ellipse cx="0" cy="4" rx="150" ry="18" fill="#000" opacity=".4"/>'
+            f'<path d="M{-92-25*kibas:.1f} -300 Q0 -325 {92+25*kibas:.1f} -300 Q{175+35*kibas:.1f} -160 {180+30*kibas:.1f} 0 L-180 0 Q{-175-35*kibas:.1f} -160 {-92-25*kibas:.1f} -300Z" fill="{MANTEL}"/>'
+            f'<path d="M-82 -304 Q0 -318 82 -304 Q{118+30*kibas:.1f} -160 {124+25*kibas:.1f} 0 Q0 14 {-124-25*kibas:.1f} 0 Q{-118-30*kibas:.1f} -160 -82 -304Z" fill="{JUBAH}"/>'
+            f'<path d="M-82 -296 Q{tangan_kiri[0]:.1f} {tangan_kiri[1]:.1f} -205 -175 M82 -296 Q{tangan_kanan[0]:.1f} {tangan_kanan[1]:.1f} 205 -175" stroke="{JUBAH}" stroke-width="44" fill="none" stroke-linecap="round"/>'
+            f'<path d="M-42 -390 Q0 -430 42 -390 L48 -330 Q0 -300 -48 -330Z" fill="#1c1210"/>'
+            f'<path d="M-30 -300 L-18 0 M30 -300 L18 0" stroke="{EMAS}" stroke-width="4" opacity=".7"/>'
+            + (f'<path d="M-38 -8 L{-52 + 16*math.sin(t*4):.1f} 48 L{-64 + 16*math.sin(t*4):.1f} 58 M38 -8 L{52 - 16*math.sin(t*4):.1f} 48 L{64 - 16*math.sin(t*4):.1f} 58" stroke="#241a18" stroke-width="22" stroke-linecap="round" fill="none"/>' if jalan else '') + '</g>')

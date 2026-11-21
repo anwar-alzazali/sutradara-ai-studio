@@ -103,8 +103,18 @@
       {
        "x": 540,
        "y": 1240,
-       "s": 1.2,
-       "lengan": "terbuka"
+       "s": 0.82,
+       "lengan": "terbuka",
+       "arah": "belakang",
+       "jalan": true,
+       "jubah_berkibar": [
+        [0, 0],
+        [4, 0.8]
+       ],
+       "buka": [
+        [0, 0],
+        [4, 1]
+       ]
       }
      ],
      "tokoh": [

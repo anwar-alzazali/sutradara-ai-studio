@@ -7,11 +7,11 @@ concurrency:
   group: uji-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 permissions:
-  contents: read
+  contents: write
 jobs:
   tes:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -27,6 +27,42 @@ jobs:
         run: python -m pytest -q
       - name: Render bukti Nuh dengan narasi tiruan
         run: python scripts/render_bukti_nuh.py
+      - name: Buat crop tanah 1:1 dari render Nuh untuk audit ponsel
+        run: python scripts/crop_tanah_tahap_b.py keluaran-bukti/nuh/nuh_bisu.mp4 -o keluaran-bukti/nuh/crop-tanah-1x1.jpg
+      - name: Ukur dampak tekstur tanah pada render Nuh dan Dabbah
+        run: python scripts/benchmark_tekstur_tanah.py
+      - name: Unggah laporan benchmark tekstur
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-tekstur-tanah
+          path: keluaran-bukti/tahap-b/benchmark-tekstur.json
+          if-no-files-found: warn
+      - name: Benchmark render serial dan paralel pada runner yang sama
+        run: python scripts/benchmark_render_tahap_b.py
+      - name: Render lembar kontak visual Tahap B
+        run: python scripts/render_bukti_tahap_b.py
+      - name: Cache dataset hadis untuk verifikasi contoh Ya'juj
+        uses: actions/cache@v4
+        with:
+          path: data/hadis
+          key: hadis-${{ hashFiles('sutradara/dalil/unduh_hadis.py') }}
+      - name: Verifikasi dalil contoh Ya'juj (API publik dan dataset)
+        run: |
+          set -e
+          test -f data/hadis/bukhari.json.gz || python -m sutradara.dalil.unduh_hadis
+          python -m sutradara verifikasi contoh/yajuj_majjuj.json
+          python -m sutradara periksa contoh/yajuj_majjuj.json --final
+          mkdir -p keluaran-bukti/verifikasi
+          cp contoh/yajuj_majjuj.json keluaran-bukti/verifikasi/yajuj_majjuj.json
+          git checkout -- contoh/yajuj_majjuj.json  # hasil verifikasi CI hanya bukti, jangan kotori pohon kerja
+      - name: Unggah hasil verifikasi dalil
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verifikasi-dalil-yajuj
+          path: keluaran-bukti/verifikasi/yajuj_majjuj.json
+          if-no-files-found: warn
       - name: Unggah artefak render Nuh
         if: always()
         uses: actions/upload-artifact@v4
@@ -34,3 +70,26 @@ jobs:
           name: bukti-render-nuh-tahap-a
           path: keluaran-bukti/nuh/
           if-no-files-found: warn
+      - name: Simpan bukti JPG hanya ke cabang bukti
+        if: success()
+        run: |
+          set -e
+          mkdir -p /tmp/tahap-b-bukti
+          cp keluaran-bukti/tahap-b/*.jpg /tmp/tahap-b-bukti/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin bukti >/dev/null 2>&1; then
+            git fetch origin bukti
+            git checkout -B bukti origin/bukti
+          else
+            git checkout --orphan bukti
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          mkdir -p tahap-b
+          for file in /tmp/tahap-b-bukti/*.jpg; do
+            nama=$(basename "$file" .jpg)
+            cp "$file" "tahap-b/${nama}-${GITHUB_SHA}.jpg"
+          done
+          git add tahap-b
+          git commit -m "Bukti visual Tahap B ${GITHUB_SHA}"
+          git push origin HEAD:bukti

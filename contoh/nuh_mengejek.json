@@ -1,785 +1,775 @@
 {
- "judul": "Mereka Mengejek Kapal di Daratan (contoh fase 0)",
- "catatan": "Contoh rencana untuk menguji penjaga dan perender. Dalil QS Hud 38 belum diverifikasi lewat modul dalil (fase 3).",
- "visual_inti": {
-  "benda": "bahtera",
-  "jalur_keadaan": [
-   "rangka",
-   "setengah",
-   "jadi"
-  ]
- },
- "peran": [
-  {
-   "id": "nuh",
-   "nama": "Nabi Nuh a.s.",
-   "kategori": "nabi",
-   "tampil": "nur"
+  "judul": "Mereka Mengejek Kapal di Daratan (contoh fase 0)",
+  "catatan": "Contoh rencana untuk menguji penjaga dan perender. Dalil QS Hud 38 belum diverifikasi lewat modul dalil (fase 3).",
+  "visual_inti": {
+    "benda": "bahtera",
+    "jalur_keadaan": [
+      "rangka",
+      "setengah",
+      "jadi"
+    ]
   },
-  {
-   "id": "kaum",
-   "nama": "Kaum Nabi Nuh",
-   "kategori": "manusia",
-   "tampil": "pakaian"
-  },
-  {
-   "id": "pengikut_beriman",
-   "nama": "Pengikut Nabi Nuh",
-   "kategori": "manusia",
-   "tampil": "pakaian"
-  }
- ],
- "hook": {
-  "dari_beat": 1,
-  "teks": [
-   "MEREKA",
-   "MENGEJEK"
-  ]
- },
- "dalil": [
-  {
-   "id": "hud38",
-   "jenis": "quran",
-   "label": "QS HUD 38",
-   "status": "terverifikasi",
-   "rujukan": "https://quran.com/11/38",
-   "surah": 11,
-   "ayat": "38",
-   "teks_ar": "وَيَصْنَعُ ٱلْفُلْكَ وَكُلَّمَا مَرَّ عَلَيْهِ مَلَأٌ مِّن قَوْمِهِۦ سَخِرُوا۟ مِنْهُ ۚ قَالَ إِن تَسْخَرُوا۟ مِنَّا فَإِنَّا نَسْخَرُ مِنكُمْ كَمَا تَسْخَرُونَ",
-   "terjemah": "Dan mulailah dia (Nuh) membuat kapal. Setiap kali pemimpin kaumnya berjalan melewatinya, mereka mengejeknya. Dia (Nuh) berkata, \"Jika kamu mengejek kami, maka kami (pun) akan mengejekmu sebagaimana kamu mengejek (kami).",
-   "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
-   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
-   "makna": "perlu_tinjauan_pemilik"
-  }
- ],
- "beat": [
-  {
-   "narasi": "Nabi Nuh mulai membuat kapal di tengah daratan, jauh dari laut.",
-   "preset": "senja",
-   "keadaan": "rangka",
-   "peran_tampil": [
-    "nuh",
-    "pengikut_beriman"
-   ],
-   "shot": [
+  "peran": [
     {
-     "preset": "senja",
-     "matahari": [
-      860,
-      1060
-     ],
-     "belakang": [
-      "gunung"
-     ],
-     "benda": [
-      {
-       "jenis": "bahtera",
-       "x": 600,
-       "y": 1235,
-       "jadi": [
-        [
-         0,
-         0
-        ],
-        [
-         4,
-         0.3
-        ]
-       ],
-       "s": 0.56,
-       "cahaya": 0
-      }
-     ],
-     "nur": [
-      {
-       "x": 250,
-       "y": 1330,
-       "nama": "Nabi Nuh a.s.",
-       "sinar_ke": "kanan"
-      }
-     ],
-     "tokoh": [
-      {
-       "x": 430,
-       "y": 1360,
-       "s": 0.52,
-       "gerak": "palu",
-       "wajah": "datar",
-       "kepala": "imamah",
-       "jenis": "pria",
-       "mode": "pakaian",
-       "permukaan": "kayu",
-       "peran": "pengikut_beriman"
-      },
-      {
-       "x": 760,
-       "y": 1370,
-       "s": 0.48,
-       "gerak": "palu",
-       "wajah": "datar",
-       "kepala": "kain",
-       "jenis": "pria",
-       "mode": "pakaian",
-       "permukaan": "kayu",
-       "peran": "pengikut_beriman"
-      }
-     ],
-     "teks": {
-      "judul": [
-       "MEMBUAT",
-       "KAPAL"
-      ],
-      "warna": "kuning",
-      "subtitle": "jauh dari laut",
-      "sorot": "laut",
-      "judul_mulai": 0.3,
-      "subtitle_mulai": 0
-     },
-     "durasi": 4,
-     "kamera": {
-      "zoom": [
-       [
-        0,
-        1.05
-       ],
-       [
-        4,
-        1.22
-       ]
-      ],
-      "x": [
-       [
-        0,
-        500
-       ],
-       [
-        4,
-        470
-       ]
-      ],
-      "y": [
-       [
-        0,
-        1060
-       ],
-       [
-        4,
-        1150
-       ]
-      ]
-     }
-    }
-   ],
-   "pelaku": [
-    "nuh",
-    "pengikut_beriman"
-   ]
-  },
-  {
-   "narasi": "Setiap kali pemuka kaumnya lewat, mereka mengejeknya.",
-   "preset": "senja",
-   "keadaan": "setengah",
-   "potong_di": [
-    "mengejek"
-   ],
-   "dalil": [
-    "hud38"
-   ],
-   "peran_tampil": [
-    "nuh",
-    "kaum"
-   ],
-   "shot": [
-    {
-     "preset": "senja",
-     "matahari": [
-      860,
-      1060
-     ],
-     "belakang": [
-      "gunung"
-     ],
-     "benda": [
-      {
-       "jenis": "bahtera",
-       "x": 600,
-       "y": 1235,
-       "jadi": 0.5,
-       "s": 0.56,
-       "cahaya": 0
-      }
-     ],
-     "nur": [
-      {
-       "x": 250,
-       "y": 1330,
-       "nama": "Nabi Nuh a.s.",
-       "sinar_ke": "kanan"
-      }
-     ],
-     "tokoh": [
-      {
-       "x": [
-        [
-         0,
-         1120
-        ],
-        [
-         2.2,
-         700
-        ]
-       ],
-       "y": 1520,
-       "s": 1,
-       "wajah": [
-        [
-         0,
-         "datar"
-        ],
-        [
-         2.2,
-         "ejek"
-        ]
-       ],
-       "kepala": "imamah",
-       "peran": "kaum",
-       "balik": false,
-       "gerak": [
-        [
-         0,
-         "jalan"
-        ],
-        [
-         2.2,
-         "tunjuk"
-        ]
-       ],
-       "bicara": [
-        [
-         2.3,
-         3.4
-        ]
-       ]
-      },
-      {
-       "x": [
-        [
-         0,
-         1280
-        ],
-        [
-         2.2,
-         860
-        ]
-       ],
-       "y": 1480,
-       "s": 0.9,
-       "wajah": [
-        [
-         0,
-         "datar"
-        ],
-        [
-         2.2,
-         "tertawa"
-        ]
-       ],
-       "kepala": "kain",
-       "peran": "kaum",
-       "gerak": [
-        [
-         0,
-         "jalan"
-        ],
-        [
-         2.2,
-         "tertawa"
-        ]
-       ],
-       "bicara": [
-        [
-         2.3,
-         3.4
-        ]
-       ]
-      },
-      {
-       "x": [
-        [
-         0,
-         1410
-        ],
-        [
-         2.2,
-         990
-        ]
-       ],
-       "y": 1560,
-       "s": 1.05,
-       "wajah": [
-        [
-         0,
-         "datar"
-        ],
-        [
-         2.2,
-         "ejek"
-        ]
-       ],
-       "kepala": "imamah",
-       "peran": "kaum",
-       "gerak": [
-        [
-         0,
-         "jalan"
-        ],
-        [
-         2.2,
-         "angkat"
-        ]
-       ],
-       "bicara": [
-        [
-         2.3,
-         3.4
-        ]
-       ]
-      },
-      {
-       "x": [
-        [
-         0,
-         1220
-        ],
-        [
-         2.2,
-         800
-        ]
-       ],
-       "y": 1640,
-       "s": 1.15,
-       "wajah": [
-        [
-         0,
-         "datar"
-        ],
-        [
-         2.2,
-         "ejek"
-        ]
-       ],
-       "kepala": "kain",
-       "peran": "kaum",
-       "gerak": [
-        [
-         0,
-         "jalan"
-        ],
-        [
-         2.2,
-         "silang"
-        ]
-       ],
-       "bicara": [
-        [
-         2.3,
-         3.4
-        ]
-       ]
-      }
-     ],
-     "teks": {
-      "sumber": "QS HUD 38",
-      "subtitle": "setiap kali pemuka kaumnya lewat",
-      "sorot": "lewat"
-     },
-     "durasi": 3.5,
-     "kamera": {
-      "zoom": [
-       [
-        0,
-        1.15
-       ],
-       [
-        3.5,
-        1.05
-       ]
-      ],
-      "x": [
-       [
-        0,
-        460
-       ],
-       [
-        3.5,
-        620
-       ]
-      ],
-      "y": [
-       [
-        0,
-        1180
-       ],
-       [
-        3.5,
-        1260
-       ]
-      ]
-     },
-     "npc_jauh": {
-      "n": 8,
-      "x0": 700,
-      "x1": 1040,
-      "y": 1262
-     }
+      "id": "nuh",
+      "nama": "Nabi Nuh a.s.",
+      "kategori": "nabi",
+      "tampil": "nur"
     },
     {
-     "preset": "senja",
-     "matahari": [
-      860,
-      1060
-     ],
-     "belakang": [
-      "gunung"
-     ],
-     "benda": [
-      {
-       "jenis": "bahtera",
-       "x": 600,
-       "y": 1235,
-       "jadi": 0.62,
-       "s": 0.56,
-       "cahaya": 0
-      }
-     ],
-     "nur": [
-      {
-       "x": 250,
-       "y": 1330,
-       "nama": "Nabi Nuh a.s.",
-       "sinar_ke": "kanan"
-      }
-     ],
-     "tokoh": [
-      {
-       "x": 700,
-       "y": 1520,
-       "s": 1,
-       "wajah": "ejek",
-       "kepala": "imamah",
-       "peran": "kaum",
-       "balik": false,
-       "gerak": "tunjuk",
-       "bicara": [
-        [
-         0.2,
-         2.6
-        ]
-       ]
-      },
-      {
-       "x": 860,
-       "y": 1480,
-       "s": 0.9,
-       "wajah": "tertawa",
-       "kepala": "kain",
-       "peran": "kaum",
-       "gerak": "tertawa",
-       "bicara": [
-        [
-         0.2,
-         2.6
-        ]
-       ]
-      },
-      {
-       "x": 990,
-       "y": 1560,
-       "s": 1.05,
-       "wajah": "ejek",
-       "kepala": "imamah",
-       "peran": "kaum",
-       "gerak": "angkat",
-       "bicara": [
-        [
-         0.2,
-         2.6
-        ]
-       ]
-      },
-      {
-       "x": 800,
-       "y": 1640,
-       "s": 1.15,
-       "wajah": "ejek",
-       "kepala": "kain",
-       "peran": "kaum",
-       "gerak": "silang",
-       "bicara": [
-        [
-         0.2,
-         2.6
-        ]
-       ]
-      }
-     ],
-     "teks": {
-      "sumber": "QS HUD 38",
-      "judul": [
-       "MEREKA",
-       "MENGEJEK"
-      ],
-      "subtitle": "mereka mengejeknya",
-      "sorot": "mengejek",
-      "judul_mulai": 0.1
-     },
-     "durasi": 3,
-     "kamera": {
-      "zoom": [
-       [
-        0,
-        1.55
-       ],
-       [
-        3,
-        1.7
-       ]
-      ],
-      "x": 860,
-      "y": 1380,
-      "hentak": [
-       [
-        0.1,
-        0.07
-       ]
-      ]
-     }
-    }
-   ],
-   "pelaku": "nuh"
-  },
-  {
-   "narasi": "Nuh menjawab: jika kalian mengejek kami, kami pun akan mengejek kalian.",
-   "preset": "senja",
-   "keadaan": "jadi",
-   "dalil": [
-    "hud38"
-   ],
-   "peran_tampil": [
-    "nuh",
-    "kaum"
-   ],
-   "shot": [
-    {
-     "preset": "senja",
-     "matahari": [
-      860,
-      1060
-     ],
-     "belakang": [
-      "gunung"
-     ],
-     "benda": [
-      {
-       "jenis": "bahtera",
-       "x": 600,
-       "y": 1235,
-       "jadi": [
-        [
-         0,
-         0.66
-        ],
-        [
-         3.5,
-         1
-        ]
-       ],
-       "s": 0.56,
-       "cahaya": [
-        [
-         0,
-         0
-        ],
-        [
-         5,
-         0.8
-        ]
-       ]
-      }
-     ],
-     "nur": [
-      {
-       "x": 250,
-       "y": 1330,
-       "nama": "Nabi Nuh a.s.",
-       "sinar_ke": "kanan"
-      }
-     ],
-     "tokoh": [
-      {
-       "x": 700,
-       "y": 1480,
-       "s": 0.8,
-       "pose": "tunjuk",
-       "wajah": "ejek",
-       "kepala": "imamah",
-       "peran": "kaum",
-       "balik": false
-      },
-      {
-       "x": 860,
-       "y": 1440,
-       "s": 0.7200000000000001,
-       "pose": "tertawa",
-       "wajah": "tertawa",
-       "kepala": "kain",
-       "peran": "kaum"
-      },
-      {
-       "x": 990,
-       "y": 1520,
-       "s": 0.8400000000000001,
-       "pose": "angkat",
-       "wajah": "ejek",
-       "kepala": "imamah",
-       "peran": "kaum"
-      }
-     ],
-     "teks": {
-      "sumber": "QS HUD 38",
-      "judul": [
-       "“KAMI PUN AKAN",
-       "MENGEJEK KALIAN”"
-      ],
-      "warna": "kuning",
-      "subtitle": "kami pun akan mengejek kalian",
-      "sorot": "kalian",
-      "judul_mulai": 0.8
-     },
-     "durasi": 5,
-     "kamera": {
-      "zoom": [
-       [
-        0,
-        1.4
-       ],
-       [
-        5,
-        1.12
-       ]
-      ],
-      "x": [
-       [
-        0,
-        330
-       ],
-       [
-        5,
-        560
-       ]
-      ],
-      "y": [
-       [
-        0,
-        1130
-       ],
-       [
-        5,
-        1100
-       ]
-      ]
-     }
+      "id": "kaum",
+      "nama": "Kaum Nabi Nuh",
+      "kategori": "manusia",
+      "tampil": "pakaian"
     },
     {
-     "preset": "senja",
-     "matahari": [
-      860,
-      1060
-     ],
-     "belakang": [
-      "gunung"
-     ],
-     "benda": [
-      {
-       "jenis": "bahtera",
-       "x": 600,
-       "y": 1235,
-       "jadi": 1,
-       "s": 0.56,
-       "cahaya": 0.8
-      }
-     ],
-     "nur": [
-      {
-       "x": 250,
-       "y": 1330,
-       "nama": "Nabi Nuh a.s.",
-       "sinar_ke": "kanan"
-      }
-     ],
-     "tokoh": [
-      {
-       "x": 700,
-       "y": 1480,
-       "s": 0.8,
-       "pose": "tunjuk",
-       "wajah": "ejek",
-       "kepala": "imamah",
-       "peran": "kaum",
-       "balik": false
-      },
-      {
-       "x": 860,
-       "y": 1440,
-       "s": 0.7200000000000001,
-       "pose": "tertawa",
-       "wajah": "tertawa",
-       "kepala": "kain",
-       "peran": "kaum"
-      },
-      {
-       "x": 990,
-       "y": 1520,
-       "s": 0.8400000000000001,
-       "pose": "angkat",
-       "wajah": "ejek",
-       "kepala": "imamah",
-       "peran": "kaum"
-      }
-     ],
-     "teks": {
-      "sumber": ""
-     },
-     "kamera": {
-      "zoom": [
-       [
-        0,
-        1.12
-       ],
-       [
-        18,
-        1.2
-       ]
-      ],
-      "x": 560,
-      "y": [
-       [
-        0,
-        1060
-       ],
-       [
-        18,
-        1000
-       ]
-      ]
-     },
-     "kartu_dalil": {
-      "dalil": "hud38",
-      "mulai": 0.3
-     }
+      "id": "pengikut_beriman",
+      "nama": "Pengikut Nabi Nuh",
+      "kategori": "manusia",
+      "tampil": "pakaian"
     }
-   ],
-   "pelaku": "nuh"
-  }
- ]
+  ],
+  "hook": {
+    "dari_beat": 1,
+    "teks": [
+      "MEREKA",
+      "MENGEJEK"
+    ]
+  },
+  "dalil": [
+    {
+      "id": "hud38",
+      "jenis": "quran",
+      "label": "QS HUD 38",
+      "status": "terverifikasi",
+      "rujukan": "https://quran.com/11/38",
+      "surah": 11,
+      "ayat": "38",
+      "teks_ar": "وَيَصْنَعُ ٱلْفُلْكَ وَكُلَّمَا مَرَّ عَلَيْهِ مَلَأٌ مِّن قَوْمِهِۦ سَخِرُوا۟ مِنْهُ ۚ قَالَ إِن تَسْخَرُوا۟ مِنَّا فَإِنَّا نَسْخَرُ مِنكُمْ كَمَا تَسْخَرُونَ",
+      "terjemah": "Dan mulailah dia (Nuh) membuat kapal. Setiap kali pemimpin kaumnya berjalan melewatinya, mereka mengejeknya. Dia (Nuh) berkata, \"Jika kamu mengejek kami, maka kami (pun) akan mengejekmu sebagaimana kamu mengejek (kami).",
+      "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
+      "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+      "makna": "perlu_tinjauan_pemilik"
+    }
+  ],
+  "beat": [
+    {
+      "narasi": "Nabi Nuh mulai membuat kapal di tengah daratan, jauh dari laut.",
+      "preset": "senja",
+      "keadaan": "rangka",
+      "peran_tampil": [
+        "nuh",
+        "pengikut_beriman"
+      ],
+      "shot": [
+        {
+          "preset": "senja",
+          "matahari": [
+            860,
+            1060
+          ],
+          "belakang": [
+            "gunung"
+          ],
+          "benda": [
+            {
+              "jenis": "bahtera",
+              "x": 650,
+              "y": 1235,
+              "jadi": 0.86,
+              "s": 0.82,
+              "cahaya": 0,
+              "darat": false
+            }
+          ],
+          "nur": [
+            {
+              "x": 350,
+              "y": 1330,
+              "nama": "Nabi Nuh a.s.",
+              "sinar_ke": "kiri",
+              "lebar": 88,
+              "pendar_rx": 70,
+              "pendar_ry": 125,
+              "di_belakang_benda": true
+            }
+          ],
+          "tokoh": [
+            {
+              "x": 430,
+              "y": 1360,
+              "s": 0.52,
+              "gerak": "palu",
+              "wajah": "datar",
+              "kepala": "imamah",
+              "jenis": "pria",
+              "mode": "pakaian",
+              "permukaan": "kayu",
+              "peran": "pengikut_beriman"
+            },
+            {
+              "x": 760,
+              "y": 1370,
+              "s": 0.48,
+              "gerak": "palu",
+              "wajah": "datar",
+              "kepala": "kain",
+              "jenis": "pria",
+              "mode": "pakaian",
+              "permukaan": "kayu",
+              "peran": "pengikut_beriman"
+            }
+          ],
+          "teks": {
+            "judul": [
+              "MEMBUAT",
+              "KAPAL"
+            ],
+            "warna": "kuning",
+            "subtitle": "jauh dari laut",
+            "sorot": "laut",
+            "judul_mulai": 0.3,
+            "subtitle_mulai": 0
+          },
+          "durasi": 4,
+          "kamera": {
+            "zoom": [
+              [
+                0,
+                1.18
+              ],
+              [
+                4,
+                1.24
+              ]
+            ],
+            "x": 650,
+            "y": [
+              [
+                0,
+                1190
+              ],
+              [
+                4,
+                1235
+              ]
+            ]
+          }
+        }
+      ],
+      "pelaku": [
+        "nuh",
+        "pengikut_beriman"
+      ]
+    },
+    {
+      "narasi": "Setiap kali pemuka kaumnya lewat, mereka mengejeknya.",
+      "preset": "senja",
+      "keadaan": "setengah",
+      "potong_di": [
+        "mengejek"
+      ],
+      "dalil": [
+        "hud38"
+      ],
+      "peran_tampil": [
+        "nuh",
+        "kaum"
+      ],
+      "shot": [
+        {
+          "preset": "senja",
+          "matahari": [
+            860,
+            1060
+          ],
+          "belakang": [
+            "gunung"
+          ],
+          "benda": [
+            {
+              "jenis": "bahtera",
+              "x": 650,
+              "y": 1235,
+              "jadi": 0.86,
+              "s": 0.9,
+              "cahaya": 0
+            }
+          ],
+          "nur": [
+            {
+              "x": 205,
+              "y": 1330,
+              "nama": "Nabi Nuh a.s.",
+              "sinar_ke": "kiri"
+            }
+          ],
+          "tokoh": [
+            {
+              "x": [
+                [
+                  0,
+                  1120
+                ],
+                [
+                  2.2,
+                  700
+                ]
+              ],
+              "y": 1520,
+              "s": 1,
+              "wajah": [
+                [
+                  0,
+                  "datar"
+                ],
+                [
+                  2.2,
+                  "ejek"
+                ]
+              ],
+              "kepala": "imamah",
+              "peran": "kaum",
+              "balik": false,
+              "gerak": [
+                [
+                  0,
+                  "jalan"
+                ],
+                [
+                  2.2,
+                  "tunjuk"
+                ]
+              ],
+              "bicara": [
+                [
+                  2.3,
+                  3.4
+                ]
+              ]
+            },
+            {
+              "x": [
+                [
+                  0,
+                  1280
+                ],
+                [
+                  2.2,
+                  860
+                ]
+              ],
+              "y": 1480,
+              "s": 0.9,
+              "wajah": [
+                [
+                  0,
+                  "datar"
+                ],
+                [
+                  2.2,
+                  "tertawa"
+                ]
+              ],
+              "kepala": "kain",
+              "peran": "kaum",
+              "gerak": [
+                [
+                  0,
+                  "jalan"
+                ],
+                [
+                  2.2,
+                  "tertawa"
+                ]
+              ],
+              "bicara": [
+                [
+                  2.3,
+                  3.4
+                ]
+              ]
+            },
+            {
+              "x": [
+                [
+                  0,
+                  1410
+                ],
+                [
+                  2.2,
+                  990
+                ]
+              ],
+              "y": 1560,
+              "s": 1.05,
+              "wajah": [
+                [
+                  0,
+                  "datar"
+                ],
+                [
+                  2.2,
+                  "ejek"
+                ]
+              ],
+              "kepala": "imamah",
+              "peran": "kaum",
+              "gerak": [
+                [
+                  0,
+                  "jalan"
+                ],
+                [
+                  2.2,
+                  "angkat"
+                ]
+              ],
+              "bicara": [
+                [
+                  2.3,
+                  3.4
+                ]
+              ]
+            },
+            {
+              "x": [
+                [
+                  0,
+                  1220
+                ],
+                [
+                  2.2,
+                  800
+                ]
+              ],
+              "y": 1640,
+              "s": 1.15,
+              "wajah": [
+                [
+                  0,
+                  "datar"
+                ],
+                [
+                  2.2,
+                  "ejek"
+                ]
+              ],
+              "kepala": "kain",
+              "peran": "kaum",
+              "gerak": [
+                [
+                  0,
+                  "jalan"
+                ],
+                [
+                  2.2,
+                  "silang"
+                ]
+              ],
+              "bicara": [
+                [
+                  2.3,
+                  3.4
+                ]
+              ]
+            }
+          ],
+          "teks": {
+            "sumber": "QS HUD 38",
+            "subtitle": "setiap kali pemuka kaumnya lewat",
+            "sorot": "lewat"
+          },
+          "durasi": 3.5,
+          "kamera": {
+            "zoom": [
+              [
+                0,
+                1.15
+              ],
+              [
+                3.5,
+                1.05
+              ]
+            ],
+            "x": [
+              [
+                0,
+                460
+              ],
+              [
+                3.5,
+                620
+              ]
+            ],
+            "y": [
+              [
+                0,
+                1180
+              ],
+              [
+                3.5,
+                1260
+              ]
+            ]
+          },
+          "npc_jauh": {
+            "n": 8,
+            "x0": 700,
+            "x1": 1040,
+            "y": 1262
+          }
+        },
+        {
+          "preset": "senja",
+          "matahari": [
+            860,
+            1060
+          ],
+          "belakang": [
+            "gunung"
+          ],
+          "benda": [
+            {
+              "jenis": "bahtera",
+              "x": 650,
+              "y": 1235,
+              "jadi": 0.9,
+              "s": 0.95,
+              "cahaya": 0
+            }
+          ],
+          "nur": [
+            {
+              "x": 205,
+              "y": 1330,
+              "nama": "Nabi Nuh a.s.",
+              "sinar_ke": "kiri"
+            }
+          ],
+          "tokoh": [
+            {
+              "x": 700,
+              "y": 1520,
+              "s": 1,
+              "wajah": "ejek",
+              "kepala": "imamah",
+              "peran": "kaum",
+              "balik": false,
+              "gerak": "tunjuk",
+              "bicara": [
+                [
+                  0.2,
+                  2.6
+                ]
+              ]
+            },
+            {
+              "x": 860,
+              "y": 1480,
+              "s": 0.9,
+              "wajah": "tertawa",
+              "kepala": "kain",
+              "peran": "kaum",
+              "gerak": "tertawa",
+              "bicara": [
+                [
+                  0.2,
+                  2.6
+                ]
+              ]
+            },
+            {
+              "x": 990,
+              "y": 1560,
+              "s": 1.05,
+              "wajah": "ejek",
+              "kepala": "imamah",
+              "peran": "kaum",
+              "gerak": "angkat",
+              "bicara": [
+                [
+                  0.2,
+                  2.6
+                ]
+              ]
+            },
+            {
+              "x": 800,
+              "y": 1640,
+              "s": 1.15,
+              "wajah": "ejek",
+              "kepala": "kain",
+              "peran": "kaum",
+              "gerak": "silang",
+              "bicara": [
+                [
+                  0.2,
+                  2.6
+                ]
+              ]
+            }
+          ],
+          "teks": {
+            "sumber": "QS HUD 38",
+            "judul": [
+              "MEREKA",
+              "MENGEJEK"
+            ],
+            "subtitle": "mereka mengejeknya",
+            "sorot": "mengejek",
+            "judul_mulai": 0.1
+          },
+          "durasi": 3,
+          "kamera": {
+            "zoom": [
+              [
+                0,
+                1.55
+              ],
+              [
+                3,
+                1.7
+              ]
+            ],
+            "x": 860,
+            "y": 1380,
+            "hentak": [
+              [
+                0.1,
+                0.07
+              ]
+            ]
+          }
+        }
+      ],
+      "pelaku": "nuh"
+    },
+    {
+      "narasi": "Nuh menjawab: jika kalian mengejek kami, kami pun akan mengejek kalian.",
+      "preset": "senja",
+      "keadaan": "jadi",
+      "dalil": [
+        "hud38"
+      ],
+      "peran_tampil": [
+        "nuh",
+        "kaum"
+      ],
+      "shot": [
+        {
+          "preset": "senja",
+          "matahari": [
+            860,
+            1060
+          ],
+          "belakang": [
+            "gunung"
+          ],
+          "benda": [
+            {
+              "jenis": "bahtera",
+              "x": 650,
+              "y": 1235,
+              "jadi": [
+                [
+                  0,
+                  0.9
+                ],
+                [
+                  3.5,
+                  1
+                ]
+              ],
+              "s": 0.95,
+              "cahaya": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  5,
+                  0.8
+                ]
+              ]
+            }
+          ],
+          "nur": [
+            {
+              "x": 205,
+              "y": 1330,
+              "nama": "Nabi Nuh a.s.",
+              "sinar_ke": "kiri"
+            }
+          ],
+          "tokoh": [
+            {
+              "x": 700,
+              "y": 1480,
+              "s": 0.8,
+              "pose": "tunjuk",
+              "wajah": "ejek",
+              "kepala": "imamah",
+              "peran": "kaum",
+              "balik": false
+            },
+            {
+              "x": 860,
+              "y": 1440,
+              "s": 0.7200000000000001,
+              "pose": "tertawa",
+              "wajah": "tertawa",
+              "kepala": "kain",
+              "peran": "kaum"
+            },
+            {
+              "x": 990,
+              "y": 1520,
+              "s": 0.8400000000000001,
+              "pose": "angkat",
+              "wajah": "ejek",
+              "kepala": "imamah",
+              "peran": "kaum"
+            }
+          ],
+          "teks": {
+            "sumber": "QS HUD 38",
+            "judul": [
+              "“KAMI PUN AKAN",
+              "MENGEJEK KALIAN”"
+            ],
+            "warna": "kuning",
+            "subtitle": "kami pun akan mengejek kalian",
+            "sorot": "kalian",
+            "judul_mulai": 0.8
+          },
+          "durasi": 5,
+          "kamera": {
+            "zoom": [
+              [
+                0,
+                1.4
+              ],
+              [
+                5,
+                1.12
+              ]
+            ],
+            "x": [
+              [
+                0,
+                330
+              ],
+              [
+                5,
+                560
+              ]
+            ],
+            "y": [
+              [
+                0,
+                1130
+              ],
+              [
+                5,
+                1100
+              ]
+            ]
+          }
+        },
+        {
+          "preset": "senja",
+          "matahari": [
+            860,
+            1060
+          ],
+          "belakang": [
+            "gunung"
+          ],
+          "benda": [
+            {
+              "jenis": "bahtera",
+              "x": 650,
+              "y": 1235,
+              "jadi": 1,
+              "s": 0.82,
+              "cahaya": 0.8
+            }
+          ],
+          "nur": [
+            {
+              "x": 178,
+              "y": 1330,
+              "nama": "Nabi Nuh a.s.",
+              "sinar_ke": "kiri",
+              "lebar": 88,
+              "pendar_rx": 72,
+              "pendar_ry": 130
+            }
+          ],
+          "tokoh": [
+            {
+              "x": 700,
+              "y": 1480,
+              "s": 0.8,
+              "pose": "tunjuk",
+              "wajah": "ejek",
+              "kepala": "imamah",
+              "peran": "kaum",
+              "balik": false
+            },
+            {
+              "x": 860,
+              "y": 1440,
+              "s": 0.7200000000000001,
+              "pose": "tertawa",
+              "wajah": "tertawa",
+              "kepala": "kain",
+              "peran": "kaum"
+            },
+            {
+              "x": 990,
+              "y": 1520,
+              "s": 0.8400000000000001,
+              "pose": "angkat",
+              "wajah": "ejek",
+              "kepala": "imamah",
+              "peran": "kaum"
+            }
+          ],
+          "teks": {
+            "sumber": ""
+          },
+          "kamera": {
+            "zoom": [
+              [
+                0,
+                1.12
+              ],
+              [
+                18,
+                1.2
+              ]
+            ],
+            "x": 440,
+            "y": [
+              [
+                0,
+                1060
+              ],
+              [
+                18,
+                1000
+              ]
+            ]
+          },
+          "kartu_dalil": {
+            "dalil": "hud38",
+            "mulai": 0.3
+          }
+        }
+      ],
+      "pelaku": "nuh"
+    }
+  ]
 }

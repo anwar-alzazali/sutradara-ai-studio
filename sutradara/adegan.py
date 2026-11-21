@@ -30,6 +30,7 @@ import random
 from . import kamera as KM
 from .gaya import benda as BD, dajjal as DJ, dasar, kartu as KT, latar as LT, makhluk as MK, nur as NR, teks as TX, tokoh as TK
 from .waktu import pada
+from .gaya import akhir_zaman as AZ
 
 DURASI_BAWAAN = 3.0
 
@@ -66,7 +67,34 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     dunia = [LT.langit(p, matahari=tuple(sp["matahari"]) if sp.get("matahari") else None)]
     for b in sp.get("belakang", ["gunung"]):
         dunia.append({"gunung": LT.gunung, "kota": LT.kota}[b](p))
-    dunia.append(LT.tanah(p, sp.get("tanah_y", 1250)))
+    # Kabut atmosfer adalah bidang latar: selalu di belakang tanah, bahtera,
+    # NPC, pilar, dan tokoh agar tidak membentuk pita di atas visual inti.
+    if sp.get("npc_jauh"):
+        dunia.append(LT.kabut_jauh(p))
+    tanah_y = sp.get("tanah_y", 1250)
+    dunia.append(LT.tanah(p, tanah_y))
+    permukaan = sp.get("permukaan_tanah", LT.PERMUKAAN_BAWAAN[p])
+    if permukaan != "tanpa":
+        dunia.append(LT.tekstur_tanah(p, tanah_y, jenis=permukaan, seed=sp.get("seed_tanah", 3)))
+    # Pilar tertentu boleh berada di belakang benda utama agar tidak menutupi kapal/objek.
+    for n in sp.get("nur", []):
+        if n.get("di_belakang_benda"):
+            dunia.append(NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
+                                  tinggi=n.get("tinggi", 400), lebar=n.get("lebar", 118),
+                                  pendar_rx=n.get("pendar_rx", 155), pendar_ry=n.get("pendar_ry", 190), t=tg))
+    for b in sp.get("buraq", []):
+        dunia.append(AZ.buraq(b["x"], b["y"], b.get("s", 1), t=tg))
+    tanda_overlay = []
+    for b in sp.get("akhir_zaman", []):
+        j = b["jenis"]
+        if j == "dinding_yajuj":
+            dunia.append(AZ.dinding_yajuj(b["x"], b["y"], b.get("s", 1), lubang=b.get("lubang", 0)))
+        elif j == "danau_surut":
+            dunia.append(AZ.danau_surut(b["x"], b["y"], b.get("s", 1), surut=b.get("surut", 0)))
+        elif j == "tanda_wajah":
+            tanda_overlay.append(AZ.tanda_wajah(b["x"], b["y"], b.get("s", 1)))
+        else:
+            raise ValueError(f"komponen akhir zaman tak dikenal: {j}")
     for b in sp.get("benda", []):
         j = b["jenis"]
         if j == "bahtera":
@@ -83,28 +111,31 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
             raise ValueError(f"benda tak dikenal: {j}")
     if sp.get("npc_jauh"):
         dunia += _npc_jauh(sp["npc_jauh"], tg)
-        dunia.append(LT.kabut_jauh(p))
     tengah: list[tuple[float, str]] = []
     for m in sp.get("kabut_tanpa_wujud", []):
         s = (MK.retakan(m["x"], m["y"]) if m.get("retakan", True) else "") + MK.kabut_tanpa_wujud(
             m["x"], m["y"], tinggi=m.get("tinggi", 820), keluar=m.get("keluar", 1.0), t=tg)
         tengah.append((m["y"] - 1, s))
     for n in sp.get("nur", []):
-        tengah.append((n["y"], NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
-                                        tinggi=n.get("tinggi", 400), t=tg)))
+        if not n.get("di_belakang_benda"):
+            tengah.append((n["y"], NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
+                                            tinggi=n.get("tinggi", 400), lebar=n.get("lebar", 118),
+                                            pendar_rx=n.get("pendar_rx", 155), pendar_ry=n.get("pendar_ry", 190), t=tg)))
     for d in sp.get("dajjal", []):
-        tengah.append((d["y"], DJ.sosok(d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"))))
+        tengah.append((d["y"], DJ.belakang(d["x"], d["y"], d.get("s", 1), t=tg, jalan=d.get("jalan", False), jubah_berkibar=d.get("jubah_berkibar", 0.0), buka=d.get("buka", 0.0)) if d.get("arah") == "belakang" else DJ.sosok(d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"))))
     for i, (tk, asli) in enumerate(zip(sp.get("tokoh", []), shot.get("tokoh", []))):
         # gerak & wajah boleh jadwal [[detik, nama]] -> diambil dari spesifikasi ASLI (bukan hasil `pada`)
         tengah.append((tk["y"], TK.orang(tk["x"], tk["y"], tk.get("s", 1), gerak=asli.get("gerak", asli.get("pose", "berdiri")),
                                          t=t + i * 0.37, indeks=tk.get("indeks", i), mode=tk.get("mode", "pakaian"),
-                                         kepala=tk.get("kepala"), jenis=tk.get("jenis", "pria"), wajah=asli.get("wajah", "datar"),
+                                         kepala=tk.get("kepala"), jenis=tk.get("jenis", "pria"), wajah=asli.get("wajah", "datar"), arah=asli.get("arah", tk.get("arah", "depan")), usia=tk.get("usia", "dewasa"), zaman=tk.get("zaman", "arab_kuno"),
                                          bicara=asli.get("bicara"), balik=tk.get("balik", False))))
     dunia += [s for _, s in sorted(tengah, key=lambda a: a[0])]
+    # Tanda wajah adalah penanda ilustratif; letakkan di atas tokoh sasaran.
+    dunia += tanda_overlay
     lapis = [f'<g transform="{KM.transform(sp.get("kamera"), t)}">' + "\n".join(dunia) + "</g>"]
-    if sp.get("depan", True):
-        # lapis depan tidak ikut zoom kamera (kalau ikut, batu membesar jadi bercak hitam); hanya bergeser
-        # lebih jauh dari dunia saat kamera menyamping -> rasa kedalaman (parallax)
+    if sp.get("depan", False):
+        # Lapis depan berupa siluet tajam (tanpa blur bawaan); tidak ikut zoom kamera,
+        # hanya bergeser untuk parallax saat kamera menyamping.
         kx = float((sp.get("kamera") or {}).get("x", 540))
         lapis.append(f'<g transform="translate({-(kx - 540) * 0.35:.1f},0)">{LT.batu_depan(sp.get("warna_depan", "#120c16"))}</g>')
     tx = sp.get("teks") or {}

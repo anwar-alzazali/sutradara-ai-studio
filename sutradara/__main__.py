@@ -47,7 +47,7 @@ def main(argv=None) -> int:
         from .dalil.quran import QuranBertingkat, QuranComPublik, QuranFoundation
         from .dalil.verifikasi import verifikasi
         r = json.loads(Path(arg.rencana).read_text(encoding="utf-8"))
-        quran = QuranBertingkat(QuranFoundation() if os.environ.get("QURAN_FOUNDATION_CLIENT_ID") else None, QuranComPublik())
+        quran = QuranBertingkat(QuranFoundation() if (os.environ.get("QURAN_FOUNDATION_CLIENT_ID") and os.environ.get("QURAN_FOUNDATION_CLIENT_SECRET")) else None, QuranComPublik())
         baru, laporan = verifikasi(r, quran=quran)
         if quran.catatan:
             print("catatan:", quran.catatan)
