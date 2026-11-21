@@ -169,6 +169,7 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 ---
 
 ## Daftar kebutuhan berikutnya (dicatat 21 Nov 2026)
+Pembagian kerja per tahap untuk pengembang AI lain (A–F, diaudit sebelum merge): `docs/TAHAP_LANJUT.md`.
 
 Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yang menyelesaikannya; jangan hapus baris.
 
