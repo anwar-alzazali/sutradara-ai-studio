@@ -1,0 +1,36 @@
+name: tes telegram
+# Memakai rahasia Telegram -> HANYA workflow_dispatch (lihat AGENTS.md). Mengirim satu pesan uji ke bot Mesin KONTEN.
+on:
+  workflow_dispatch:
+    inputs:
+      pesan:
+        description: "Isi pesan uji"
+        default: "Tes dari sutradara-ai-studio"
+permissions:
+  contents: read
+jobs:
+  kirim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Kirim pesan uji
+        env:
+          TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PESAN: ${{ inputs.pesan }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$CHAT" ]; then
+            echo "::error::Secret TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID belum diisi di repo ini (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+          python3 - <<'PY'
+          import json, os, urllib.request
+          badan = {"chat_id": os.environ["CHAT"],
+                   "text": "🎬 " + os.environ["PESAN"] + "\n(uji kiriman dari repo baru; tombol di bawah hanya contoh tampilan)",
+                   "reply_markup": {"inline_keyboard": [[{"text": "✅ Setujui", "callback_data": "uji:ok"},
+                                                         {"text": "❌ Tolak", "callback_data": "uji:no"}]]}}
+          req = urllib.request.Request(f"https://api.telegram.org/bot{os.environ['TOKEN']}/sendMessage",
+                                       data=json.dumps(badan).encode(), headers={"Content-Type": "application/json"})
+          r = json.load(urllib.request.urlopen(req, timeout=30))
+          print("terkirim:", r.get("ok"), "message_id:", r.get("result", {}).get("message_id"))
+          PY
