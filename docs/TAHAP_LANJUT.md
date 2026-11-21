@@ -135,6 +135,29 @@ Tujuan: tokoh dan adegan cukup kaya untuk kisah-kisah akhir zaman tanpa melangga
 5. **Bacaan latin di kartu:** JANGAN dikerjakan sebelum pemilik memintanya. Cukup siapkan kodenya di balik bendera yang mati.
 
 ## Tahap D — Sutradara otomatis v1 (Fase 4) — inti produk
+**Langkah 0 — pisahkan inti dan genre, kerjakan SEBELUM poin lainnya** (keputusan pemilik 21 Nov 2026).
+Kelak akan ada genre lain (komedi, edukasi, cerita anak). Genre itu belum dibangun sekarang, tetapi sambungannya harus
+sudah ada supaya kesulitannya tidak bertambah seiring kode membesar.
+- **Inti** (netral genre): render, kamera, keyframe, latar, tokoh bersendi + gerak + ekspresi, garis waktu, suara,
+  pemeriksaan umum (skema, penataan panggung, mutu teknis). Inti tidak boleh menyebut nama elemen genre mana pun.
+- **Paket genre**, mulai dari `kisah_islami`, berisi semua yang khas genre itu:
+  - elemen adegan (nur, Dajjal, kabut tanpa wujud, kartu dalil, dan lain-lain);
+  - aturan penjaga;
+  - tambahan skema rencana (misalnya `dalil`);
+  - modul dalil;
+  - panduan gaya, resep sutradara, dan bawaan seperti jenis kepala tokoh.
+- Rencana menyebut genrenya, misalnya `"genre": "kisah_islami"`. Rencana lama tanpa kolom ini otomatis dianggap
+  `kisah_islami`. Paket genre mendaftarkan elemennya ke inti; inti tidak mengimpor genre secara langsung.
+- **Syarat lulus langkah 0:**
+  - semua tes lama tetap lulus;
+  - bingkai hasil render semua `contoh/*.json` identik sebelum dan sesudah pemisahan (bandingkan beberapa bingkai per shot);
+  - penjaga Kisah Islami tetap menolak semua pelanggaran yang dulu ditolak;
+  - ada tes dengan paket genre tiruan yang sangat kecil (hanya di folder tes), yang membuktikan genre baru bisa
+    ditambahkan tanpa menyentuh berkas inti sama sekali.
+- Jangan membangun genre komedi atau genre nyata lain di tahap ini.
+- Poin 1–7 di bawah dibangun di atas pemisahan ini: resep, templat naskah, dan keputusan sutradara yang khas Kisah
+  Islami masuk ke paket genrenya, sedangkan mekanismenya berada di inti.
+
 Tujuan: dari naskah terstruktur menjadi rencana lengkap yang lulus penjaga, dengan mutu setara video yang
 disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMAP Fase 4.
 1. **Templat naskah untuk AI gratis.**
