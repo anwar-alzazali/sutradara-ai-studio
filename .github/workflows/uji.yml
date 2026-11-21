@@ -25,6 +25,15 @@ jobs:
         run: python -m pytest -q
       - name: Render bukti Nuh dengan narasi tiruan
         run: python scripts/render_bukti_nuh.py
+      - name: Ukur dampak tekstur tanah pada render Nuh dan Dabbah
+        run: python scripts/benchmark_tekstur_tanah.py
+      - name: Unggah laporan benchmark tekstur
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-tekstur-tanah
+          path: keluaran-bukti/tahap-b/benchmark-tekstur.json
+          if-no-files-found: warn
       - name: Benchmark render serial dan paralel pada runner yang sama
         run: python scripts/benchmark_render_tahap_b.py
       - name: Render lembar kontak visual Tahap B
@@ -61,7 +70,7 @@ jobs:
         run: |
           set -e
           mkdir -p /tmp/tahap-b-bukti
-          cp keluaran-bukti/tahap-b/lembar-kontak.jpg /tmp/tahap-b-bukti/lembar-kontak.jpg
+          cp keluaran-bukti/tahap-b/*.jpg /tmp/tahap-b-bukti/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if git ls-remote --exit-code --heads origin bukti >/dev/null 2>&1; then
@@ -72,7 +81,10 @@ jobs:
             git rm -rf . >/dev/null 2>&1 || true
           fi
           mkdir -p tahap-b
-          cp /tmp/tahap-b-bukti/lembar-kontak.jpg tahap-b/lembar-kontak-${GITHUB_SHA}.jpg
+          for file in /tmp/tahap-b-bukti/*.jpg; do
+            nama=$(basename "$file" .jpg)
+            cp "$file" "tahap-b/${nama}-${GITHUB_SHA}.jpg"
+          done
           git add tahap-b
           git commit -m "Bukti visual Tahap B ${GITHUB_SHA}"
           git push origin HEAD:bukti
