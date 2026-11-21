@@ -31,8 +31,6 @@ jobs:
         run: python scripts/render_bukti_tahap_b.py
       - name: Simpan bukti JPG hanya ke cabang bukti
         if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
           mkdir -p /tmp/tahap-b-bukti
