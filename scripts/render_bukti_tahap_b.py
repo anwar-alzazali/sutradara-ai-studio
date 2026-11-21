@@ -18,7 +18,7 @@ def main():
     dajjal = json.loads(Path("contoh/dajjal_dua_sungai.json").read_text(encoding="utf-8"))
     shots = [
         ("Nuh", nuh["beat"][0]["shot"][0], 1.0),
-        ("Dabbah + tanda wajah", dabbah["beat"][1]["shot"][0], 1.0),
+        ("Dabbah: kabut tanpa wujud", dabbah["beat"][1]["shot"][0], 1.0),
         ("Buraq + nur", {"preset":"dhuha","belakang":[],"tanah_y":1300,
          "buraq":[{"x":540,"y":1450,"s":1.0}],
          "nur":[{"x":540,"y":1120,"nama":"Nabi Muhammad ﷺ","tinggi":280}],"depan":False}, 0.8),
