@@ -161,6 +161,12 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 3. Laporan biaya per video (ElevenLabs, model AI).
 - **Kriteria selesai:** 5 hari berturut-turut video harian sampai ke Telegram tanpa sentuhan manual, ≥3 disetujui pemilik.
 
+### ○ Fase 6b — Pematangan: belajar dari hasil (Tahap G)
+- Data per video (keputusan sutradara + persetujuan pemilik + angka penonton) → eksperimen bandit pada pilihan setara
+  → laporan mingguan → usulan perubahan resep yang disetujui pemilik. Tanpa melatih model; LLM opsional.
+- Dalil, penjaga, dan batas wajib tidak pernah dioptimasi.
+- **Kriteria selesai:** beberapa minggu data menunjukkan resep yang bertahan atau membaik, dan pemilik menyetujui perluasan.
+
 ### ○ Fase 7 — Perluasan genre (baru dibuka setelah fase 6 terbukti dan disetujui pemilik)
 - Genre lain (komedi, edukasi, cerita anak) sebagai paket genre di atas inti yang sama (sambungannya disiapkan di Tahap D langkah 0).
 - Catatan: set pose Dajjal, Ya'juj Ma'juj, Buraq, dan ragam tokoh dulu tercatat di sini; sejak 21 Nov 2026 dipindah ke
@@ -175,7 +181,8 @@ Fase = tahapan produk di dokumen ini. Tahap = paket kerja untuk pengembang AI (`
 | C | Penguatan dalil | 3 lanjutan |
 | D | Pisah inti/genre + sutradara otomatis | 4 |
 | E | Periksa & kritikus | 5 |
-| F | Otomatisasi penuh | 6 |
+| F | Otomatisasi penuh (persetujuan Telegram dari bot mesin-video) | 6 |
+| G | Belajar dari hasil (pematangan) | 6b |
 | — | Genre lain | 7 (belum dibuka) |
 
 ---
