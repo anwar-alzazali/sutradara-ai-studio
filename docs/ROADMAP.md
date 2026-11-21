@@ -91,6 +91,18 @@ Status: ✔ selesai · ▶ aktif · ○ belum. **Kriteria selesai selalu berupa 
 - Makna pemakaian dalil tetap `perlu_tinjauan_pemilik`.
 - **Bukti:** 9 tes dalil; Bukhari 7123 & Muslim 2934/2941 terverifikasi dari dataset; ayat diverifikasi lewat workflow (butuh rahasia QF).
 
+### ✔ Fase 3b — Kartu dalil bertahap (21 Nov 2026, permintaan pemilik)
+- Bukan satu kartu besar yang menutupi layar: pita bawah berisi SATU potongan (Arab <= 2 baris + terjemah <= 2 baris),
+  Arab disapu kanan->kiri, terjemah diketik, lalu diganti potongan berikutnya (`sutradara/gaya/kartu.py`).
+- Pemotongan (`sutradara/dalil/segmen.py`): terjemah dipotong lebih dulu di akhir kalimat/kata sambung, Arab di tanda
+  waqaf/kata sambung و ف pada proporsi yang sama. Gabungan potongan = teks utuh terverifikasi (dites). Pasangan
+  Arab-terjemah = perkiraan (tidak ada pemetaan kata resmi).
+- Hadis memakai `kutipan_ar`/`kutipan_id` (matan saja, tanpa sanad) yang WAJIB potongan persis teks terverifikasi
+  (`KUTIPAN_TIDAK_ADA_DI_SUMBER`). Label kartu hadis menyertakan derajat.
+- Durasi shot kartu otomatis dari waktu baca (±13 huruf/dtk, min 2,6 dtk per potongan); di fase 2 disesuaikan narasi.
+- Belum: bacaan latin ayat (transliterasi Quran Foundation) — ditunda sampai diminta.
+- **Bukti:** contoh Nuh + kartu QS Hud 38 (4 potongan), contoh Dajjal + kartu HR Muslim 2934 (3 potongan); 5 tes.
+
 ### ○ Fase 4 — Sutradara otomatis v1
 Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang lulus penjaga.
 1. **Templat naskah** untuk AI gratis (ChatGPT/Gemini): per beat → narasi, kata kunci, dalil, suasana, peran. Templat juga

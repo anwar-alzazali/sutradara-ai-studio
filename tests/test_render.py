@@ -11,9 +11,10 @@ CONTOH = Path(__file__).resolve().parents[1] / "contoh"
 def test_susun_svg_semua_shot_contoh():
     for f in CONTOH.glob("*.json"):
         r = json.loads(f.read_text(encoding="utf-8"))
+        dl = {d["id"]: d for d in r["dalil"]}
         for b in r["beat"]:
             for s in b["shot"]:
-                svg = adegan.susun(s)
+                svg = adegan.susun(s, dalil=dl)
                 assert svg.startswith("<svg") and 'viewBox="0 0 1080 1920"' in svg
 
 

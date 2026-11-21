@@ -59,7 +59,9 @@ def main(argv=None) -> int:
         with render.peramban() as pg:
             for i, bt in enumerate(r["beat"]):
                 for j, s in enumerate(bt["shot"] if arg.semua else bt["shot"][:1]):
-                    f = render.png(adegan.susun(s), out / f"b{i:02d}_s{j}.png", halaman=pg)
+                    dl = video.peta_dalil(r)
+                    tt = adegan.durasi(s, dl) * 0.5 if s.get("kartu_dalil") else 0.0
+                    f = render.png(adegan.susun(s, tt, dalil=dl), out / f"b{i:02d}_s{j}.png", halaman=pg)
                     print("ditulis", f)
     if arg.perintah == "video":
         mp4 = video.buat(r, Path(arg.keluar), fps=arg.fps)

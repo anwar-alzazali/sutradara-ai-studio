@@ -214,6 +214,14 @@
           },
           "bukan_marfu": {
             "type": "boolean"
+          },
+          "kutipan_ar": {
+            "type": "string",
+            "description": "potongan PERSIS dari teks_ar yang tampil di kartu (wajib untuk hadis supaya sanad tidak ikut tampil)"
+          },
+          "kutipan_id": {
+            "type": "string",
+            "description": "potongan PERSIS dari terjemah yang tampil di kartu"
           }
         }
       }
