@@ -29,6 +29,9 @@ def danau_surut(x: float, y: float, s: float = 1.0, *, surut: float = 0.0) -> st
             f'<path d="M-360 {-h*.45:.1f} Q0 {-h:.1f} 360 {-h*.45:.1f}" stroke="#d9f4ff" stroke-width="7" fill="none"/></g>')
 
 def tanda_wajah(x: float, y: float, s: float = 1.0) -> str:
-    """Tanda abstrak berlabel ilustrasi, bukan rincian hadis."""
-    return (f'<g transform="translate({x:.1f},{y:.1f}) scale({s})"><path d="M-26 -8 Q0 -34 26 -8 Q0 12 -26 -8Z" fill="none" stroke="#c34b35" stroke-width="7" opacity=".8"/>'
-            '<text x="0" y="48" text-anchor="middle" font-size="18" fill="#fff0d0">ILUSTRASI TANDA</text></g>')
+    """Penanda abstrak yang terlihat jelas; tidak menambahkan anatomi atau rincian hadis."""
+    return (f'<g transform="translate({x:.1f},{y:.1f}) scale({s})">'
+            '<ellipse cx="0" cy="0" rx="25" ry="30" fill="#c34b35" fill-opacity=".16" '
+            'stroke="#c34b35" stroke-width="9"/>'
+            '<path d="M-12 0 Q0 -14 12 0 Q0 14 -12 0Z" fill="none" stroke="#ffe0b8" stroke-width="5"/>'
+            '</g>')
