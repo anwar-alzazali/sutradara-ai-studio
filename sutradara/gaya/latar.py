@@ -64,6 +64,6 @@ def kabut_jauh(preset: str, y0: float = 1100, y1: float = 1290, kuat: float = .3
 
 
 def batu_depan(warna: str = "#120c16") -> str:
-    """Lapis DEPAN kabur di pojok bawah (resep B4)."""
-    return (f'<path d="M-60 1920 L-60 1700 Q 40 1610 170 1680 Q 260 1730 290 1920Z" fill="{warna}" filter="url(#kabur)"/>'
-            f'<path d="M1140 1920 L1140 1660 Q 1020 1600 900 1700 Q 850 1760 860 1920Z" fill="{warna}" filter="url(#kabur)"/>')
+    """Siluet batu depan tajam; blur tidak aktif sebagai bawaan."""
+    return (f'<path d="M-60 1920 L-60 1700 Q 40 1610 170 1680 Q 260 1730 290 1920Z" fill="{warna}" stroke="#08070c" stroke-width="8" stroke-linejoin="round"/>'
+            f'<path d="M1140 1920 L1140 1660 Q 1020 1600 900 1700 Q 850 1760 860 1920Z" fill="{warna}" stroke="#08070c" stroke-width="8" stroke-linejoin="round"/>')
