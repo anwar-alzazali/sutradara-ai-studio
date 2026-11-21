@@ -1,0 +1,52 @@
+[
+  {
+    "berkas": "aset/suara/aksi/tawa_ejekan.mp3",
+    "durasi": 2.8,
+    "prompt": "A small group of adult men laughing mockingly together outdoors, several irregular overlapping short chuckles with distinct human voices, natural timing, no words, no music, realistic dry sound effect."
+  },
+  {
+    "berkas": "aset/suara/aksi/kerumunan_jauh.mp3",
+    "durasi": 5,
+    "prompt": "A distant group of people outdoors, soft indistinct crowd murmur, scattered irregular footsteps and movement, no intelligible words, open rural ambience, natural and restrained."
+  },
+  {
+    "berkas": "aset/suara/aksi/kabut_keluar.mp3",
+    "durasi": 2.5,
+    "prompt": "A deep soft earthy rumble with airy granular movement as a mysterious formless cloud rises from a crack in dry ground, restrained cinematic sound effect, no voice, no explosion."
+  },
+  {
+    "berkas": "aset/suara/aksi/tanah_retak.mp3",
+    "durasi": 0.8,
+    "prompt": "One isolated sharp dry crack of packed earth splitting with a few tiny stones shifting, close realistic impact, single event only, no repeated rhythm, no explosion, no music."
+  },
+  {
+    "berkas": "aset/suara/aksi/palu_kayu.mp3",
+    "durasi": 0.8,
+    "prompt": "One isolated hand hammer strike landing on a thick timber plank, hollow resonant wooden knock with a tiny wood vibration, single impact only, no repeated rhythm, no voices."
+  },
+  {
+    "berkas": "aset/suara/aksi/palu_batu_besi.mp3",
+    "durasi": 0.8,
+    "prompt": "One isolated heavy metal tool strike against a hard stone and iron wall, sharp dense metallic-stone impact with slight gritty debris, single impact only, no repeated rhythm, no voices."
+  },
+  {
+    "berkas": "aset/suara/aksi/langkah_pasir.mp3",
+    "durasi": 0.7,
+    "prompt": "One isolated human footstep pressing into loose dry sand and soil, gritty crunch and short scuff, single step only, no repeated rhythm, no voices."
+  },
+  {
+    "berkas": "aset/suara/aksi/langkah_kayu.mp3",
+    "durasi": 0.7,
+    "prompt": "One isolated human footstep landing on a wooden ship deck, hollow wooden thud with a tiny natural creak, single step only, no repeated rhythm, no voices."
+  },
+  {
+    "berkas": "aset/suara/aksi/langkah_air.mp3",
+    "durasi": 0.7,
+    "prompt": "One isolated human footstep moving through shallow water, soft splash and wet slosh, single step only, no repeated rhythm, no voices."
+  },
+  {
+    "berkas": "aset/suara/aksi/langkah_batu_besi.mp3",
+    "durasi": 0.7,
+    "prompt": "One isolated human footstep on a hard stone floor beside an iron wall, firm dry impact with a subtle hard-surface ring, single step only, no repeated rhythm, no voices."
+  }
+]

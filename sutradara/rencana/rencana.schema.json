@@ -277,8 +277,11 @@
             }
           },
           "pelaku": {
-            "type": "string",
-            "description": "id peran yang melakukan aksi pada visual inti di beat ini (mis. yang membangun kapal). Penjaga mengecek ia berada paling dekat dengan visual inti."
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true }
+            ],
+            "description": "id peran atau daftar id peran yang bersama-sama melakukan aksi pada visual inti di beat ini. Penjaga memeriksa semua pelaku dan tetap membandingkannya dengan tokoh non-pelaku."
           }
         }
       }

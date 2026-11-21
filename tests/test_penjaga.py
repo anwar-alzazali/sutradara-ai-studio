@@ -91,9 +91,25 @@ def test_pelaku_harus_dekat_visual_inti():
     assert "PELAKU_JAUH" in kode(periksa(r), "PERIKSA")
 
 
-def test_npc_tidak_boleh_lebih_dekat_ke_visual_inti_daripada_pelaku():
+def test_beberapa_pelaku_tidak_membebaskan_tokoh_non_pelaku_yang_lebih_dekat():
     r = muat("nuh_mengejek.json")
+    r["beat"][0]["pelaku"] = ["nuh", "pengikut_beriman"]
     sh = r["beat"][0]["shot"][0]
     sh["nur"][0]["x"] = 60
-    sh["tokoh"] = [{"x": 620, "y": 1260, "peran": "kaum", "pose": "silang"}]  # orang kaum berdiri di samping kapal
-    assert "BUKAN_PELAKU_DEKAT" in kode(periksa(r), "PERIKSA")
+    sh["tokoh"] = [
+        {"x": 60, "y": 1330, "peran": "pengikut_beriman", "pose": "palu"},
+        {"x": 620, "y": 1260, "peran": "kaum", "pose": "silang"},
+    ]
+    temuan = kode(periksa(r), "PERIKSA")
+    assert "PELAKU_JAUH" in temuan
+    assert "BUKAN_PELAKU_DEKAT" in temuan
+
+
+def test_pembangun_nuh_dan_kaum_pengejek_memiliki_peran_berbeda():
+    r = muat("nuh_mengejek.json")
+    shot = r["beat"][0]["shot"][0]
+    assert r["beat"][0]["pelaku"] == ["nuh", "pengikut_beriman"]
+    assert all(t["peran"] == "pengikut_beriman" and "nama" not in t and "bicara" not in t
+               for t in shot["tokoh"])
+    assert r["peran"][1]["id"] == "kaum"
+    assert r["peran"][2]["id"] == "pengikut_beriman"

@@ -1,16 +1,17 @@
 name: uji
 # Repo public: runner standar gratis. Tidak memakai rahasia apa pun, jadi aman dipicu push/PR.
 on:
-  push:
-    branches-ignore: [main]
   pull_request:
   workflow_dispatch:
+concurrency:
+  group: uji-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
   tes:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -20,5 +21,14 @@ jobs:
           pip install -r requirements.txt
           python -m playwright install --with-deps chromium
           sudo apt-get install -y ffmpeg fonts-noto-core >/dev/null
-      - name: Tes
+      - name: Tes lengkap (tanpa render bukti)
         run: python -m pytest -q
+      - name: Render bukti Nuh dengan narasi tiruan
+        run: python scripts/render_bukti_nuh.py
+      - name: Unggah artefak render Nuh
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bukti-render-nuh-tahap-a
+          path: keluaran-bukti/nuh/
+          if-no-files-found: warn

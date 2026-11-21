@@ -234,3 +234,5 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - 21 Nov 2026 — Kartu dalil dipindah ke atas, lebih transparan, warna ikut suasana (permintaan pemilik). Render ulang ditunda sampai uji suara.
 - 21 Nov 2026 — Struktur inti vs paket genre (`kisah_islami` dulu) dipisah di awal Tahap D, sebelum resep sutradara dibangun, agar genre lain kelak tidak menyentuh inti. Genre lain tetap belum dibangun.
 - 21 Nov 2026 — Fase 1b didahulukan (permintaan pemilik). Tokoh lama (pose diam) diganti rangka bersendi; nama pose lama tetap berlaku.
+- 21 Nov 2026 — Tahap A efek terikat aksi: keterlihatan kamera/lapis depan, variasi ketukan, permukaan/fallback, tawa/NPC/kabut/retakan, sumber palu Nuh, ekor efek, batas 40 ketukan, tes render dan workflow manual; rekaman khusus tetap menunggu dispatch pemilik.
+- 21 Nov 2026 — Aset suara lama dipakai sebagai fallback sesuai kebutuhan Tahap A; provenance/lisensi aset lama belum terdokumentasi penuh. Rekaman dari workflow tunduk pada ketentuan lisensi akun ElevenLabs pemilik; PR tidak menyatakan asetnya public-domain.

@@ -149,3 +149,16 @@ def test_efek_bebas_berhenti_di_akhir_shot_kecuali_lewat(narasi_nuh):
     palu = next(x for x in rek if x["berkas"] == "palu_kayu")
     assert abs(palu["at"] + palu["sampai"] - g.potong[1]) < 1e-3
     assert "sampai" not in next(x for x in rek if x["berkas"] == "guntur_hujan")
+
+def test_efek_satu_kali_mendapat_ekor_minimum(narasi_nuh):
+    _, n = narasi_nuh
+    g = GW.susun(NUH, n)
+    r = copy.deepcopy(NUH)
+    r["beat"][0]["efek"] = [{
+        "berkas": "palu_kayu",
+        "at": g.potong[1] - g.awal_beat[0] - 0.03,
+    }]
+    rek = campur.rancang(r, g)
+    efek = next(x for x in rek if x["berkas"] == "palu_kayu" and "sampai" in x)
+    assert efek["sampai"] >= 0.18
+    assert efek["at"] + efek["sampai"] > g.potong[1]

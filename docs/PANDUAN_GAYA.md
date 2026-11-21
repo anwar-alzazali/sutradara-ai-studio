@@ -36,11 +36,31 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 - Dicek otomatis: tulis `pelaku` di beat → penjaga memberi `PELAKU_JAUH` / `BUKAN_PELAKU_DEKAT`.
 
 ## 3b. Suara mengikuti aksi
-- Efek suara terikat pada apa yang SEDANG DILAKUKAN di layar, bukan ditempel menurut detik. Mau bunyi palu? Beri tokoh
-  gerak `palu` (atau tampilkan bahtera yang sedang bertambah papan). Mau bunyi menggali (Ya'juj)? Gerak `gali`.
-  Langkah datang dari `jalan`/`lari`/`lompat`. Mesin meletakkan satu ketukan di setiap titik kena.
-- Efek yang tidak terlihat sumbernya (guntur, kerumunan di luar layar) dipasang di `beat.efek` pada kata (`"kata"`).
-  Ia berhenti di akhir shotnya; tandai `"lewat": true` bila memang disengaja menyambung.
+- Efek suara terikat pada apa yang SEDANG DILAKUKAN di layar, bukan ditempel menurut detik. Palu mengikuti gerak
+  `palu`, menggali mengikuti `gali`, dan langkah mengikuti `jalan`/`lari`/`lompat`.
+- Keterlihatan dievaluasi pada waktu setiap bunyi: proyeksi posisi tokoh memakai keyframe `x/y/s`, zoom dan pusat
+  kamera, serta guncang/hentak. Tokoh yang keluar bingkai atau tertutup hampir seluruhnya oleh tokoh di depan/lapis
+  depan tidak diberi bunyi. Kotak tubuh dan sampel area adalah pendekatan konservatif, bukan pelacakan piksel.
+- Posisi kiri-kanan dan volume mengikuti posisi serta ukuran tampak pada waktu bunyi. Variasi kecil deterministik
+  pada waktu, gain, dan kecepatan mencegah ketukan identik terdengar seperti mesin. Jika slot ketukan terbatas,
+  tokoh terdekat/terlihat mendapat prioritas; satu ketukan per tokoh dipilih sebelum ketukan tambahan.
+- Bahan dapat dinyatakan lewat `permukaan` pada tokoh atau shot: `tanah`/`pasir`, `kayu`/`dek`,
+  `air`, atau `batu_besi`. Dek bahtera dan sungai juga dapat dikenali dari posisi tokoh. Rekaman khusus dipakai
+  bila ada; sampai tersedia, kode memakai aset cadangan yang sudah ada.
+- Aksi lain yang memang terdengar: wajah/gerak `tertawa` atau `ejek` menjadi tawa kelompok satu kali;
+  `npc_jauh` menjadi ambience kerumunan jauh; kabut yang nilai `keluar`-nya meningkat dan retakan tanah
+  mendapat gemuruh/retak; perubahan `jadi` bahtera mendapat bunyi pembangunan. Bunyi palu pembangunan sebaiknya
+  bersumber dari tokoh yang terlihat memalu, bukan hanya kapal yang berubah.
+- Tidak semua gerak perlu bunyi: berdiri, bernapas, menoleh, menunjuk, mengangkat tangan, dan gerak ekspresi kecil
+  tetap diam bila tidak ada kontak atau sumber bunyi yang masuk akal. Keheningan menjaga fokus dan mencegah
+  setiap perubahan pose terdengar seperti efek.
+- Efek yang tidak terlihat sumbernya (mis. guntur) dipasang di `beat.efek` pada kata (`"kata"`).
+  Efek satu-kali yang mendekati potongan shot diberi ekor minimum dan fade pendek agar tidak putus menjadi klik;
+  tandai `"lewat": true` bila memang disengaja menyambung.
+- Workflow rekaman `.github/workflows/efek.yml` hanya `workflow_dispatch`, membaca `aset/suara/prompt_efek.json`,
+  melewati berkas yang sudah ada, dan memakai `ELEVENLABS_API_KEY` dari GitHub Secrets. Tidak ada panggilan
+  berbayar di tes/CI. Pemilik menjalankan workflow dengan memilih cabang PR di pemilih branch Actions, bukan
+  `main`, agar hasil rekaman masuk ke cabang yang sedang diaudit.
 
 ## 4. Teks
 - Judul layar 1–3 kata kapital yang menamai makna, maksimal 2 baris.
