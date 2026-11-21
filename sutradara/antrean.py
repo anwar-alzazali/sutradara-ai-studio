@@ -159,6 +159,7 @@ def narasi_utuh(n: dict, sumber: str) -> list[str]:
 # ---------------- AI (Claude) ----------------
 ATURAN = f"""Aturan WAJIB (akun TikTok/FB "Alzazali | Kisah Islami"):
 - Hanya dalil sahih/hasan. Untuk setiap dalil tulis RUJUKAN saja (QS nomor surah + ayat, atau hadis dari kitab {', '.join(KITAB)} + nomor sunnah.com). JANGAN menulis teks Arab atau terjemah dalil; teksnya diambil mesin dari sumber resmi. Ragu nomornya = jangan dicantumkan.
+- Setiap beat yang menceritakan peristiwa/fakta kisah WAJIB punya dalil yang memuat fakta itu. Beat tanpa dalil hanya untuk pembuka, renungan, atau ajakan. Fakta yang tidak ada di Al-Qur'an/hadis sahih (cerita populer, israiliyat, tafsir, detail tambahan seperti bendungan, kekeringan, jumlah tahun) JANGAN ditulis.
 - Tidak mengarang klaim; detail yang tidak ada di dalil tidak boleh disebut sebagai fakta. Bukan fatwa. Topik berat tidak dijadikan sensasi; selalu ada jalan keluar/hikmah.
 - Narasi bahasa Indonesia, sapa penonton "kamu". Tidak ada huruf Arab di narasi.
 - Mutu cerita: fakta terkuat yang menyangkut nasib penonton di kalimat pertama; satu video = cerita utuh (janji hook dijawab di video ini); setiap kalimat menambah informasi atau ketegangan, buang yang mengulang; durasi mengikuti cerita.
