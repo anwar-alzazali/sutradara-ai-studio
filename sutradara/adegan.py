@@ -41,18 +41,10 @@ def _npc_jauh(spec: dict, tg: float) -> list[str]:
     for k in range(n):
         x = x0 + (x1 - x0) * (k / max(n - 1, 1)) + rnd.uniform(-14, 14)
         yy = y + rnd.uniform(-6, 10)
-        s, pose, kp = rnd.uniform(.34, .42), rnd.choice(["silang", "tertawa", "tunjuk", "angkat", "berdiri"]), rnd.choice(["imamah", "kain"])
-        out.append((yy, TK.orang(x, yy + _goyang(pose, k, tg) * .4, s, pose=pose, indeks=k + 3, kepala=kp, rinci=False)))
+        s, gr = rnd.uniform(.34, .42), rnd.choice(["silang", "tertawa", "tunjuk", "angkat", "berdiri", "pinggang"])
+        kp = rnd.choice(["imamah", "kain", "kopiah"])
+        out.append((yy, TK.orang(x, yy, s, gerak=spec.get("gerak", gr), t=tg + k * 0.37, indeks=k + 3, kepala=kp, rinci=False)))
     return [s for _, s in sorted(out)]
-
-
-def _goyang(pose: str, i: int, tg: float) -> float:
-    """Gerak idle tokoh (px): tertawa terguncang cepat, lainnya bernapas pelan."""
-    if pose == "tertawa":
-        return 4 * abs(math.sin(tg * 7 + i))
-    if pose in ("kaget", "mundur", "tutup"):
-        return 2 * math.sin(tg * 5 + i)
-    return 1.5 * math.sin(tg * 1.8 + i * 0.9)
 
 
 def _muncul(svg: str, mulai: float, t: float, cy: float) -> str:
@@ -101,11 +93,12 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
                                         tinggi=n.get("tinggi", 400), t=tg)))
     for d in sp.get("dajjal", []):
         tengah.append((d["y"], DJ.sosok(d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"))))
-    for i, tk in enumerate(sp.get("tokoh", [])):
-        pose = tk.get("pose", "berdiri")
-        tengah.append((tk["y"], TK.orang(tk["x"], tk["y"] - _goyang(pose, i, tg), tk.get("s", 1), pose=pose,
-                                         indeks=tk.get("indeks", i), mode=tk.get("mode", "pakaian"), kepala=tk.get("kepala", "imamah"),
-                                         wajah=tk.get("wajah", "datar"), balik=tk.get("balik", False))))
+    for i, (tk, asli) in enumerate(zip(sp.get("tokoh", []), shot.get("tokoh", []))):
+        # gerak & wajah boleh jadwal [[detik, nama]] -> diambil dari spesifikasi ASLI (bukan hasil `pada`)
+        tengah.append((tk["y"], TK.orang(tk["x"], tk["y"], tk.get("s", 1), gerak=asli.get("gerak", asli.get("pose", "berdiri")),
+                                         t=t + i * 0.37, indeks=tk.get("indeks", i), mode=tk.get("mode", "pakaian"),
+                                         kepala=tk.get("kepala"), jenis=tk.get("jenis", "pria"), wajah=asli.get("wajah", "datar"),
+                                         bicara=asli.get("bicara"), balik=tk.get("balik", False))))
     dunia += [s for _, s in sorted(tengah, key=lambda a: a[0])]
     lapis = [f'<g transform="{KM.transform(sp.get("kamera"), t)}">' + "\n".join(dunia) + "</g>"]
     if sp.get("depan", True):

@@ -17,6 +17,12 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 | Ya'juj Ma'juj | **Manusia biasa** (keturunan Adam, Bukhari 3348): tinggi bervariasi, pakaian compang-camping, tanpa wajah bila siluet. Kengerian dari **jumlah & gerak** (turun dari setiap tempat tinggi, QS Al-Anbiya 96), bukan bentuk aneh. Tanpa telinga raksasa/tanduk (riwayat lemah) dan tanpa ciri ras. | fase 7 |
 | Buraq | Hewan putih, lebih besar dari keledai & lebih kecil dari bagal, langkahnya sejauh pandangan. **Tanpa sayap, tanpa wajah manusia, tidak pernah digambar dengan penunggang** (penunggang = pilar cahaya). Agung, bukan kartun lucu. | fase 7 |
 
+## 1b. Gerak & ekspresi
+- Gerak dan ekspresi melayani cerita: pilih yang dinyatakan narasi (yang "lewat" berjalan, yang "mengejek" tertawa/menunjuk
+  dengan mulut bergerak, yang "takut" mundur/menutup telinga). Daftar lengkap: `python -c "from sutradara import gerak; print(gerak.SEMUA)"`.
+- Tidak ada gerak tanpa alasan di latar: NPC jauh hanya bernapas/bergerak kecil.
+- Pilar nur tidak pernah diberi gerak tubuh; hanya cahaya yang berdenyut.
+
 ## 2. Suasana & lapisan
 - Preset suasana (`gaya/latar.py`): `senja`, `dhuha`, `malam`, `malam_merah`, `fajar`. Dipakai ulang, dipetakan ke busur emosi.
 - Selalu 3 lapis: belakang (langit, gunung/kota) · tengah (visual inti, tokoh) · depan (batu kabur di pojok).
