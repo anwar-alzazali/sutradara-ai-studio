@@ -3,9 +3,9 @@
  "judul": "Nuh diejek kaumnya",
  "sumber": "tempel",
  "tahap": {
-  "diterima": "gagal",
-  "dalil": "belum",
-  "tinjau": "belum",
+  "diterima": "selesai",
+  "dalil": "selesai",
+  "tinjau": "jalan",
   "narasi": "belum",
   "sutradara": "belum",
   "render": "belum",
@@ -13,10 +13,15 @@
   "kirim": "belum"
  },
  "ket": {
-  "diterima": "dalil 1: jenis harus 'quran' atau 'hadis'; beat 1: suasana 'Tegas, penuh tanggung jawab' tidak dikenal (senja, dhuha, malam, malam_merah, fajar); beat 2: suasana 'Merendahkan, penuh ejekan' tidak dikenal (senja, dhuha, malam, malam_merah, fajar); beat 3: suasana 'Tegas, tidak tunduk' tidak dikenal ("
+  "diterima": "3 beat, 1 dalil",
+  "dalil": "1/1",
+  "tinjau": "menunggu Anda membaca naskah"
  },
  "dibuat": "2026-11-21T09:12:19+00:00",
- "diperbarui": "2026-11-21T09:16:14+00:00",
- "pesan_kartu": 383,
- "token_ai": 2180
+ "diperbarui": "2026-11-21T09:20:04+00:00",
+ "token_ai": 3395,
+ "laporan_dalil": [
+  "✓ QS HUD 38"
+ ],
+ "pesan_kartu": 386
 }

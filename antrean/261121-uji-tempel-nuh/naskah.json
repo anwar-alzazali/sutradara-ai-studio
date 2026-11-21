@@ -1,48 +1,57 @@
 {
  "judul": "Nuh diejek kaumnya",
- "inti": "Ketika Nabi Nuh menerima perintah Allah untuk membuat kapal, kaumnya justru mengejeknya. Nuh merespons dengan tegas: ejakan mereka akan dibalas dengan ejakan kami.",
+ "inti": "Nabi Nuh tetap teguh melaksanakan perintah Allah membangun kapal meskipun terus-menerus diejek kaumnya, dan merespons dengan bijak tanpa terpengaruh oleh penghinaan mereka.",
  "dalil": [
   {
-   "id": "1",
-   "rujukan": "QS 11:38",
-   "topik": "Perintah membuat kapal dan ejekan kaum"
+   "id": "hud38",
+   "jenis": "quran",
+   "label": "QS HUD 38",
+   "surah": 11,
+   "ayat": "38",
+   "status": "terverifikasi",
+   "teks_ar": "وَيَصْنَعُ ٱلْفُلْكَ وَكُلَّمَا مَرَّ عَلَيْهِ مَلَأٌ مِّن قَوْمِهِۦ سَخِرُوا۟ مِنْهُ ۚ قَالَ إِن تَسْخَرُوا۟ مِنَّا فَإِنَّا نَسْخَرُ مِنكُمْ كَمَا تَسْخَرُونَ",
+   "terjemah": "Dan mulailah dia (Nuh) membuat kapal. Setiap kali pemimpin kaumnya berjalan melewatinya, mereka mengejeknya. Dia (Nuh) berkata, \"Jika kamu mengejek kami, maka kami (pun) akan mengejekmu sebagaimana kamu mengejek (kami).",
+   "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
+   "rujukan": "https://quran.com/11/38",
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
   }
  ],
  "beat": [
   {
    "narasi": "Atas perintah Allah, Nabi Nuh mulai membuat kapal.",
    "dalil": [
-    "1"
+    "hud38"
    ],
-   "suasana": "Tegas, penuh tanggung jawab",
+   "suasana": "fajar",
    "kata_kunci": [
     "perintah Allah",
-    "membuat kapal",
-    "Nuh"
+    "kapal",
+    "keteguhan"
    ]
   },
   {
    "narasi": "Setiap kali pemuka kaumnya lewat, mereka mengejeknya.",
    "dalil": [
-    "1"
+    "hud38"
    ],
-   "suasana": "Merendahkan, penuh ejekan",
+   "suasana": "dhuha",
    "kata_kunci": [
+    "ejekan",
     "pemuka kaum",
-    "mengejek",
-    "lewat"
+    "cemooh"
    ]
   },
   {
    "narasi": "Nuh menjawab: jika kalian mengejek kami, kami pun akan mengejek kalian.",
    "dalil": [
-    "1"
+    "hud38"
    ],
-   "suasana": "Tegas, tidak tunduk",
+   "suasana": "dhuha",
    "kata_kunci": [
-    "ejakan dibalas",
-    "keyakinan",
-    "sikap teguh"
+    "jawaban bijak",
+    "tidak terpengaruh",
+    "toleransi"
    ]
   }
  ]
