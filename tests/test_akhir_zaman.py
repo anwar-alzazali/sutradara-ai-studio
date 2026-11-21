@@ -69,12 +69,12 @@ def test_jubah_dajjal_berubah_saat_berkibar():
     assert tenang != berkibar
 
 
-def test_rencana_yajuj_memakai_manusia_biasa_dan_dalil_yang_ditandai_belum():
+def test_rencana_yajuj_memakai_manusia_biasa_dan_dalilnya_terverifikasi():
     rencana = json.loads(Path("contoh/yajuj_majjuj.json").read_text(encoding="utf-8"))
     temuan = periksa(rencana)
     assert not any(x.tingkat == "GAGAL" for x in temuan)
-    assert {d["status"] for d in rencana["dalil"]} == {"belum"}
-    assert sum(x.kode == "DALIL_BELUM_DICEK" for x in temuan) == 3
+    assert {d["status"] for d in rencana["dalil"]} == {"terverifikasi"}
+    assert not any(x.kode == "DALIL_BELUM_DICEK" for x in temuan)
     for beat in rencana["beat"]:
         ET.fromstring(adegan.susun(beat["shot"][0], 2.0))
 
