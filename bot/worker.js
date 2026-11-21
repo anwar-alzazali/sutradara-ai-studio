@@ -208,7 +208,7 @@ async function ubahAntrean(env, q, t) {
   st.pesan_kartu = q.message ? q.message.message_id : st.pesan_kartu;
   if (t.aksi === "nr") {
     await TG(env, "answerCallbackQuery", { callback_query_id: q.id });
-    return TG(env, "sendMessage", { chat_id: env.CHAT, text: `${PENANDA_REVISI} [${t.id}]\nBalas pesan ini dengan catatan perbaikannya (mis. "hook kurang kuat, mulai dari azabnya").`, reply_markup: { force_reply: true, input_field_placeholder: "catatan revisi" } });
+    return tanya(env, { chat_id: env.CHAT, text: `${PENANDA_REVISI} [${t.id}]\nBalas pesan ini dengan catatan perbaikannya (mis. "hook kurang kuat, mulai dari azabnya").`, reply_markup: { force_reply: true, input_field_placeholder: "catatan revisi" } });
   }
   st.tahap.tinjau = t.aksi === "nl" ? "selesai" : "gagal";
   st.ket = { ...(st.ket || {}), tinjau: t.aksi === "nl" ? "disetujui" : "dibatalkan" };
@@ -245,8 +245,21 @@ async function daftarStatus(env) {
 
 const MENU = [[{ text: "📝 Naskah", callback_data: "mn" }, { text: "💡 Ide", callback_data: "mi" }],
               [{ text: "📊 Status", callback_data: "ms" }, { text: "❓ Bantuan", callback_data: "mb" }]];
-const tanyaNaskah = (env) => TG(env, "sendMessage", { chat_id: env.CHAT, text: `${PENANDA_NASKAH}\nBalas pesan ini dengan naskah lengkapnya (atau kirim berkas .txt/.md dengan keterangan "naskah"). Narasi Anda tidak akan diubah; dalil yang disebut akan diverifikasi.`, reply_markup: { force_reply: true, input_field_placeholder: "tempel naskah" } });
-const tanyaIde = (env) => TG(env, "sendMessage", { chat_id: env.CHAT, text: `${PENANDA_IDE}\nBalas pesan ini dengan topik/idenya (mis. "Nabi Hud dan kaum 'Ad"). Claude menulis naskah ±Rp500, lalu dalilnya diverifikasi.`, reply_markup: { force_reply: true, input_field_placeholder: "topik" } });
+// Pesan "balas paksa" (force_reply) yang tidak dijawab membuat bar "Membalas Mesin KONTEN" muncul terus.
+// Karena itu id pesan tanya disimpan, dan dihapus begitu pemilik melakukan hal lain.
+async function tanya(env, body) {
+  const r = await TG(env, "sendMessage", body);
+  if (r.ok) await simpanPengaturan(env, "tanya_" + env.DARI, String(r.result.message_id)).catch(() => {});
+  return r;
+}
+async function bersihkanTanya(env, kecuali) {
+  const id = await ambilPengaturan(env, "tanya_" + env.DARI).catch(() => null);
+  if (!id || String(id) === String(kecuali || "")) return;
+  await TG(env, "deleteMessage", { chat_id: env.CHAT, message_id: Number(id) });
+  await simpanPengaturan(env, "tanya_" + env.DARI, "").catch(() => {});
+}
+const tanyaNaskah = (env) => tanya(env, { chat_id: env.CHAT, text: `${PENANDA_NASKAH}\nBalas pesan ini dengan naskah lengkapnya (atau kirim berkas .txt/.md dengan keterangan "naskah"). Narasi Anda tidak akan diubah; dalil yang disebut akan diverifikasi.`, reply_markup: { force_reply: true, input_field_placeholder: "tempel naskah" } });
+const tanyaIde = (env) => tanya(env, { chat_id: env.CHAT, text: `${PENANDA_IDE}\nBalas pesan ini dengan topik/idenya (mis. "Nabi Hud dan kaum 'Ad"). Claude menulis naskah ±Rp500, lalu dalilnya diverifikasi.`, reply_markup: { force_reply: true, input_field_placeholder: "topik" } });
 
 // ---------- persetujuan video ----------
 async function bacaJsonRepo(env, path) {
@@ -293,7 +306,7 @@ async function tanganiTombol(env, q) {
   if (t.alasan === "lain") {
     await TG(env, "answerCallbackQuery", { callback_query_id: q.id });
     await tandaiPesan(env, q, "❌ Ditolak: menunggu alasan", t.id);
-    return TG(env, "sendMessage", { chat_id: env.CHAT, text: `${PENANDA_ALASAN} [${t.id}]\nBalas pesan ini dengan alasannya.`, reply_markup: { force_reply: true, input_field_placeholder: "alasan penolakan" } });
+    return tanya(env, { chat_id: env.CHAT, text: `${PENANDA_ALASAN} [${t.id}]\nBalas pesan ini dengan alasannya.`, reply_markup: { force_reply: true, input_field_placeholder: "alasan penolakan" } });
   }
   await catatPersetujuan(env, t.id, "ditolak", t.alasan);
   await TG(env, "answerCallbackQuery", { callback_query_id: q.id, text: "Tercatat: ditolak" });
@@ -321,6 +334,7 @@ async function tangani(env0, u) {
     if (q) return TG(env, "answerCallbackQuery", { callback_query_id: q.id, text: "Bot pribadi." });
     return kirim(env, "Maaf, ini bot pribadi.");
   }
+  await bersihkanTanya(env, msg && msg.reply_to_message ? msg.reply_to_message.message_id : null);
   if (q) return tanganiTombol(env, q);
   const balasKe = msg.reply_to_message && (msg.reply_to_message.text || "");
   if (balasKe && msg.text && balasKe.startsWith(PENANDA_NASKAH)) return antreanBaru(env, "tempel", msg.text);
