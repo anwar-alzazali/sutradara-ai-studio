@@ -1,7 +1,7 @@
 // node --test bot/
 import test from "node:test";
 import assert from "node:assert/strict";
-import { bacaTombol, tombolPersetujuan, tombolAlasan, idAman, catatanKeputusan, bolehAkses, ALASAN } from "./worker.js";
+import { bacaTombol, tombolPersetujuan, tombolAlasan, tombolSesudah, idAman, catatanKeputusan, bolehAkses, ALASAN } from "./worker.js";
 
 test("tombol persetujuan dapat dibaca balik dan muat batas 64 byte Telegram", () => {
   const id = idAman("2026-11-21 Nuh Mengejek / versi 2");
@@ -25,4 +25,17 @@ test("catatan keputusan berisi alasan yang terbaca", () => {
 test("hanya pemilik yang boleh memakai bot", () => {
   assert.ok(bolehAkses({ TELEGRAM_CHAT_ID: "123\n" }, 123));
   assert.ok(!bolehAkses({ TELEGRAM_CHAT_ID: "123" }, 456));
+});
+
+test("keputusan bisa diubah dan keputusan lama tersimpan di riwayat", () => {
+  const id = "nuh-1";
+  const ub = tombolSesudah(id, "✅ Disetujui").flat().find((b) => b.callback_data.startsWith("ub:"));
+  assert.deepEqual(bacaTombol(ub.callback_data), { aksi: "ub", id, alasan: null });
+  const a = catatanKeputusan(id, "disetujui", null, null, "t1");
+  const b = catatanKeputusan(id, "ditolak", "hook", null, "t2", a);
+  const c = catatanKeputusan(id, "disetujui", null, null, "t3", b);
+  assert.equal(c.keputusan, "disetujui");
+  assert.deepEqual(c.riwayat.map((r) => r.keputusan), ["disetujui", "ditolak"]);
+  assert.equal(c.riwayat[1].alasan, ALASAN.hook);
+  assert.equal(a.riwayat, undefined);
 });

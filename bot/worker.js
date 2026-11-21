@@ -17,10 +17,11 @@ const hargaModel = (m) => (/haiku/.test(m) ? [1, 5] : /opus/.test(m) ? [5, 25] :
 // ---------- fungsi murni (dites di bot/worker.test.mjs) ----------
 export const idAman = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
 
-/** callback_data -> {aksi, id, alasan}. Format: st:<id> | tl:<id> | al:<id>:<kode>. Batas Telegram 64 byte. */
+/** callback_data -> {aksi, id, alasan}. Format: st:<id> | tl:<id> | al:<id>:<kode> | ub:<id> (ubah keputusan).
+ *  Batas Telegram 64 byte. */
 export function bacaTombol(data) {
   const [aksi, id, kode] = String(data || "").split(":");
-  if (!["st", "tl", "al"].includes(aksi) || !idAman(id) || idAman(id) !== id) return null;
+  if (!["st", "tl", "al", "ub"].includes(aksi) || !idAman(id) || idAman(id) !== id) return null;
   if (aksi === "al" && !ALASAN[kode]) return null;
   return { aksi, id, alasan: kode || null };
 }
@@ -31,9 +32,13 @@ export const tombolAlasan = (id) => {
   return [k.slice(0, 2), k.slice(2, 4), k.slice(4)];
 };
 
-export function catatanKeputusan(id, keputusan, alasan, catatan, waktu) {
+export const tombolSesudah = (id, label) => [[{ text: label, callback_data: "x" }, { text: "↩️ Ubah", callback_data: `ub:${id}` }]];
+
+/** Keputusan baru; keputusan sebelumnya (bila ada) disimpan di `riwayat` supaya perubahan pikiran ikut jadi data. */
+export function catatanKeputusan(id, keputusan, alasan, catatan, waktu, lama = null) {
+  const riwayat = lama ? [...(lama.riwayat || []), { keputusan: lama.keputusan, alasan: lama.alasan, catatan: lama.catatan, waktu: lama.waktu }] : [];
   return { video: id, keputusan, alasan: alasan ? ALASAN[alasan] || alasan : null, kode_alasan: alasan || null,
-           catatan: catatan || null, waktu };
+           catatan: catatan || null, waktu, ...(riwayat.length ? { riwayat } : {}) };
 }
 
 export const bolehAkses = (env, dariId) => String(dariId) === String(env.TELEGRAM_CHAT_ID).trim();
@@ -141,16 +146,24 @@ async function balasKomentar(env, fileId, catatan) {
 }
 
 // ---------- persetujuan video ----------
+async function bacaJsonRepo(env, path) {
+  const r = await GH(env, `/contents/${path}?ref=${env.GH_BRANCH}`);
+  if (!r.ok) return null;
+  try { const j = await r.json(); return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(j.content.replace(/\n/g, "")), (c) => c.charCodeAt(0)))); }
+  catch { return null; }
+}
+
 async function catatPersetujuan(env, id, keputusan, alasan, catatan) {
-  const isi = catatanKeputusan(id, keputusan, alasan, catatan, new Date().toISOString());
+  const lama = await bacaJsonRepo(env, `data/persetujuan/${id}.json`);
+  const isi = catatanKeputusan(id, keputusan, alasan, catatan, new Date().toISOString(), lama);
   await simpanTeks(env, `data/persetujuan/${id}.json`, JSON.stringify(isi, null, 1) + "\n",
                    `Persetujuan ${id}: ${keputusan}${isi.alasan ? " (" + isi.alasan + ")" : ""}`);
   return isi;
 }
 
-async function tandaiPesan(env, q, teks) {  // tombol di pesan video diganti tulisan hasil keputusan
+async function tandaiPesan(env, q, teks, id) {  // tombol diganti hasil keputusan + tombol Ubah
   const m = q.message; if (!m) return;
-  await TG(env, "editMessageReplyMarkup", { chat_id: m.chat.id, message_id: m.message_id, reply_markup: { inline_keyboard: [[{ text: teks, callback_data: "x" }]] } });
+  await TG(env, "editMessageReplyMarkup", { chat_id: m.chat.id, message_id: m.message_id, reply_markup: { inline_keyboard: tombolSesudah(id, teks) } });
 }
 
 async function tanganiTombol(env, q) {
@@ -159,7 +172,11 @@ async function tanganiTombol(env, q) {
   if (t.aksi === "st") {
     await catatPersetujuan(env, t.id, "disetujui");
     await TG(env, "answerCallbackQuery", { callback_query_id: q.id, text: "Tercatat: disetujui" });
-    return tandaiPesan(env, q, "✅ Disetujui");
+    return tandaiPesan(env, q, "✅ Disetujui", t.id);
+  }
+  if (t.aksi === "ub") {  // kembalikan pilihan; keputusan lama tetap tersimpan sampai diganti
+    await TG(env, "answerCallbackQuery", { callback_query_id: q.id, text: "Pilih keputusan baru" });
+    return TG(env, "editMessageReplyMarkup", { chat_id: q.message.chat.id, message_id: q.message.message_id, reply_markup: { inline_keyboard: tombolPersetujuan(t.id) } });
   }
   if (t.aksi === "tl") {
     await TG(env, "answerCallbackQuery", { callback_query_id: q.id });
@@ -168,16 +185,16 @@ async function tanganiTombol(env, q) {
   // al: alasan dipilih
   if (t.alasan === "lain") {
     await TG(env, "answerCallbackQuery", { callback_query_id: q.id });
-    await tandaiPesan(env, q, "❌ Ditolak: menunggu alasan");
+    await tandaiPesan(env, q, "❌ Ditolak: menunggu alasan", t.id);
     return TG(env, "sendMessage", { chat_id: env.CHAT, text: `${PENANDA_ALASAN} [${t.id}]\nBalas pesan ini dengan alasannya.`, reply_markup: { force_reply: true, input_field_placeholder: "alasan penolakan" } });
   }
   await catatPersetujuan(env, t.id, "ditolak", t.alasan);
   await TG(env, "answerCallbackQuery", { callback_query_id: q.id, text: "Tercatat: ditolak" });
-  return tandaiPesan(env, q, `❌ Ditolak: ${ALASAN[t.alasan]}`);
+  return tandaiPesan(env, q, `❌ Ditolak: ${ALASAN[t.alasan]}`, t.id);
 }
 
 const BANTUAN = `Mesin KONTEN (pribadi)
-• Video baru datang dengan tombol ✅ Setujui / ❌ Tolak. Tolak → pilih alasan (atau "Lainnya" lalu ketik). Keputusan tersimpan di repo dan jadi bahan belajar mesin.
+• Video baru datang dengan tombol ✅ Setujui / ❌ Tolak. Tolak → pilih alasan (atau "Lainnya" lalu ketik). Berubah pikiran? Ketuk ↩️ Ubah. Keputusan tersimpan di repo (keputusan lama ikut tercatat) dan jadi bahan belajar mesin.
 • Balas komentar: kirim tangkapan layar komentar (tanpa keterangan, atau keterangan "k" + catatan, mis. "k jawab singkat").
 • Tanya apa saja: ketik pesan biasa. /reset = hapus riwayat obrolan.`;
 
