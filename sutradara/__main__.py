@@ -24,18 +24,25 @@ def main(argv=None) -> int:
     b.add_argument("--semua", action="store_true", help="render semua shot, bukan hanya shot pertama tiap beat")
     c = sub.add_parser("video"); c.add_argument("rencana"); c.add_argument("-o", "--keluar", default="keluaran/video.mp4")
     c.add_argument("--fps", type=int, default=30); c.add_argument("--lembar", action="store_true", help="buat juga lembar kontak .jpg")
+    sub.add_parser("diagnosa-quran", help="cek kunci Quran Foundation per lingkungan/scope (tanpa mencetak rahasia)")
     v = sub.add_parser("verifikasi"); v.add_argument("rencana"); v.add_argument("-o", "--keluar", help="bawaan: timpa berkas rencana")
     arg = ap.parse_args(argv)
 
+    if arg.perintah == "diagnosa-quran":
+        from .dalil.quran import QuranFoundation
+        for b in QuranFoundation(cache=None).diagnosa():
+            print(" | ".join(f"{k}={v}" for k, v in b.items()))
+        return 0
+
     if arg.perintah == "verifikasi":
         import os
-        from .dalil.quran import QuranFoundation
+        from .dalil.quran import QuranBertingkat, QuranComPublik, QuranFoundation
         from .dalil.verifikasi import verifikasi
         r = json.loads(Path(arg.rencana).read_text(encoding="utf-8"))
-        quran = QuranFoundation() if os.environ.get("QURAN_FOUNDATION_CLIENT_ID") else None
-        if quran is None:
-            print("catatan: QURAN_FOUNDATION_CLIENT_ID/_SECRET tidak ada; ayat dilewati (jalankan lewat workflow 'verifikasi')")
+        quran = QuranBertingkat(QuranFoundation() if os.environ.get("QURAN_FOUNDATION_CLIENT_ID") else None, QuranComPublik())
         baru, laporan = verifikasi(r, quran=quran)
+        if quran.catatan:
+            print("catatan:", quran.catatan)
         print("\n".join(laporan))
         Path(arg.keluar or arg.rencana).write_text(json.dumps(baru, ensure_ascii=False, indent=1), encoding="utf-8")
         t = periksa(baru)

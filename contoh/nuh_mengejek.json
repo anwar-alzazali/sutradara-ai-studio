@@ -35,10 +35,15 @@
    "id": "hud38",
    "jenis": "quran",
    "label": "QS HUD 38",
-   "status": "belum",
+   "status": "terverifikasi",
    "rujukan": "https://quran.com/11/38",
    "surah": 11,
-   "ayat": "38"
+   "ayat": "38",
+   "teks_ar": "وَيَصْنَعُ ٱلْفُلْكَ وَكُلَّمَا مَرَّ عَلَيْهِ مَلَأٌ مِّن قَوْمِهِۦ سَخِرُوا۟ مِنْهُ ۚ قَالَ إِن تَسْخَرُوا۟ مِنَّا فَإِنَّا نَسْخَرُ مِنكُمْ كَمَا تَسْخَرُونَ",
+   "terjemah": "Dan mulailah dia (Nuh) membuat kapal. Setiap kali pemimpin kaumnya berjalan melewatinya, mereka mengejeknya. Dia (Nuh) berkata, \"Jika kamu mengejek kami, maka kami (pun) akan mengejekmu sebagaimana kamu mengejek (kami).",
+   "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry via quran.com API publik",
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
   }
  ],
  "beat": [

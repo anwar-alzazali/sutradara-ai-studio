@@ -101,3 +101,18 @@ def test_verifikasi_quran_dengan_transport_palsu(tmp_path):
     r3, _ = verifikasi(_rencana([{"id": "h", "jenis": "quran", "label": "QS HUD 999", "surah": 11, "ayat": "999", "status": "belum"}]), quran=q)
     assert r3["dalil"][0]["status"] == "belum"
     assert not any("secret" in u.lower() for u in panggilan)
+
+
+def test_cadangan_publik_dipakai_bila_kunci_tanpa_scope(tmp_path):
+    from sutradara.dalil.quran import QuranBertingkat, QuranComPublik
+
+    def ditolak(metode, url, kepala, data=None):
+        if url.endswith("/oauth2/token"):
+            return 200, {"access_token": "tok", "expires_in": 3600}
+        return 403, {"message": "The access token does not have the required scopes"}
+    utama = QuranFoundation(transport=ditolak, cache=tmp_path / "a")
+    cadangan = QuranComPublik(transport=_transport_palsu([]), cache=tmp_path / "b")
+    q = QuranBertingkat(utama, cadangan)
+    r, _ = verifikasi(_rencana([{"id": "h", "jenis": "quran", "label": "QS HUD 38", "surah": 11, "ayat": "38", "status": "belum"}]), quran=q)
+    d = r["dalil"][0]
+    assert d["status"] == "terverifikasi" and "API publik" in d["sumber_teks"] and q.catatan

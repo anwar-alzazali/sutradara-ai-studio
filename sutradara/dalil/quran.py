@@ -116,6 +116,25 @@ class QuranFoundation:
             f.parent.mkdir(parents=True, exist_ok=True); f.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
         return data
 
+    def diagnosa(self) -> list[dict]:
+        """Status tiap lingkungan x scope TANPA mencetak token/rahasia (untuk mencari penyebab 401/403)."""
+        cid, sec = self._kunci()
+        basic = base64.b64encode(f"{cid}:{sec}".encode()).decode()
+        hasil = []
+        for env in AUTH:
+            for scope in ("content", ""):
+                form = ("grant_type=client_credentials" + (f"&scope={scope}" if scope else "")).encode()
+                st, body = self.transport("POST", AUTH[env] + "/oauth2/token",
+                                          {"Authorization": "Basic " + basic, "Content-Type": "application/x-www-form-urlencoded"}, form)
+                baris = {"env": env, "scope_diminta": scope or "(tanpa)", "token_http": st, "token": bool(body.get("access_token")),
+                         "scope_diberi": body.get("scope"), "error": body.get("error")}
+                if body.get("access_token"):
+                    for nama, jalur in (("ayat", "/verses/by_key/1:1"), ("terjemahan", "/resources/translations"), ("surah", "/chapters/1")):
+                        s2, b2 = self.transport("GET", API[env] + "/content/api/v4" + jalur, {"x-auth-token": body["access_token"], "x-client-id": cid}, None)
+                        baris[nama] = f"HTTP {s2} {str(b2.get('message') or b2.get('error') or '')[:80]}".strip()
+                hasil.append(baris)
+        return hasil
+
     def terjemahan(self) -> dict:
         if self._terjemah is None:
             daftar = (self._tersimpan("terjemahan", lambda: self._get("/resources/translations")) or {}).get("translations", [])
@@ -145,3 +164,44 @@ class QuranFoundation:
         t = next((bersihkan(x.get("text", "")) for x in v.get("translations", []) if x.get("resource_id") == tr["id"]), None) \
             or next((bersihkan(x.get("text", "")) for x in v.get("translations", [])), "")
         return Ayat(surah, ayat, self.nama_surah(surah), v["text_uthmani"], t, tr["nama"])
+
+
+class QuranComPublik(QuranFoundation):
+    """API publik quran.com v4 (tanpa kunci) dari penyedia yang sama (Quran Foundation). Dipakai OTOMATIS hanya bila
+    klien Content API berkunci ditolak karena belum diberi scope `content`. Bentuk data & aturan sama; sumber ditandai."""
+    DASAR = "https://api.quran.com/api/v4"
+
+    def _kunci(self):
+        return "", ""
+
+    def _get(self, jalur: str) -> dict | None:
+        st, body = self.transport("GET", self.DASAR + jalur, {}, None)
+        if st == 404:
+            return None
+        if st != 200:
+            raise RuntimeError(f"quran.com {jalur.split('?')[0]} gagal (HTTP {st})")
+        return body
+
+    def ayat(self, surah: int, ayat: int):
+        a = super().ayat(surah, ayat)
+        if a:
+            a.sumber_terjemah = f"{a.sumber_terjemah} via quran.com API publik"
+        return a
+
+
+class QuranBertingkat:
+    """Coba Quran Foundation berkunci; bila ditolak karena scope (HTTP 403), pindah ke API publik quran.com."""
+
+    def __init__(self, utama=None, cadangan=None):
+        self.utama, self.cadangan, self.catatan = utama or QuranFoundation(), cadangan or QuranComPublik(), None
+
+    def ayat(self, surah: int, ayat: int):
+        if self.utama is not None:
+            try:
+                return self.utama.ayat(surah, ayat)
+            except RuntimeError as e:
+                if "HTTP 403" not in str(e) and "HTTP 401" not in str(e):
+                    raise
+                self.catatan = f"Quran Foundation berkunci ditolak ({e}); memakai API publik quran.com"
+                self.utama = None
+        return self.cadangan.ayat(surah, ayat)
