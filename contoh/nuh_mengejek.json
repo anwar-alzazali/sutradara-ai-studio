@@ -84,10 +84,14 @@
           ],
           "nur": [
             {
-              "x": 205,
+              "x": 350,
               "y": 1330,
               "nama": "Nabi Nuh a.s.",
-              "sinar_ke": "kiri"
+              "sinar_ke": "kiri",
+              "lebar": 88,
+              "pendar_rx": 70,
+              "pendar_ry": 125,
+              "di_belakang_benda": true
             }
           ],
           "tokoh": [
