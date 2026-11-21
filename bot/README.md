@@ -3,6 +3,13 @@
 Pindahan dari `mesin-video/bot/` (21 Nov 2026). Bot, token, dan nama Worker **sama**; hanya kode sumbernya pindah ke sini.
 
 Fitur:
+- **Menu utama** (/start, /menu, tombol Menu Telegram): 📝 Naskah · 💡 Ide · 📊 Status · ❓ Bantuan.
+- **Naskah & ide → antrean:** `/naskah` (tempel naskah jadi, atau berkas .txt/.md berketerangan `naskah`) dan `/ide <topik>`.
+  Bot menyimpan masukan ke `antrean/<id>/` lalu memicu workflow `naskah` (sutradara/antrean.py): naskah disusun/dirapikan
+  Claude (narasi tempelan TIDAK boleh berubah, dicek otomatis), dalil diverifikasi, naskah dikirim balik untuk dicek.
+  **Kartu status** diperbarui di tempat per tahap; tombol ✅ Lanjut / ✏️ Revisi (catatan → Claude merevisi) / ❌ Batal.
+  `/status` = daftar antrean. Butuh Secret GitHub `ANTHROPIC_API_KEY`, `QURAN_FOUNDATION_*`, `TELEGRAM_*`, dan token
+  bot dengan izin *Actions: Read and write* (memicu workflow).
 - **Persetujuan video:** tombol ✅ Setujui / ❌ Tolak, lalu alasan cepat atau "Lainnya" + ketik. Keputusan dicommit
   ke `data/persetujuan/<id>.json` di repo ini. Pesan video dikirim workflow dengan `callback_data` `st:<id>` / `tl:<id>`.
 - **Balas komentar:** kirim tangkapan layar komentar (tanpa keterangan, atau `k` + catatan).

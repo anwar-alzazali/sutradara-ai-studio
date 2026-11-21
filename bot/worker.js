@@ -21,7 +21,7 @@ export const idAman = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9_-]+
  *  Batas Telegram 64 byte. */
 export function bacaTombol(data) {
   const [aksi, id, kode] = String(data || "").split(":");
-  if (!["st", "tl", "al", "ub"].includes(aksi) || !idAman(id) || idAman(id) !== id) return null;
+  if (!["st", "tl", "al", "ub", "nl", "nr", "nb"].includes(aksi) || !idAman(id) || idAman(id) !== id) return null;
   if (aksi === "al" && !ALASAN[kode]) return null;
   return { aksi, id, alasan: kode || null };
 }
@@ -39,6 +39,38 @@ export function catatanKeputusan(id, keputusan, alasan, catatan, waktu, lama = n
   const riwayat = lama ? [...(lama.riwayat || []), { keputusan: lama.keputusan, alasan: lama.alasan, catatan: lama.catatan, waktu: lama.waktu }] : [];
   return { video: id, keputusan, alasan: alasan ? ALASAN[alasan] || alasan : null, kode_alasan: alasan || null,
            catatan: catatan || null, waktu, ...(riwayat.length ? { riwayat } : {}) };
+}
+
+// ---------- antrean naskah (pekerjaan berat di workflow `naskah` -> sutradara/antrean.py) ----------
+export const TAHAP = [["diterima", "Naskah diterima"], ["dalil", "Dalil diverifikasi"], ["tinjau", "Disetujui pemilik"],
+  ["narasi", "Narasi"], ["sutradara", "Sutradara"], ["render", "Render"], ["periksa", "Pemeriksaan"], ["kirim", "Dikirim untuk persetujuan"]];
+const IKON = { selesai: "✅", jalan: "⏳", gagal: "❌", tunggu: "⏸", belum: "▫️" };
+/** HARUS identik dengan sutradara/antrean.py kartu() (fixture tests/data/kartu_status.json). */
+export function kartuStatus(st) {
+  const b = [`🎬 ${st.judul || st.id}`];
+  for (const [k, label] of TAHAP) {
+    const ket = (st.ket || {})[k];
+    b.push(`${IKON[st.tahap[k] || "belum"]} ${label}${ket ? " — " + ket : ""}`);
+  }
+  return b.join("\n");
+}
+export function tombolKartu(st) {
+  const i = st.id;
+  if (["belum", "jalan"].includes(st.tahap.tinjau) && ["selesai", "gagal"].includes(st.tahap.dalil))
+    return [[{ text: "✅ Lanjut", callback_data: `nl:${i}` }, { text: "✏️ Revisi", callback_data: `nr:${i}` }],
+            [{ text: "❌ Batal", callback_data: `nb:${i}` }, { text: "🏠 Menu", callback_data: "menu" }]];
+  return [[{ text: "🏠 Menu", callback_data: "menu" }]];
+}
+export function statusBaru(id, judul, sumber, chat) {
+  const tahap = Object.fromEntries(TAHAP.map(([k]) => [k, "belum"]));
+  tahap.diterima = "jalan";
+  return { id, judul, sumber, chat, tahap, ket: { diterima: "mengantre di GitHub Actions…" }, dibuat: new Date().toISOString() };
+}
+export function idAntrean(teks, waktu = new Date()) {
+  const w = new Date(waktu.getTime() + 7 * 3600e3).toISOString();  // WIB
+  const tgl = w.slice(2, 10).replace(/-/g, "") + "-" + w.slice(11, 16).replace(":", "");
+  const kata = idAman(String(teks).split(/\s+/).slice(0, 4).join(" ")).slice(0, 28).replace(/-+$/, "");
+  return `${tgl}${kata ? "-" + kata : ""}`;
 }
 
 export const bolehAkses = (env, dariId) => String(dariId) === String(env.TELEGRAM_CHAT_ID).trim();
@@ -145,6 +177,77 @@ async function balasKomentar(env, fileId, catatan) {
   await kirim(env, `✅ ${daftar.length} komentar · ≈Rp${h.idr}`);
 }
 
+async function dispatch(env, workflow, inputs) {
+  const r = await GH(env, `/actions/workflows/${workflow}/dispatches`, { method: "POST", body: JSON.stringify({ ref: env.GH_BRANCH, inputs }) });
+  if (!r.ok) throw new Error(`GitHub Actions ${r.status} (token perlu izin Actions: Read and write)`);
+}
+const PENANDA_NASKAH = "📝 Tempel naskah", PENANDA_IDE = "💡 Ide naskah", PENANDA_REVISI = "✏️ Catatan revisi";
+
+async function kirimKartu(env, st) {
+  const body = { chat_id: env.CHAT, text: kartuStatus(st), reply_markup: { inline_keyboard: tombolKartu(st) } };
+  if (st.pesan_kartu) { const r = await TG(env, "editMessageText", { ...body, message_id: st.pesan_kartu }); if (r.ok || /not modified/.test(r.description || "")) return st; }
+  const r = await TG(env, "sendMessage", body);
+  if (r.ok) st.pesan_kartu = r.result.message_id;
+  return st;
+}
+const simpanStatus = (env, st) => simpanTeks(env, `antrean/${st.id}/status.json`, JSON.stringify(st, null, 1) + "\n", `Antrean ${st.id}: status`);
+
+async function antreanBaru(env, mode, teks) {
+  teks = String(teks || "").trim();
+  if (teks.length < (mode === "ide" ? 3 : 40)) return kirim(env, mode === "ide" ? "Idenya terlalu pendek." : "Naskahnya terlalu pendek. Tempel naskah lengkapnya.");
+  const id = idAntrean(mode === "ide" ? teks : teks.replace(/^judul\s*:\s*/i, ""));
+  const st = await kirimKartu(env, statusBaru(id, mode === "ide" ? teks.slice(0, 60) : "", mode, env.CHAT));
+  await simpanTeks(env, `antrean/${id}/masukan.txt`, teks + "\n", `Antrean ${id}: masukan (${mode})`);
+  await simpanStatus(env, st);
+  await dispatch(env, "naskah.yml", { id, mode });
+}
+
+async function ubahAntrean(env, q, t) {
+  const st = await bacaJsonRepo(env, `antrean/${t.id}/status.json`);
+  if (!st) return TG(env, "answerCallbackQuery", { callback_query_id: q.id, text: "Antrean tidak ditemukan" });
+  st.pesan_kartu = q.message ? q.message.message_id : st.pesan_kartu;
+  if (t.aksi === "nr") {
+    await TG(env, "answerCallbackQuery", { callback_query_id: q.id });
+    return TG(env, "sendMessage", { chat_id: env.CHAT, text: `${PENANDA_REVISI} [${t.id}]\nBalas pesan ini dengan catatan perbaikannya (mis. "hook kurang kuat, mulai dari azabnya").`, reply_markup: { force_reply: true, input_field_placeholder: "catatan revisi" } });
+  }
+  st.tahap.tinjau = t.aksi === "nl" ? "selesai" : "gagal";
+  st.ket = { ...(st.ket || {}), tinjau: t.aksi === "nl" ? "disetujui" : "dibatalkan" };
+  if (t.aksi === "nl") { st.tahap.sutradara = "tunggu"; st.ket.sutradara = "menunggu sutradara otomatis (Tahap D)"; }
+  st.diperbarui = new Date().toISOString();
+  await simpanStatus(env, st);
+  await TG(env, "answerCallbackQuery", { callback_query_id: q.id, text: t.aksi === "nl" ? "Naskah disetujui" : "Dibatalkan" });
+  return kirimKartu(env, st);
+}
+
+async function revisiAntrean(env, id, catatan) {
+  const st = await bacaJsonRepo(env, `antrean/${id}/status.json`);
+  if (!st) return kirim(env, "Antrean tidak ditemukan.");
+  await simpanTeks(env, `antrean/${id}/catatan.txt`, catatan + "\n", `Antrean ${id}: catatan revisi`);
+  st.tahap.diterima = "jalan"; st.ket = { ...(st.ket || {}), diterima: "revisi mengantre…" };
+  await kirimKartu(env, st); await simpanStatus(env, st);
+  await dispatch(env, "naskah.yml", { id, mode: "revisi" });
+}
+
+async function daftarStatus(env) {
+  const r = await GH(env, `/contents/antrean?ref=${env.GH_BRANCH}`);
+  if (!r.ok) return kirim(env, "Belum ada naskah di antrean.", MENU);
+  const dirs = (await r.json()).filter((x) => x.type === "dir").map((x) => x.name).sort().reverse().slice(0, 8);
+  const baris = [];
+  for (const d of dirs) {
+    const st = await bacaJsonRepo(env, `antrean/${d}/status.json`);
+    if (!st) continue;
+    const aktif = TAHAP.find(([k]) => ["jalan", "gagal", "tunggu"].includes(st.tahap[k])) || TAHAP.findLast(([k]) => st.tahap[k] === "selesai");
+    const [k, label] = aktif || TAHAP[0];
+    baris.push(`${IKON[st.tahap[k]]} ${st.judul || st.id}\n    ${label}${(st.ket || {})[k] ? " — " + st.ket[k] : ""}`);
+  }
+  return kirim(env, baris.length ? "📊 Antrean terbaru\n\n" + baris.join("\n\n") : "Belum ada naskah di antrean.", MENU);
+}
+
+const MENU = [[{ text: "📝 Naskah", callback_data: "mn" }, { text: "💡 Ide", callback_data: "mi" }],
+              [{ text: "📊 Status", callback_data: "ms" }, { text: "❓ Bantuan", callback_data: "mb" }]];
+const tanyaNaskah = (env) => TG(env, "sendMessage", { chat_id: env.CHAT, text: `${PENANDA_NASKAH}\nBalas pesan ini dengan naskah lengkapnya (atau kirim berkas .txt/.md dengan keterangan "naskah"). Narasi Anda tidak akan diubah; dalil yang disebut akan diverifikasi.`, reply_markup: { force_reply: true, input_field_placeholder: "tempel naskah" } });
+const tanyaIde = (env) => TG(env, "sendMessage", { chat_id: env.CHAT, text: `${PENANDA_IDE}\nBalas pesan ini dengan topik/idenya (mis. "Nabi Hud dan kaum 'Ad"). Claude menulis naskah ±Rp500, lalu dalilnya diverifikasi.`, reply_markup: { force_reply: true, input_field_placeholder: "topik" } });
+
 // ---------- persetujuan video ----------
 async function bacaJsonRepo(env, path) {
   const r = await GH(env, `/contents/${path}?ref=${env.GH_BRANCH}`);
@@ -167,7 +270,11 @@ async function tandaiPesan(env, q, teks, id) {  // tombol diganti hasil keputusa
 }
 
 async function tanganiTombol(env, q) {
+  const sederhana = { menu: () => kirim(env, "🏠 Menu utama", MENU), mn: () => tanyaNaskah(env), mi: () => tanyaIde(env),
+                      ms: () => daftarStatus(env), mb: () => kirim(env, BANTUAN, MENU) };
+  if (sederhana[q.data]) { await TG(env, "answerCallbackQuery", { callback_query_id: q.id }); return sederhana[q.data](); }
   const t = bacaTombol(q.data);
+  if (t && ["nl", "nr", "nb"].includes(t.aksi)) return ubahAntrean(env, q, t);
   if (!t) return TG(env, "answerCallbackQuery", { callback_query_id: q.id });
   if (t.aksi === "st") {
     await catatPersetujuan(env, t.id, "disetujui");
@@ -194,11 +301,16 @@ async function tanganiTombol(env, q) {
 }
 
 const BANTUAN = `Mesin KONTEN (pribadi)
+• 📝 Naskah: tempel naskah jadi (atau kirim berkas .txt/.md berketerangan "naskah"). Dirapikan ke format mesin tanpa mengubah narasi, dalilnya diverifikasi, lalu dikirim balik untuk Anda cek.
+• 💡 Ide: tulis topik, Claude menyusun naskah (±Rp500), dalil diverifikasi, Anda cek.
+• Kartu status menunjukkan tahap yang sedang dikerjakan; tombol ✅ Lanjut / ✏️ Revisi / ❌ Batal. /status = daftar antrean.
 • Video baru datang dengan tombol ✅ Setujui / ❌ Tolak. Tolak → pilih alasan (atau "Lainnya" lalu ketik). Berubah pikiran? Ketuk ↩️ Ubah. Keputusan tersimpan di repo (keputusan lama ikut tercatat) dan jadi bahan belajar mesin.
 • Balas komentar: kirim tangkapan layar komentar (tanpa keterangan, atau keterangan "k" + catatan, mis. "k jawab singkat").
 • Tanya apa saja: ketik pesan biasa. /reset = hapus riwayat obrolan.`;
 
-const PERINTAH = [{ command: "bantuan", description: "Cara pakai bot" }, { command: "reset", description: "Hapus riwayat obrolan" }];
+const PERINTAH = [{ command: "menu", description: "Menu utama" }, { command: "naskah", description: "Kirim naskah jadi" },
+  { command: "ide", description: "Ide jadi naskah" }, { command: "status", description: "Lihat proses antrean" },
+  { command: "bantuan", description: "Cara pakai" }, { command: "reset", description: "Hapus riwayat obrolan" }];
 
 async function tangani(env0, u) {
   const q = u.callback_query, msg = u.message;
@@ -211,6 +323,19 @@ async function tangani(env0, u) {
   }
   if (q) return tanganiTombol(env, q);
   const balasKe = msg.reply_to_message && (msg.reply_to_message.text || "");
+  if (balasKe && msg.text && balasKe.startsWith(PENANDA_NASKAH)) return antreanBaru(env, "tempel", msg.text);
+  if (balasKe && msg.text && balasKe.startsWith(PENANDA_IDE)) return antreanBaru(env, "ide", msg.text);
+  if (balasKe && msg.text && balasKe.startsWith(PENANDA_REVISI)) {
+    const id = idAman((/\[([^\]]+)\]/.exec(balasKe) || [])[1]);
+    if (id) return revisiAntrean(env, id, msg.text.trim().slice(0, 2000));
+  }
+  const dok = msg.document;
+  if (dok && /^naskah/i.test((msg.caption || "").trim()) && /\.(txt|md)$/i.test(dok.file_name || "")) {
+    const info = await TG(env, "getFile", { file_id: dok.file_id });
+    if (!info.ok) return kirim(env, "Gagal mengambil berkas.");
+    const isi = await (await fetch(`https://api.telegram.org/file/bot${env.TELEGRAM_BOT_TOKEN}/${info.result.file_path}`)).text();
+    return antreanBaru(env, "tempel", isi.slice(0, 30000));
+  }
   if (balasKe && balasKe.startsWith(PENANDA_ALASAN) && msg.text) {
     const id = idAman((/\[([^\]]+)\]/.exec(balasKe) || [])[1]);
     if (id) { await catatPersetujuan(env, id, "ditolak", "lain", msg.text.trim().slice(0, 1000)); return kirim(env, `Tercatat: ${id} ditolak — ${msg.text.trim().slice(0, 200)}`); }
@@ -221,7 +346,12 @@ async function tangani(env0, u) {
   const teks = (msg.text || "").trim();
   if (!teks) return;
   const t = teks.split(/\s+/)[0].toLowerCase().split("@")[0];
-  if (t === "/start" || t === "/bantuan") return kirim(env, BANTUAN);
+  const sisa = teks.slice(teks.split(/\s+/)[0].length).trim();
+  if (t === "/start" || t === "/menu") { await TG(env, "setMyCommands", { commands: PERINTAH }); return kirim(env, "🏠 Menu utama", MENU); }
+  if (t === "/bantuan") return kirim(env, BANTUAN, MENU);
+  if (t === "/naskah") return sisa.length > 40 ? antreanBaru(env, "tempel", sisa) : tanyaNaskah(env);
+  if (t === "/ide") return sisa ? antreanBaru(env, "ide", sisa) : tanyaIde(env);
+  if (t === "/status") return daftarStatus(env);
   if (t === "/reset") { await simpanPengaturan(env, "chat_" + env.DARI, "[]"); return kirim(env, "Riwayat obrolan dihapus."); }
   if (teks.startsWith("/")) return kirim(env, "Perintah tidak dikenal. /bantuan");
   return chatPribadi(env, teks);
