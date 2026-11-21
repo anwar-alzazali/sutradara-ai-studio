@@ -29,6 +29,26 @@ jobs:
         run: python scripts/benchmark_render_tahap_b.py
       - name: Render lembar kontak visual Tahap B
         run: python scripts/render_bukti_tahap_b.py
+      - name: Cache dataset hadis untuk verifikasi contoh Ya'juj
+        uses: actions/cache@v4
+        with:
+          path: data/hadis
+          key: hadis-${{ hashFiles('sutradara/dalil/unduh_hadis.py') }}
+      - name: Verifikasi dalil contoh Ya'juj (API publik dan dataset)
+        continue-on-error: true
+        run: |
+          set -e
+          test -f data/hadis/bukhari.json.gz || python -m sutradara.dalil.unduh_hadis
+          mkdir -p keluaran-bukti/verifikasi
+          cp contoh/yajuj_majjuj.json keluaran-bukti/verifikasi/yajuj_majjuj.json
+          python -m sutradara verifikasi keluaran-bukti/verifikasi/yajuj_majjuj.json
+      - name: Unggah hasil verifikasi dalil
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verifikasi-dalil-yajuj
+          path: keluaran-bukti/verifikasi/yajuj_majjuj.json
+          if-no-files-found: warn
       - name: Unggah artefak render Nuh
         if: always()
         uses: actions/upload-artifact@v4
