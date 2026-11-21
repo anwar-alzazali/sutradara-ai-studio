@@ -142,8 +142,15 @@ Aturan wajibnya ada di `AGENTS.md` (tabel adab saluran). Kerjakan:
    pelajari, bawa konsep dan bagian kode yang terbukti dengan baris `Asal:`, sesuaikan ke rig & rencana repo ini.
    Jangan membawa arsitektur registri/SQLite/kontrak produksi utuhnya.
    Desain identitas sebagai data sehingga kelak bisa diperluas menjadi pustaka pemeran per saluran (pemakaian publik).
-6. Perbarui tabel "siapa digambar bagaimana" di `docs/PANDUAN_GAYA.md` sesuai `AGENTS.md`, dan contoh yang terdampak.
-7. Bukti: render tiap golongan berdampingan + adegan serah-terima (manusia–manusia dan manusia–nabi) + satu tokoh
+6. **Ekspresi wajah yang lebih halus** (referensi pemilik: akun TikTok Sibuntel — emosi hampir seluruhnya lewat mata,
+   tubuh nyaris diam). Tambah kendali wajah: kelopak mata (setengah turun–terangkat), arah lirikan, alis (naik/turun,
+   miring ujung dalam/luar, merapat), kerutan pangkal hidung, mulut kecil bulat. Ekspresi baru minimal:
+   **kepergok/panik** (alis cemas: ujung dalam naik; mata melotot tegang; kerut hidung; mulut "eh…"), **jijik/ilfil**
+   (alis turun merapat; kerut hidung), **sinis**, **curiga**, **heran**. Pelajaran: garis wajah yang sama terbaca
+   berbeda tergantung bentuk alis — alis harus bisa diatur halus. Untuk Kisah Islami dipakai lebih tertahan (meremehkan,
+   bukan lucu). Wajah cahaya (sahabat) dan pilar (nabi) TIDAK memakai ekspresi wajah.
+7. Perbarui tabel "siapa digambar bagaimana" di `docs/PANDUAN_GAYA.md` sesuai `AGENTS.md`, dan contoh yang terdampak.
+8. Bukti: lembar ekspresi (semua ekspresi lama+baru berdampingan), render tiap golongan berdampingan + adegan serah-terima (manusia–manusia dan manusia–nabi) + satu tokoh
    yang sama di beberapa shot.
 
 ## Tahap C — Penguatan dalil
@@ -199,6 +206,10 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
 3. **Penataan panggung otomatis:** sutradara yang menentukan koordinat. Pelaku aksi ditempatkan di samping visual
    inti, pihak lawan di seberang atau melintas, posisi konsisten antar-shot, dan tidak saling menutupi. Penjaga
    `PELAKU_JAUH`/`BUKAN_PELAKU_DEKAT` harus lulus tanpa koordinat yang ditulis tangan.
+3b. **Liputan dialog (shot–reverse shot)**: dari naskah, sutradara tahu siapa bicara dan siapa menjawab, lalu kamera
+   bergantian dekat (setengah badan) ke pembicara, dengan sisipan reaksi pendengar bila reaksinya penting. Konsep
+   `dialogue_exchanges` (pembicara -> penjawab) sudah ada di mesin-video cabang `feat/short-term-production-intelligence`
+   (`docs/AI_STORY_DIRECTOR.md`): bawa konsepnya. Layar tenang/gerak minimal boleh bila dialog yang membawa cerita.
 4. **Keputusan tingkat shot:**
    - pecah enumerasi menjadi shot per kata dan eskalasi pada pengulangan;
    - kamera mengikuti posisi beat;

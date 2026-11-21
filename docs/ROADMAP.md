@@ -167,6 +167,14 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 - Dalil, penjaga, dan batas wajib tidak pernah dioptimasi.
 - **Kriteria selesai:** beberapa minggu data menunjukkan resep yang bertahan atau membaik, dan pemilik menyetujui perluasan.
 
+### Referensi gaya dari pemilik (21 Nov 2026)
+- **Sibuntel** (TikTok): 2D datar sederhana, dua tokoh, kamera bergantian saat dialog, ekspresi lewat mata/alis, gerak
+  minimal -> ekspresi halus (Tahap B2) + liputan dialog (Tahap D). Hampir siap pakai untuk genre komedi kelak.
+- **Meja Putih** (TikTok): tokoh kartun 2D di atas latar 3D sederhana (piramida, balok, gurun) dengan kamera bergerak di
+  ruang 3D dan latar kabur/tokoh tajam -> rencana latar 3D sebagai PUSTAKA KLIP yang dirender sekali lalu dipakai ulang
+  (Three.js low-poly/toon, palet preset sama). Belajar dari film3d mesin-video: render 3D tanpa GPU ±1 dtk/bingkai,
+  jadi jangan dirender per video. Dikerjakan setelah Tahap D–F; uji pertama: banjir Nuh.
+
 ### Kebutuhan pemakaian publik (dicatat 21 Nov 2026; baru setelah Fase 6/6b)
 - Pustaka pemeran per saluran: pemeran dibangkitkan dari kode unik saluran (kombinasi ciri), pemeriksaan kemiripan
   dengan saluran lain, bisa disetel pengguna. Fondasinya = kartu identitas pemeran (Tahap B2).
