@@ -1,0 +1,198 @@
+{
+ "judul": "Dua Sungai Dajjal (contoh fase 0)",
+ "visual_inti": {
+  "benda": "dua_sungai",
+  "jalur_keadaan": [
+   "tampak_menipu",
+   "terungkap"
+  ]
+ },
+ "peran": [
+  {
+   "id": "dajjal",
+   "nama": "Dajjal",
+   "kategori": "dajjal",
+   "wujud_dalil": true,
+   "tampil": "dajjal_b"
+  },
+  {
+   "id": "pengikut",
+   "nama": "Orang-orang",
+   "kategori": "manusia",
+   "tampil": "pakaian"
+  }
+ ],
+ "hook": {
+  "dari_beat": 0,
+  "teks": [
+   "AIRNYA API",
+   "APINYA AIR"
+  ]
+ },
+ "dalil": [
+  {
+   "id": "m2934",
+   "jenis": "hadis",
+   "label": "HR. MUSLIM 2934",
+   "derajat": "sahih",
+   "status": "terverifikasi",
+   "rujukan": "https://sunnah.com/muslim:2934b"
+  },
+  {
+   "id": "b7123",
+   "jenis": "hadis",
+   "label": "HR. BUKHARI 7123",
+   "derajat": "sahih",
+   "status": "terverifikasi",
+   "rujukan": "https://sunnah.com/bukhari:7123"
+  }
+ ],
+ "beat": [
+  {
+   "narasi": "Dajjal datang membawa air dan api. Yang tampak air sebenarnya api.",
+   "preset": "malam_merah",
+   "keadaan": "tampak_menipu",
+   "dalil": [
+    "m2934"
+   ],
+   "peran_tampil": [
+    "dajjal",
+    "pengikut"
+   ],
+   "shot": [
+    {
+     "preset": "malam_merah",
+     "belakang": [
+      "gunung"
+     ],
+     "tanah_y": 1180,
+     "benda": [
+      {
+       "jenis": "bukit"
+      },
+      {
+       "jenis": "sungai",
+       "isi": "air",
+       "sisi": "kiri"
+      },
+      {
+       "jenis": "sungai",
+       "isi": "api",
+       "sisi": "kanan"
+      }
+     ],
+     "dajjal": [
+      {
+       "x": 540,
+       "y": 1240,
+       "s": 1.2,
+       "lengan": "terbuka"
+      }
+     ],
+     "tokoh": [
+      {
+       "x": 260,
+       "y": 1420,
+       "s": 0.62,
+       "pose": "angkat",
+       "kepala": "kain",
+       "wajah": "datar"
+      },
+      {
+       "x": 360,
+       "y": 1470,
+       "s": 0.7,
+       "pose": "tunjuk",
+       "kepala": "imamah"
+      },
+      {
+       "x": 130,
+       "y": 1460,
+       "s": 0.6,
+       "pose": "tertawa",
+       "kepala": "imamah",
+       "wajah": "tertawa"
+      },
+      {
+       "x": 300,
+       "y": 1560,
+       "s": 0.82,
+       "pose": "angkat",
+       "kepala": "imamah"
+      },
+      {
+       "x": 90,
+       "y": 1600,
+       "s": 0.9,
+       "pose": "tunjuk",
+       "kepala": "kain"
+      },
+      {
+       "x": 420,
+       "y": 1640,
+       "s": 1.0,
+       "pose": "angkat",
+       "kepala": "kain"
+      },
+      {
+       "x": 820,
+       "y": 1700,
+       "s": 1.15,
+       "pose": "silang",
+       "kepala": "imamah",
+       "wajah": "pejam",
+       "balik": true
+      }
+     ],
+     "teks": {
+      "sumber": "HR. MUSLIM 2934",
+      "judul": [
+       "AIRNYA API",
+       "APINYA AIR"
+      ],
+      "warna": "kuning",
+      "subtitle": "pejamkan mata, minum dari apinya",
+      "sorot": "minum dari apinya"
+     }
+    }
+   ]
+  },
+  {
+   "narasi": "Matanya buta sebelah, dan di antara kedua matanya tertulis kafir.",
+   "preset": "malam_merah",
+   "keadaan": "terungkap",
+   "dalil": [
+    "b7123"
+   ],
+   "peran_tampil": [
+    "dajjal"
+   ],
+   "shot": [
+    {
+     "preset": "malam_merah",
+     "belakang": [],
+     "tanah_y": 1920,
+     "depan": false,
+     "dajjal": [
+      {
+       "x": 540,
+       "y": 2614,
+       "s": 4.3,
+       "lengan": "turun"
+      }
+     ],
+     "teks": {
+      "sumber": "HR. BUKHARI 7123 · MUSLIM 2933",
+      "judul": [
+       "IA BUTA",
+       "SEBELAH"
+      ],
+      "warna": "kuning",
+      "subtitle": "tertulis kafir di antara matanya",
+      "sorot": "kafir"
+     }
+    }
+   ]
+  }
+ ]
+}
