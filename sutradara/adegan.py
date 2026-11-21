@@ -10,7 +10,7 @@ Spesifikasi shot (contoh lengkap di contoh/*.json):
 {
   "preset": "senja", "durasi": 4.0, "matahari": [860, 1060], "belakang": ["gunung"] | ["kota"] | [],
   "kamera": {"zoom": [[0, 1.0], [4, 1.12]], "x": 540, "y": 1000, "guncang": [[2.0, 30]], "hentak": [[0.1, 0.06]]},
-  "benda": [{"jenis": "bahtera", "x": 520, "y": 1215, "jadi": [[0, 0.0], [4, 0.3]]}, {"jenis": "lapak", ...},
+  "benda": [{"jenis": "bahtera", "x": 790, "y": 1215, "s": 0.55, "jadi": [[0, 0.0], [4, 0.3]]}, {"jenis": "lapak", ...},
             {"jenis": "sungai", "isi": "air" | "api", "sisi": "kiri" | "kanan"}, {"jenis": "bukit"}],
   "npc_jauh": {"n": 11, "x0": 470, "x1": 1000, "y": 1262},
   "nur": [{"x": 270, "y": 1330, "nama": "Nabi Nuh a.s."}],
@@ -76,7 +76,9 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None) -> str:
     for b in sp.get("benda", []):
         j = b["jenis"]
         if j == "bahtera":
-            dunia.append(BD.bahtera(b["x"], b["y"], b.get("s", 1), jadi=b.get("jadi", .6)))
+            dunia.append(BD.bahtera(b["x"], b["y"], b.get("s", 1), jadi=b.get("jadi", 1.0), goyang=b.get("goyang", 0.0),
+                                    cahaya=b.get("cahaya", .8), pintu=b.get("pintu", 0.0), orang=int(b.get("orang", 0)),
+                                    darat=b.get("darat", True), t=tg))
         elif j == "lapak":
             dunia.append(BD.lapak(b["x"], b["y"], b.get("warna", "#b8452e")))
         elif j == "sungai":
