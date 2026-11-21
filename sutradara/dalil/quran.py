@@ -164,3 +164,44 @@ class QuranFoundation:
         t = next((bersihkan(x.get("text", "")) for x in v.get("translations", []) if x.get("resource_id") == tr["id"]), None) \
             or next((bersihkan(x.get("text", "")) for x in v.get("translations", [])), "")
         return Ayat(surah, ayat, self.nama_surah(surah), v["text_uthmani"], t, tr["nama"])
+
+
+class QuranComPublik(QuranFoundation):
+    """API publik quran.com v4 (tanpa kunci) dari penyedia yang sama (Quran Foundation). Dipakai OTOMATIS hanya bila
+    klien Content API berkunci ditolak karena belum diberi scope `content`. Bentuk data & aturan sama; sumber ditandai."""
+    DASAR = "https://api.quran.com/api/v4"
+
+    def _kunci(self):
+        return "", ""
+
+    def _get(self, jalur: str) -> dict | None:
+        st, body = self.transport("GET", self.DASAR + jalur, {}, None)
+        if st == 404:
+            return None
+        if st != 200:
+            raise RuntimeError(f"quran.com {jalur.split('?')[0]} gagal (HTTP {st})")
+        return body
+
+    def ayat(self, surah: int, ayat: int):
+        a = super().ayat(surah, ayat)
+        if a:
+            a.sumber_terjemah = f"{a.sumber_terjemah} via quran.com API publik"
+        return a
+
+
+class QuranBertingkat:
+    """Coba Quran Foundation berkunci; bila ditolak karena scope (HTTP 403), pindah ke API publik quran.com."""
+
+    def __init__(self, utama=None, cadangan=None):
+        self.utama, self.cadangan, self.catatan = utama or QuranFoundation(), cadangan or QuranComPublik(), None
+
+    def ayat(self, surah: int, ayat: int):
+        if self.utama is not None:
+            try:
+                return self.utama.ayat(surah, ayat)
+            except RuntimeError as e:
+                if "HTTP 403" not in str(e) and "HTTP 401" not in str(e):
+                    raise
+                self.catatan = f"Quran Foundation berkunci ditolak ({e}); memakai API publik quran.com"
+                self.utama = None
+        return self.cadangan.ayat(surah, ayat)

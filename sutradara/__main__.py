@@ -36,13 +36,13 @@ def main(argv=None) -> int:
 
     if arg.perintah == "verifikasi":
         import os
-        from .dalil.quran import QuranFoundation
+        from .dalil.quran import QuranBertingkat, QuranComPublik, QuranFoundation
         from .dalil.verifikasi import verifikasi
         r = json.loads(Path(arg.rencana).read_text(encoding="utf-8"))
-        quran = QuranFoundation() if os.environ.get("QURAN_FOUNDATION_CLIENT_ID") else None
-        if quran is None:
-            print("catatan: QURAN_FOUNDATION_CLIENT_ID/_SECRET tidak ada; ayat dilewati (jalankan lewat workflow 'verifikasi')")
+        quran = QuranBertingkat(QuranFoundation() if os.environ.get("QURAN_FOUNDATION_CLIENT_ID") else None, QuranComPublik())
         baru, laporan = verifikasi(r, quran=quran)
+        if quran.catatan:
+            print("catatan:", quran.catatan)
         print("\n".join(laporan))
         Path(arg.keluar or arg.rencana).write_text(json.dumps(baru, ensure_ascii=False, indent=1), encoding="utf-8")
         t = periksa(baru)
