@@ -32,8 +32,13 @@ def main():
             {"x":650,"y":1410,"s":0.61,"gerak":"lari","kepala":"imamah"},
             {"x":800,"y":1480,"s":0.69,"gerak":"lari","kepala":"kain"},
             {"x":960,"y":1370,"s":0.57,"gerak":"lari","kepala":"kopiah"}],"depan":False}, 0.8),
-        ("Dajjal belakang", {"preset":"malam_merah","belakang":[],"tanah_y":1300,
-         "dajjal":[{"x":540,"y":1450,"s":1.0,"arah":"belakang","jalan":True,"jubah_berkibar":0.8,"buka":0.8}],"depan":False}, 0.8),
+        ("Dajjal belakang + pengikut", {"preset":"malam_merah","belakang":["gunung"],"tanah_y":1300,
+         "dajjal":[{"x":540,"y":1320,"s":0.72,"arah":"belakang","jalan":True,"jubah_berkibar":0.8,"buka":0.8}],
+         "tokoh":[
+          {"x":220,"y":1480,"s":0.62,"gerak":"jalan","kepala":"kain"},
+          {"x":380,"y":1530,"s":0.7,"gerak":"jalan","kepala":"imamah"},
+          {"x":700,"y":1510,"s":0.66,"gerak":"jalan","kepala":"kopiah"},
+          {"x":850,"y":1580,"s":0.76,"gerak":"jalan","kepala":"kain"}],"depan":False}, 0.8),
         ("Dajjal depan", {"preset":"malam_merah","belakang":[],"tanah_y":1300,
          "dajjal":[{"x":540,"y":1450,"s":1.0,"lengan":"terbuka"}],"depan":False}, 0.8),
     ]
