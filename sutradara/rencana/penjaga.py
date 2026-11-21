@@ -17,7 +17,7 @@ from ..gaya.latar import PRESET
 SKEMA = json.loads((Path(__file__).parent / "rencana.schema.json").read_text(encoding="utf-8"))
 SAKRAL = {"nabi", "malaikat", "sahabat"}
 # setengah lebar visual inti (px pada s=1) untuk mengukur jarak tepi; benda lain memakai BAWAAN
-SETENGAH_LEBAR = {"bahtera": 350, "retakan_bumi": 140, "dua_sungai": 300}
+SETENGAH_LEBAR = {"bahtera": 500, "retakan_bumi": 140, "dua_sungai": 300}
 SETENGAH_LEBAR_BAWAAN = 200
 JARAK_PELAKU_MAKS = 160  # px dari tepi visual inti
 PITA_KEDALAMAN = 180  # tokoh yang kakinya > 180 px di depan visual inti dianggap lewat di depan, bukan berdiri di sampingnya
