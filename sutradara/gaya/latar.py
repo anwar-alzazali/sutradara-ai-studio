@@ -1,7 +1,7 @@
 """Latar = PRESET SUASANA (resep A2): sedikit preset yang dipakai ulang, dipetakan ke busur emosi.
 
 Setiap preset menggambar lapis BELAKANG (langit, benda langit, gunung/kota) dan tanah. Kabut jarak jauh untuk
-NPC tersedia lewat `kabut_jauh(preset)`, digambar SETELAH NPC jauh dan SEBELUM tokoh dekat.
+NPC tersedia lewat `kabut_jauh(preset)` sebagai lapisan atmosfer di belakang tanah, benda, NPC, dan tokoh.
 """
 from __future__ import annotations
 
@@ -60,6 +60,7 @@ def tanah(preset: str, y: float = 1250) -> str:
 
 
 def kabut_jauh(preset: str, y0: float = 1100, y1: float = 1290, kuat: float = .38) -> str:
+    """Pita atmosfer jauh; pemanggil wajib menempatkannya di belakang visual inti."""
     return f'<rect x="-1080" y="{y0}" width="3240" height="{y1 - y0}" fill="{PRESET[preset][4]}" opacity="{kuat}"/>'
 
 
