@@ -24,6 +24,7 @@ def test_render_png_berukuran_9x16_dan_tidak_kosong(tmp_path):
     out = render.png(adegan.susun(shot), tmp_path / "x.png")
     im = Image.open(out).convert("RGB")
     assert im.size == (1080, 1920)
-    # pilar cahaya harus benar-benar terang (nur tidak hilang), dan gambar tidak polos
-    assert max(im.getpixel((270, 1100))) > 240
+    # Uji pusat pilar yang diposisikan di x=190 pada contoh Nuh.
+    assert max(im.getpixel((190, 1100))) > 240
     assert len(im.resize((54, 96)).getcolors(maxcolors=10000)) > 200
+    assert 'filter="url(#kabur)"' not in adegan.susun(shot)
