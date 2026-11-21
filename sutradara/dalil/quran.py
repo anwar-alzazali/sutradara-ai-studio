@@ -195,11 +195,17 @@ class QuranComPublik(QuranFoundation):
         return a
 
 
-class QuranBertingkat:
-    """Coba Quran Foundation berkunci; bila ditolak karena scope (HTTP 403), pindah ke API publik quran.com."""
+_UTAMA_BAWAAN = object()
 
-    def __init__(self, utama=None, cadangan=None):
-        self.utama, self.cadangan, self.catatan = utama or QuranFoundation(), cadangan or QuranComPublik(), None
+
+class QuranBertingkat:
+    """Coba Quran Foundation berkunci; bila tidak tersedia/ditolak, gunakan API publik quran.com."""
+
+    def __init__(self, utama=_UTAMA_BAWAAN, cadangan=None):
+        # None eksplisit berarti sengaja melewati klien berkunci (mis. CI publik tanpa secret).
+        self.utama = QuranFoundation() if utama is _UTAMA_BAWAAN else utama
+        self.cadangan = cadangan if cadangan is not None else QuranComPublik()
+        self.catatan = None
 
     def ayat(self, surah: int, ayat: int):
         if self.utama is not None:
