@@ -107,8 +107,14 @@
        "lengan": "terbuka",
        "arah": "belakang",
        "jalan": true,
-       "jubah_berkibar": 0.7,
-       "buka": 0.8
+       "jubah_berkibar": [
+        [0, 0],
+        [4, 0.8]
+       ],
+       "buka": [
+        [0, 0],
+        [4, 1]
+       ]
       }
      ],
      "tokoh": [
