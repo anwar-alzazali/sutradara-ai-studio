@@ -1,5 +1,5 @@
 from sutradara.gaya import akhir_zaman
-from sutradara.gaya import tokoh
+from sutradara.gaya import tokoh, dajjal
 
 
 def test_buraq_putih_tanpa_sayap_dan_wajah_manusia():
@@ -39,3 +39,15 @@ def test_anak_tokoh_memakai_skala_lebih_kecil():
     anak = tokoh.orang(300, 1200, usia="anak")
     assert "scale(1.0000,1.0000)" in dewasa
     assert "scale(0.7200,0.7200)" in anak
+
+def test_dajjal_tampak_belakang_tidak_memperlihatkan_wajah_depan():
+    svg = dajjal.belakang(540, 1200, arah="belakang" if False else 1.0, t=1.0, jalan=True, jubah_berkibar=0.8, buka=0.7)
+    assert 'class="dajjal belakang"' in svg
+    assert "ك ف ر" not in svg
+    assert "M-82 -296" in svg
+
+
+def test_jubah_dajjal_berubah_saat_berkibar():
+    tenang = dajjal.belakang(540, 1200, jubah_berkibar=0)
+    berkibar = dajjal.belakang(540, 1200, jubah_berkibar=1)
+    assert tenang != berkibar
