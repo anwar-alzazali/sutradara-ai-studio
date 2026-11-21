@@ -27,7 +27,7 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 
 ## 2. Suasana & lapisan
 - Preset suasana (`gaya/latar.py`): `senja`, `dhuha`, `malam`, `malam_merah`, `fajar`. Dipakai ulang, dipetakan ke busur emosi.
-- Lapis dunia: belakang (langit, gunung/kota) · tanah bertekstur · tengah (visual inti, tokoh) · depan (siluet batu tajam di pojok). Tanah bertekstur adalah bawaan semua preset; jenis dapat diatur per shot lewat `permukaan_tanah`: `tanah_berbatu` (bawaan), `pasir`, `tanah`, `batu`, atau `tanpa`. `seed_tanah` mengunci pola agar konsisten antar-bingkai. Tekstur mengikuti kamera karena berada di koordinat dunia, digambar di bawah benda/tokoh, dan memakai kontras rendah.
+- Lapis dunia: belakang (langit, gunung/kota) · tanah bertekstur · tengah (visual inti, tokoh) · depan (siluet batu tajam di pojok). **Tanah bertekstur adalah BAWAAN untuk semua adegan yang memiliki permukaan tanah, bukan aturan wajib.** Tekstur boleh dimatikan per adegan (`permukaan_tanah: "tanpa"`) bila ada alasan artistik yang jelas, misalnya mimpi/kilas balik minimalis, fokus hening, atau adegan di atas air. Jenis tekstur dapat diatur per shot: `tanah_berbatu` (bawaan), `pasir`, `tanah`, `batu`, atau `tanpa`. `seed_tanah` mengunci pola agar konsisten antar-bingkai. Tekstur mengikuti kamera karena berada di koordinat dunia, digambar di bawah benda/tokoh, dan memakai kontras rendah.
 - Waktu kejadian mengikuti dalil (Dabbah keluar di waktu **dhuha**, Muslim 2941 → adegan terang, bukan malam). Tekstur tidak memakai blur; batu depan adalah siluet tajam, bukan foreground defocus.
 
 ## 3. Penataan panggung (siapa berdiri di mana)
