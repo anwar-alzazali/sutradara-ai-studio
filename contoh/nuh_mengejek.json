@@ -74,7 +74,7 @@
           "benda": [
             {
               "jenis": "bahtera",
-              "x": 630,
+              "x": 650,
               "y": 1235,
               "jadi": 0.86,
               "s": 0.82,
@@ -84,7 +84,7 @@
           ],
           "nur": [
             {
-              "x": 110,
+              "x": 190,
               "y": 1330,
               "nama": "Nabi Nuh a.s.",
               "sinar_ke": "kiri"
@@ -185,7 +185,7 @@
           "benda": [
             {
               "jenis": "bahtera",
-              "x": 630,
+              "x": 650,
               "y": 1235,
               "jadi": 0.86,
               "s": 0.9,
@@ -194,7 +194,7 @@
           ],
           "nur": [
             {
-              "x": 110,
+              "x": 190,
               "y": 1330,
               "nama": "Nabi Nuh a.s.",
               "sinar_ke": "kiri"
@@ -428,7 +428,7 @@
           "benda": [
             {
               "jenis": "bahtera",
-              "x": 630,
+              "x": 650,
               "y": 1235,
               "jadi": 0.9,
               "s": 0.95,
@@ -437,7 +437,7 @@
           ],
           "nur": [
             {
-              "x": 110,
+              "x": 190,
               "y": 1330,
               "nama": "Nabi Nuh a.s.",
               "sinar_ke": "kiri"
@@ -565,7 +565,7 @@
           "benda": [
             {
               "jenis": "bahtera",
-              "x": 630,
+              "x": 650,
               "y": 1235,
               "jadi": [
                 [
@@ -592,7 +592,7 @@
           ],
           "nur": [
             {
-              "x": 110,
+              "x": 190,
               "y": 1330,
               "nama": "Nabi Nuh a.s.",
               "sinar_ke": "kiri"
@@ -685,7 +685,7 @@
           "benda": [
             {
               "jenis": "bahtera",
-              "x": 630,
+              "x": 650,
               "y": 1235,
               "jadi": 1,
               "s": 0.82,
@@ -694,7 +694,7 @@
           ],
           "nur": [
             {
-              "x": 110,
+              "x": 190,
               "y": 1330,
               "nama": "Nabi Nuh a.s.",
               "sinar_ke": "kiri"
