@@ -90,11 +90,14 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
    mendorong mutu cerita: fakta terkuat di depan, cerita utuh, tanpa kalimat ulang.
 2. **Keputusan tingkat video** (aturan + resep): visual inti & jalur keadaan, peta busur emosi → preset (penutup paling terang),
    peran → cara tampil (tabel PANDUAN_GAYA), hook = beat paling dramatis dipindah ke depan.
-3. **Keputusan tingkat shot**: pecah enumerasi jadi shot per kata, eskalasi pada pengulangan (resep B2), kamera dari posisi
+3. **Penataan panggung otomatis (blocking)**: pelaku aksi ditempatkan di samping visual inti, pihak lawan di sisi
+   seberang/melintas di depan, posisi tiap pihak tetap antar-shot. Sekarang baru DICEK penjaga (`PELAKU_JAUH`,
+   `BUKAN_PELAKU_DEKAT`); di fase ini sutradara yang MENENTUKAN koordinatnya, bukan ditulis tangan.
+4. **Keputusan tingkat shot**: pecah enumerasi jadi shot per kata, eskalasi pada pengulangan (resep B2), kamera dari posisi
    beat (hook/isi/klimaks/penutup), teks layar 1–3 kata yang menamai makna.
-4. **Perpustakaan resep adegan**: setiap video yang disetujui pemilik disimpan sebagai potongan siap pakai
+5. **Perpustakaan resep adegan**: setiap video yang disetujui pemilik disimpan sebagai potongan siap pakai
    (mis. "azab datang", "doa sunyi", "kaum mengejek"). Sutradara memilih & merangkai resep.
-5. Opsional, di belakang bendera: model murah (Haiku/Sonnet) untuk memilih resep bila aturan ragu. Biaya dicatat per video.
+6. Opsional, di belakang bendera: model murah (Haiku/Sonnet) untuk memilih resep bila aturan ragu. Biaya dicatat per video.
 - **Kriteria selesai:** naskah kisah Nabi Nuh → video otomatis penuh; pemilik menilai "layak tayang" dibanding versi manual.
   Lalu satu kisah baru (mis. Nabi Hud) juga layak tanpa campur tangan kode.
 
@@ -130,3 +133,4 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 - 21 Nov 2026 — Sutradara berbasis resep + aturan; model AI hanya opsional (biaya). Naskah boleh dibuat pengguna dengan AI gratis.
 - 21 Nov 2026 — Repo public: runner Actions gratis; workflow berahasia hanya `workflow_dispatch`.
 - 21 Nov 2026 — Fase 1: lapis depan dikeluarkan dari kamera (kalau ikut zoom, batu jadi bercak hitam besar).
+- 21 Nov 2026 — Penataan panggung: pemilik melihat NPC lebih dekat ke kapal daripada Nabi Nuh. Contoh diperbaiki dan aturan dijadikan pemeriksaan penjaga.

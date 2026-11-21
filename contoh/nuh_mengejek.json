@@ -60,8 +60,8 @@
      "benda": [
       {
        "jenis": "bahtera",
-       "x": 760,
-       "y": 1225,
+       "x": 600,
+       "y": 1235,
        "jadi": [
         [
          0,
@@ -78,9 +78,10 @@
      ],
      "nur": [
       {
-       "x": 270,
+       "x": 250,
        "y": 1330,
-       "nama": "Nabi Nuh a.s."
+       "nama": "Nabi Nuh a.s.",
+       "sinar_ke": "kanan"
       }
      ],
      "tokoh": [],
@@ -100,27 +101,37 @@
       "zoom": [
        [
         0,
-        1.0
+        1.05
        ],
        [
         4,
-        1.12
+        1.22
        ]
       ],
-      "x": 540,
+      "x": [
+       [
+        0,
+        500
+       ],
+       [
+        4,
+        470
+       ]
+      ],
       "y": [
        [
         0,
-        1000
+        1060
        ],
        [
         4,
-        1080
+        1150
        ]
       ]
      }
     }
-   ]
+   ],
+   "pelaku": "nuh"
   },
   {
    "narasi": "Setiap kali pemuka kaumnya lewat, mereka mengejeknya.",
@@ -149,8 +160,8 @@
      "benda": [
       {
        "jenis": "bahtera",
-       "x": 760,
-       "y": 1225,
+       "x": 600,
+       "y": 1235,
        "jadi": 0.5,
        "s": 0.56,
        "cahaya": 0.0
@@ -158,55 +169,48 @@
      ],
      "nur": [
       {
-       "x": 270,
+       "x": 250,
        "y": 1330,
-       "nama": "Nabi Nuh a.s."
+       "nama": "Nabi Nuh a.s.",
+       "sinar_ke": "kanan"
       }
      ],
      "tokoh": [
       {
-       "x": 620,
-       "y": 1395,
-       "s": 0.92,
+       "x": 700,
+       "y": 1520,
+       "s": 1.0,
        "pose": "tunjuk",
        "wajah": "ejek",
        "kepala": "imamah",
-       "peran": "kaum"
+       "peran": "kaum",
+       "balik": false
       },
       {
-       "x": 790,
-       "y": 1360,
-       "s": 0.82,
+       "x": 860,
+       "y": 1480,
+       "s": 0.9,
        "pose": "tertawa",
        "wajah": "tertawa",
        "kepala": "kain",
        "peran": "kaum"
       },
       {
-       "x": 930,
-       "y": 1420,
-       "s": 0.98,
+       "x": 990,
+       "y": 1560,
+       "s": 1.05,
        "pose": "angkat",
        "wajah": "ejek",
        "kepala": "imamah",
        "peran": "kaum"
       },
       {
-       "x": 720,
-       "y": 1520,
-       "s": 1.12,
+       "x": 800,
+       "y": 1640,
+       "s": 1.15,
        "pose": "silang",
        "wajah": "ejek",
        "kepala": "kain",
-       "peran": "kaum"
-      },
-      {
-       "x": 1010,
-       "y": 1300,
-       "s": 0.7,
-       "pose": "tertawa",
-       "wajah": "tertawa",
-       "kepala": "imamah",
        "peran": "kaum"
       }
      ],
@@ -215,35 +219,44 @@
       "subtitle": "setiap kali pemuka kaumnya lewat",
       "sorot": "lewat"
      },
-     "npc_jauh": {
-      "n": 11,
-      "x0": 470,
-      "x1": 1000,
-      "y": 1262
-     },
      "durasi": 3.5,
      "kamera": {
       "zoom": [
        [
         0,
-        1.05
+        1.15
        ],
        [
         3.5,
-        1.15
+        1.05
        ]
       ],
       "x": [
        [
         0,
-        480
+        460
        ],
        [
         3.5,
         620
        ]
       ],
-      "y": 1150
+      "y": [
+       [
+        0,
+        1180
+       ],
+       [
+        3.5,
+        1260
+       ]
+      ]
+     },
+     "npc_jauh": {
+      "n": 8,
+      "x0": 700,
+      "x1": 1040,
+      "y": 1262
      }
     },
     {
@@ -258,8 +271,8 @@
      "benda": [
       {
        "jenis": "bahtera",
-       "x": 760,
-       "y": 1225,
+       "x": 600,
+       "y": 1235,
        "jadi": 0.62,
        "s": 0.56,
        "cahaya": 0.0
@@ -267,55 +280,48 @@
      ],
      "nur": [
       {
-       "x": 270,
+       "x": 250,
        "y": 1330,
-       "nama": "Nabi Nuh a.s."
+       "nama": "Nabi Nuh a.s.",
+       "sinar_ke": "kanan"
       }
      ],
      "tokoh": [
       {
-       "x": 620,
-       "y": 1395,
-       "s": 0.92,
+       "x": 700,
+       "y": 1520,
+       "s": 1.0,
        "pose": "tunjuk",
        "wajah": "ejek",
        "kepala": "imamah",
-       "peran": "kaum"
+       "peran": "kaum",
+       "balik": false
       },
       {
-       "x": 790,
-       "y": 1360,
-       "s": 0.82,
+       "x": 860,
+       "y": 1480,
+       "s": 0.9,
        "pose": "tertawa",
        "wajah": "tertawa",
        "kepala": "kain",
        "peran": "kaum"
       },
       {
-       "x": 930,
-       "y": 1420,
-       "s": 0.98,
+       "x": 990,
+       "y": 1560,
+       "s": 1.05,
        "pose": "angkat",
        "wajah": "ejek",
        "kepala": "imamah",
        "peran": "kaum"
       },
       {
-       "x": 720,
-       "y": 1520,
-       "s": 1.12,
+       "x": 800,
+       "y": 1640,
+       "s": 1.15,
        "pose": "silang",
        "wajah": "ejek",
        "kepala": "kain",
-       "peran": "kaum"
-      },
-      {
-       "x": 1010,
-       "y": 1300,
-       "s": 0.7,
-       "pose": "tertawa",
-       "wajah": "tertawa",
-       "kepala": "imamah",
        "peran": "kaum"
       }
      ],
@@ -329,26 +335,20 @@
       "sorot": "mengejek",
       "judul_mulai": 0.1
      },
-     "npc_jauh": {
-      "n": 11,
-      "x0": 470,
-      "x1": 1000,
-      "y": 1262
-     },
      "durasi": 3.0,
      "kamera": {
       "zoom": [
        [
         0,
-        1.6
+        1.55
        ],
        [
         3,
-        1.75
+        1.7
        ]
       ],
-      "x": 780,
-      "y": 1230,
+      "x": 860,
+      "y": 1380,
       "hentak": [
        [
         0.1,
@@ -357,7 +357,8 @@
       ]
      }
     }
-   ]
+   ],
+   "pelaku": "nuh"
   },
   {
    "narasi": "Nuh menjawab: jika kalian mengejek kami, kami pun akan mengejek kalian.",
@@ -383,8 +384,8 @@
      "benda": [
       {
        "jenis": "bahtera",
-       "x": 760,
-       "y": 1225,
+       "x": 600,
+       "y": 1235,
        "jadi": [
         [
          0,
@@ -410,12 +411,42 @@
      ],
      "nur": [
       {
-       "x": 270,
+       "x": 250,
        "y": 1330,
-       "nama": "Nabi Nuh a.s."
+       "nama": "Nabi Nuh a.s.",
+       "sinar_ke": "kanan"
       }
      ],
-     "tokoh": [],
+     "tokoh": [
+      {
+       "x": 700,
+       "y": 1480,
+       "s": 0.8,
+       "pose": "tunjuk",
+       "wajah": "ejek",
+       "kepala": "imamah",
+       "peran": "kaum",
+       "balik": false
+      },
+      {
+       "x": 860,
+       "y": 1440,
+       "s": 0.7200000000000001,
+       "pose": "tertawa",
+       "wajah": "tertawa",
+       "kepala": "kain",
+       "peran": "kaum"
+      },
+      {
+       "x": 990,
+       "y": 1520,
+       "s": 0.8400000000000001,
+       "pose": "angkat",
+       "wajah": "ejek",
+       "kepala": "imamah",
+       "peran": "kaum"
+      }
+     ],
      "teks": {
       "sumber": "QS HUD 38",
       "judul": [
@@ -427,18 +458,12 @@
       "sorot": "kalian",
       "judul_mulai": 0.8
      },
-     "npc_jauh": {
-      "n": 11,
-      "x0": 470,
-      "x1": 1000,
-      "y": 1262
-     },
      "durasi": 5.0,
      "kamera": {
       "zoom": [
        [
         0,
-        1.35
+        1.4
        ],
        [
         5,
@@ -448,26 +473,27 @@
       "x": [
        [
         0,
-        360
+        330
        ],
        [
         5,
-        600
+        560
        ]
       ],
       "y": [
        [
         0,
-        1120
+        1130
        ],
        [
         5,
-        1060
+        1100
        ]
       ]
      }
     }
-   ]
+   ],
+   "pelaku": "nuh"
   }
  ]
 }
