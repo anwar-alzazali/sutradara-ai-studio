@@ -1,0 +1,41 @@
+"""Render bukti visual Tahap B menjadi satu lembar JPG kecil (tanpa MP4)."""
+from __future__ import annotations
+import json
+from pathlib import Path
+from PIL import Image, ImageOps, ImageDraw
+from sutradara import adegan, render
+
+OUT = Path("keluaran-bukti/tahap-b")
+OUT.mkdir(parents=True, exist_ok=True)
+
+def main():
+    nuh = json.loads(Path("contoh/nuh_mengejek.json").read_text(encoding="utf-8"))
+    dabbah = json.loads(Path("contoh/dabbah_dhuha.json").read_text(encoding="utf-8"))
+    shots = [
+        ("Nuh", nuh["beat"][0]["shot"][0], 1.0),
+        ("Dabbah", dabbah["beat"][1]["shot"][0], 1.0),
+        ("Buraq", {"preset":"dhuha","belakang":[],"tanah_y":1300,"buraq":[{"x":540,"y":1450,"s":1.0}],"depan":False}, 0.8),
+        ("Dinding Ya'juj", {"preset":"malam","belakang":[],"tanah_y":1300,"akhir_zaman":[{"jenis":"dinding_yajuj","x":540,"y":1400,"s":0.8,"lubang":0.7}],"depan":False}, 0.8),
+        ("Danau surut", {"preset":"dhuha","belakang":[],"tanah_y":1300,"akhir_zaman":[{"jenis":"danau_surut","x":540,"y":1450,"s":1.0,"surut":0.85}],"depan":False}, 0.8),
+        ("Dajjal belakang", {"preset":"malam_merah","belakang":[],"tanah_y":1300,"dajjal":[{"x":540,"y":1450,"s":1.0,"arah":"belakang","jalan":True,"jubah_berkibar":0.8,"buka":0.8}],"depan":False}, 0.8),
+    ]
+    gambar=[]
+    with render.peramban() as pg:
+        for i,(label,shot,t) in enumerate(shots):
+            path=OUT/f"bingkai_{i:02d}.jpg"
+            render.png(adegan.susun(shot,t),path,halaman=pg)
+            im=Image.open(path).convert("RGB")
+            im.thumbnail((270,480))
+            kanvas=Image.new("RGB",(290,525),"white")
+            kanvas.paste(im,((290-im.width)//2,30))
+            ImageDraw.Draw(kanvas).text((10,8),label,fill="black")
+            gambar.append(kanvas)
+    lembar=Image.new("RGB",(290*3,525*2),(238,238,238))
+    for i,im in enumerate(gambar):
+        lembar.paste(im,((i%3)*290,(i//3)*525))
+    lembar.save(OUT/"lembar-kontak.jpg",quality=82,optimize=True)
+    for p in sorted(OUT.glob("*.jpg")):
+        print(f"BUKTI_RENDER {p} {p.stat().st_size} bytes")
+
+if __name__ == "__main__":
+    main()
