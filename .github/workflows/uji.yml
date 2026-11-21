@@ -55,6 +55,7 @@ jobs:
           python -m sutradara periksa contoh/yajuj_majjuj.json --final
           mkdir -p keluaran-bukti/verifikasi
           cp contoh/yajuj_majjuj.json keluaran-bukti/verifikasi/yajuj_majjuj.json
+          git checkout -- contoh/yajuj_majjuj.json  # hasil verifikasi CI hanya bukti, jangan kotori pohon kerja
       - name: Unggah hasil verifikasi dalil
         if: always()
         uses: actions/upload-artifact@v4
