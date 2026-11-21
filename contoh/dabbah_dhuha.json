@@ -92,7 +92,7 @@
       {
        "jenis": "tanda_wajah",
        "x": 170,
-       "y": 1430,
+       "y": 1160,
        "s": 0.6
       }
      ],
@@ -274,8 +274,11 @@
        "KELUAR",
        "DARI BUMI"
       ],
-      "subtitle": "di waktu dhuha",
-      "sorot": "dhuha"
+      "judul": [
+       "IA BERBICARA"
+      ],
+      "subtitle": "berbicara kepada manusia",
+      "sorot": "manusia"
      }
     }
    ]
