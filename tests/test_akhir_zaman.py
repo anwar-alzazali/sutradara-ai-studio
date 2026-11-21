@@ -2,6 +2,9 @@ from sutradara.gaya import akhir_zaman
 from sutradara.gaya import tokoh, dajjal
 import xml.etree.ElementTree as ET
 from sutradara import adegan
+import json
+from pathlib import Path
+from sutradara.rencana import periksa
 
 
 def test_buraq_putih_tanpa_sayap_dan_wajah_manusia():
@@ -64,3 +67,20 @@ def test_jubah_dajjal_berubah_saat_berkibar():
     tenang = dajjal.belakang(540, 1200, jubah_berkibar=0)
     berkibar = dajjal.belakang(540, 1200, jubah_berkibar=1)
     assert tenang != berkibar
+
+
+def test_rencana_yajuj_memakai_manusia_biasa_dan_dalil_yang_ditandai_belum():
+    rencana = json.loads(Path("contoh/yajuj_majjuj.json").read_text(encoding="utf-8"))
+    temuan = periksa(rencana)
+    assert not any(x.tingkat == "GAGAL" for x in temuan)
+    assert {d["status"] for d in rencana["dalil"]} == {"belum"}
+    assert sum(x.kode == "DALIL_BELUM_DICEK" for x in temuan) == 2
+    for beat in rencana["beat"]:
+        ET.fromstring(adegan.susun(beat["shot"][0], 2.0))
+
+
+def test_tanda_wajah_dabbah_digambar_di_lapisan_atas():
+    rencana = json.loads(Path("contoh/dabbah_dhuha.json").read_text(encoding="utf-8"))
+    svg = adegan.susun(rencana["beat"][1]["shot"][0], 1.0)
+    ET.fromstring(svg)
+    assert svg.rfind("ILUSTRASI TANDA") > svg.rfind('class="tokoh"')
