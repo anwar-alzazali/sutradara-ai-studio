@@ -72,6 +72,12 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     permukaan = sp.get("permukaan_tanah", LT.PERMUKAAN_BAWAAN[p])
     if permukaan != "tanpa":
         dunia.append(LT.tekstur_tanah(p, tanah_y, jenis=permukaan, seed=sp.get("seed_tanah", 3)))
+    # Pilar tertentu boleh berada di belakang benda utama agar tidak menutupi kapal/objek.
+    for n in sp.get("nur", []):
+        if n.get("di_belakang_benda"):
+            dunia.append(NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
+                                  tinggi=n.get("tinggi", 400), lebar=n.get("lebar", 118),
+                                  pendar_rx=n.get("pendar_rx", 155), pendar_ry=n.get("pendar_ry", 190), t=tg))
     for b in sp.get("buraq", []):
         dunia.append(AZ.buraq(b["x"], b["y"], b.get("s", 1), t=tg))
     tanda_overlay = []
@@ -108,9 +114,10 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
             m["x"], m["y"], tinggi=m.get("tinggi", 820), keluar=m.get("keluar", 1.0), t=tg)
         tengah.append((m["y"] - 1, s))
     for n in sp.get("nur", []):
-        tengah.append((n["y"], NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
-                                        tinggi=n.get("tinggi", 400), lebar=n.get("lebar", 118),
-                                        pendar_rx=n.get("pendar_rx", 155), pendar_ry=n.get("pendar_ry", 190), t=tg)))
+        if not n.get("di_belakang_benda"):
+            tengah.append((n["y"], NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
+                                            tinggi=n.get("tinggi", 400), lebar=n.get("lebar", 118),
+                                            pendar_rx=n.get("pendar_rx", 155), pendar_ry=n.get("pendar_ry", 190), t=tg)))
     for d in sp.get("dajjal", []):
         tengah.append((d["y"], DJ.belakang(d["x"], d["y"], d.get("s", 1), t=tg, jalan=d.get("jalan", False), jubah_berkibar=d.get("jubah_berkibar", 0.0), buka=d.get("buka", 0.0)) if d.get("arah") == "belakang" else DJ.sosok(d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"))))
     for i, (tk, asli) in enumerate(zip(sp.get("tokoh", []), shot.get("tokoh", []))):
@@ -123,7 +130,7 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     # Tanda wajah adalah penanda ilustratif; letakkan di atas tokoh sasaran.
     dunia += tanda_overlay
     lapis = [f'<g transform="{KM.transform(sp.get("kamera"), t)}">' + "\n".join(dunia) + "</g>"]
-    if sp.get("depan", True):
+    if sp.get("depan", False):
         # Lapis depan berupa siluet tajam (tanpa blur bawaan); tidak ikut zoom kamera,
         # hanya bergeser untuk parallax saat kamera menyamping.
         kx = float((sp.get("kamera") or {}).get("x", 540))
