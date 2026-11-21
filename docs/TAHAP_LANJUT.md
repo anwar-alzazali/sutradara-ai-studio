@@ -215,23 +215,35 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
 1. **Workflow `buat_video.yml`** (`workflow_dispatch`, masukan naskah) menjalankan berurutan: verifikasi dalil,
    narasi, sutradara, render, campur suara, periksa/kritikus, lalu kirim ke Telegram untuk disetujui.
    - Nama rahasia Telegram diusulkan di PR. Pemilik yang mengisinya; jangan meminta nilainya.
-1b. **Persetujuan lewat Telegram: pindahkan dari bot yang sudah terbukti.** Sumbernya `mesin-video/bot/worker.js`
-   (Cloudflare Worker `mesin-konten`, 624 baris). Yang diambil hanya pola yang dibutuhkan, dengan baris `Asal:`:
-   - webhook Telegram dengan `secret_token` (`/tg`, `/pasang`);
-   - tombol inline dan `callback_query`;
-   - commit berkas ke repo lewat GitHub Contents API (`simpanTeks`);
-   - memicu workflow (`dispatch`).
-   Saldo/QRIS, proyek pengguna, chat pribadi, balas komentar, dan Studio TIDAK dibawa.
-   - Alur: video dikirim dengan tombol **✅ Setujui / ❌ Tolak**. Tolak memunculkan alasan cepat (hook lemah · visual
-     tidak sesuai · suara/efek · dalil/isi · terlalu panjang · lainnya → ketik). Keputusan, alasan, dan waktunya
-     dicommit ke berkas data video tersebut di repo.
-   - Satu token bot hanya bisa punya satu webhook. Pilih salah satu cara, jelaskan alasannya, dan tulis langkah
-     pasangnya untuk pemilik:
-     - bot baru dengan Worker baru yang kecil (direkomendasikan; bot Mesin KONTEN lama tidak ikut terganggu);
-     - menambah fitur ke Worker lama.
-     Kode Worker berada di repo ini (folder sendiri). Rahasianya disimpan di Cloudflare (token bot, chat id, secret
-     webhook, token GitHub fine-grained dengan akses repo ini saja). Tidak ada nilai rahasia di berkas.
-   - Cadangan tanpa Worker: workflow `schedule` setiap jam yang membaca `getUpdates` dan mencatat jawaban.
+1b. **Persetujuan lewat Telegram: PINDAHKAN bot yang sudah ada, JANGAN membuat bot baru** (keputusan pemilik
+   21 Nov 2026). Repo `mesin-video` dan `motion-studio-ai` akan dihapus, jadi bot **Mesin KONTEN** (Cloudflare Worker
+   `mesin-konten`, kode di `mesin-video/bot/`) pindah rumah ke repo ini. Bot, token, dan nama Worker tetap sama.
+   - Salin Worker ke folder `bot/` di repo ini (baris `Asal:`).
+   - Yang dibawa:
+     - inti webhook (`/tg`, `/pasang`, `secret_token`);
+     - tombol inline dan `callback_query`;
+     - simpan ke repo (GitHub Contents API) dan pemicu workflow;
+     - **balas komentar** (foto tangkapan layar komentar → draf balasan), yang tetap berguna untuk akun Kisah Islami.
+   - Yang TIDAK dibawa: saldo/QRIS/isi saldo, proyek pengguna, rakit pengguna, Studio/aset web, dan alur naskah
+     NGOPAI/iklan. Fitur komersial itu ditunda oleh pemilik. Schema Supabase-nya tetap ada di Supabase dan tidak
+     dihapus oleh repo ini.
+   - Tambahkan alur persetujuan:
+     - video dikirim dengan tombol **✅ Setujui / ❌ Tolak**;
+     - Tolak memunculkan alasan cepat (hook lemah · visual tidak sesuai · suara/efek · dalil/isi · terlalu panjang ·
+       lainnya → ketik);
+     - keputusan, alasan, dan waktunya dicommit ke berkas data video tersebut di repo ini.
+   - `wrangler.toml`: `GH_REPO = "anwar-alzazali/sutradara-ai-studio"`. Tetap `keep_vars = true`, dan tidak ada nilai
+     rahasia di berkas.
+   - Tulis **langkah pindah untuk pemilik**, singkat dan berurutan:
+     1. di Cloudflare, ubah sumber Workers Builds Worker `mesin-konten` ke repo ini dengan root directory `bot`;
+     2. perbarui token GitHub fine-grained agar punya akses ke repo ini (Contents RW + Actions RW);
+     3. buka `/pasang` sekali bila alamat Worker berubah;
+     4. tambahkan Secret `TELEGRAM_BOT_TOKEN` dan `TELEGRAM_CHAT_ID` di GitHub repo ini untuk workflow pengirim
+        (nilainya sama seperti di mesin-video).
+   - Workflow pengirim video ke Telegram juga dipindah dari `mesin-video` (`telegram.py`, konsep cabang `kiriman`),
+     hanya `workflow_dispatch`/`schedule`.
+   - **Syarat sebelum mesin-video boleh dihapus:** bot sudah berjalan dari repo ini dan teruji (tombol, balas
+     komentar, persetujuan tercatat), dan `periksa.py` sudah dipindah di Tahap E.
 2. **Antrean naskah dan tugas terjadwal** (satu video per hari):
    - hanya mengirim untuk disetujui;
    - tidak pernah mengunggah ke TikTok atau Facebook sendiri;
