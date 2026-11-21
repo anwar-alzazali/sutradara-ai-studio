@@ -34,19 +34,33 @@
    "id": "m2934",
    "jenis": "hadis",
    "label": "HR. MUSLIM 2934",
-   "status": "belum",
-   "rujukan": "https://sunnah.com/muslim:2934b",
+   "status": "terverifikasi",
+   "rujukan": "https://sunnah.com/muslim:2934a",
    "kitab": "muslim",
-   "nomor": "2934"
+   "nomor": "2934",
+   "derajat": "sahih",
+   "teks_ar": "حَدَّثَنَا مُحَمَّدُ بْنُ عَبْدِ اللَّهِ بْنِ نُمَيْرٍ، وَمُحَمَّدُ بْنُ الْعَلاَءِ، وَإِسْحَاقُ بْنُ إِبْرَاهِيمَ، قَالَ إِسْحَاقُ أَخْبَرَنَا وَقَالَ الآخَرَانِ، حَدَّثَنَا أَبُو مُعَاوِيَةَ، عَنِ الأَعْمَشِ، عَنْ شَقِيقٍ، عَنْ حُذَيْفَةَ، قَالَ قَالَ رَسُولُ اللَّهِ صلى الله عليه وسلم ‏ \"‏ الدَّجَّالُ أَعْوَرُ الْعَيْنِ الْيُسْرَى جُفَالُ الشَّعَرِ مَعَهُ جَنَّةٌ وَنَارٌ فَنَارُهُ جَنَّةٌ وَجَنَّتُهُ نَارٌ ‏\"‏ ‏.‏",
+   "terjemah": "Telah menceritakan kepada kami [Muhammad bin Abdullah bin Numair], [Muhammad bin Al Ala`] dan [Ishaq bin Ibrahim], berkata Ishaq: Telah mengkhabarkan kepada kami, sementara yang lain berkata: Telah menceritakan kepada kami [Abu Mu'awiyah] dari [Al A'masy] dari [Syaqiq] dari [Hudzaifah] berkata: Rasulullah Shallallahu 'alaihi wa Salam bersabda: \"Dajjal, buta mata sebelah kanan, berambut ikal, bersamanya ada surga dan neraka, nerakanya adalah surga dan surganya adalah neraka",
+   "sumber_teks": "sunnah.com · Sahih Muslim",
+   "riwayat": 3,
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
   },
   {
    "id": "b7123",
    "jenis": "hadis",
    "label": "HR. BUKHARI 7123",
-   "status": "belum",
+   "status": "terverifikasi",
    "rujukan": "https://sunnah.com/bukhari:7123",
    "kitab": "bukhari",
-   "nomor": "7123"
+   "nomor": "7123",
+   "derajat": "sahih",
+   "teks_ar": "حَدَّثَنَا مُوسَى بْنُ إِسْمَاعِيلَ، حَدَّثَنَا وُهَيْبٌ، حَدَّثَنَا أَيُّوبُ، عَنْ نَافِعٍ، عَنِ ابْنِ عُمَرَ، أُرَاهُ عَنِ النَّبِيِّ صلى الله عليه وسلم قَالَ ‏ \"‏ أَعْوَرُ عَيْنِ الْيُمْنَى، كَأَنَّهَا عِنَبَةٌ طَافِيَةٌ ‏\"‏‏.‏",
+   "terjemah": "Telah menceritakan kepada kami [Musa bin Isma'il] telah menceritakan kepada kami [Wuhaib] telah menceritakan kepada kami [Ayyub] dari [Nafi'] dari [Ibnu 'Umar], seingatku dia dari Nabi shallallahu 'alaihi wasallam bersabda; \"Dajjal buta matanya sebelah kanan, seolah-olah matanya buah anggur yang menjorok",
+   "sumber_teks": "sunnah.com · Sahih al-Bukhari",
+   "riwayat": 1,
+   "diverifikasi_oleh": "sutradara.dalil 2026-11-21",
+   "makna": "perlu_tinjauan_pemilik"
   }
  ],
  "beat": [
