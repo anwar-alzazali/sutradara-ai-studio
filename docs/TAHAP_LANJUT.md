@@ -3,7 +3,7 @@
 Pemilik memberikan satu tahap per sesi kepada pengembang AI. Hasil tiap tahap diaudit oleh Claude sebelum di-merge.
 Idealnya tahap berikutnya dimulai setelah tahap sebelumnya lulus audit dan di-merge. Bila audit Claude belum
 tersedia, pakai **mode bertumpuk** dan prompt siap tempel di `docs/PROMPT_CHATGPT.md`.
-Kalimat untuk ditempel ke pengembang: **"Kerjakan Tahap X di docs/TAHAP_LANJUT.md di repo anwar-alzazali/sutradara-ai-studio."**
+Dokumen aturan selalu dibaca dari cabang `main` (cabang kerja bisa tertinggal). Kalimat untuk ditempel ke pengembang: **"Kerjakan Tahap X di docs/TAHAP_LANJUT.md di repo anwar-alzazali/sutradara-ai-studio."**
 
 ## Aturan umum (berlaku untuk SEMUA tahap)
 
