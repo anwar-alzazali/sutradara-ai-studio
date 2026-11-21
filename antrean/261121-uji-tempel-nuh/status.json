@@ -1,9 +1,9 @@
 {
  "id": "261121-uji-tempel-nuh",
- "judul": "Uji: Nuh diejek kaumnya",
+ "judul": "Nuh Diejek Kaumnya",
  "sumber": "tempel",
  "tahap": {
-  "diterima": "jalan",
+  "diterima": "gagal",
   "dalil": "belum",
   "tinjau": "belum",
   "narasi": "belum",
@@ -13,8 +13,10 @@
   "kirim": "belum"
  },
  "ket": {
-  "diterima": "mengantre di GitHub Actions…"
+  "diterima": "beat 2: narasi tidak sama dengan naskah asli (\"Setiap kali pemuka kaumnya lewat, mereka mengejek Nuh.…\")"
  },
  "dibuat": "2026-11-21T09:12:19+00:00",
- "diperbarui": "2026-11-21T09:12:19+00:00"
+ "diperbarui": "2026-11-21T09:12:46+00:00",
+ "pesan_kartu": 383,
+ "token_ai": 1137
 }

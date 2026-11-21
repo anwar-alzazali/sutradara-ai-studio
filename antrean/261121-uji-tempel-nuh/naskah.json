@@ -1,0 +1,49 @@
+{
+ "judul": "Nuh Diejek Kaumnya",
+ "inti": "Nabi Nuh tetap teguh membangun kapal meski dikejek kaumnya, dan menanggapi ejekan mereka dengan keyakinan penuh.",
+ "dalil": [
+  {
+   "id": "hud38",
+   "jenis": "quran",
+   "label": "QS HUD 38",
+   "surah": 11,
+   "ayat": "38"
+  }
+ ],
+ "beat": [
+  {
+   "narasi": "Atas perintah Allah, Nabi Nuh mulai membuat kapal.",
+   "dalil": [],
+   "suasana": "dhuha",
+   "kata_kunci": [
+    "perintah Allah",
+    "kapal",
+    "Nabi Nuh"
+   ]
+  },
+  {
+   "narasi": "Setiap kali pemuka kaumnya lewat, mereka mengejek Nuh.",
+   "dalil": [
+    "hud38"
+   ],
+   "suasana": "dhuha",
+   "kata_kunci": [
+    "ejekan",
+    "pemuka kaum",
+    "penghinaan"
+   ]
+  },
+  {
+   "narasi": "Nuh menjawab: jika kalian mengejek kami, kami pun akan mengejek kalian.",
+   "dalil": [
+    "hud38"
+   ],
+   "suasana": "dhuha",
+   "kata_kunci": [
+    "jawaban tegas",
+    "keyakinan",
+    "tidak takut diremehkan"
+   ]
+  }
+ ]
+}
