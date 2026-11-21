@@ -27,8 +27,8 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 
 ## 2. Suasana & lapisan
 - Preset suasana (`gaya/latar.py`): `senja`, `dhuha`, `malam`, `malam_merah`, `fajar`. Dipakai ulang, dipetakan ke busur emosi.
-- Selalu 3 lapis: belakang (langit, gunung/kota) · tengah (visual inti, tokoh) · depan (batu kabur di pojok).
-- Waktu kejadian mengikuti dalil (Dabbah keluar di waktu **dhuha**, Muslim 2941 → adegan terang, bukan malam).
+- Lapis dunia: belakang (langit, gunung/kota) · tanah bertekstur · tengah (visual inti, tokoh) · depan (siluet batu tajam di pojok). Tanah bertekstur adalah bawaan semua preset; jenis dapat diatur per shot lewat `permukaan_tanah`: `tanah_berbatu` (bawaan), `pasir`, `tanah`, `batu`, atau `tanpa`. `seed_tanah` mengunci pola agar konsisten antar-bingkai. Tekstur mengikuti kamera karena berada di koordinat dunia, digambar di bawah benda/tokoh, dan memakai kontras rendah.
+- Waktu kejadian mengikuti dalil (Dabbah keluar di waktu **dhuha**, Muslim 2941 → adegan terang, bukan malam). Tekstur tidak memakai blur; batu depan adalah siluet tajam, bukan foreground defocus.
 
 ## 3. Penataan panggung (siapa berdiri di mana)
 - **Pelaku aksi berdiri di dekat visual inti yang ia kerjakan** (yang membangun kapal di samping kapal). Tidak boleh ada
