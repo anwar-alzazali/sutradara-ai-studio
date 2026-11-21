@@ -83,6 +83,27 @@ def _campur_warna(a: str, b: str, t: float) -> str:
     return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(ca, cb))
 
 
+def _sebaran_kerikil(rnd: random.Random, y0: float, jumlah: int) -> list[tuple[float, float]]:
+    """Sebaran alami: gerombol batu dengan sela tanah kosong dan sedikit batu lepas."""
+    pusat = [
+        (rnd.uniform(-850, 1900), y0 + (rnd.random() ** .78) * (1760 - y0),
+         rnd.uniform(105, 205), rnd.uniform(72, 138))
+        for _ in range(7)
+    ]
+    posisi = []
+    for i in range(jumlah):
+        if i % 5 == 0:  # sekitar 20% batu lepas memecah pola gerombol
+            x = rnd.uniform(-1080, 2160)
+            u = rnd.random() ** .72 if y0 < 1400 else rnd.random()
+            y = y0 + 8 + u * (1902 - y0)
+        else:
+            cx, cy, sx, sy = rnd.choice(pusat)
+            x = max(-1080, min(2160, rnd.gauss(cx, sx)))
+            y = max(y0 + 8, min(1910, rnd.gauss(cy, sy)))
+        posisi.append((x, y))
+    return posisi
+
+
 def _bentuk_bercak(rnd: random.Random, cx: float, cy: float, rx: float, ry: float, n: int = 8) -> str:
     titik = [(cx + math.cos(2 * math.pi * i / n) * rx * rnd.uniform(.72, 1.08),
               cy + math.sin(2 * math.pi * i / n) * ry * rnd.uniform(.72, 1.08)) for i in range(n)]
@@ -137,11 +158,8 @@ def _tekstur_tanah_cache(preset: str, y0: float, jenis: str, seed: int) -> str:
     if jenis in ("tanah_berbatu", "batu"):
         senja = preset == "senja"
         jumlah = (136 if jenis == "tanah_berbatu" else 144) if senja else (116 if jenis == "tanah_berbatu" else 144)
-        for _ in range(jumlah):
-            u = rnd.random()
-            y = y0 + (u ** .72) * (1910 - y0) if senja else rnd.uniform(y0 + 8, 1910)
+        for x, y in _sebaran_kerikil(rnd, y0, jumlah):
             s = skala(y)
-            x = rnd.uniform(-1080, 2160)
             besar = rnd.random() < (.22 if senja else .10) or jenis == "batu" and rnd.random() < .18
             if senja:
                 rx = rnd.uniform(26, 42) * s if besar else rnd.uniform(5.5, 10.5) * s
