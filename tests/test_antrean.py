@@ -108,3 +108,18 @@ def test_terjemah_dalil_yang_sama_cukup_sekali():
     n["beat"][1]["dalil"] = ["b1"]
     t = "".join(A.teks_tinjauan(n))
     assert t.count("TERJEMAH") == 1 and "(terjemah di atas)" in t
+
+
+def test_pilih_model_gemini_flash_stabil_tertinggi():
+    nama = ["models/gemini-2.5-flash", "models/gemini-3.8-flash", "models/gemini-3.8-flash-lite", "models/gemini-4.0-flash-preview",
+            "models/gemini-3.8-flash-image", "models/gemini-3.5-flash", "models/gemma-4"]
+    assert A.pilih_model_gemini(nama) == "gemini-3.8-flash"
+    assert A.pilih_model_gemini(["models/gemma-4"]) is None
+
+
+def test_tanpa_kunci_gemini_pindah_ke_claude(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.setattr(A, "tanya_claude", lambda *a, **k: ("{}", 7))
+    A.PENYEDIA.clear()
+    assert A.tanya_otomatis("s", "i", model="m") == ("{}", 7)
+    assert A.PENYEDIA["terakhir"] == "Claude m" and "GEMINI_API_KEY" in A.PENYEDIA["catatan"]

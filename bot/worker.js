@@ -259,7 +259,7 @@ async function bersihkanTanya(env, kecuali) {
   await simpanPengaturan(env, "tanya_" + env.DARI, "").catch(() => {});
 }
 const tanyaNaskah = (env) => tanya(env, { chat_id: env.CHAT, text: `${PENANDA_NASKAH}\nBalas pesan ini dengan naskah lengkapnya (atau kirim berkas .txt/.md dengan keterangan "naskah"). Narasi Anda tidak akan diubah; dalil yang disebut akan diverifikasi.`, reply_markup: { force_reply: true, input_field_placeholder: "tempel naskah" } });
-const tanyaIde = (env) => tanya(env, { chat_id: env.CHAT, text: `${PENANDA_IDE}\nBalas pesan ini dengan topik/idenya (mis. "Nabi Hud dan kaum 'Ad"). Claude menulis naskah ±Rp500, lalu dalilnya diverifikasi.`, reply_markup: { force_reply: true, input_field_placeholder: "topik" } });
+const tanyaIde = (env) => tanya(env, { chat_id: env.CHAT, text: `${PENANDA_IDE}\nBalas pesan ini dengan topik/idenya (mis. "Nabi Hud dan kaum 'Ad"). AI menulis naskah (Gemini gratis; cadangan Claude ±Rp500), lalu dalilnya diverifikasi.`, reply_markup: { force_reply: true, input_field_placeholder: "topik" } });
 
 // ---------- persetujuan video ----------
 async function bacaJsonRepo(env, path) {
@@ -315,7 +315,7 @@ async function tanganiTombol(env, q) {
 
 const BANTUAN = `Mesin KONTEN (pribadi)
 • 📝 Naskah: tempel naskah jadi (atau kirim berkas .txt/.md berketerangan "naskah"). Dirapikan ke format mesin tanpa mengubah narasi, dalilnya diverifikasi, lalu dikirim balik untuk Anda cek.
-• 💡 Ide: tulis topik, Claude menyusun naskah (±Rp500), dalil diverifikasi, Anda cek.
+• 💡 Ide: tulis topik, AI menyusun naskah (Gemini gratis; bila gagal, Claude ±Rp500), dalil diverifikasi, Anda cek.
 • Kartu status menunjukkan tahap yang sedang dikerjakan; tombol ✅ Lanjut / ✏️ Revisi / ❌ Batal. /status = daftar antrean.
 • Video baru datang dengan tombol ✅ Setujui / ❌ Tolak. Tolak → pilih alasan (atau "Lainnya" lalu ketik). Berubah pikiran? Ketuk ↩️ Ubah. Keputusan tersimpan di repo (keputusan lama ikut tercatat) dan jadi bahan belajar mesin.
 • Balas komentar: kirim tangkapan layar komentar (tanpa keterangan, atau keterangan "k" + catatan, mis. "k jawab singkat").
