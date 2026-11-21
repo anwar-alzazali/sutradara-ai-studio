@@ -21,8 +21,13 @@ def daftar_shot(rencana: dict) -> list[dict]:
     return [s for b in rencana["beat"] for s in b["shot"]]
 
 
+def peta_dalil(rencana: dict) -> dict:
+    return {d["id"]: d for d in rencana.get("dalil", [])}
+
+
 def total_durasi(rencana: dict) -> float:
-    return sum(adegan.durasi(s) for s in daftar_shot(rencana))
+    dl = peta_dalil(rencana)
+    return sum(adegan.durasi(s, dl) for s in daftar_shot(rencana))
 
 
 def _ffmpeg() -> str:
@@ -45,11 +50,12 @@ def buat(rencana: dict, keluar: Path, *, fps: int = 30, crf: int = 20, kabar=pri
             kerangka.write_text(dasar.html('<div id="k"></div>'), encoding="utf-8")
             pg.goto(kerangka.as_uri())
             tg = 0.0
+            dl = peta_dalil(rencana)
             for i, shot in enumerate(daftar_shot(rencana)):
-                n = max(1, round(adegan.durasi(shot) * fps))
+                n = max(1, round(adegan.durasi(shot, dl) * fps))
                 for k in range(n):
                     t = k / fps
-                    pg.evaluate("s => { document.getElementById('k').innerHTML = s; }", adegan.susun(shot, t, tg + t))
+                    pg.evaluate("s => { document.getElementById('k').innerHTML = s; }", adegan.susun(shot, t, tg + t, dl))
                     if n_total == 0:
                         pg.evaluate("document.fonts.ready")  # font harus siap sebelum bingkai pertama
                     proses.stdin.write(pg.screenshot(type="jpeg", quality=92))

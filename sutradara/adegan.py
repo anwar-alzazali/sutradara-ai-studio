@@ -28,7 +28,7 @@ import math
 import random
 
 from . import kamera as KM
-from .gaya import benda as BD, dajjal as DJ, dasar, latar as LT, makhluk as MK, nur as NR, teks as TX, tokoh as TK
+from .gaya import benda as BD, dajjal as DJ, dasar, kartu as KT, latar as LT, makhluk as MK, nur as NR, teks as TX, tokoh as TK
 from .waktu import pada
 
 DURASI_BAWAAN = 3.0
@@ -64,8 +64,9 @@ def _muncul(svg: str, mulai: float, t: float, cy: float) -> str:
     return f'<g opacity="{u:.3f}" transform="translate(540,{cy}) scale({s:.4f}) translate(-540,{-cy})">{svg}</g>'
 
 
-def susun(shot: dict, t: float = 0.0, tg: float | None = None) -> str:
-    """SVG utuh untuk shot pada detik lokal `t`. `tg` = waktu global video (untuk gerak hidup yang menyambung antar shot)."""
+def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | None = None) -> str:
+    """SVG utuh untuk shot pada detik lokal `t`. `tg` = waktu global video (untuk gerak hidup yang menyambung antar shot).
+    `dalil` = {id: entri dalil terverifikasi} dari rencana, dipakai oleh "kartu_dalil": {"dalil": id, "mulai": detik}."""
     tg = t if tg is None else tg
     sp = pada(shot, t)
     p = sp["preset"]
@@ -117,10 +118,22 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None) -> str:
         lapis.append(TX.sumber(tx["sumber"]))
     if tx.get("judul") and t < tx.get("judul_sampai", 1e9):
         lapis.append(_muncul(TX.judul(tx["judul"], warna=tx.get("warna", "putih")), tx.get("judul_mulai", 0.0), t, 380))
-    if tx.get("subtitle"):
+    kd = sp.get("kartu_dalil")
+    if kd:
+        d = (dalil or {}).get(kd["dalil"])
+        if d is None:
+            raise ValueError(f"kartu_dalil merujuk dalil '{kd['dalil']}' yang tidak ada di rencana")
+        lapis.append(KT.kartu(d, KT.potongan(d), t, mulai=kd.get("mulai", 0.0), idx_uid=f"kd{kd['dalil']}"))
+    elif tx.get("subtitle"):  # pita kartu menempati zona subtitle
         lapis.append(_muncul(TX.subtitle(tx["subtitle"], sorot=tx.get("sorot")), tx.get("subtitle_mulai", 0.0), t, 1700))
     return dasar.dokumen("\n".join(lapis))
 
 
-def durasi(shot: dict) -> float:
-    return float(shot.get("durasi", DURASI_BAWAAN))
+def durasi(shot: dict, dalil: dict | None = None) -> float:
+    """Durasi shot. Shot berkartu dalil tanpa `durasi` = waktu baca semua potongan (otomatis)."""
+    if "durasi" in shot:
+        return float(shot["durasi"])
+    kd = shot.get("kartu_dalil")
+    if kd and dalil and kd["dalil"] in dalil:
+        return KT.durasi_total(KT.potongan(dalil[kd["dalil"]]), kd.get("mulai", 0.0))
+    return DURASI_BAWAAN

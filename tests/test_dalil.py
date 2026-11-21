@@ -46,6 +46,7 @@ def _rencana(dalil):
     r["dalil"] = dalil
     for b in r["beat"]:
         b["dalil"] = [d["id"] for d in dalil][:1]
+        b["shot"] = [s for s in b["shot"] if not s.get("kartu_dalil")]  # kartu diuji di test_kartu.py
     return r
 
 

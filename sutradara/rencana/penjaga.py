@@ -11,6 +11,7 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
+from ..dalil.segmen import kutipan_sah
 from ..gaya.latar import PRESET
 
 SKEMA = json.loads((Path(__file__).parent / "rencana.schema.json").read_text(encoding="utf-8"))
@@ -72,6 +73,9 @@ def periksa(rencana: dict, *, final: bool = False) -> list[Temuan]:
             t.append(Temuan("GAGAL", "DERAJAT_HADIS", f"{d['label']}: derajat {d.get('derajat')}; hanya hadis sahih/hasan"))
         if d.get("berbeda"):
             t.append(Temuan("PERIKSA", "DERAJAT_DIPERSELISIHKAN", f"{d['label']}: dinilai daif oleh {', '.join(d['berbeda'])}"))
+        for kunci, sumber in (("kutipan_ar", "teks_ar"), ("kutipan_id", "terjemah")):
+            if d.get(kunci) and d.get(sumber) and not kutipan_sah(d[kunci], d[sumber]):
+                t.append(Temuan("GAGAL", "KUTIPAN_TIDAK_ADA_DI_SUMBER", f"{d['label']}: {kunci} bukan potongan persis {sumber} terverifikasi"))
         if d.get("bukan_marfu"):
             t.append(Temuan("PERIKSA", "BUKAN_MARFU", f"{d['label']}: mauquf/maqtu (ucapan sahabat/tabi'in), jangan disebut sabda Nabi ﷺ"))
         if d.get("label_saran"):
@@ -97,6 +101,7 @@ def periksa(rencana: dict, *, final: bool = False) -> list[Temuan]:
                 t.append(Temuan("GAGAL", "PERAN_TAK_TERDAFTAR", f"beat {i}: peran '{pid}' tidak terdaftar"))
         for j, s in enumerate(b["shot"]):
             t += _periksa_shot(s, peran, f"beat {i} shot {j}")
+            t += _periksa_kartu(s, dalil, final, f"beat {i} shot {j}")
             if b.get("pelaku"):
                 t += _periksa_penataan(s, b["pelaku"], vi["benda"], peran, f"beat {i} shot {j}")
         if len(b["shot"]) < len(b.get("potong_di", [])) + 1:
@@ -105,6 +110,21 @@ def periksa(rencana: dict, *, final: bool = False) -> list[Temuan]:
         t.append(Temuan("PERIKSA", "VISUAL_INTI_DIAM", f"'{vi['benda']}' hanya tampil dalam satu keadaan; resep A1 meminta keadaannya berubah"))
     if beat and rencana["hook"]["dari_beat"] == 0 and len(beat) > 3:
         t.append(Temuan("PERIKSA", "HOOK_KRONOLOGIS", "hook diambil dari beat pertama; resep A3: pindahkan momen paling dramatis ke depan"))
+    return t
+
+
+def _periksa_kartu(s: dict, dalil: dict, final: bool, lokasi: str) -> list[Temuan]:
+    kd = s.get("kartu_dalil")
+    if not kd:
+        return []
+    d = dalil.get(kd.get("dalil"))
+    if d is None:
+        return [Temuan("GAGAL", "KARTU_DALIL", f"{lokasi}: kartu merujuk dalil '{kd.get('dalil')}' yang tidak terdaftar")]
+    t = []
+    if not (d.get("teks_ar") and d.get("terjemah")):
+        t.append(Temuan("GAGAL" if final else "PERIKSA", "KARTU_TANPA_TEKS", f"{lokasi}: {d['label']} belum punya teks terverifikasi (jalankan verifikasi)"))
+    if d["jenis"] == "hadis" and not (d.get("kutipan_ar") and d.get("kutipan_id")):
+        t.append(Temuan("PERIKSA", "KARTU_HADIS_TANPA_KUTIPAN", f"{lokasi}: {d['label']} tanpa kutipan -> sanad ikut tampil; isi kutipan_ar/kutipan_id"))
     return t
 
 
