@@ -56,9 +56,10 @@ def _muncul(svg: str, mulai: float, t: float, cy: float) -> str:
     return f'<g opacity="{u:.3f}" transform="translate(540,{cy}) scale({s:.4f}) translate(-540,{-cy})">{svg}</g>'
 
 
-def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | None = None) -> str:
+def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | None = None, sub=None) -> str:
     """SVG utuh untuk shot pada detik lokal `t`. `tg` = waktu global video (untuk gerak hidup yang menyambung antar shot).
-    `dalil` = {id: entri dalil terverifikasi} dari rencana, dipakai oleh "kartu_dalil": {"dalil": id, "mulai": detik}."""
+    `dalil` = {id: entri dalil terverifikasi} dari rencana, dipakai oleh "kartu_dalil": {"dalil": id, "mulai": detik}.
+    `sub` = (kata, indeks_aktif) dari garis waktu narasi (fase 2); menggantikan subtitle tulisan di shot."""
     tg = t if tg is None else tg
     sp = pada(shot, t)
     p = sp["preset"]
@@ -120,7 +121,9 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
         if d is None:
             raise ValueError(f"kartu_dalil merujuk dalil '{kd['dalil']}' yang tidak ada di rencana")
         lapis.append(KT.kartu(d, KT.potongan(d), t, mulai=kd.get("mulai", 0.0), idx_uid=f"kd{kd['dalil']}", preset=p))
-    if tx.get("subtitle"):
+    if sub:
+        lapis.append(TX.subtitle_frasa(sub[0], sub[1]))
+    elif tx.get("subtitle"):
         lapis.append(_muncul(TX.subtitle(tx["subtitle"], sorot=tx.get("sorot")), tx.get("subtitle_mulai", 0.0), t, 1700))
     return dasar.dokumen("\n".join(lapis))
 
