@@ -14,7 +14,7 @@ def tts_tiruan(teks, s, *, per_huruf=0.055, jeda_beat=0.45):
     """Audio nada untuk bukti sinkronisasi; bukan suara manusia."""
     karakter, mulai, akhir, t = [], [], [], 0.0
     for c in teks:
-        d = jeda_beat if c == "\\n" else per_huruf
+        d = jeda_beat if c == "\n" else per_huruf
         karakter.append(c)
         mulai.append(t)
         akhir.append(t + d)
