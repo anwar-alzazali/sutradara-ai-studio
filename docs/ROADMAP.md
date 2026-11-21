@@ -155,6 +155,53 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 
 ---
 
+## Daftar kebutuhan berikutnya (dicatat 21 Nov 2026)
+
+Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yang menyelesaikannya; jangan hapus baris.
+
+### Segera (fase 2 — suara & waktu kata)
+- [ ] Narasi ElevenLabs satu permintaan per video + waktu per kata (port `mesin-video/narasi_api.py`, `papan/kisah/dlib.py`).
+- [ ] Potong shot tepat di kata kunci (`potong_di`); teks layar, gerak tokoh, dan mulut bicara dipicu kata narasi.
+- [ ] Subtitle per frasa (±4 kata, satu baris) dari waktu kata.
+- [ ] Waktu kartu dalil mengikuti narasi (sekarang dari waktu baca).
+- [ ] Efek suara berlapis + cache (resep D), campur ±-15 LUFS, puncak ≤ -1 dBTP; workflow `workflow_dispatch` saja.
+- [ ] Pastikan nama rahasia `ELEVENLABS_API_KEY` & `ANTHROPIC_API_KEY` benar (baru `QURAN_FOUNDATION_*` yang terbukti terbaca).
+- [ ] Render ulang video Nuh untuk tinjauan pemilik: kartu dalil di atas + warna suasana, kaum berjalan lalu mengejek, suara.
+
+### Visual & tokoh
+- [ ] Tampak samping / berbalik badan (berjalan menyamping, menoleh penuh); kini semua tokoh tampak depan.
+- [ ] Kamera shot pembuka Nuh lebih dekat ke kapal (visual inti masih kecil di layar).
+- [ ] Ragam tokoh: anak, lansia, pakaian per zaman/wilayah, variasi perempuan.
+- [ ] Set pose Dajjal desain B: berjalan, dari belakang, jauh di tengah pengikut; jubah berkibar, lengan membuka perlahan.
+- [ ] Ya'juj Ma'juj: manusia biasa, kengerian dari jumlah & gerak (turun dari setiap tempat tinggi, QS Al-Anbiya 96),
+      menggali dinding, meminum habis danau; tanpa ciri ras/bentuk aneh.
+- [ ] Buraq: hewan putih antara keledai & bagal, langkah sejauh pandangan; tanpa sayap, tanpa wajah manusia,
+      tidak pernah dengan penunggang (penunggang = pilar cahaya).
+- [ ] Dabbatul Ard adegan lanjutan: "berbicara kepada manusia" (teks + narator), tanda di wajah orang pasar (abstrak, berlabel ilustrasi).
+
+### Dalil
+- [ ] Bacaan latin ayat di kartu (transliterasi Quran Foundation) — hanya bila pemilik meminta.
+- [ ] Musnad Ahmad belum ada di dataset (mis. Ahmad 22308, tanda di wajah oleh Dabbah) — cari sumber berlisensi jelas.
+- [ ] Pakai scope `content.hadith.read` Quran Foundation sebagai pemeriksa hadis kedua.
+- [ ] Terjemah hadis dataset kadang keliru (mis. Muslim 2934b: "surga" padahal النهر = sungai): tandai untuk tinjauan pemilik,
+      pertimbangkan terjemah sendiri yang ditinjau.
+- [ ] Pasangan Arab–terjemah di kartu masih perkiraan; pertimbangkan pemetaan kata (word-by-word) Quran Foundation.
+
+### Mesin & otomatisasi
+- [ ] Fase 4 sutradara otomatis: templat naskah untuk AI gratis, keputusan visual inti/preset/peran/hook, **penataan panggung
+      otomatis** (pelaku di samping visual inti), gerak & ekspresi dari kata kerja narasi, perpustakaan resep adegan.
+- [ ] Fase 5 kritikus: periksa teknis (port `periksa.py`), lembar kontak otomatis, kritik visual opsional.
+- [ ] Fase 6: workflow `buat_video` → kirim Telegram → persetujuan; tugas terjadwal harian; laporan biaya.
+- [ ] Percepat render (sekarang ±10 dtk kerja per 1 dtk video untuk adegan berat): paralel per shot di Actions.
+
+### Rumah tangga repo
+- [ ] Hapus cabang yang sudah digabung di repo ini (`fondasi`, `fase1-gerak`, …) — sesi pengembang tidak bisa menghapus cabang.
+- [ ] mesin-video: 252 cabang sudah diarsip di cabang `arsip-cabang`; penghapusannya menunggu keputusan pemilik
+      (usulan: workflow `workflow_dispatch` yang menghapus semua kecuali `main`, `feat/short-term-production-intelligence`,
+      `narasi`, `efek`, `arsip-cabang`).
+- [ ] Tagihan GitHub akun: run mesin-video 20 Nov gagal karena "recent account payments have failed or spending limit";
+      repo ini (public) tidak terdampak, tetapi cek *Billing & plans*.
+
 ## Yang sengaja TIDAK dibawa dari repo lama
 - Penyimpanan tugas SQLite, buku catatan operasi, registri & matriks engine, ratusan dokumen audit (`feat/short-term-production-intelligence`).
 - Boneka "kamu" sebagai avatar penonton; siluet sebagai tampilan bawaan; nur berbentuk lampu sorot.
