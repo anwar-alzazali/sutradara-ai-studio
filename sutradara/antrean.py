@@ -224,9 +224,11 @@ def _gemini_req(path: str, kunci: str, badan: dict | None = None) -> dict:
                                  method="POST" if badan else "GET",
                                  headers={"x-goog-api-key": kunci, "content-type": "application/json"})
     try:
-        return json.load(urllib.request.urlopen(req, timeout=240))
+        return json.load(urllib.request.urlopen(req, timeout=150))
     except urllib.error.HTTPError as e:
         raise RuntimeError(f"Gemini galat {e.code}") from None
+    except (TimeoutError, urllib.error.URLError) as e:  # waktu habis/putus: model ini lambat -> coba model berikutnya
+        raise RuntimeError(f"Gemini galat 504 ({str(e)[:60]})") from None
 
 
 def tanya_gemini(sistem: str, isi: str, *, model: str | None = None, maks: int = 8000) -> tuple[str, int]:
@@ -245,23 +247,24 @@ def tanya_gemini(sistem: str, isi: str, *, model: str | None = None, maks: int =
         raise RuntimeError("tidak ada model Gemini Flash yang tersedia untuk kunci ini")
     badan = {"systemInstruction": {"parts": [{"text": sistem}]}, "contents": [{"role": "user", "parts": [{"text": isi}]}],
              "generationConfig": {"responseMimeType": "application/json", "maxOutputTokens": maks, "temperature": 0.7}}
-    galat = None
-    for m in urutan:  # model sedang penuh/kena batas -> tunggu sebentar, coba lagi, lalu model berikutnya
+    galat, j = None, None
+    for m in urutan:  # model penuh/kena batas -> tunggu sebentar & coba lagi; lambat -> langsung model berikutnya
         for jeda in (0, 8, 20):
             time.sleep(jeda)
             try:
                 j = _gemini_req(f"models/{m}:generateContent", kunci, badan)
-                _GEMINI_TERPILIH["m"] = m
                 break
             except RuntimeError as e:
                 galat = e
-                if not re.search(r"galat (429|500|503)", str(e)):
+                if not re.search(r"galat (429|500|503|504)", str(e)):
                     raise
-        else:
-            continue
-        break
-    else:
-        raise galat
+                if "504" in str(e):
+                    break
+        if j is not None:
+            _GEMINI_TERPILIH["m"] = m
+            break
+    if j is None:
+        raise galat or RuntimeError("Gemini tidak menjawab")
     teks = "".join(p.get("text", "") for c in j.get("candidates", [])[:1] for p in c.get("content", {}).get("parts", []))
     if not teks.strip():
         raise RuntimeError(f"Gemini tidak memberi jawaban ({(j.get('candidates') or [{}])[0].get('finishReason', '?')})")
@@ -269,13 +272,16 @@ def tanya_gemini(sistem: str, isi: str, *, model: str | None = None, maks: int =
 
 
 def tanya_otomatis(sistem: str, isi: str, *, model: str, maks: int = 4000) -> tuple[str, int]:
-    """Gemini gratis dulu; bila tidak ada kunci, kena batas, atau gagal -> Claude (berbayar). Penyedia dicatat."""
+    """Gemini gratis dulu; bila tidak ada kunci, kena batas, atau gagal -> Claude (berbayar). Penyedia dicatat.
+    NASKAH_CADANGAN=0 mematikan cadangan berbayar (untuk uji Gemini tanpa biaya)."""
     try:
         teks, token = tanya_gemini(sistem, isi)
         PENYEDIA["terakhir"] = f"Gemini {_GEMINI_TERPILIH.get('m') or os.environ.get('GEMINI_MODEL', '')} (gratis)"
         return teks, token
     except Exception as e:  # noqa: BLE001
         PENYEDIA["catatan"] = f"Gemini gagal ({str(e)[:80]}), pindah ke Claude"
+        if os.environ.get("NASKAH_CADANGAN", "1") == "0":
+            raise RuntimeError(f"Gemini gagal: {str(e)[:120]} (cadangan Claude dimatikan)") from None
     teks, token = tanya_claude(sistem, isi, model=model, maks=maks)
     PENYEDIA["terakhir"] = f"Claude {model}"
     return teks, token
@@ -383,6 +389,8 @@ def teks_tinjauan(n: dict) -> list[str]:
     sudah = set()  # terjemah dalil yang sama cukup ditampilkan sekali
     for i, b in enumerate(n["beat"], 1):
         s = f"\n{i}. {b['narasi']}"
+        if not b.get("dalil"):
+            s += "\n   ▫️ tanpa dalil: pastikan bukan klaim karangan"
         for r in b.get("dalil") or []:
             d = dl.get(r, {})
             tanda = "✅" if d.get("status") == "terverifikasi" and d.get("derajat", "sahih") in ("sahih", "hasan") else "⚠️"
