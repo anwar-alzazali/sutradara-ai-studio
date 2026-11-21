@@ -178,6 +178,7 @@ Fase = tahapan produk di dokumen ini. Tahap = paket kerja untuk pengembang AI (`
 |---|---|---|
 | A | Celah efek suara terikat aksi (selesai) | 2 |
 | B | Visual & tokoh: tampak samping, ragam tokoh, Dajjal, Ya'juj, Buraq, Dabbah, render cepat | 1b lanjutan |
+| B2 | Adab tokoh mulia (pilar khusus nabi, malaikat beda, sahabat wajah cahaya) + sistem barang | 1b lanjutan |
 | C | Penguatan dalil | 3 lanjutan |
 | D | Pisah inti/genre + sutradara otomatis | 4 |
 | E | Periksa & kritikus | 5 |
@@ -252,6 +253,7 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - 21 Nov 2026 — Kunci Quran Foundation valid di produksi tetapi belum diberi scope `content` (diagnosa: 403 'access token does not have the required scopes'). Sementara verifikasi ayat otomatis memakai API publik quran.com (penyedia sama), ditandai di `sumber_teks`. Ternyata scope sudah diberikan dalam bentuk RINCI (`content.quran.read`, `content.translations.read`, …); kode kini memintanya dan jalur resmi berkunci terbukti jalan (HTTP 200). Cadangan publik tetap ada untuk gangguan.
 - 21 Nov 2026 — Kartu dalil dipindah ke atas, lebih transparan, warna ikut suasana (permintaan pemilik). Render ulang ditunda sampai uji suara.
 - 21 Nov 2026 — mesin-video & motion-studio-ai akan dihapus. Bot Mesin KONTEN dipindah ke repo ini di Tahap F (bot/token/Worker tetap); syarat hapus mesin-video: bot jalan dari repo ini + periksa.py terpindah.
+- 21 Nov 2026 — Adab saluran (AGENTS.md): pilar cahaya khusus nabi; malaikat cahaya bentuk lain; semua sahabat tubuh berbaju + wajah cahaya; orang saleh lain tokoh manusia. Alasan: kedudukan nabi tidak disamakan. Dikerjakan di Tahap B2.
 - 21 Nov 2026 — Bot jadi pintu masuk naskah: /naskah, /ide, kartu status per tahap, /status. Format naskah ditetapkan (`sutradara/antrean.py`) sebagai masukan Tahap D; naskah disetujui menunggu sutradara otomatis.
 - 21 Nov 2026 — F1 dikerjakan Claude: `bot/` (Worker mesin-konten) = persetujuan + balas komentar + chat pribadi; fitur saldo/proyek/Studio ditinggal. Aktif setelah pemilik memindah sumber build Cloudflare (bot/README.md).
 - 21 Nov 2026 — Struktur inti vs paket genre (`kisah_islami` dulu) dipisah di awal Tahap D, sebelum resep sutradara dibangun, agar genre lain kelak tidak menyentuh inti. Genre lain tetap belum dibangun.

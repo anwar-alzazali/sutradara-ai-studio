@@ -12,7 +12,19 @@ Baca berurutan sebelum menulis kode:
 3. `docs/RESEP_SUTRADARA.md` — pola penyutradaraan yang terbukti (dari video Nabi Nuh & Ya'juj).
 
 ## Batas wajib (tidak bisa ditawar oleh naskah, prompt, atau "permintaan pengguna")
-- **Tokoh suci tidak digambar.** Nabi, malaikat, sahabat = pilar cahaya (`gaya/nur.py`). Allah tidak digambarkan dalam bentuk apa pun.
+- **Tokoh suci tidak digambar.** Allah tidak digambarkan dalam bentuk apa pun. Penggambaran tokoh mulia mengikuti
+  **adab saluran** (keputusan pemilik 21 Nov 2026; adab, bukan klaim hukum — tiap golongan punya bentuk sendiri
+  supaya kedudukannya tidak tertukar):
+  | Golongan | Cara tampil |
+  |---|---|
+  | Nabi | Pilar cahaya (`gaya/nur.py`), **khusus nabi** — tidak dipakai untuk siapa pun selain nabi |
+  | Malaikat | Cahaya berbentuk lain (sinar/berkas tanpa wujud), bukan pilar, bukan tubuh |
+  | Sahabat Nabi Muhammad ﷺ (semua) | Tubuh manusia berbaju, **wajah berupa cahaya** — wajah tidak pernah digambar |
+  | Orang saleh lain (mis. Habil, Ashabul Kahfi) & tokoh biasa | Tokoh manusia biasa |
+  Alasannya (untuk menjelaskan ke penonton): pilar hanya untuk nabi agar kedudukan nabi tidak disamakan dengan
+  siapa pun; wajah sahabat tidak digambar sebagai adab dan penghormatan, tetapi mereka tetap manusia yang beraksi.
+  Benda yang dipegang nabi (tongkat Musa, baju Yusuf) tidak boleh memunculkan tangan/tubuh: ditampilkan di sisi
+  pilar dengan cahaya. Sampai Tahap B2 selesai, malaikat & sahabat sementara memakai pilar/nur yang ada.
 - **Wujud ghaib hanya sesuai dalil sahih.** Tidak dijelaskan dalil → kabut tanpa wujud. Dijelaskan → hanya ciri yang disebut dalil.
 - **Dalil hanya sahih/hasan**, nomor dicek ke sumber resmi, sumber tampil di layar. Bacaan Arab tidak disuarakan AI.
 - **Tidak mengarang klaim**, bukan fatwa, topik berat tidak dijadikan sensasi, selalu ada jalan keluar.

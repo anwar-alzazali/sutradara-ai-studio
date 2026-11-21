@@ -122,6 +122,19 @@ Tujuan: tokoh dan adegan cukup kaya untuk kisah-kisah akhir zaman tanpa melangga
 8. **Percepat render:** paralel per shot, baik di mesin lokal maupun di Actions, tanpa mengubah hasil gambar
    (bandingkan bingkai sebelum dan sesudah). Laporkan angka kecepatan sebelum dan sesudah.
 
+## Tahap B2 — Adab penggambaran tokoh mulia + sistem barang (setelah Tahap B di-merge, sebelum D)
+Aturan wajibnya ada di `AGENTS.md` (tabel adab saluran). Kerjakan:
+1. **Bentuk cahaya malaikat** yang jelas berbeda dari pilar nabi (mis. berkas sinar dari atas / cahaya tanpa wujud).
+2. **Mode tokoh "wajah cahaya" untuk sahabat:** tubuh berbaju, gerak, gestur, dan barang tetap berfungsi; wajah
+   diganti cahaya lembut (tanpa mata/mulut/ekspresi wajah). Tetap santun di semua arah hadap (depan/samping/belakang).
+3. **Penjaga:** peran nabi -> wajib pilar; malaikat -> wajib bentuk malaikat; sahabat -> wajib wajah cahaya; pilar
+   dilarang untuk selain nabi; wajah sahabat tidak boleh punya ekspresi/rincian. Tes untuk setiap pelanggaran.
+4. **Sistem barang** (memegang, mengulurkan, menerima, pindah pemilik, tetap terbawa antar shot, tangan/lengan
+   mengikuti barang): kembangkan dari `alat` dan IK tangan yang sudah ada, jangan membuat sistem kedua. Barang milik
+   nabi ditampilkan di sisi pilar dengan cahaya (tanpa tangan); serah-terima dengan nabi = barang bergerak ke/dari pilar.
+5. Perbarui tabel "siapa digambar bagaimana" di `docs/PANDUAN_GAYA.md` sesuai `AGENTS.md`, dan contoh yang terdampak.
+6. Bukti: render tiap golongan berdampingan + adegan serah-terima (manusia–manusia dan manusia–nabi).
+
 ## Tahap C — Penguatan dalil
 1. Pemeriksa hadis kedua memakai scope `content.hadith.read` Quran Foundation. Kalau dua sumber berbeda,
    tandai untuk ditinjau pemilik; jangan memilih sendiri.
