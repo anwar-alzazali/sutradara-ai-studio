@@ -85,8 +85,10 @@ def _campur_warna(a: str, b: str, t: float) -> str:
 
 def _sebaran_kerikil(rnd: random.Random, y0: float, jumlah: int) -> list[tuple[float, float]]:
     """Sebaran alami: gerombol batu dengan sela tanah kosong dan sedikit batu lepas."""
+    if jumlah <= 0 or y0 + 8 >= 1910:
+        return []
     pusat = [
-        (rnd.uniform(-850, 1900), y0 + (rnd.random() ** .78) * (1760 - y0),
+        (rnd.uniform(-850, 1900), y0 + (rnd.random() ** .78) * (1910 - y0),
          rnd.uniform(105, 205), rnd.uniform(72, 138))
         for _ in range(7)
     ]
