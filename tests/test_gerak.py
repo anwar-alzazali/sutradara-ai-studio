@@ -52,3 +52,19 @@ def test_video_pendek(tmp_path):
     assert int(st["nb_read_frames"]) == 6
     jpg = video.lembar(mp4, tmp_path / "v.jpg", n=4, kolom=4)
     assert jpg.exists() and jpg.stat().st_size > 1000
+
+def test_bahtera_nuh_semakin_jadi_di_setiap_shot_dan_tidak_tertutup_nur():
+    r = json.loads((CONTOH / "nuh_mengejek.json").read_text(encoding="utf-8"))
+    nilai_jadi = []
+    for beat in r["beat"]:
+        for shot in beat["shot"]:
+            bahtera = next(b for b in shot.get("benda", []) if b.get("jenis") == "bahtera")
+            jadi = bahtera["jadi"]
+            nilai_jadi.extend([v for _, v in jadi] if isinstance(jadi, list) else [jadi])
+            # Shot jauh tetap menampilkan siluet kapal yang cukup besar.
+            assert bahtera.get("s", 1.0) >= 0.8
+            # Pilar cahaya berada di sisi kiri dan sinarnya diarahkan menjauhi kapal.
+            for nur in shot.get("nur", []):
+                assert nur["x"] + 180 < bahtera["x"]
+                assert nur.get("sinar_ke") == "kiri"
+    assert all(a <= b for a, b in zip(nilai_jadi, nilai_jadi[1:])), nilai_jadi
