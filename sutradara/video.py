@@ -38,41 +38,69 @@ def _ffmpeg() -> str:
     return f
 
 
-def buat(rencana: dict, keluar: Path, *, fps: int = 30, crf: int = 20, kabar=print, garis=None) -> Path:
-    """Render seluruh rencana ke MP4 (tanpa suara). Kembalikan path berkas."""
-    keluar = Path(keluar); keluar.parent.mkdir(parents=True, exist_ok=True)
-    proses = subprocess.Popen([_ffmpeg(), "-v", "error", "-y", "-f", "image2pipe", "-framerate", str(fps), "-i", "-",
-                               "-c:v", "libx264", "-preset", "veryfast", "-crf", str(crf), "-pix_fmt", "yuv420p",
-                               "-movflags", "+faststart", str(keluar)], stdin=subprocess.PIPE)
-    awal = time.time(); n_total = 0
-    try:
-        with render.peramban() as pg, tempfile.TemporaryDirectory() as d:
-            kerangka = Path(d) / "kerangka.html"
-            kerangka.write_text(dasar.html('<div id="k"></div>'), encoding="utf-8")
-            pg.goto(kerangka.as_uri())
-            tg = 0.0
-            dl = peta_dalil(rencana)
-            for i, shot in enumerate(garis.shot if garis else daftar_shot(rencana)):
-                # titik potong dibulatkan ke bingkai dari waktu global, supaya galat pembulatan tidak menumpuk
-                n = max(1, round((tg + adegan.durasi(shot, dl)) * fps) - round(tg * fps))
-                for k in range(n):
-                    t = k / fps
-                    sub = garis.subtitle_pada(tg + t) if garis else None
-                    pg.evaluate("s => { document.getElementById('k').innerHTML = s; }", adegan.susun(shot, t, tg + t, dl, sub=sub))
-                    if n_total == 0:
-                        pg.evaluate("document.fonts.ready")  # font harus siap sebelum bingkai pertama
-                    proses.stdin.write(pg.screenshot(type="jpeg", quality=92))
-                    n_total += 1
-                tg = round((tg + adegan.durasi(shot, dl)) * fps) / fps
-                kabar(f"shot {i + 1}: {n} bingkai ({time.time() - awal:.0f} dtk berjalan)")
-    finally:
-        proses.stdin.close()
-        kode = proses.wait()
-    if kode != 0:
-        raise RuntimeError(f"ffmpeg gagal (kode {kode})")
-    kabar(f"selesai: {keluar} · {n_total} bingkai · {n_total / fps:.1f} dtk video · {time.time() - awal:.0f} dtk render")
-    return keluar
 
+def _render_shot_berkas(args):
+    """Render satu shot di Chromium milik worker sendiri; hasil disimpan per-shot."""
+    from pathlib import Path
+    shot, indeks, tg, fps, dl, garis, folder = args
+    folder = Path(folder)
+    folder.mkdir(parents=True, exist_ok=True)
+    n = max(1, round((tg + adegan.durasi(shot, dl)) * fps) - round(tg * fps))
+    with render.peramban() as pg:
+        kerangka = folder / "kerangka.html"
+        kerangka.write_text(dasar.html('<div id="k"></div>'), encoding="utf-8")
+        pg.goto(kerangka.as_uri())
+        for k in range(n):
+            t = k / fps
+            sub = garis.subtitle_pada(tg + t) if garis else None
+            pg.evaluate("s => { document.getElementById('k').innerHTML = s; }",
+                        adegan.susun(shot, t, tg + t, dl, sub=sub))
+            if k == 0:
+                pg.evaluate("document.fonts.ready")
+            (folder / f"frame_{k:08d}.jpg").write_bytes(pg.screenshot(type="jpeg", quality=92))
+        kerangka.unlink(missing_ok=True)
+    return indeks, n, folder
+
+
+def buat(rencana: dict, keluar: Path, *, fps: int = 30, crf: int = 20, kabar=print, garis=None, workers: int = 2) -> Path:
+    """Render MP4; tiap shot dirender di Chromium terpisah lalu dirangkai berurutan.
+
+    workers=1 menjadi jalur pembanding serial. Setiap worker memiliki browser sendiri,
+    sehingga halaman Chromium tidak dipakai bersamaan oleh thread lain.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+    keluar = Path(keluar); keluar.parent.mkdir(parents=True, exist_ok=True)
+    ff = [_ffmpeg(), "-v", "error", "-y", "-f", "image2pipe", "-framerate", str(fps), "-i", "-",
+          "-c:v", "libx264", "-preset", "veryfast", "-crf", str(crf), "-pix_fmt", "yuv420p",
+          "-movflags", "+faststart", str(keluar)]
+    awal = time.time()
+    dl = peta_dalil(rencana)
+    shots = list(garis.shot if garis else daftar_shot(rencana))
+    tugas, tg = [], 0.0
+    with tempfile.TemporaryDirectory() as d:
+        for i, shot in enumerate(shots):
+            folder = Path(d) / f"shot_{i:05d}"
+            tugas.append((shot, i, tg, fps, dl, garis, folder))
+            tg = round((tg + adegan.durasi(shot, dl)) * fps) / fps
+        jumlah_worker = max(1, min(int(workers), len(tugas) or 1))
+        with ThreadPoolExecutor(max_workers=jumlah_worker) as pool:
+            hasil = list(pool.map(_render_shot_berkas, tugas))
+        hasil.sort(key=lambda item: item[0])
+        proses = subprocess.Popen(ff, stdin=subprocess.PIPE)
+        n_total = 0
+        try:
+            for indeks, n, folder in hasil:
+                for frame in sorted(folder.glob("frame_*.jpg")):
+                    proses.stdin.write(frame.read_bytes())
+                n_total += n
+                kabar(f"shot {indeks + 1}: {n} bingkai dirender ({time.time() - awal:.0f} dtk berjalan)")
+        finally:
+            proses.stdin.close()
+            kode = proses.wait()
+        if kode != 0:
+            raise RuntimeError(f"ffmpeg gagal (kode {kode})")
+    kabar(f"selesai: {keluar} · {n_total} bingkai · {n_total / fps:.1f} dtk video · {time.time() - awal:.0f} dtk render · {jumlah_worker} worker")
+    return keluar
 
 def buat_bersuara(rencana: dict, keluar: Path, *, fps: int = 30, kabar=print, folder_suara=None) -> tuple[Path, dict]:
     """Narasi (cache) -> garis waktu -> render -> campur suara. Kembalikan (mp4, laporan)."""
