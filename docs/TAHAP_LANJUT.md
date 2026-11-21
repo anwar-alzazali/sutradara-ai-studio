@@ -19,6 +19,19 @@ Kalimat untuk ditempel ke pengembang: **"Kerjakan Tahap X di docs/TAHAP_LANJUT.m
 - Buat cabang baru dari `main` dengan nama `tahap-<huruf>-<ringkas>`.
 - Buka PR ke `main`, **jangan di-merge sendiri**.
 - Satu tahap = satu PR. PR boleh besar, asalkan setiap commit rapi.
+- **Tuntaskan SEMUA poin tahap dalam satu sesi kerja.** Jangan berhenti di tengah dan jangan menyerahkan PR draft
+  atau "belum lengkap": audit hanya dilakukan sekali, untuk PR yang sudah selesai.
+  - Kalau sebuah poin benar-benar mustahil dikerjakan (misalnya butuh rahasia, kredit, atau keputusan pemilik),
+    kerjakan semua bagian lain yang bisa dikerjakan, lalu tulis poin itu sebagai "terblokir" beserta alasan dan
+    langkah yang dibutuhkan.
+  - Kehabisan waktu atau tenaga bukan alasan sah untuk "belum".
+- Sebelum menyerahkan, lakukan swa-audit:
+  - baca ulang setiap poin tahap dan aturan umum ini;
+  - periksa diff-mu sendiri seperti peninjau yang galak;
+  - jalankan semua tes;
+  - render dan lihat hasilnya;
+  - perbaiki yang kurang.
+- Status PR: siap ditinjau, bukan draft.
 
 **Batas wajib (tidak bisa ditawar)**
 - Isi `AGENTS.md` berlaku penuh, terutama:
@@ -51,7 +64,13 @@ Kalimat untuk ditempel ke pengembang: **"Kerjakan Tahap X di docs/TAHAP_LANJUT.m
   - cara memeriksanya;
   - apa yang belum atau tidak bisa diperiksa tanpa mata atau telinga manusia;
   - risiko yang tersisa.
-- Jujur: poin yang tidak selesai ditulis "belum", jangan "selesai". Klaim tanpa bukti tes atau render akan ditolak saat audit.
+- Jujur: poin yang terblokir ditulis "terblokir", jangan "selesai". Klaim tanpa bukti tes atau render akan ditolak saat audit.
+- **Ringkasan audit di awal deskripsi PR**, supaya audit cepat dan hemat:
+  - tabel satu baris per poin: nomor | status (selesai/terblokir) | berkas utama | nama tes yang membuktikan |
+    bukti render/angka;
+  - perintah persis untuk mengulang buktinya (tes, render contoh, ukur kenyaringan);
+  - hasil `python -m pytest -q` (jumlah lulus);
+  - daftar keputusan desain yang menyimpang dari teks tahap, beserta alasannya.
 
 ---
 
