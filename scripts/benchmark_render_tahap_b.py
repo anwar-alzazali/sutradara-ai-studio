@@ -43,13 +43,13 @@ def main():
             ImageChops.difference(x, y).getbbox() is None for x, y in zip(a, b)
         )
         if not identik:
-            raise SystemExit("BINGKAI_MAIN_DAN_BRANCH_BERBEDA")
+            raise SystemExit("BINGKAI_SERIAL_DAN_PARALEL_BERBEDA")
         speedup = hasil["branch_serial"] / hasil["branch_paralel"] if hasil["branch_paralel"] else 0
         print("TAHAP_B_RENDER_BENCHMARK", json.dumps({
             "baseline": "branch:sutradara/video.py (serial, 1 worker)",
             "candidate": "branch:sutradara/video.py (paralel, 2 worker)",
             "runner": "same GitHub Actions job",
-            "baseline_seconds": round(hasil["main_serial"], 2),
+            "baseline_seconds": round(hasil["branch_serial"], 2),
             "candidate_seconds": round(hasil["branch_paralel"], 2),
             "speedup": round(speedup, 3),
             "sampled_frames_pixel_identical": identik
