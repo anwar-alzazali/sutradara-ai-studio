@@ -103,3 +103,7 @@ def test_pilar_nuh_shot_terakhir_berjarak_dari_ujung_lambung():
     ujung_kiri_lambung = kapal["x"] - 460 * kapal["s"]
     tepi_pendar_pilar = pilar["x"] + 155
     assert ujung_kiri_lambung - tepi_pendar_pilar >= 20
+    kamera = shot["kamera"]
+    zoom = kamera["zoom"][-1][1]
+    pusat_layar = 540 + (pilar["x"] - kamera["x"]) * zoom
+    assert pusat_layar > 100  # label/pilar tidak terpotong tepi kiri
