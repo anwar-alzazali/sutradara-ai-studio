@@ -45,8 +45,10 @@ def test_video_pendek(tmp_path):
         for s in b["shot"]:
             s["durasi"] = 0.6
     mp4 = video.buat(r, tmp_path / "v.mp4", fps=5, kabar=lambda *_: None)
-    n = int(subprocess.check_output(["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0", "-show_entries",
-                                     "stream=nb_read_frames,width,height", "-of", "csv=p=0", str(mp4)]).decode().strip().split(",")[-1])
-    assert n == 6
+    keluaran = subprocess.check_output(["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0", "-show_entries",
+                                        "stream=nb_read_frames,width,height", "-of", "json", str(mp4)])
+    st = json.loads(keluaran)["streams"][0]
+    assert (st["width"], st["height"]) == (1080, 1920)
+    assert int(st["nb_read_frames"]) == 6
     jpg = video.lembar(mp4, tmp_path / "v.jpg", n=4, kolom=4)
     assert jpg.exists() and jpg.stat().st_size > 1000
