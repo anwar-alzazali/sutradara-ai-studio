@@ -140,16 +140,17 @@ def test_sebaran_kerikil_memiliki_gerombol_dan_area_kosong():
     from sutradara.gaya import latar
     import random
     posisi = latar._sebaran_kerikil(random.Random(31), 1250, 136)
-    # Petakan bidang dunia menjadi 8 kolom; gerombol membuat kepadatan berbeda,
-    # sementara beberapa kolom tetap jarang/kosong, bukan kisi seragam.
-    kolom = [0] * 8
-    for x, _ in posisi:
-        idx = min(7, max(0, int((x + 1080) / 3240 * 8)))
-        kolom[idx] += 1
-    assert max(kolom) >= min(kolom) * 1.6
-    assert max(kolom) - min(kolom) >= 8
+    # Petakan bidang dunia ke 8 kolom x 4 baris: gerombol harus membentuk
+    # beberapa sel padat, diselingi sel yang benar-benar kosong.
+    sel = [[0] * 8 for _ in range(4)]
+    for x, y in posisi:
+        kolom = min(7, max(0, int((x + 1080) / 3240 * 8)))
+        baris = min(3, max(0, int((y - 1250) / (1910 - 1250) * 4)))
+        sel[baris][kolom] += 1
+    datar = [n for baris in sel for n in baris]
+    assert max(datar) >= 10
+    assert sum(n == 0 for n in datar) >= 3
     assert len({round(x, 1) for x, _ in posisi}) == len(posisi)
-
 
 def test_pilar_pembuka_nuh_utuh_di_bingkai_dan_di_belakang_bahtera():
     rencana = json.loads((CONTOH / "nuh_mengejek.json").read_text(encoding="utf-8"))
