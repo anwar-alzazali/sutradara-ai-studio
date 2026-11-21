@@ -32,7 +32,7 @@ def bahtera(x: float, y: float, s: float = 1.0, *, jadi: float = 1.0, goyang: fl
          f'<radialGradient id="{uid}l"><stop offset="0" stop-color="#fff3c8"/><stop offset=".5" stop-color="#ffc45a" stop-opacity=".8"/>'
          f'<stop offset="1" stop-color="#ff9a3a" stop-opacity="0"/></radialGradient></defs>']
     if darat:
-        g.append('<ellipse cx="20" cy="14" rx="560" ry="30" fill="#000" opacity=".4"/>')
+        g.append('<ellipse cx="20" cy="14" rx="510" ry="48" fill="#08070a" opacity=".62"/>')
         for px in (-330, -150, 60, 250):
             g.append(f'<path d="M {px - 46} 14 L {px} -64 L {px + 46} 14" stroke="#3a2416" stroke-width="16" fill="none" stroke-linecap="round"/>'
                      f'<path d="M {px - 50} 10 L {px - 4} -68" stroke="#c08a50" stroke-width="4" fill="none" opacity=".5"/>')
@@ -68,6 +68,9 @@ def bahtera(x: float, y: float, s: float = 1.0, *, jadi: float = 1.0, goyang: fl
             g.append(f'<path d="M {-W} {-H} L {W - 20} {-H} L {W + 70} {-H - 46}" stroke="#2a180e" stroke-width="20" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
                      f'<path d="M {-W + 4} {-H - 8} L {W - 24} {-H - 8}" stroke="#ffd98a" stroke-width="5" fill="none" opacity="{.35 + .4 * ch:.2f}" stroke-linecap="round"/>'
                      f'<path d="M {-W - 4} {-H + 6} Q {-W + 14} -56 {-W + 180} -6" stroke="#ffd98a" stroke-width="5" fill="none" opacity="{.25 + .3 * ch:.2f}" stroke-linecap="round"/>')
+    # Kontur gelap dan garis tepi hangat menjaga bentuk lambung terbaca pada shot jauh.
+    g.append(f'<path d="{lamb}" fill="none" stroke="#160d08" stroke-width="22" stroke-linejoin="round" stroke-linecap="round"/>')
+    g.append(f'<path d="M {-W + 18} {-H + 12} Q {-W + 40} -48 {-W + 195} -10 L {W - 178} -10 Q {W - 6} -72 {W + 45} {-H - 38}" fill="none" stroke="#f0bd79" stroke-width="7" opacity=".82" stroke-linecap="round"/>')
     if rh > 0.01:  # rumah geladak tumbuh ke atas
         hh, y0 = 150 * rh, -H - 10
         g.append(f'<rect x="-250" y="{y0 - hh:.1f}" width="470" height="{hh:.1f}" fill="#6b4324"/><rect x="-250" y="{y0 - hh:.1f}" width="470" height="{hh:.1f}" fill="url(#{uid}s)"/>')
