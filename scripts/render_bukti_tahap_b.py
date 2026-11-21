@@ -42,10 +42,7 @@ def main():
             kanvas.paste(im,((290-im.width)//2,30))
             ImageDraw.Draw(kanvas).text((10,8),label,fill="black")
             gambar.append(kanvas)
-    # Bukti pasangan sebelum/sesudah: sebelum = bidang tanah polos, sesudah = tekstur bawaan.
-    # Kode foreground saat ini tetap tajam pada kedua hasil; perbandingan ini mengisolasi perubahan tanah.
-    # Peramban baru diperlukan karena konteks di atas sudah ditutup setelah lembar kontak.
-    with render.peramban() as pg:
+        # Bukti pasangan sebelum/sesudah memakai browser yang sama; render.png tidak memiliki browser sendiri.
         for nama, shot in (("nuh", nuh["beat"][0]["shot"][0]),
                            ("dabbah", dabbah["beat"][1]["shot"][0])):
             sebelum = dict(shot)
