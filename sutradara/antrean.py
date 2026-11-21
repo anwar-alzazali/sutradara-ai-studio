@@ -285,6 +285,7 @@ def teks_tinjauan(n: dict) -> list[str]:
     """Naskah untuk dibaca pemilik: per beat + status dalil + terjemah resmi (agar makna bisa dinilai)."""
     dl = {d["id"]: d for d in n.get("dalil", [])}
     out = [f"📝 {n['judul']}" + (f"\nInti: {n['inti']}" if n.get("inti") else "")]
+    sudah = set()  # terjemah dalil yang sama cukup ditampilkan sekali
     for i, b in enumerate(n["beat"], 1):
         s = f"\n{i}. {b['narasi']}"
         for r in b.get("dalil") or []:
@@ -293,8 +294,11 @@ def teks_tinjauan(n: dict) -> list[str]:
             s += f"\n   {tanda} {d.get('label', r)}" + (f" ({d['derajat']})" if d.get("derajat") else "")
             if d.get("alasan"):
                 s += f": {d['alasan']}"
+            elif r in sudah:
+                s += " (terjemah di atas)"
             elif d.get("terjemah"):
                 s += f": “{d['terjemah'][:220]}{'…' if len(d['terjemah']) > 220 else ''}”"
+            sudah.add(r)
         out.append(s)
     out.append("\nCek: apakah setiap kalimat sesuai makna dalilnya? Lalu ketuk ✅ Lanjut / ✏️ Revisi / ❌ Batal di kartu status.")
     potong, buf = [], ""
