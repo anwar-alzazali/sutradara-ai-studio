@@ -16,10 +16,10 @@ def main():
     dabbah = json.loads(Path("contoh/dabbah_dhuha.json").read_text(encoding="utf-8"))
     shots = [
         ("Nuh", nuh["beat"][0]["shot"][0], 1.0),
-        ("Dabbah", dabbah["beat"][1]["shot"][0], 1.0),
+        ("Dabbah + tanda wajah", dabbah["beat"][1]["shot"][0], 1.0),
         ("Buraq + nur", {"preset":"dhuha","belakang":[],"tanah_y":1300,
          "buraq":[{"x":540,"y":1450,"s":1.0}],
-         "nur":[{"x":540,"y":1180,"nama":"Nabi Muhammad ﷺ","tinggi":280}],"depan":False}, 0.8),
+         "nur":[{"x":540,"y":1120,"nama":"Nabi Muhammad ﷺ","tinggi":280}],"depan":False}, 0.8),
         ("Dinding Ya'juj", {"preset":"malam","belakang":[],"tanah_y":1300,
          "akhir_zaman":[{"jenis":"dinding_yajuj","x":540,"y":1400,"s":0.8,"lubang":0.7}],"depan":False}, 0.8),
         ("Danau surut", {"preset":"dhuha","belakang":[],"tanah_y":1300,
