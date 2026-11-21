@@ -77,7 +77,7 @@ def belakang(x: float, y: float, s: float = 1.0, *, t: float = 0.0, jalan: bool 
     sudut = 18 + 52 * u
     tangan_kiri = (-82 - 120 * math.sin(math.radians(sudut)), -280 - 90 * math.sin(math.radians(sudut)))
     tangan_kanan = (82 + 120 * math.sin(math.radians(sudut)), -280 - 90 * math.sin(math.radians(sudut)))
-    return (f'<g class="dajjal belakang" transform="translate({x:.1f},{y+ayun:.1f}) scale({s})>'
+    return (f'<g class="dajjal belakang" transform="translate({x:.1f},{y+ayun:.1f}) scale({s})">'
             '<ellipse cx="0" cy="4" rx="150" ry="18" fill="#000" opacity=".4"/>'
             f'<path d="M{-92-25*kibas:.1f} -300 Q0 -325 {92+25*kibas:.1f} -300 Q{175+35*kibas:.1f} -160 {180+30*kibas:.1f} 0 L-180 0 Q{-175-35*kibas:.1f} -160 {-92-25*kibas:.1f} -300Z" fill="{MANTEL}"/>'
             f'<path d="M-82 -304 Q0 -318 82 -304 Q{118+30*kibas:.1f} -160 {124+25*kibas:.1f} 0 Q0 14 {-124-25*kibas:.1f} 0 Q{-118-30*kibas:.1f} -160 -82 -304Z" fill="{JUBAH}"/>'
