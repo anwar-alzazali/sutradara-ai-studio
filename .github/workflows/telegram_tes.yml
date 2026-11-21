@@ -18,6 +18,7 @@ jobs:
           TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
           PESAN: ${{ inputs.pesan }}
+          NOMOR: ${{ github.run_number }}
         run: |
           if [ -z "$TOKEN" ] || [ -z "$CHAT" ]; then
             echo "::error::Secret TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID belum diisi di repo ini (Settings > Secrets and variables > Actions)."
@@ -42,14 +43,15 @@ jobs:
                   return json.load(urllib.request.urlopen(req, timeout=30))
               except urllib.error.HTTPError as e:
                   return {"ok": False, "kode": e.code, "keterangan": json.loads(e.read() or b"{}").get("description")}
+          vid = "uji-" + os.environ["NOMOR"]
           me = panggil("getMe")
           print("getMe:", me.get("ok"), me.get("result", {}).get("username") or me.get("keterangan"))
           if not me.get("ok"):
               raise SystemExit("Token bot ditolak Telegram: isi ulang Secret TELEGRAM_BOT_TOKEN persis seperti dari BotFather.")
           r = panggil("sendMessage", {"chat_id": os.environ["CHAT"].strip(),
-                   "text": "🎬 " + os.environ["PESAN"] + "\n(uji kiriman dari repo baru; tombol di bawah hanya contoh tampilan)",
-                   "reply_markup": {"inline_keyboard": [[{"text": "✅ Setujui", "callback_data": "uji:ok"},
-                                                         {"text": "❌ Tolak", "callback_data": "uji:no"}]]}})
+                   "text": "🎬 " + os.environ["PESAN"] + "\n(uji persetujuan: tekan tombol, keputusan tercatat di data/persetujuan/" + vid + ".json)",
+                   "reply_markup": {"inline_keyboard": [[{"text": "✅ Setujui", "callback_data": "st:" + vid},
+                                                         {"text": "❌ Tolak", "callback_data": "tl:" + vid}]]}})
           print("sendMessage:", r.get("ok"), r.get("keterangan") or "")
           if not r.get("ok"):
               raise SystemExit(1)

@@ -181,7 +181,7 @@ Fase = tahapan produk di dokumen ini. Tahap = paket kerja untuk pengembang AI (`
 | C | Penguatan dalil | 3 lanjutan |
 | D | Pisah inti/genre + sutradara otomatis | 4 |
 | E | Periksa & kritikus | 5 |
-| F | Otomatisasi penuh; bot Mesin KONTEN pindah ke repo ini (bukan bot baru) | 6 |
+| F | Otomatisasi penuh (F1 bot pindah + persetujuan: selesai, tunggu langkah pindah pemilik) | 6 |
 | G | Belajar dari hasil (pematangan) | 6b |
 | — | Genre lain | 7 (belum dibuka) |
 
@@ -252,6 +252,7 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - 21 Nov 2026 — Kunci Quran Foundation valid di produksi tetapi belum diberi scope `content` (diagnosa: 403 'access token does not have the required scopes'). Sementara verifikasi ayat otomatis memakai API publik quran.com (penyedia sama), ditandai di `sumber_teks`. Ternyata scope sudah diberikan dalam bentuk RINCI (`content.quran.read`, `content.translations.read`, …); kode kini memintanya dan jalur resmi berkunci terbukti jalan (HTTP 200). Cadangan publik tetap ada untuk gangguan.
 - 21 Nov 2026 — Kartu dalil dipindah ke atas, lebih transparan, warna ikut suasana (permintaan pemilik). Render ulang ditunda sampai uji suara.
 - 21 Nov 2026 — mesin-video & motion-studio-ai akan dihapus. Bot Mesin KONTEN dipindah ke repo ini di Tahap F (bot/token/Worker tetap); syarat hapus mesin-video: bot jalan dari repo ini + periksa.py terpindah.
+- 21 Nov 2026 — F1 dikerjakan Claude: `bot/` (Worker mesin-konten) = persetujuan + balas komentar + chat pribadi; fitur saldo/proyek/Studio ditinggal. Aktif setelah pemilik memindah sumber build Cloudflare (bot/README.md).
 - 21 Nov 2026 — Struktur inti vs paket genre (`kisah_islami` dulu) dipisah di awal Tahap D, sebelum resep sutradara dibangun, agar genre lain kelak tidak menyentuh inti. Genre lain tetap belum dibangun.
 - 21 Nov 2026 — Fase 1b didahulukan (permintaan pemilik). Tokoh lama (pose diam) diganti rangka bersendi; nama pose lama tetap berlaku.
 - 21 Nov 2026 — Tahap A efek terikat aksi: keterlihatan kamera/lapis depan, variasi ketukan, permukaan/fallback, tawa/NPC/kabut/retakan, sumber palu Nuh, ekor efek, batas 40 ketukan, tes render dan workflow manual; rekaman khusus tetap menunggu dispatch pemilik.
