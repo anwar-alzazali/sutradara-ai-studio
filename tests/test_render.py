@@ -44,8 +44,8 @@ def test_visual_kapal_nuh_memiliki_kontur_tegas_dan_batu_depan_eksplisit_tanpa_b
 def test_pendar_nur_lebih_terlokalisasi_dan_inti_pilar_tetap_terang():
     from sutradara.gaya import nur
     svg = nur.pilar(205, 1330)
-    assert 'rx="155.0" ry="190.0"' in svg
-    assert 'opacity=".42"' in svg
+    assert 'rx="72.0" ry="125.0"' in svg
+    assert 'opacity=".28"' in svg
     assert 'fill="#ffffff"' in svg
 
 
@@ -107,14 +107,14 @@ def test_pilar_nuh_shot_terakhir_berjarak_dari_ujung_lambung():
     kapal = shot["benda"][0]
     pilar = shot["nur"][0]
     ujung_kiri_lambung = kapal["x"] - 460 * kapal["s"]
-    tepi_pendar_pilar = pilar["x"] + pilar.get("pendar_rx", 155)
+    tepi_pendar_pilar = pilar["x"] + pilar.get("pendar_rx", 72)
     assert ujung_kiri_lambung - tepi_pendar_pilar >= 20
     kamera = shot["kamera"]
     zoom = kamera["zoom"][-1][1]
     pusat_layar = 540 + (pilar["x"] - kamera["x"]) * zoom
     assert pusat_layar > 100  # label/pilar tidak terpotong tepi kiri
     assert pilar["x"] == 205  # posisi pelaku tetap dekat dengan kapal
-    assert pilar["lebar"] == 72 and pilar["pendar_rx"] == 45
+    assert pilar["lebar"] == 88 and pilar["pendar_rx"] == 72
 
 
 def test_lapis_depan_tidak_muncul_bawaan_dan_hanya_aktif_jika_diminta():
