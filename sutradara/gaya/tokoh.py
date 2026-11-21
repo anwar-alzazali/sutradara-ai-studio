@@ -131,6 +131,10 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     if isinstance(sp, str) and sp not in G.SEMUA:
         raise ValueError(f"gerak/pose tak dikenal: {sp} (pilihan: {', '.join(G.SEMUA)})")
     J = G.pada(sp, t)
+    if usia == "lansia":
+        J = dict(J)
+        J["tubuh"] += 5.0
+        J["kepala"] += 2.0
     if alat is None:
         nama_gerak = [sp] if isinstance(sp, str) else [b for _, b in sp]
         alat = "beliung" if "gali" in nama_gerak else ("palu" if "palu" in nama_gerak else None)
