@@ -62,7 +62,16 @@
        "jenis": "bahtera",
        "x": 520,
        "y": 1215,
-       "jadi": 0.0
+       "jadi": [
+        [
+         0,
+         0.0
+        ],
+        [
+         4,
+         0.35
+        ]
+       ]
       }
      ],
      "nur": [
@@ -80,7 +89,33 @@
       ],
       "warna": "kuning",
       "subtitle": "jauh dari laut",
-      "sorot": "laut"
+      "sorot": "laut",
+      "judul_mulai": 0.3,
+      "subtitle_mulai": 0.0
+     },
+     "durasi": 4.0,
+     "kamera": {
+      "zoom": [
+       [
+        0,
+        1.0
+       ],
+       [
+        4,
+        1.12
+       ]
+      ],
+      "x": 540,
+      "y": [
+       [
+        0,
+        1000
+       ],
+       [
+        4,
+        1080
+       ]
+      ]
      }
     }
    ]
@@ -181,6 +216,30 @@
       "x0": 470,
       "x1": 1000,
       "y": 1262
+     },
+     "durasi": 3.5,
+     "kamera": {
+      "zoom": [
+       [
+        0,
+        1.05
+       ],
+       [
+        3.5,
+        1.15
+       ]
+      ],
+      "x": [
+       [
+        0,
+        480
+       ],
+       [
+        3.5,
+        620
+       ]
+      ],
+      "y": 1150
      }
     },
     {
@@ -197,7 +256,7 @@
        "jenis": "bahtera",
        "x": 520,
        "y": 1215,
-       "jadi": 0.45
+       "jadi": 0.5
       }
      ],
      "nur": [
@@ -261,13 +320,35 @@
        "MENGEJEK"
       ],
       "subtitle": "mereka mengejeknya",
-      "sorot": "mengejek"
+      "sorot": "mengejek",
+      "judul_mulai": 0.1
      },
      "npc_jauh": {
       "n": 11,
       "x0": 470,
       "x1": 1000,
       "y": 1262
+     },
+     "durasi": 3.0,
+     "kamera": {
+      "zoom": [
+       [
+        0,
+        1.6
+       ],
+       [
+        3,
+        1.75
+       ]
+      ],
+      "x": 780,
+      "y": 1230,
+      "hentak": [
+       [
+        0.1,
+        0.07
+       ]
+      ]
      }
     }
    ]
@@ -298,7 +379,16 @@
        "jenis": "bahtera",
        "x": 520,
        "y": 1215,
-       "jadi": 1.0
+       "jadi": [
+        [
+         0,
+         0.6
+        ],
+        [
+         3.5,
+         1.0
+        ]
+       ]
       }
      ],
      "nur": [
@@ -308,53 +398,7 @@
        "nama": "Nabi Nuh a.s."
       }
      ],
-     "tokoh": [
-      {
-       "x": 620,
-       "y": 1395,
-       "s": 0.92,
-       "pose": "tunjuk",
-       "wajah": "ejek",
-       "kepala": "imamah",
-       "peran": "kaum"
-      },
-      {
-       "x": 790,
-       "y": 1360,
-       "s": 0.82,
-       "pose": "tertawa",
-       "wajah": "tertawa",
-       "kepala": "kain",
-       "peran": "kaum"
-      },
-      {
-       "x": 930,
-       "y": 1420,
-       "s": 0.98,
-       "pose": "angkat",
-       "wajah": "ejek",
-       "kepala": "imamah",
-       "peran": "kaum"
-      },
-      {
-       "x": 720,
-       "y": 1520,
-       "s": 1.12,
-       "pose": "silang",
-       "wajah": "ejek",
-       "kepala": "kain",
-       "peran": "kaum"
-      },
-      {
-       "x": 1010,
-       "y": 1300,
-       "s": 0.7,
-       "pose": "tertawa",
-       "wajah": "tertawa",
-       "kepala": "imamah",
-       "peran": "kaum"
-      }
-     ],
+     "tokoh": [],
      "teks": {
       "sumber": "QS HUD 38",
       "judul": [
@@ -363,13 +407,47 @@
       ],
       "warna": "kuning",
       "subtitle": "kami pun akan mengejek kalian",
-      "sorot": "kalian"
+      "sorot": "kalian",
+      "judul_mulai": 0.8
      },
      "npc_jauh": {
       "n": 11,
       "x0": 470,
       "x1": 1000,
       "y": 1262
+     },
+     "durasi": 5.0,
+     "kamera": {
+      "zoom": [
+       [
+        0,
+        1.35
+       ],
+       [
+        5,
+        1.12
+       ]
+      ],
+      "x": [
+       [
+        0,
+        360
+       ],
+       [
+        5,
+        600
+       ]
+      ],
+      "y": [
+       [
+        0,
+        1120
+       ],
+       [
+        5,
+        1060
+       ]
+      ]
      }
     }
    ]

@@ -1,83 +1,124 @@
-"""Menyusun SATU shot (gambar diam 1080x1920) dari spesifikasi JSON.
+"""Menyusun SATU bingkai dari satu shot pada detik tertentu.
 
 Urutan lapis selalu sama (resep B4): langit -> lapis belakang -> tanah -> benda -> NPC jauh -> kabut jauh
--> makhluk/pilar cahaya/tokoh (diurutkan menurut y: yang lebih bawah = lebih dekat, digambar belakangan) -> lapis depan -> teks.
+-> makhluk/pilar cahaya/Dajjal/tokoh (diurutkan menurut y kaki: yang lebih bawah = lebih dekat, digambar belakangan)
+-> lapis depan. Semua itu = DUNIA, digerakkan kamera. Teks layar digambar di atasnya dan TIDAK ikut kamera.
 
-Spesifikasi shot (semua kunci opsional kecuali `preset`), contoh lengkap di contoh/*.json:
+Angka mana pun boleh keyframe `[[detik, nilai], ...]` (lihat `waktu.py`). Kamera: lihat `kamera.py`.
+
+Spesifikasi shot (contoh lengkap di contoh/*.json):
 {
-  "preset": "senja", "matahari": [860, 1060], "belakang": ["gunung"] | ["kota"],
-  "benda": [{"jenis": "bahtera", "x": 520, "y": 1215, "jadi": 0.4}, {"jenis": "lapak", ...}, {"jenis": "sungai", "isi": "air", "sisi": "kiri"}],
+  "preset": "senja", "durasi": 4.0, "matahari": [860, 1060], "belakang": ["gunung"] | ["kota"] | [],
+  "kamera": {"zoom": [[0, 1.0], [4, 1.12]], "x": 540, "y": 1000, "guncang": [[2.0, 30]], "hentak": [[0.1, 0.06]]},
+  "benda": [{"jenis": "bahtera", "x": 520, "y": 1215, "jadi": [[0, 0.0], [4, 0.3]]}, {"jenis": "lapak", ...},
+            {"jenis": "sungai", "isi": "air" | "api", "sisi": "kiri" | "kanan"}, {"jenis": "bukit"}],
   "npc_jauh": {"n": 11, "x0": 470, "x1": 1000, "y": 1262},
   "nur": [{"x": 270, "y": 1330, "nama": "Nabi Nuh a.s."}],
   "tokoh": [{"x": 620, "y": 1395, "s": 0.92, "pose": "tunjuk", "wajah": "ejek", "kepala": "imamah", "mode": "pakaian"}],
-  "kabut_tanpa_wujud": [{"x": 540, "y": 1330, "retakan": true}],
+  "kabut_tanpa_wujud": [{"x": 540, "y": 1330, "keluar": [[0, 0.1], [2, 1.0]], "retakan": true}],
   "dajjal": [{"x": 540, "y": 1240, "s": 1.2, "lengan": "terbuka"}],
   "depan": true,
-  "teks": {"sumber": "QS HUD 38", "judul": ["MEREKA", "MENGEJEK"], "warna": "putih", "subtitle": "setiap kali lewat", "sorot": "lewat"}
+  "teks": {"sumber": "QS HUD 38", "judul": ["MEREKA", "MENGEJEK"], "warna": "putih", "judul_mulai": 0.4,
+           "subtitle": "setiap kali lewat", "sorot": "lewat", "subtitle_mulai": 0.0}
 }
 """
 from __future__ import annotations
 
+import math
 import random
 
+from . import kamera as KM
 from .gaya import benda as BD, dajjal as DJ, dasar, latar as LT, makhluk as MK, nur as NR, teks as TX, tokoh as TK
+from .waktu import pada
+
+DURASI_BAWAAN = 3.0
 
 
-def _npc_jauh(spec: dict) -> list[str]:
+def _npc_jauh(spec: dict, tg: float) -> list[str]:
     rnd = random.Random(spec.get("seed", 11))
     n, x0, x1, y = spec.get("n", 10), spec.get("x0", 80), spec.get("x1", 1000), spec.get("y", 1262)
     out = []
     for k in range(n):
         x = x0 + (x1 - x0) * (k / max(n - 1, 1)) + rnd.uniform(-14, 14)
-        out.append((y + rnd.uniform(-6, 10), TK.orang(x, y + rnd.uniform(-6, 10), rnd.uniform(.34, .42),
-                                                       pose=rnd.choice(["silang", "tertawa", "tunjuk", "angkat", "berdiri"]),
-                                                       indeks=k + 3, kepala=rnd.choice(["imamah", "kain"]), rinci=False)))
+        yy = y + rnd.uniform(-6, 10)
+        s, pose, kp = rnd.uniform(.34, .42), rnd.choice(["silang", "tertawa", "tunjuk", "angkat", "berdiri"]), rnd.choice(["imamah", "kain"])
+        out.append((yy, TK.orang(x, yy + _goyang(pose, k, tg) * .4, s, pose=pose, indeks=k + 3, kepala=kp, rinci=False)))
     return [s for _, s in sorted(out)]
 
 
-def susun(shot: dict) -> str:
-    """Kembalikan SVG utuh untuk satu shot."""
-    p = shot["preset"]
-    lap = [LT.langit(p, matahari=tuple(shot["matahari"]) if shot.get("matahari") else None)]
-    for b in shot.get("belakang", ["gunung"]):
-        lap.append({"gunung": LT.gunung, "kota": LT.kota}[b](p))
-    lap.append(LT.tanah(p, shot.get("tanah_y", 1250)))
-    for b in shot.get("benda", []):
+def _goyang(pose: str, i: int, tg: float) -> float:
+    """Gerak idle tokoh (px): tertawa terguncang cepat, lainnya bernapas pelan."""
+    if pose == "tertawa":
+        return 4 * abs(math.sin(tg * 7 + i))
+    if pose in ("kaget", "mundur", "tutup"):
+        return 2 * math.sin(tg * 5 + i)
+    return 1.5 * math.sin(tg * 1.8 + i * 0.9)
+
+
+def _muncul(svg: str, mulai: float, t: float, cy: float) -> str:
+    """Teks muncul tepat di `mulai` dengan pop singkat (0,15 dtk)."""
+    if t < mulai:
+        return ""
+    u = min(1.0, (t - mulai) / 0.15)
+    s = 0.85 + 0.15 * (1 - (1 - u) ** 3)
+    return f'<g opacity="{u:.3f}" transform="translate(540,{cy}) scale({s:.4f}) translate(-540,{-cy})">{svg}</g>'
+
+
+def susun(shot: dict, t: float = 0.0, tg: float | None = None) -> str:
+    """SVG utuh untuk shot pada detik lokal `t`. `tg` = waktu global video (untuk gerak hidup yang menyambung antar shot)."""
+    tg = t if tg is None else tg
+    sp = pada(shot, t)
+    p = sp["preset"]
+    dunia = [LT.langit(p, matahari=tuple(sp["matahari"]) if sp.get("matahari") else None)]
+    for b in sp.get("belakang", ["gunung"]):
+        dunia.append({"gunung": LT.gunung, "kota": LT.kota}[b](p))
+    dunia.append(LT.tanah(p, sp.get("tanah_y", 1250)))
+    for b in sp.get("benda", []):
         j = b["jenis"]
         if j == "bahtera":
-            lap.append(BD.bahtera(b["x"], b["y"], b.get("s", 1), jadi=b.get("jadi", .6)))
+            dunia.append(BD.bahtera(b["x"], b["y"], b.get("s", 1), jadi=b.get("jadi", .6)))
         elif j == "lapak":
-            lap.append(BD.lapak(b["x"], b["y"], b.get("warna", "#b8452e")))
+            dunia.append(BD.lapak(b["x"], b["y"], b.get("warna", "#b8452e")))
         elif j == "sungai":
-            lap.append(BD.sungai(b["isi"], sisi=b["sisi"]))
+            dunia.append(BD.sungai(b["isi"], sisi=b["sisi"], t=tg))
         elif j == "bukit":
-            lap.append(f'<path d="M300 1260 Q 540 1060 780 1260Z" fill="{b.get("warna", "#160e18")}"/>')
+            dunia.append(f'<path d="M300 1260 Q 540 1060 780 1260Z" fill="{b.get("warna", "#160e18")}"/>')
         else:
             raise ValueError(f"benda tak dikenal: {j}")
-    if shot.get("npc_jauh"):
-        lap += _npc_jauh(shot["npc_jauh"])
-        lap.append(LT.kabut_jauh(p))
-    # lapis tengah-depan diurutkan menurut y kaki
+    if sp.get("npc_jauh"):
+        dunia += _npc_jauh(sp["npc_jauh"], tg)
+        dunia.append(LT.kabut_jauh(p))
     tengah: list[tuple[float, str]] = []
-    for m in shot.get("kabut_tanpa_wujud", []):
-        s = (MK.retakan(m["x"], m["y"]) if m.get("retakan", True) else "") + MK.kabut_tanpa_wujud(m["x"], m["y"], tinggi=m.get("tinggi", 820))
+    for m in sp.get("kabut_tanpa_wujud", []):
+        s = (MK.retakan(m["x"], m["y"]) if m.get("retakan", True) else "") + MK.kabut_tanpa_wujud(
+            m["x"], m["y"], tinggi=m.get("tinggi", 820), keluar=m.get("keluar", 1.0), t=tg)
         tengah.append((m["y"] - 1, s))
-    for n in shot.get("nur", []):
-        tengah.append((n["y"], NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"), tinggi=n.get("tinggi", 400))))
-    for d in shot.get("dajjal", []):
+    for n in sp.get("nur", []):
+        tengah.append((n["y"], NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
+                                        tinggi=n.get("tinggi", 400), t=tg)))
+    for d in sp.get("dajjal", []):
         tengah.append((d["y"], DJ.sosok(d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"))))
-    for i, t in enumerate(shot.get("tokoh", [])):
-        tengah.append((t["y"], TK.orang(t["x"], t["y"], t.get("s", 1), pose=t.get("pose", "berdiri"), indeks=t.get("indeks", i),
-                                        mode=t.get("mode", "pakaian"), kepala=t.get("kepala", "imamah"),
-                                        wajah=t.get("wajah", "datar"), balik=t.get("balik", False))))
-    lap += [s for _, s in sorted(tengah, key=lambda a: a[0])]
-    if shot.get("depan", True):
-        lap.append(LT.batu_depan(shot.get("warna_depan", "#120c16")))
-    tx = shot.get("teks") or {}
+    for i, tk in enumerate(sp.get("tokoh", [])):
+        pose = tk.get("pose", "berdiri")
+        tengah.append((tk["y"], TK.orang(tk["x"], tk["y"] - _goyang(pose, i, tg), tk.get("s", 1), pose=pose,
+                                         indeks=tk.get("indeks", i), mode=tk.get("mode", "pakaian"), kepala=tk.get("kepala", "imamah"),
+                                         wajah=tk.get("wajah", "datar"), balik=tk.get("balik", False))))
+    dunia += [s for _, s in sorted(tengah, key=lambda a: a[0])]
+    lapis = [f'<g transform="{KM.transform(sp.get("kamera"), t)}">' + "\n".join(dunia) + "</g>"]
+    if sp.get("depan", True):
+        # lapis depan tidak ikut zoom kamera (kalau ikut, batu membesar jadi bercak hitam); hanya bergeser
+        # lebih jauh dari dunia saat kamera menyamping -> rasa kedalaman (parallax)
+        kx = float((sp.get("kamera") or {}).get("x", 540))
+        lapis.append(f'<g transform="translate({-(kx - 540) * 0.35:.1f},0)">{LT.batu_depan(sp.get("warna_depan", "#120c16"))}</g>')
+    tx = sp.get("teks") or {}
     if tx.get("sumber"):
-        lap.append(TX.sumber(tx["sumber"]))
-    if tx.get("judul"):
-        lap.append(TX.judul(tx["judul"], warna=tx.get("warna", "putih")))
+        lapis.append(TX.sumber(tx["sumber"]))
+    if tx.get("judul") and t < tx.get("judul_sampai", 1e9):
+        lapis.append(_muncul(TX.judul(tx["judul"], warna=tx.get("warna", "putih")), tx.get("judul_mulai", 0.0), t, 380))
     if tx.get("subtitle"):
-        lap.append(TX.subtitle(tx["subtitle"], sorot=tx.get("sorot")))
-    return dasar.dokumen("\n".join(lap))
+        lapis.append(_muncul(TX.subtitle(tx["subtitle"], sorot=tx.get("sorot")), tx.get("subtitle_mulai", 0.0), t, 1700))
+    return dasar.dokumen("\n".join(lapis))
+
+
+def durasi(shot: dict) -> float:
+    return float(shot.get("durasi", DURASI_BAWAAN))

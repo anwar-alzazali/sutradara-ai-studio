@@ -24,10 +24,10 @@ Ukuran keberhasilan proyek: **video yang disetujui pemilik**, bukan jumlah kode,
         │
         ├──► suara: narasi + efek ElevenLabs, waktu per kata                         [fase 2]
         ▼
- adegan bergerak: shot (SVG) + kamera + gerak dalam shot, sinkron waktu kata         [fase 1]
+ adegan bergerak: shot (SVG) + kamera + gerak dalam shot, sinkron waktu kata         [fase 1 ✔, sinkron kata fase 2]
         │
         ▼
- render: Chromium → frame → ffmpeg → MP4                                             [fase 0 PNG ✔, fase 1 MP4]
+ render: Chromium → frame → ffmpeg → MP4                                             [fase 0 PNG ✔, fase 1 MP4 ✔]
         │
         ▼
  periksa teknis + KRITIKUS (lembar kontak) → perbaiki & render ulang (maks 2×)        [fase 5]
@@ -44,6 +44,7 @@ Lapisan yang sudah ada di repo:
 | `sutradara/adegan.py` | menyusun satu shot (JSON → SVG 1080×1920) dengan urutan lapis tetap |
 | `sutradara/rencana/` | skema rencana sutradara + penjaga keselamatan/resep |
 | `sutradara/render.py` | SVG → PNG lewat Chromium headless |
+| `sutradara/waktu.py`, `kamera.py`, `video.py` | keyframe, kamera, render MP4 + lembar kontak |
 | `contoh/` | tiga rencana contoh: Nuh diejek, Dabbatul Ard, Dajjal dua sungai |
 
 ---
@@ -57,18 +58,17 @@ Status: ✔ selesai · ▶ aktif · ○ belum. **Kriteria selesai selalu berupa 
 - Pustaka gaya v0 sesuai keputusan pemilik; skema rencana + penjaga (11 tes aturan); render PNG.
 - **Bukti:** `python -m sutradara gambar contoh/*.json` menghasilkan 8 shot; CI hijau.
 
-### ▶ Fase 1 — Adegan bergerak (MP4 tanpa suara)
-Tujuan: satu rencana → MP4 yang hidup, belum bersuara.
-1. Model waktu per shot: `mulai`, `durasi`, dan nilai beranimasi `[[detik, nilai], …]` untuk kamera (zoom/x/y),
-   parameter keadaan visual inti (`jadi`, `lubang`, …), posisi tokoh, opasitas.
-2. Kosakata kamera resep B3: dorong pelan, dekat, sangat dekat, tarik mundur, menjauh, `guncang`, `hentak`.
-3. Gerak hidup resep B5: butiran nur melayang, kabut bergulung, api menjilat, hujan, kerumunan berjalan.
-4. Render frame (Chromium, 30 fps) → ffmpeg H.264 `-preset veryfast`. Render paralel per shot di Actions bila lambat.
-- **Kriteria selesai:** `contoh/nuh_mengejek.json` → MP4 ±15 dtk; kamera bergerak di setiap shot, kapal berubah dari
-  rangka ke jadi, butiran cahaya bergerak. Lembar kontak + MP4 dilampirkan di PR, disetujui pemilik.
-- Rujukan: animasi `[[t, v]]` dan kamera `K(...)` di `mesin-video/papan/cerita.js` (konsep, bukan disalin utuh).
+### ✔ Fase 1 — Adegan bergerak, MP4 tanpa suara (21 Nov 2026)
+- Angka mana pun di shot bisa keyframe `[[detik, nilai], …]` dengan kurva halus (`sutradara/waktu.py`).
+- Kamera (`sutradara/kamera.py`): zoom/x/y beranimasi, `hentak` (kata kontras), `guncang` (dampak), pola bernama. Teks tidak ikut kamera.
+- Gerak hidup (resep B5) memakai waktu global: butiran nur melayang & sinar berdenyut, kabut bergulung + `keluar` 0..1,
+  api menjilat & air berkilau, tokoh bernapas/terguncang tertawa. Lapis depan tidak ikut zoom, bergeser parallax.
+- Teks judul/subtitle muncul di detik tertentu dengan pop singkat.
+- `python -m sutradara video rencana.json -o x.mp4 --lembar` → Chromium → ffmpeg H.264 veryfast + lembar kontak.
+- **Bukti:** `contoh/nuh_mengejek.json` → MP4 15,5 dtk, 4 shot, kapal bertambah papan dari rangka sampai jadi.
+- Catatan kecepatan: ±10 dtk render per 1 dtk video (30 fps, 1 peramban). Paralel per shot dikerjakan bila mengganggu (fase 6).
 
-### ○ Fase 2 — Suara dan waktu kata
+### ▶ Fase 2 — Suara dan waktu kata
 1. Narasi ElevenLabs satu permintaan per video, ambil waktu per kata (salin dari `mesin-video/narasi_api.py`, `papan/kisah/dlib.py`).
 2. Shot dipotong di kata kunci (`potong_di`), teks layar muncul tepat saat kata diucapkan (resep B1, C).
 3. Subtitle per frasa/tanda baca (maks ±4 kata, satu baris).
@@ -129,3 +129,4 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
   Dabbah = kabut tanah gelap, Dajjal = desain B (ciri hadis tampil), Ya'juj Ma'juj = manusia.
 - 21 Nov 2026 — Sutradara berbasis resep + aturan; model AI hanya opsional (biaya). Naskah boleh dibuat pengguna dengan AI gratis.
 - 21 Nov 2026 — Repo public: runner Actions gratis; workflow berahasia hanya `workflow_dispatch`.
+- 21 Nov 2026 — Fase 1: lapis depan dikeluarkan dari kamera (kalau ikut zoom, batu jadi bercak hitam besar).
