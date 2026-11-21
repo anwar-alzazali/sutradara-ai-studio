@@ -1,0 +1,82 @@
+{
+ "judul": "Ya'juj dan Ma'juj: Dinding Terbuka",
+ "catatan": "Contoh visual Tahap B. Dalil QS Al-Anbiya 96 dan Jami at-Tirmidhi 2240 dicatat sebagai BELUM diverifikasi oleh modul repo; jangan render final atau tayangkan sebelum workflow verifikasi dalil dijalankan.",
+ "visual_inti": {
+  "benda": "dinding_yajuj",
+  "jalur_keadaan": ["digali", "hampir_jebol", "terbuka"]
+ },
+ "peran": [
+  {"id":"yajuj","nama":"Ya'juj dan Ma'juj","kategori":"yajuj_majuj","tampil":"pakaian"},
+  {"id":"manusia","nama":"Manusia di sekitar danau","kategori":"manusia","tampil":"pakaian"}
+ ],
+ "hook": {"dari_beat":0,"teks":["DINDING","AKHIRNYA TERBUKA"]},
+ "dalil": [
+  {
+   "id":"anbiya96","jenis":"quran","label":"QS AL-ANBIYA 96","status":"belum",
+   "rujukan":"https://quran.com/21/96","surah":21,"ayat":"96"
+  },
+  {
+   "id":"tirmidhi2240","jenis":"hadis","label":"HR. TIRMIDZI 2240","status":"belum",
+   "rujukan":"https://sunnah.com/tirmidhi:2240","kitab":"tirmidhi","nomor":"2240"
+  }
+ ],
+ "beat": [
+  {
+   "narasi":"Mereka terus menggali dinding itu, sedikit demi sedikit, sampai lubangnya semakin lebar.",
+   "preset":"malam","keadaan":"digali","dalil":["anbiya96"],"peran_tampil":["yajuj"],
+   "shot":[
+    {
+     "preset":"malam","belakang":["gunung"],"tanah_y":1320,
+     "akhir_zaman":[{"jenis":"dinding_yajuj","x":540,"y":1460,"s":0.9,"lubang":[[0,0.18],[4,0.48]]}],
+     "tokoh":[
+      {"x":250,"y":1510,"s":0.76,"gerak":"gali","kepala":"kain","peran":"yajuj"},
+      {"x":430,"y":1540,"s":0.82,"gerak":"gali","kepala":"imamah","peran":"yajuj"},
+      {"x":650,"y":1510,"s":0.78,"gerak":"gali","kepala":"kopiah","peran":"yajuj"},
+      {"x":820,"y":1540,"s":0.84,"gerak":"gali","kepala":"kain","peran":"yajuj"}
+     ],
+     "teks":{"sumber":"QS AL-ANBIYA 96","judul":["MEREKA","MENGGALI"],"warna":"putih","subtitle":"lubang semakin lebar","sorot":"lebar"},
+     "durasi":4
+    }
+   ]
+  },
+  {
+   "narasi":"Ketika penghalang terbuka, mereka turun dengan cepat dari tempat-tempat yang tinggi.",
+   "preset":"senja","keadaan":"terbuka","dalil":["anbiya96"],"peran_tampil":["yajuj"],
+   "shot":[
+    {
+     "preset":"senja","belakang":["gunung"],"tanah_y":1320,
+     "akhir_zaman":[{"jenis":"dinding_yajuj","x":540,"y":1480,"s":0.72,"lubang":1}],
+     "tokoh":[
+      {"x":90,"y":1510,"s":0.58,"gerak":"lari","kepala":"kain","peran":"yajuj"},
+      {"x":230,"y":1570,"s":0.66,"gerak":"lari","kepala":"imamah","peran":"yajuj"},
+      {"x":370,"y":1480,"s":0.6,"gerak":"lari","kepala":"kopiah","peran":"yajuj"},
+      {"x":520,"y":1610,"s":0.72,"gerak":"lari","kepala":"kain","peran":"yajuj"},
+      {"x":680,"y":1530,"s":0.64,"gerak":"lari","kepala":"imamah","peran":"yajuj"},
+      {"x":830,"y":1600,"s":0.7,"gerak":"lari","kepala":"kain","peran":"yajuj"},
+      {"x":980,"y":1490,"s":0.6,"gerak":"lari","kepala":"kopiah","peran":"yajuj"}
+     ],
+     "teks":{"sumber":"QS AL-ANBIYA 96","judul":["DARI SEGALA","TEMPAT TINGGI"],"warna":"kuning","subtitle":"mereka turun dengan cepat","sorot":"cepat"},
+     "durasi":4
+    }
+   ]
+  },
+  {
+   "narasi":"Mereka melewati Danau Tiberias. Riwayat menyebut rombongan pertama meminum airnya hingga habis.",
+   "preset":"dhuha","keadaan":"terbuka","dalil":["tirmidhi2240"],"peran_tampil":["yajuj","manusia"],
+   "shot":[
+    {
+     "preset":"dhuha","belakang":["gunung"],"tanah_y":1320,
+     "akhir_zaman":[{"jenis":"danau_surut","x":540,"y":1500,"s":1.0,"surut":[[0,0.08],[4,1.0]]}],
+     "tokoh":[
+      {"x":230,"y":1500,"s":0.68,"gerak":"jalan","kepala":"kain","peran":"yajuj"},
+      {"x":400,"y":1550,"s":0.72,"gerak":"jalan","kepala":"imamah","peran":"yajuj"},
+      {"x":650,"y":1510,"s":0.7,"gerak":"jalan","kepala":"kopiah","peran":"yajuj"},
+      {"x":830,"y":1560,"s":0.74,"gerak":"jalan","kepala":"kain","peran":"yajuj"}
+     ],
+     "teks":{"sumber":"HR. TIRMIDZI 2240","judul":["DANAU","MENGERING"],"warna":"putih","subtitle":"air danau diminum hingga habis","sorot":"habis"},
+     "durasi":4
+    }
+   ]
+  }
+ ]
+}
