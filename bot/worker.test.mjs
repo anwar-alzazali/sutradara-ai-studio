@@ -39,3 +39,21 @@ test("keputusan bisa diubah dan keputusan lama tersimpan di riwayat", () => {
   assert.equal(c.riwayat[1].alasan, ALASAN.hook);
   assert.equal(a.riwayat, undefined);
 });
+
+import { readFileSync } from "node:fs";
+import { kartuStatus, tombolKartu, idAntrean, statusBaru } from "./worker.js";
+
+test("kartu status bot identik dengan versi Python (fixture bersama)", () => {
+  const f = JSON.parse(readFileSync(new URL("../tests/data/kartu_status.json", import.meta.url)));
+  assert.equal(kartuStatus(f.status), f.teks);
+  assert.ok(tombolKartu(f.status).flat().some((b) => b.callback_data === `nl:${f.status.id}`));
+});
+
+test("id antrean aman, pendek, dan tombolnya terbaca", () => {
+  const id = idAntrean("Nabi Hud dan Kaum 'Ad — azab angin", new Date("2026-11-21T09:05:00Z"));
+  assert.equal(id, "261121-1605-nabi-hud-dan-kaum");
+  for (const a of ["nl", "nr", "nb"]) assert.deepEqual(bacaTombol(`${a}:${id}`), { aksi: a, id, alasan: null });
+  const st = statusBaru(id, "x", "ide", 1);
+  assert.equal(st.tahap.diterima, "jalan");
+  assert.ok(tombolKartu(st).flat().every((b) => b.callback_data === "menu"));
+});

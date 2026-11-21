@@ -1,0 +1,24 @@
+{
+ "status": {
+  "id": "2611-nabi-hud",
+  "judul": "Nabi Hud dan Kaum 'Ad",
+  "sumber": "ide",
+  "tahap": {
+   "diterima": "selesai",
+   "dalil": "gagal",
+   "tinjau": "jalan",
+   "narasi": "belum",
+   "sutradara": "belum",
+   "render": "belum",
+   "periksa": "belum",
+   "kirim": "belum"
+  },
+  "ket": {
+   "diterima": "7 beat, 3 dalil",
+   "dalil": "2/3 lolos"
+  },
+  "dibuat": "2026-11-21T09:07:30+00:00",
+  "diperbarui": "2026-11-21T09:07:30+00:00"
+ },
+ "teks": "🎬 Nabi Hud dan Kaum 'Ad\n✅ Naskah diterima — 7 beat, 3 dalil\n❌ Dalil diverifikasi — 2/3 lolos\n⏳ Disetujui pemilik\n▫️ Narasi\n▫️ Sutradara\n▫️ Render\n▫️ Pemeriksaan\n▫️ Dikirim untuk persetujuan"
+}
