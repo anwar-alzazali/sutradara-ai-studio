@@ -36,7 +36,9 @@ def _huruf(s: str) -> str:
 
 def _tanda(d: dict) -> None:
     d["diverifikasi_oleh"] = f"{PENANDA} {_dt.date.today().isoformat()}"
-    d["makna"] = "perlu_tinjauan_pemilik"
+    # Persetujuan makna oleh pemilik tidak dihapus oleh verifikasi ulang.
+    if not str(d.get("makna", "")).startswith("disetujui_pemilik"):
+        d["makna"] = "perlu_tinjauan_pemilik"
 
 
 def verifikasi_quran(d: dict, quran) -> str:
