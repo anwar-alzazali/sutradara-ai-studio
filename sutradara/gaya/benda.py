@@ -35,7 +35,7 @@ def lapak(x: float, y: float, warna: str = "#b8452e") -> str:
             f'<path d="M{x - 20} {y} h240" stroke="#f0e0c0" stroke-width="8" stroke-dasharray="24 16"/>{buah}')
 
 
-def sungai(jenis: str, *, sisi: str, seed: int = 33) -> str:
+def sungai(jenis: str, *, sisi: str, seed: int = 33, t: float = 0.0) -> str:
     """Sungai dari kaki bukit tengah ke depan. jenis: 'air' | 'api'; sisi: 'kiri' | 'kanan'."""
     rnd = random.Random(seed)
     kiri = ("M470 1250 Q 380 1400 220 1520 Q 120 1600 -20 1640 L -20 1820 Q 160 1760 300 1640 Q 430 1520 520 1260Z")
@@ -44,13 +44,14 @@ def sungai(jenis: str, *, sisi: str, seed: int = 33) -> str:
     if jenis == "air":
         return (f'<defs><linearGradient id="sair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe8ff"/><stop offset="1" stop-color="#4aa0d0"/></linearGradient></defs>'
                 f'<path d="{d}" fill="url(#sair)" opacity=".95"/>'
-                f'<ellipse cx="{200 if sisi == "kiri" else 880}" cy="1560" rx="260" ry="120" fill="#bfe8ff" opacity=".25" filter="url(#b60)"/>')
+                f'<ellipse cx="{200 if sisi == "kiri" else 880}" cy="1560" rx="260" ry="120" fill="#bfe8ff" opacity="{.22 + .08 * math.sin(t * 2):.3f}" filter="url(#b60)"/>'
+                + "".join(f'<path d="M{(60 + k * 70 + t * 40) % 500 + (0 if sisi == "kiri" else 560):.0f} {1540 + k * 18} q 20 -6 40 0" stroke="#e8f8ff" stroke-width="3" fill="none" opacity=".5"/>' for k in range(6)))
     s = ['<defs><linearGradient id="sapi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset=".5" stop-color="#ff7a2a"/>'
          '<stop offset="1" stop-color="#b8301a"/></linearGradient></defs>', f'<path d="{d}" fill="url(#sapi)"/>']
     for k in range(26):
-        t = k / 25
-        x = (600 + t * 480) if sisi == "kanan" else (480 - t * 480)
-        x += rnd.uniform(-20, 20); y = 1270 + t * 420 + rnd.uniform(-10, 30); h = rnd.uniform(50, 120)
+        t_ = k / 25
+        x = (600 + t_ * 480) if sisi == "kanan" else (480 - t_ * 480)
+        x += rnd.uniform(-20, 20); y = 1270 + t_ * 420 + rnd.uniform(-10, 30); h = rnd.uniform(50, 120) * (0.75 + 0.3 * math.sin(t * 9 + k * 1.9))
         s.append(f'<path d="M{x - 18:.0f} {y:.0f} Q {x - 6:.0f} {y - h * .6:.0f} {x:.0f} {y - h:.0f} Q {x + 8:.0f} {y - h * .5:.0f} {x + 18:.0f} {y:.0f}Z" fill="#ffb24a" opacity=".85"/>')
     s.append(f'<ellipse cx="{880 if sisi == "kanan" else 200}" cy="1560" rx="300" ry="160" fill="#ff7a2a" opacity=".3" filter="url(#b60)"/>')
     return "\n".join(s)

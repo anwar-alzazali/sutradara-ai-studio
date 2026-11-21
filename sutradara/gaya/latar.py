@@ -27,7 +27,7 @@ def langit(preset: str, *, matahari: tuple[float, float] | None = None, bintang:
          f'<linearGradient id="t_{preset}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{tn[0]}"/><stop offset="1" stop-color="{tn[1]}"/></linearGradient>'
          '<radialGradient id="surya"><stop offset="0" stop-color="#ffe2b0" stop-opacity=".95"/><stop offset=".25" stop-color="#ffb27a" stop-opacity=".6"/>'
          '<stop offset="1" stop-color="#ff8a6a" stop-opacity="0"/></radialGradient></defs>',
-         f'<rect width="1080" height="1920" fill="url(#l_{preset})"/>']
+         f'<rect x="-1080" y="-1920" width="3240" height="5760" fill="url(#l_{preset})"/>']
     if matahari:
         s.append(f'<circle cx="{matahari[0]}" cy="{matahari[1]}" r="420" fill="url(#surya)"/>')
     if preset != "dhuha":
@@ -39,8 +39,8 @@ def langit(preset: str, *, matahari: tuple[float, float] | None = None, bintang:
 
 def gunung(preset: str) -> str:
     _, gj, gd, _, _ = PRESET[preset]
-    return (f'<path d="M-40 1180 L180 900 L330 1040 L520 820 L760 1060 L900 960 L1120 1140 L1120 1260 L-40 1260Z" fill="{gj}" opacity=".85"/>'
-            f'<path d="M-40 1220 L120 1080 L300 1170 L470 1050 L640 1160 L860 1070 L1120 1200 L1120 1300 L-40 1300Z" fill="{gd}"/>')
+    return (f'<path d="M-700 1260 L-400 1000 L-40 1180 L180 900 L330 1040 L520 820 L760 1060 L900 960 L1120 1140 L1400 980 L1780 1260Z" fill="{gj}" opacity=".85"/>'
+            f'<path d="M-700 1300 L-380 1120 L-40 1220 L120 1080 L300 1170 L470 1050 L640 1160 L860 1070 L1120 1200 L1420 1090 L1780 1300Z" fill="{gd}"/>')
 
 
 def kota(preset: str, seed: int = 21) -> str:
@@ -56,11 +56,11 @@ def kota(preset: str, seed: int = 21) -> str:
 
 
 def tanah(preset: str, y: float = 1250) -> str:
-    return f'<rect y="{y}" width="1080" height="{1920 - y}" fill="url(#t_{preset})"/>'
+    return f'<rect x="-1080" y="{y}" width="3240" height="{3840 - y}" fill="url(#t_{preset})"/>'
 
 
 def kabut_jauh(preset: str, y0: float = 1100, y1: float = 1290, kuat: float = .38) -> str:
-    return f'<rect x="0" y="{y0}" width="1080" height="{y1 - y0}" fill="{PRESET[preset][4]}" opacity="{kuat}"/>'
+    return f'<rect x="-1080" y="{y0}" width="3240" height="{y1 - y0}" fill="{PRESET[preset][4]}" opacity="{kuat}"/>'
 
 
 def batu_depan(warna: str = "#120c16") -> str:

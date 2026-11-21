@@ -19,7 +19,8 @@ def test_susun_svg_semua_shot_contoh():
 
 def test_render_png_berukuran_9x16_dan_tidak_kosong(tmp_path):
     r = json.loads((CONTOH / "nuh_mengejek.json").read_text(encoding="utf-8"))
-    out = render.png(adegan.susun(r["beat"][1]["shot"][1]), tmp_path / "x.png")
+    shot = dict(r["beat"][1]["shot"][1]); shot.pop("kamera", None)  # tanpa kamera: koordinat dunia = layar
+    out = render.png(adegan.susun(shot), tmp_path / "x.png")
     im = Image.open(out).convert("RGB")
     assert im.size == (1080, 1920)
     # pilar cahaya harus benar-benar terang (nur tidak hilang), dan gambar tidak polos
