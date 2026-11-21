@@ -25,6 +25,7 @@ import json
 import os
 import re
 import sys
+import time
 import unicodedata
 import urllib.error
 import urllib.request
@@ -94,7 +95,12 @@ def normalisasi(n: dict) -> dict:
         if "kitab" in d:
             d["kitab"] = re.sub(r"[^a-z]", "", str(d["kitab"]).lower()).replace("sahih", "").replace("sunan", "")
         d.setdefault("label", d.get("id", "dalil"))
-    for b in n.get("beat") or []:
+    ada = {d.get("id") for d in n.get("dalil") or []}
+    for i, b in enumerate(n.get("beat") or [], 1):
+        hilang = [r for r in b.get("dalil") or [] if r not in ada]
+        if hilang:  # rujukan tanpa entri dalil: dibuang, pemilik diberi tahu (bukan gagal total)
+            b["dalil"] = [r for r in b["dalil"] if r in ada]
+            n.setdefault("peringatan", []).append(f"beat {i}: rujukan {', '.join(hilang)} dibuang (tidak ada di daftar dalil)")
         if b.get("suasana") not in SUASANA:
             b.pop("suasana", None)  # suasana hanya saran untuk sutradara; yang tidak dikenal dibuang, bukan gagal
     return n
@@ -196,15 +202,21 @@ GEMINI = "https://generativelanguage.googleapis.com/v1beta"
 _GEMINI_TERPILIH: dict = {}
 
 
-def pilih_model_gemini(nama: list[str]) -> str | None:
-    """Dari daftar model akun, pilih 'gemini-X.Y-flash' versi tertinggi yang stabil (bukan lite/preview/exp/image/tts/live)."""
-    calon = []
+def urutan_model_gemini(nama: list[str]) -> list[str]:
+    """Model Gemini stabil (bukan preview/exp/image/tts/live), urut: Flash versi tertinggi dulu, lalu Flash-Lite.
+    Model kedua dipakai bila yang pertama sedang penuh (503) atau kena batas (429)."""
+    flash, lite = [], []
     for n in nama:
         n = n.split("/")[-1]
-        m = re.fullmatch(r"gemini-(\d+(?:\.\d+)?)-flash", n)
+        m = re.fullmatch(r"gemini-(\d+(?:\.\d+)?)-flash(-lite)?", n)
         if m:
-            calon.append((float(m.group(1)), n))
-    return max(calon)[1] if calon else None
+            (lite if m.group(2) else flash).append((float(m.group(1)), n))
+    return [n for _, n in sorted(flash, reverse=True)[:2]] + [n for _, n in sorted(lite, reverse=True)[:1]]
+
+
+def pilih_model_gemini(nama: list[str]) -> str | None:
+    u = [n for n in urutan_model_gemini(nama) if not n.endswith("-lite")]
+    return u[0] if u else None
 
 
 def _gemini_req(path: str, kunci: str, badan: dict | None = None) -> dict:
@@ -221,17 +233,35 @@ def tanya_gemini(sistem: str, isi: str, *, model: str | None = None, maks: int =
     kunci = (os.environ.get("GEMINI_API_KEY") or "").strip()
     if not kunci:
         raise RuntimeError("GEMINI_API_KEY belum diisi")
-    m = os.environ.get("GEMINI_MODEL") or _GEMINI_TERPILIH.get("m")
-    if not m:
-        daftar = _gemini_req("models?pageSize=200", kunci).get("models", [])
-        m = pilih_model_gemini([x["name"] for x in daftar if "generateContent" in x.get("supportedGenerationMethods", [])])
-        if not m:
-            raise RuntimeError("tidak ada model Gemini Flash yang tersedia untuk kunci ini")
-        _GEMINI_TERPILIH["m"] = m
-    j = _gemini_req(f"models/{m}:generateContent", kunci, {
-        "systemInstruction": {"parts": [{"text": sistem}]},
-        "contents": [{"role": "user", "parts": [{"text": isi}]}],
-        "generationConfig": {"responseMimeType": "application/json", "maxOutputTokens": maks, "temperature": 0.7}})
+    if os.environ.get("GEMINI_MODEL"):
+        urutan = [os.environ["GEMINI_MODEL"]]
+    else:
+        if "urutan" not in _GEMINI_TERPILIH:
+            daftar = _gemini_req("models?pageSize=200", kunci).get("models", [])
+            _GEMINI_TERPILIH["urutan"] = urutan_model_gemini(
+                [x["name"] for x in daftar if "generateContent" in x.get("supportedGenerationMethods", [])])
+        urutan = _GEMINI_TERPILIH["urutan"]
+    if not urutan:
+        raise RuntimeError("tidak ada model Gemini Flash yang tersedia untuk kunci ini")
+    badan = {"systemInstruction": {"parts": [{"text": sistem}]}, "contents": [{"role": "user", "parts": [{"text": isi}]}],
+             "generationConfig": {"responseMimeType": "application/json", "maxOutputTokens": maks, "temperature": 0.7}}
+    galat = None
+    for m in urutan:  # model sedang penuh/kena batas -> tunggu sebentar, coba lagi, lalu model berikutnya
+        for jeda in (0, 8, 20):
+            time.sleep(jeda)
+            try:
+                j = _gemini_req(f"models/{m}:generateContent", kunci, badan)
+                _GEMINI_TERPILIH["m"] = m
+                break
+            except RuntimeError as e:
+                galat = e
+                if not re.search(r"galat (429|500|503)", str(e)):
+                    raise
+        else:
+            continue
+        break
+    else:
+        raise galat
     teks = "".join(p.get("text", "") for c in j.get("candidates", [])[:1] for p in c.get("content", {}).get("parts", []))
     if not teks.strip():
         raise RuntimeError(f"Gemini tidak memberi jawaban ({(j.get('candidates') or [{}])[0].get('finishReason', '?')})")
@@ -348,7 +378,8 @@ def perbarui_kartu(st: dict) -> None:
 def teks_tinjauan(n: dict) -> list[str]:
     """Naskah untuk dibaca pemilik: per beat + status dalil + terjemah resmi (agar makna bisa dinilai)."""
     dl = {d["id"]: d for d in n.get("dalil", [])}
-    out = [f"📝 {n['judul']}" + (f"\nInti: {n['inti']}" if n.get("inti") else "")]
+    out = [f"📝 {n['judul']}" + (f"\nInti: {n['inti']}" if n.get("inti") else "")
+           + "".join(f"\n⚠️ {p}" for p in n.get("peringatan", []))]
     sudah = set()  # terjemah dalil yang sama cukup ditampilkan sekali
     for i, b in enumerate(n["beat"], 1):
         s = f"\n{i}. {b['narasi']}"

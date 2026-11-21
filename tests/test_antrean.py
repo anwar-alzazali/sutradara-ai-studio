@@ -123,3 +123,14 @@ def test_tanpa_kunci_gemini_pindah_ke_claude(monkeypatch):
     A.PENYEDIA.clear()
     assert A.tanya_otomatis("s", "i", model="m") == ("{}", 7)
     assert A.PENYEDIA["terakhir"] == "Claude m" and "GEMINI_API_KEY" in A.PENYEDIA["catatan"]
+
+
+def test_urutan_model_cadangan_lite():
+    assert A.urutan_model_gemini(["models/gemini-3.8-flash", "models/gemini-3.8-flash-lite", "models/gemini-3.5-flash"]) == \
+        ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-3.8-flash-lite"]
+
+
+def test_rujukan_tanpa_dalil_dibuang_dengan_peringatan():
+    n = json.loads(json.dumps(NASKAH)); n["beat"][1]["dalil"] = ["b1", "hud53"]
+    A.normalisasi(n)
+    assert A.validasi(n) == [] and n["beat"][1]["dalil"] == ["b1"] and "hud53" in n["peringatan"][0]
