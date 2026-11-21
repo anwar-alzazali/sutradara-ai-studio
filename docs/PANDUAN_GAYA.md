@@ -22,12 +22,19 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 - Selalu 3 lapis: belakang (langit, gunung/kota) · tengah (visual inti, tokoh) · depan (batu kabur di pojok).
 - Waktu kejadian mengikuti dalil (Dabbah keluar di waktu **dhuha**, Muslim 2941 → adegan terang, bukan malam).
 
-## 3. Teks
+## 3. Penataan panggung (siapa berdiri di mana)
+- **Pelaku aksi berdiri di dekat visual inti yang ia kerjakan** (yang membangun kapal di samping kapal). Tidak boleh ada
+  tokoh lain yang lebih dekat ke visual inti daripada pelaku, kecuali lewat jelas di depan (lebih dekat ke kamera).
+- Pihak yang berseberangan (yang mengejek, yang menolak) datang dari sisi lain atau melintas di depan, menghadap pelaku.
+- Posisi tiap pihak dipertahankan antar-shot (resep A5) supaya penonton tidak bingung arah.
+- Dicek otomatis: tulis `pelaku` di beat → penjaga memberi `PELAKU_JAUH` / `BUKAN_PELAKU_DEKAT`.
+
+## 4. Teks
 - Judul layar 1–3 kata kapital yang menamai makna, maksimal 2 baris.
 - Warna: **kuning** = fakta kunci/janji/harapan · **putih** = netral · **merah** = azab/ancaman/kesombongan.
 - Sumber dalil kecil di atas (`QS HUD 38`, `HR. MUSLIM 2934`) di setiap shot yang isinya dari dalil itu.
 - Subtitle satu baris di bawah, kata penting disorot kuning.
 
-## 4. Yang dilarang
+## 5. Yang dilarang
 Boneka "kamu" sebagai avatar penonton · siluet sebagai bawaan · nur berbentuk lampu sorot kerucut · sosok manusia dari cahaya
 untuk tokoh suci · wujud ghaib yang dikarang · ciri ras/etnis pada tokoh jahat · logo/merek asli.

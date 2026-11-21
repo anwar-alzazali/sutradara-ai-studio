@@ -4,75 +4,216 @@
   "title": "Rencana sutradara (resep bagian G)",
   "description": "Keputusan tingkat video (visual inti, preset suasana, peran, hook, dalil) + daftar beat yang masing-masing berisi shot. Struktur dicek skema ini; aturan keselamatan dicek sutradara/rencana/penjaga.py.",
   "type": "object",
-  "required": ["judul", "visual_inti", "peran", "hook", "dalil", "beat"],
+  "required": [
+    "judul",
+    "visual_inti",
+    "peran",
+    "hook",
+    "dalil",
+    "beat"
+  ],
   "additionalProperties": false,
   "properties": {
-    "judul": {"type": "string", "minLength": 3},
-    "catatan": {"type": "string"},
+    "judul": {
+      "type": "string",
+      "minLength": 3
+    },
+    "catatan": {
+      "type": "string"
+    },
     "visual_inti": {
       "type": "object",
-      "required": ["benda", "jalur_keadaan"],
+      "required": [
+        "benda",
+        "jalur_keadaan"
+      ],
       "additionalProperties": false,
       "properties": {
-        "benda": {"type": "string"},
-        "jalur_keadaan": {"type": "array", "items": {"type": "string"}, "minItems": 2}
+        "benda": {
+          "type": "string"
+        },
+        "jalur_keadaan": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2
+        }
       }
     },
     "peran": {
-      "type": "array", "minItems": 1,
+      "type": "array",
+      "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "nama", "kategori", "tampil"],
+        "required": [
+          "id",
+          "nama",
+          "kategori",
+          "tampil"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
-          "nama": {"type": "string"},
-          "kategori": {"enum": ["nabi", "malaikat", "sahabat", "manusia", "makhluk_ghaib", "dajjal", "yajuj_majuj", "hewan"]},
-          "wujud_dalil": {"type": "boolean", "description": "true bila wujud fisiknya dijelaskan dalil sahih"},
-          "tampil": {"enum": ["nur", "pakaian", "siluet", "kabut_tanpa_wujud", "dajjal_b", "hewan"]},
-          "alasan_siluet": {"type": "string", "description": "wajib bila tampil=siluet: misteri | kilas_balik | kerumunan_sangat_jauh | wajah_disembunyikan"}
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "nama": {
+            "type": "string"
+          },
+          "kategori": {
+            "enum": [
+              "nabi",
+              "malaikat",
+              "sahabat",
+              "manusia",
+              "makhluk_ghaib",
+              "dajjal",
+              "yajuj_majuj",
+              "hewan"
+            ]
+          },
+          "wujud_dalil": {
+            "type": "boolean",
+            "description": "true bila wujud fisiknya dijelaskan dalil sahih"
+          },
+          "tampil": {
+            "enum": [
+              "nur",
+              "pakaian",
+              "siluet",
+              "kabut_tanpa_wujud",
+              "dajjal_b",
+              "hewan"
+            ]
+          },
+          "alasan_siluet": {
+            "type": "string",
+            "description": "wajib bila tampil=siluet: misteri | kilas_balik | kerumunan_sangat_jauh | wajah_disembunyikan"
+          }
         }
       }
     },
     "hook": {
       "type": "object",
-      "required": ["dari_beat", "teks"],
+      "required": [
+        "dari_beat",
+        "teks"
+      ],
       "additionalProperties": false,
       "properties": {
-        "dari_beat": {"type": "integer", "minimum": 0},
-        "teks": {"type": "array", "items": {"type": "string"}, "minItems": 1, "maxItems": 3}
+        "dari_beat": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "teks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "maxItems": 3
+        }
       }
     },
     "dalil": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "jenis", "label", "status"],
+        "required": [
+          "id",
+          "jenis",
+          "label",
+          "status"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": {"type": "string"},
-          "jenis": {"enum": ["quran", "hadis"]},
-          "label": {"type": "string", "description": "teks yang tampil di layar, mis. 'QS HUD 38'"},
-          "derajat": {"enum": ["sahih", "hasan"]},
-          "status": {"enum": ["terverifikasi", "belum"]},
-          "rujukan": {"type": "string", "description": "URL/sumber verifikasi (Quran Foundation, sunnah.com, dataset)"}
+          "id": {
+            "type": "string"
+          },
+          "jenis": {
+            "enum": [
+              "quran",
+              "hadis"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "description": "teks yang tampil di layar, mis. 'QS HUD 38'"
+          },
+          "derajat": {
+            "enum": [
+              "sahih",
+              "hasan"
+            ]
+          },
+          "status": {
+            "enum": [
+              "terverifikasi",
+              "belum"
+            ]
+          },
+          "rujukan": {
+            "type": "string",
+            "description": "URL/sumber verifikasi (Quran Foundation, sunnah.com, dataset)"
+          }
         }
       }
     },
     "beat": {
-      "type": "array", "minItems": 1,
+      "type": "array",
+      "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["narasi", "preset", "keadaan", "shot"],
+        "required": [
+          "narasi",
+          "preset",
+          "keadaan",
+          "shot"
+        ],
         "additionalProperties": false,
         "properties": {
-          "narasi": {"type": "string"},
-          "preset": {"type": "string"},
-          "keadaan": {"type": "string"},
-          "potong_di": {"type": "array", "items": {"type": "string"}},
-          "dalil": {"type": "array", "items": {"type": "string"}},
-          "peran_tampil": {"type": "array", "items": {"type": "string"}},
-          "shot": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["preset"]}}
+          "narasi": {
+            "type": "string"
+          },
+          "preset": {
+            "type": "string"
+          },
+          "keadaan": {
+            "type": "string"
+          },
+          "potong_di": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dalil": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "peran_tampil": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "shot": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "preset"
+              ]
+            }
+          },
+          "pelaku": {
+            "type": "string",
+            "description": "id peran yang melakukan aksi pada visual inti di beat ini (mis. yang membangun kapal). Penjaga mengecek ia berada paling dekat dengan visual inti."
+          }
         }
       }
     }

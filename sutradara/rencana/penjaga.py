@@ -15,6 +15,11 @@ from ..gaya.latar import PRESET
 
 SKEMA = json.loads((Path(__file__).parent / "rencana.schema.json").read_text(encoding="utf-8"))
 SAKRAL = {"nabi", "malaikat", "sahabat"}
+# setengah lebar visual inti (px pada s=1) untuk mengukur jarak tepi; benda lain memakai BAWAAN
+SETENGAH_LEBAR = {"bahtera": 500, "retakan_bumi": 140, "dua_sungai": 300}
+SETENGAH_LEBAR_BAWAAN = 200
+JARAK_PELAKU_MAKS = 160  # px dari tepi visual inti
+PITA_KEDALAMAN = 180  # tokoh yang kakinya > 180 px di depan visual inti dianggap lewat di depan, bukan berdiri di sampingnya
 ALASAN_SILUET = {"misteri", "kilas_balik", "kerumunan_sangat_jauh", "wajah_disembunyikan"}
 
 
@@ -80,6 +85,8 @@ def periksa(rencana: dict, *, final: bool = False) -> list[Temuan]:
                 t.append(Temuan("GAGAL", "PERAN_TAK_TERDAFTAR", f"beat {i}: peran '{pid}' tidak terdaftar"))
         for j, s in enumerate(b["shot"]):
             t += _periksa_shot(s, peran, f"beat {i} shot {j}")
+            if b.get("pelaku"):
+                t += _periksa_penataan(s, b["pelaku"], vi["benda"], peran, f"beat {i} shot {j}")
         if len(b["shot"]) < len(b.get("potong_di", [])) + 1:
             t.append(Temuan("PERIKSA", "POTONG_DI_KATA", f"beat {i}: {len(b.get('potong_di', []))} kata potong tapi hanya {len(b['shot'])} shot"))
     if len(dipakai) < 2:
@@ -97,6 +104,38 @@ def _periksa_shot(s: dict, peran: dict, lokasi: str) -> list[Temuan]:
             t.append(Temuan("GAGAL", "TOKOH_SUCI", f"{lokasi}: '{peran[pid]['nama']}' digambar sebagai tokoh; pakai 'nur'"))
     if s.get("preset") not in PRESET:
         t.append(Temuan("GAGAL", "PRESET", f"{lokasi}: preset '{s.get('preset')}' tak dikenal"))
+    return t
+
+
+def _posisi_pelaku(s: dict, pid: str, peran: dict) -> tuple[float, float] | None:
+    p = peran.get(pid)
+    if not p:
+        return None
+    if p["tampil"] == "nur":
+        return (s["nur"][0]["x"], s["nur"][0]["y"]) if s.get("nur") else None
+    for tk in s.get("tokoh", []):
+        if tk.get("peran") == pid:
+            return tk["x"], tk["y"]
+    return None
+
+
+def _periksa_penataan(s: dict, pid: str, inti: str, peran: dict, lokasi: str) -> list[Temuan]:
+    """Penataan panggung: pelaku aksi harus berdiri di dekat visual inti yang ia kerjakan, dan tidak ada tokoh lain
+    yang lebih dekat ke visual inti daripada pelaku (kalau ada, penonton salah membaca siapa yang berbuat)."""
+    benda = next((b for b in s.get("benda", []) if b.get("jenis") == inti), None)
+    pos = _posisi_pelaku(s, pid, peran)
+    if benda is None or pos is None or not isinstance(benda.get("x"), (int, float)) or not isinstance(pos[0], (int, float)):
+        return []
+    hw = SETENGAH_LEBAR.get(inti, SETENGAH_LEBAR_BAWAAN) * float(benda.get("s", 1) if isinstance(benda.get("s", 1), (int, float)) else 1)
+    jarak = lambda x: max(0.0, abs(x - benda["x"]) - hw)
+    t = []
+    jp = jarak(pos[0])
+    if jp > JARAK_PELAKU_MAKS:
+        t.append(Temuan("PERIKSA", "PELAKU_JAUH", f"{lokasi}: {peran[pid]['nama']} berbuat pada {inti} tapi berdiri {jp:.0f} px dari tepinya"))
+    lain = [tk for tk in s.get("tokoh", []) if tk.get("peran") != pid and isinstance(tk.get("x"), (int, float))]
+    lebih_dekat = [tk for tk in lain if jarak(tk["x"]) + 1 < jp and abs(tk["y"] - benda.get("y", tk["y"])) < PITA_KEDALAMAN]
+    if lebih_dekat:
+        t.append(Temuan("PERIKSA", "BUKAN_PELAKU_DEKAT", f"{lokasi}: {len(lebih_dekat)} tokoh lain lebih dekat ke {inti} daripada {peran[pid]['nama']}"))
     return t
 
 

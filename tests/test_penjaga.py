@@ -81,3 +81,18 @@ def test_siluet_tanpa_alasan_diberi_catatan():
     r = muat("nuh_mengejek.json")
     r["peran"][1]["tampil"] = "siluet"
     assert "SILUET_TANPA_ALASAN" in kode(periksa(r), "PERIKSA")
+
+
+def test_pelaku_harus_dekat_visual_inti():
+    r = muat("nuh_mengejek.json")
+    assert not {"PELAKU_JAUH", "BUKAN_PELAKU_DEKAT"} & kode(periksa(r), "PERIKSA")
+    r["beat"][0]["shot"][0]["nur"][0]["x"] = -300  # Nabi Nuh dijauhkan dari kapal
+    assert "PELAKU_JAUH" in kode(periksa(r), "PERIKSA")
+
+
+def test_npc_tidak_boleh_lebih_dekat_ke_visual_inti_daripada_pelaku():
+    r = muat("nuh_mengejek.json")
+    sh = r["beat"][0]["shot"][0]
+    sh["nur"][0]["x"] = 60
+    sh["tokoh"] = [{"x": 620, "y": 1260, "peran": "kaum", "pose": "silang"}]  # orang kaum berdiri di samping kapal
+    assert "BUKAN_PELAKU_DEKAT" in kode(periksa(r), "PERIKSA")
