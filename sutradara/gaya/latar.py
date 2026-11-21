@@ -67,3 +67,104 @@ def batu_depan(warna: str = "#120c16") -> str:
     """Siluet batu depan tajam; blur tidak aktif sebagai bawaan."""
     return (f'<path d="M-60 1920 L-60 1700 Q 40 1610 170 1680 Q 260 1730 290 1920Z" fill="{warna}" stroke="#08070c" stroke-width="8" stroke-linejoin="round"/>'
             f'<path d="M1140 1920 L1140 1660 Q 1020 1600 900 1700 Q 850 1760 860 1920Z" fill="{warna}" stroke="#08070c" stroke-width="8" stroke-linejoin="round"/>')
+
+# Tekstur tanah disimpan sebagai geometri dunia: kamera menggerakkan seluruh pola,
+# sehingga pola tidak berubah/berkedip ketika waktu frame berubah.
+from functools import lru_cache
+import math
+
+PERMUKAAN_BAWAAN = {nama: "tanah_berbatu" for nama in PRESET}
+PERMUKAAN_VALID = {"tanah_berbatu", "pasir", "tanah", "batu", "tanpa"}
+
+
+def _campur_warna(a: str, b: str, t: float) -> str:
+    ca = [int(a[i:i + 2], 16) for i in (1, 3, 5)]
+    cb = [int(b[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(ca, cb))
+
+
+def _bentuk_bercak(rnd: random.Random, cx: float, cy: float, rx: float, ry: float, n: int = 8) -> str:
+    titik = [(cx + math.cos(2 * math.pi * i / n) * rx * rnd.uniform(.72, 1.08),
+              cy + math.sin(2 * math.pi * i / n) * ry * rnd.uniform(.72, 1.08)) for i in range(n)]
+    d = f"M{(titik[0][0] + titik[-1][0]) / 2:.1f} {(titik[0][1] + titik[-1][1]) / 2:.1f}"
+    for i, p in enumerate(titik):
+        q = titik[(i + 1) % n]
+        d += f" Q {p[0]:.1f} {p[1]:.1f} {(p[0] + q[0]) / 2:.1f} {(p[1] + q[1]) / 2:.1f}"
+    return d + "Z"
+
+
+@lru_cache(maxsize=64)
+def _tekstur_tanah_cache(preset: str, y0: float, jenis: str, seed: int) -> str:
+    if preset not in PRESET:
+        raise ValueError(f"preset tak dikenal: {preset}")
+    if jenis not in PERMUKAAN_VALID:
+        raise ValueError(f"permukaan_tanah tak dikenal: {jenis} (pilihan: {', '.join(sorted(PERMUKAAN_VALID))})")
+    if jenis == "tanpa":
+        return ""
+    rnd = random.Random(seed)
+    warna_atas, warna_bawah = PRESET[preset][3]
+    gelap = _campur_warna(warna_bawah, "#000000", .16)
+    terang = _campur_warna(warna_atas, "#ffffff", .10)
+
+    def skala(y: float) -> float:
+        return .28 + (y - y0) / 540
+
+    elemen = []
+    # Bercak berkontras rendah memberi variasi material tanpa menjadi pola utama.
+    for _ in range(30 if jenis in ("tanah_berbatu", "batu") else 24):
+        y = rnd.uniform(y0 + 8, 1910)
+        s = skala(y)
+        x = rnd.uniform(-1080, 2160)
+        warna = terang if rnd.random() < .48 else gelap
+        op = rnd.uniform(.055, .105)
+        elemen.append(f'<path d="{_bentuk_bercak(rnd, x, y, rnd.uniform(80, 210)*s, rnd.uniform(10, 26)*s)}" fill="{warna}" opacity="{op:.3f}"/>')
+
+    # Guratan pasir berbentuk riak; tanah padat memakai retak/serat yang pendek.
+    jumlah_guratan = 72 if jenis == "pasir" else 38
+    for _ in range(jumlah_guratan):
+        y = rnd.uniform(y0 + 12, 1905)
+        s = skala(y)
+        x = rnd.uniform(-1080, 2160)
+        if jenis == "pasir":
+            panjang = rnd.uniform(45, 115) * s
+            elemen.append(f'<path d="M{x:.1f} {y:.1f} q {panjang*.25:.1f} {-3*s:.1f} {panjang*.5:.1f} 0 t {panjang*.5:.1f} 0" fill="none" stroke="{gelap}" stroke-width="{.65 + .65*s:.2f}" opacity=".16"/>')
+        else:
+            panjang = rnd.uniform(12, 34) * s
+            elemen.append(f'<path d="M{x:.1f} {y:.1f} l {panjang:.1f} {rnd.uniform(-2,2)*s:.1f} l {panjang*.55:.1f} {rnd.uniform(-2,2)*s:.1f}" fill="none" stroke="{gelap}" stroke-width="{.7 + .55*s:.2f}" opacity=".20" stroke-linecap="round"/>')
+
+    # Kerikil dibatasi pada area bawah dan diberi sorot tipis; tidak memakai filter/blur.
+    if jenis in ("tanah_berbatu", "batu"):
+        jumlah = 94 if jenis == "tanah_berbatu" else 132
+        for _ in range(jumlah):
+            y = rnd.uniform(y0 + 8, 1910)
+            s = skala(y)
+            x = rnd.uniform(-1080, 2160)
+            besar = rnd.random() < .10 or jenis == "batu" and rnd.random() < .18
+            rx = rnd.uniform(10, 22) * s if besar else rnd.uniform(2.8, 6.5) * s
+            ry = rx * rnd.uniform(.48, .72)
+            isi = _campur_warna(warna_atas, gelap, rnd.uniform(.18, .42))
+            bentuk = _bentuk_bercak(rnd, x, y, rx, ry, 7)
+            sorot = _bentuk_bercak(rnd, x-rx*.18, y-ry*.22, rx*.48, ry*.30, 6)
+            elemen.append(f'<ellipse cx="{x+rx*.18:.1f}" cy="{y+ry*.42:.1f}" rx="{rx*1.12:.1f}" ry="{ry*.42:.1f}" fill="#000000" opacity=".12"/>'
+                          f'<path d="{bentuk}" fill="{isi}"/>'
+                          f'<path d="{sorot}" fill="{terang}" opacity=".22"/>')
+
+    if jenis in ("tanah_berbatu", "tanah"):
+        for _ in range(7):
+            y = rnd.uniform(y0 + 45, 1870)
+            s = skala(y)
+            x = rnd.uniform(-1080, 2160)
+            for _ in range(3):
+                dx = rnd.uniform(-5, 5) * s
+                tinggi = rnd.uniform(9, 18) * s
+                elemen.append(f'<path d="M{x+dx:.1f} {y:.1f} q {rnd.uniform(-3,3)*s:.1f} {-tinggi*.55:.1f} {rnd.uniform(-8,8)*s:.1f} {-tinggi:.1f}" fill="none" stroke="{_campur_warna(terang, "#8f8057", .45)}" stroke-width="{.8+s*.45:.2f}" opacity=".24" stroke-linecap="round"/>')
+
+    # Klip menjaga tekstur tetap di atas bidang tanah; adegan inti digambar setelah lapisan ini.
+    return (f'<defs><clipPath id="tanah_tekstur_clip"><rect x="-1080" y="{y0:.1f}" width="3240" height="{max(0, 1920-y0):.1f}"/></clipPath></defs>'
+            f'<g clip-path="url(#tanah_tekstur_clip)">{"".join(elemen)}</g>')
+
+
+def tekstur_tanah(preset: str, y0: float = 1250, *, jenis: str | None = None, seed: int = 3) -> str:
+    """Tekstur tanah deterministik di koordinat dunia; ikut kamera/paralaks dan tidak menutupi tokoh."""
+    jenis = jenis or PERMUKAAN_BAWAAN.get(preset, "tanah_berbatu")
+    return _tekstur_tanah_cache(preset, float(y0), jenis, int(seed))
