@@ -25,7 +25,7 @@ def test_render_png_berukuran_9x16_dan_tidak_kosong(tmp_path):
     im = Image.open(out).convert("RGB")
     assert im.size == (1080, 1920)
     # Uji pusat pilar yang diposisikan di x=190 pada contoh Nuh.
-    assert max(im.getpixel((190, 1100))) > 240
+    assert max(im.getpixel((205, 1100))) > 240
     assert len(im.resize((54, 96)).getcolors(maxcolors=10000)) > 200
     assert 'filter="url(#kabur)"' not in adegan.susun(shot)
 
@@ -41,7 +41,7 @@ def test_visual_kapal_nuh_memiliki_kontur_tegas_dan_batu_depan_tanpa_blur():
 
 def test_pendar_nur_lebih_terlokalisasi_dan_inti_pilar_tetap_terang():
     from sutradara.gaya import nur
-    svg = nur.pilar(190, 1330)
+    svg = nur.pilar(205, 1330)
     assert 'rx="155.0" ry="190.0"' in svg
     assert 'opacity=".42"' in svg
     assert 'fill="#ffffff"' in svg
