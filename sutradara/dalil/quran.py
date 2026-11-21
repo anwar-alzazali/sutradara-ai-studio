@@ -14,6 +14,7 @@ import os
 import re
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -26,6 +27,10 @@ API = {"production": "https://apis.quran.foundation", "prelive": "https://apis-p
 CACHE = AKAR / "data/cache/quran"
 UMUR_CACHE = 7 * 24 * 3600
 UA = "sutradara-ai-studio/0.1 (python-urllib)"
+# Klien baru Quran Foundation memegang scope RINCI (datar, tidak saling mewarisi); klien lama memegang `content`.
+# Diminta berurutan: rinci -> content -> tanpa scope. Ayat butuh quran.read, terjemah butuh translations.read.
+SCOPE_RINCI = "content.quran.read content.translations.read content.metadata.read"
+URUTAN_SCOPE = (SCOPE_RINCI, "content.quran.read content.translations.read", "content", "")
 
 
 @dataclass
@@ -82,7 +87,8 @@ class QuranFoundation:
         basic = base64.b64encode(f"{cid}:{sec}".encode()).decode()
         gagal = []
         for env in [self.env] + [e for e in AUTH if e != self.env]:
-            for form in (b"grant_type=client_credentials&scope=content", b"grant_type=client_credentials"):
+            for scope in URUTAN_SCOPE:
+                form = ("grant_type=client_credentials" + (f"&scope={urllib.parse.quote(scope)}" if scope else "")).encode()
                 st, body = self.transport("POST", AUTH[env] + "/oauth2/token",
                                           {"Authorization": "Basic " + basic, "Content-Type": "application/x-www-form-urlencoded"}, form)
                 if st == 200 and body.get("access_token"):
@@ -122,8 +128,8 @@ class QuranFoundation:
         basic = base64.b64encode(f"{cid}:{sec}".encode()).decode()
         hasil = []
         for env in AUTH:
-            for scope in ("content", ""):
-                form = ("grant_type=client_credentials" + (f"&scope={scope}" if scope else "")).encode()
+            for scope in URUTAN_SCOPE:
+                form = ("grant_type=client_credentials" + (f"&scope={urllib.parse.quote(scope)}" if scope else "")).encode()
                 st, body = self.transport("POST", AUTH[env] + "/oauth2/token",
                                           {"Authorization": "Basic " + basic, "Content-Type": "application/x-www-form-urlencoded"}, form)
                 baris = {"env": env, "scope_diminta": scope or "(tanpa)", "token_http": st, "token": bool(body.get("access_token")),
