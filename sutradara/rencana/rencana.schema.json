@@ -144,7 +144,9 @@
           "derajat": {
             "enum": [
               "sahih",
-              "hasan"
+              "hasan",
+              "daif",
+              "tidak_dinilai"
             ]
           },
           "status": {
@@ -156,6 +158,62 @@
           "rujukan": {
             "type": "string",
             "description": "URL/sumber verifikasi (Quran Foundation, sunnah.com, dataset)"
+          },
+          "kitab": {
+            "type": "string",
+            "description": "hadis: bukhari | muslim | abudawud | tirmidhi | nasai | ibnmajah"
+          },
+          "nomor": {
+            "type": [
+              "string",
+              "integer"
+            ],
+            "description": "hadis: nomor sunnah.com, boleh berakhiran huruf (2934b)"
+          },
+          "surah": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 114
+          },
+          "ayat": {
+            "type": [
+              "string",
+              "integer"
+            ],
+            "description": "quran: '38' atau rentang '5-9'"
+          },
+          "teks_ar": {
+            "type": "string"
+          },
+          "terjemah": {
+            "type": "string"
+          },
+          "sumber_teks": {
+            "type": "string"
+          },
+          "diverifikasi_oleh": {
+            "type": "string"
+          },
+          "makna": {
+            "type": "string"
+          },
+          "label_saran": {
+            "type": "string"
+          },
+          "alasan": {
+            "type": "string"
+          },
+          "berbeda": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "riwayat": {
+            "type": "integer"
+          },
+          "bukan_marfu": {
+            "type": "boolean"
           }
         }
       }

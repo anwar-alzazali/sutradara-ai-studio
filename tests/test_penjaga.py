@@ -54,8 +54,7 @@ def test_dajjal_hanya_desain_b_atau_siluet():
 
 def test_hadis_lemah_ditolak():
     r = muat("dajjal_dua_sungai.json")
-    r["dalil"][0]["derajat"] = None
-    del r["dalil"][0]["derajat"]
+    r["dalil"][0].update(status="terverifikasi", diverifikasi_oleh="sutradara.dalil uji", derajat="daif")
     assert "DERAJAT_HADIS" in kode(periksa(r))
 
 

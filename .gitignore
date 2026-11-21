@@ -5,3 +5,5 @@ keluaran/
 .env
 *.mp4
 *.mp3
+data/hadis/
+data/cache/

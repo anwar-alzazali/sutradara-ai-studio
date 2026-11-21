@@ -60,10 +60,22 @@ def periksa(rencana: dict, *, final: bool = False) -> list[Temuan]:
 
     dalil = {d["id"]: d for d in rencana["dalil"]}
     for d in rencana["dalil"]:
-        if d["status"] != "terverifikasi":
-            t.append(Temuan("GAGAL" if final else "PERIKSA", "DALIL_BELUM_DICEK", f"{d['label']} belum diverifikasi ke sumber resmi"))
-        if d["jenis"] == "hadis" and d.get("derajat") not in ("sahih", "hasan"):
-            t.append(Temuan("GAGAL", "DERAJAT_HADIS", f"{d['label']}: hanya hadis sahih/hasan"))
+        rujuk = (d.get("kitab") and d.get("nomor")) if d["jenis"] == "hadis" else (d.get("surah") and d.get("ayat"))
+        if not rujuk:
+            t.append(Temuan("GAGAL" if final else "PERIKSA", "DALIL_TANPA_RUJUKAN",
+                            f"{d['label']}: isi {'kitab & nomor' if d['jenis'] == 'hadis' else 'surah & ayat'} supaya bisa diverifikasi"))
+        sah = d["status"] == "terverifikasi" and str(d.get("diverifikasi_oleh", "")).startswith("sutradara.dalil")
+        if not sah:
+            t.append(Temuan("GAGAL" if final else "PERIKSA", "DALIL_BELUM_DICEK",
+                            f"{d['label']} belum diverifikasi mesin ({d.get('alasan') or 'jalankan: python -m sutradara verifikasi'})"))
+        if d["jenis"] == "hadis" and d["status"] == "terverifikasi" and d.get("derajat") not in ("sahih", "hasan"):
+            t.append(Temuan("GAGAL", "DERAJAT_HADIS", f"{d['label']}: derajat {d.get('derajat')}; hanya hadis sahih/hasan"))
+        if d.get("berbeda"):
+            t.append(Temuan("PERIKSA", "DERAJAT_DIPERSELISIHKAN", f"{d['label']}: dinilai daif oleh {', '.join(d['berbeda'])}"))
+        if d.get("bukan_marfu"):
+            t.append(Temuan("PERIKSA", "BUKAN_MARFU", f"{d['label']}: mauquf/maqtu (ucapan sahabat/tabi'in), jangan disebut sabda Nabi ﷺ"))
+        if d.get("label_saran"):
+            t.append(Temuan("PERIKSA", "LABEL_DALIL", f"{d['label']}: label yang cocok dengan sumber '{d['label_saran']}'"))
 
     vi = rencana["visual_inti"]
     jalur = vi["jalur_keadaan"]

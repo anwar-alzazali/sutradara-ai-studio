@@ -34,17 +34,19 @@
    "id": "m2934",
    "jenis": "hadis",
    "label": "HR. MUSLIM 2934",
-   "derajat": "sahih",
-   "status": "terverifikasi",
-   "rujukan": "https://sunnah.com/muslim:2934b"
+   "status": "belum",
+   "rujukan": "https://sunnah.com/muslim:2934b",
+   "kitab": "muslim",
+   "nomor": "2934"
   },
   {
    "id": "b7123",
    "jenis": "hadis",
    "label": "HR. BUKHARI 7123",
-   "derajat": "sahih",
-   "status": "terverifikasi",
-   "rujukan": "https://sunnah.com/bukhari:7123"
+   "status": "belum",
+   "rujukan": "https://sunnah.com/bukhari:7123",
+   "kitab": "bukhari",
+   "nomor": "7123"
   }
  ],
  "beat": [

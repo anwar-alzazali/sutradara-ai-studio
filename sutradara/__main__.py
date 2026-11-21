@@ -3,6 +3,7 @@
   python -m sutradara periksa contoh/nuh_mengejek.json          # cek rencana (skema + penjaga)
   python -m sutradara gambar contoh/nuh_mengejek.json -o keluaran # render shot pertama tiap beat ke PNG
   python -m sutradara video contoh/nuh_mengejek.json -o keluaran/nuh.mp4 [--fps 30] [--lembar]
+  python -m sutradara verifikasi contoh/nuh_mengejek.json [-o hasil.json] # isi status dalil dari sumber resmi
 """
 from __future__ import annotations
 
@@ -23,7 +24,23 @@ def main(argv=None) -> int:
     b.add_argument("--semua", action="store_true", help="render semua shot, bukan hanya shot pertama tiap beat")
     c = sub.add_parser("video"); c.add_argument("rencana"); c.add_argument("-o", "--keluar", default="keluaran/video.mp4")
     c.add_argument("--fps", type=int, default=30); c.add_argument("--lembar", action="store_true", help="buat juga lembar kontak .jpg")
+    v = sub.add_parser("verifikasi"); v.add_argument("rencana"); v.add_argument("-o", "--keluar", help="bawaan: timpa berkas rencana")
     arg = ap.parse_args(argv)
+
+    if arg.perintah == "verifikasi":
+        import os
+        from .dalil.quran import QuranFoundation
+        from .dalil.verifikasi import verifikasi
+        r = json.loads(Path(arg.rencana).read_text(encoding="utf-8"))
+        quran = QuranFoundation() if os.environ.get("QURAN_FOUNDATION_CLIENT_ID") else None
+        if quran is None:
+            print("catatan: QURAN_FOUNDATION_CLIENT_ID/_SECRET tidak ada; ayat dilewati (jalankan lewat workflow 'verifikasi')")
+        baru, laporan = verifikasi(r, quran=quran)
+        print("\n".join(laporan))
+        Path(arg.keluar or arg.rencana).write_text(json.dumps(baru, ensure_ascii=False, indent=1), encoding="utf-8")
+        t = periksa(baru)
+        print(ringkas(t))
+        return 1 if any(x.tingkat == "GAGAL" for x in t) else 0
 
     r = json.loads(Path(arg.rencana).read_text(encoding="utf-8"))
     temuan = periksa(r, final=getattr(arg, "final", False))
