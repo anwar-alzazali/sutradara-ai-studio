@@ -2,6 +2,9 @@
 from __future__ import annotations
 import json
 from pathlib import Path
+import sys
+AKAR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(AKAR))
 from PIL import Image, ImageDraw
 from sutradara import adegan, render
 
