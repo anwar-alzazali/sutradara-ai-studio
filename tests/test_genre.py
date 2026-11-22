@@ -93,3 +93,28 @@ def test_skema_menerima_genre_opsional_dengan_nama_paket_generik():
     assert "genre" not in SKEMA["required"]
     assert SKEMA["properties"]["genre"]["pattern"] == "^[a-z][a-z0-9_]*$"
     assert not validator.is_valid({**rencana_lama, "genre": "Nama Genre"})
+
+
+
+def test_penjaga_mendelegasikan_validasi_ke_paket_genre():
+    from sutradara.rencana.penjaga import periksa
+    from sutradara import genre
+
+    nama = "genre_tiruan_validator_uji"
+    dipanggil = []
+
+    def validator(rencana, *, final=False):
+        dipanggil.append((rencana["genre"], final))
+        from sutradara.rencana.penjaga import Temuan
+        return [Temuan("PERIKSA", "VALIDATOR_TIRUAN", "validator paket dipanggil")]
+
+    daftarkan(PaketGenre(nama=nama, validator=validator))
+    try:
+        contoh = Path(__file__).resolve().parents[1] / "contoh" / "nuh_mengejek.json"
+        rencana = json.loads(contoh.read_text(encoding="utf-8"))
+        rencana["genre"] = nama
+        temuan = periksa(rencana, final=True)
+        assert dipanggil == [(nama, True)]
+        assert [x.kode for x in temuan] == ["VALIDATOR_TIRUAN"]
+    finally:
+        genre._PAKET.pop(nama, None)
