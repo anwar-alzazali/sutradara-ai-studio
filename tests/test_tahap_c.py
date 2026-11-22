@@ -97,7 +97,8 @@ def test_pemeriksa_scope_hadis_menguji_tiga_route_resmi_content_api_v4(monkeypat
 
     monkeypatch.setattr(akses_hadis, "_request", request)
     hasil = akses_hadis.periksa_lingkungan("production")
-    assert hasil["status"] == "lulus"
+    assert hasil["status"] == "akses_terbukti"
+    assert hasil["status"] != "lulus"
     assert hasil["scope_diminta"] == "content.hadith.read"
     assert "content.hadith.read" in panggilan[0][1].decode()
     assert panggilan[1][0].endswith("/content/api/v4/hadith_references/by_ayah/1:1?language=en")
@@ -238,7 +239,7 @@ def test_main_scope_hadis_hanya_lulus_jika_production_granular(monkeypatch, caps
     monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-uji")
     monkeypatch.setattr(akses_hadis, "periksa_lingkungan", lambda env: {
         "lingkungan": env,
-        "status": "akses_legacy_content" if env == "production" else "lulus"
+        "status": "akses_legacy_content" if env == "production" else "akses_terbukti"
     })
     assert akses_hadis.main() == 1
     assert "akses_legacy_content" in capsys.readouterr().out
@@ -251,7 +252,7 @@ def test_main_scope_hadis_tidak_lulus_hanya_dari_prelive(monkeypatch, capsys):
     monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-uji")
     monkeypatch.setattr(akses_hadis, "periksa_lingkungan", lambda env: {
         "lingkungan": env,
-        "status": "lulus" if env == "prelive" else "tidak_terbukti"
+        "status": "akses_terbukti" if env == "prelive" else "tidak_terbukti"
     })
     assert akses_hadis.main() == 1
     capsys.readouterr()
