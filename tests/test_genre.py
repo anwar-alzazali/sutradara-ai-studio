@@ -139,3 +139,52 @@ def test_renderer_paket_tiruan_menyumbang_elemen_tanpa_mengubah_inti():
         assert 'id="elemen-genre-tiruan"' in svg
     finally:
         genre._PAKET.pop(nama, None)
+
+
+
+def test_skema_tambahan_paket_digabung_dan_ditegakkan_penjaga():
+    from sutradara.rencana.penjaga import periksa
+    from sutradara import genre
+
+    nama = "genre_skema_tiruan_uji"
+    paket = PaketGenre(
+        nama=nama,
+        skema_tambahan={
+            "properties": {
+                "muatan_genre": {
+                    "type": "object",
+                    "required": ["kode"],
+                    "additionalProperties": False,
+                    "properties": {"kode": {"type": "string", "minLength": 2}},
+                }
+            },
+            "required": ["muatan_genre"],
+        },
+    )
+    daftarkan(paket)
+    try:
+        contoh = Path(__file__).resolve().parents[1] / "contoh" / "nuh_mengejek.json"
+        dasar = json.loads(contoh.read_text(encoding="utf-8"))
+        dasar["genre"] = nama
+
+        sah = {**dasar, "muatan_genre": {"kode": "ok"}}
+        assert periksa(sah) == []
+
+        tanpa_muatan = periksa(dasar)
+        assert any(t.kode == "SKEMA" and "muatan_genre" in t.pesan for t in tanpa_muatan)
+
+        tipe_salah = periksa({**dasar, "muatan_genre": {"kode": 12}})
+        assert any(t.kode == "SKEMA" for t in tipe_salah)
+    finally:
+        genre._PAKET.pop(nama, None)
+
+
+def test_skema_tambahan_tidak_boleh_menimpa_properti_inti():
+    from sutradara.rencana.penjaga import _skema_paket
+
+    paket = PaketGenre(
+        nama="genre_skema_bentrok_uji",
+        skema_tambahan={"properties": {"judul": {"type": "integer"}}},
+    )
+    with pytest.raises(ValueError, match="menimpa properti inti"):
+        _skema_paket(paket)
