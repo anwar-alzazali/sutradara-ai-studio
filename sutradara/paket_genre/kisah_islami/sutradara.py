@@ -192,9 +192,13 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
             posisi[p2] = 820
     elif pelaku:
         visual_x = float(keadaan.get("x", 540))
-        setengah = {"bahtera": 390, "dinding_yajuj": 200, "kota_kuno": 145}.get(inti, 180)
-        sisi_pelaku = max(150.0, min(930.0, visual_x + setengah - 45.0))
-        sisi_lawan = max(120.0, min(950.0, visual_x - setengah - 130.0))
+        # Tempatkan pelaku di dekat sisi kerja visual inti, bukan di luar
+        # batas benda. Pihak lawan tetap di sisi seberang dengan ruang aman
+        # untuk formasi kelompok (tiga figur berjarak 86 px).
+        dekat = {"bahtera": 45.0, "dinding_yajuj": 55.0, "kota_kuno": 50.0}.get(inti, 45.0)
+        seberang = {"bahtera": -300.0, "dinding_yajuj": -250.0, "kota_kuno": -240.0}.get(inti, -240.0)
+        sisi_pelaku = max(300.0, min(780.0, visual_x + dekat))
+        sisi_lawan = max(260.0, min(440.0, visual_x + seberang))
         for pid in hadir:
             dasar = sisi_pelaku if pid in pelaku else sisi_lawan
             kelompok_ids = pelaku if pid in pelaku else [x for x in hadir if x not in pelaku]
