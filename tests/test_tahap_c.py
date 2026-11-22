@@ -105,3 +105,15 @@ def test_pemeriksa_scope_hadis_tidak_membocorkan_dan_menghentikan_jika_secret_ko
     hasil = akses_hadis.periksa_lingkungan("production")
     assert hasil["status"] == "terblokir"
     assert "rahasia" not in repr(hasil).lower()
+
+
+def test_pasangan_kata_dikelompokkan_maksimal_dua_baris():
+    pasangan = [{"ar": f"كلمة{i}", "id": ("terjemahan panjang " + str(i) + " ")*2}
+                for i in range(4)]
+    dalil = {"jenis": "quran", "teks_ar": "teks Arab", "terjemah": "teks lama",
+             "pasangan_kata": pasangan}
+    potongan = kartu.potongan(dalil)
+    assert len(potongan) >= 2
+    from sutradara.dalil import segmen
+    assert all(len(segmen.baris(ar, True)) <= 2 and len(segmen.baris(id_, False)) <= 2
+               for ar, id_ in potongan)
