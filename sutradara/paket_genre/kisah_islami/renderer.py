@@ -4,7 +4,7 @@ from .visual import akhir_zaman,benda,dajjal,kartu,malaikat,makhluk,nur
 
 def _cahaya(n,t):
     if n.get("_kategori_peran")=="malaikat":return malaikat.berkas(n["x"],n["y"],tinggi=n.get("tinggi",620),lebar=n.get("lebar",260),t=t,seed=n.get("seed",17))
-    return nur.pilar(n["x"],n["y"],nama=n.get("nama"),sinar_ke=n.get("sinar_ke","kanan"),tinggi=n.get("tinggi",400),lebar=n.get("lebar",118),pendar_rx=n.get("pendar_rx",155),pendar_ry=n.get("pendar_ry",190),t=t)
+    return nur.pilar(n["x"],n["y"],nama=n.get("nama"),sinar_ke=n.get("sinar_ke","kanan"),tinggi=n.get("tinggi",400),lebar=n.get("lebar",92),pendar_rx=n.get("pendar_rx",100),pendar_ry=n.get("pendar_ry",145),t=t)
 
 def render_adegan(shot,sp,t,tg,data):
     latar=[];tengah=[];overlay=[];barang_pemilik={};target_tangan={}
