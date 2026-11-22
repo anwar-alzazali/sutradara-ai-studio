@@ -73,7 +73,8 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     `dalil` = {id: entri dalil terverifikasi} dari rencana, dipakai oleh "kartu_dalil": {"dalil": id, "mulai": detik}.
     `sub` = (kata, indeks_aktif) dari garis waktu narasi (fase 2); menggantikan subtitle tulisan di shot."""
     tg = t if tg is None else tg
-    komponen = ambil(genre).komponen
+    paket = ambil(genre)
+    komponen = paket.komponen
     sp = pada(shot, t)
     p = sp["preset"]
     dunia = [LT.langit(p, matahari=tuple(sp["matahari"]) if sp.get("matahari") else None)]
@@ -122,6 +123,17 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     if sp.get("npc_jauh"):
         dunia += _npc_jauh(sp["npc_jauh"], tg)
     tengah: list[tuple[float, str]] = []
+    # Paket genre dapat menyumbang elemen adegan tanpa menambah percabangan
+    # atau nama elemen khusus genre ke renderer inti.
+    if paket.renderer_adegan is not None:
+        tambahan = paket.renderer_adegan(shot, sp, t, tg)
+        if not isinstance(tambahan, list) or any(
+            not isinstance(item, tuple) or len(item) != 2
+            or not isinstance(item[0], (int, float)) or not isinstance(item[1], str)
+            for item in tambahan
+        ):
+            raise TypeError(f"renderer adegan genre {paket.nama!r} harus mengembalikan list[(kedalaman, svg)]")
+        tengah.extend(tambahan)
     # Sistem barang tunggal: status per-shot menentukan pemilik, tangan, dan titik serah.
     # IK tangan menghitung sudut sendi; geometri barang ditempelkan ke pergelangan.
     barang_pemilik: dict[str, list[dict]] = {}
