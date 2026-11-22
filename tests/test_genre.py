@@ -116,8 +116,11 @@ def test_skema_tambahan_tidak_bisa_diubah_secara_tidak_langsung():
     skema_efektif = _skema_paket(paket)
     assert skema_efektif["properties"]["muatan"]["properties"]["kode"]["type"] == "string"
     validator = Draft202012Validator(skema_efektif)
-    assert validator.is_valid({"muatan": {"kode": "teks"}})
-    assert not validator.is_valid({"muatan": {"kode": 123}})
+    rencana = _rencana_tanpa_dalil()
+    rencana["muatan"] = {"kode": "teks"}
+    assert validator.is_valid(rencana)
+    rencana["muatan"] = {"kode": 123}
+    assert not validator.is_valid(rencana)
 
 
 def test_skema_menerima_genre_opsional_dengan_nama_paket_generik():
