@@ -126,3 +126,35 @@ def test_pembangun_nuh_dan_kaum_pengejek_memiliki_peran_berbeda():
                for t in shot["tokoh"])
     assert r["peran"][1]["id"] == "kaum"
     assert r["peran"][2]["id"] == "pengikut_beriman"
+
+
+
+def test_blocking_otomatis_mengubah_pelanggaran_kedekatan_menjadi_gagal():
+    r = muat("nuh_mengejek.json")
+    r["dibuat_otomatis"] = True
+    r["beat"] = [r["beat"][0]]
+    r["beat"][0]["shot"] = [r["beat"][0]["shot"][0]]
+    r["hook"]["dari_beat"] = 0
+    r["beat"][0]["shot"][0]["nur"][0]["x"] = -300
+    temuan = periksa(r)
+    assert "PELAKU_JAUH" in kode(temuan, "GAGAL")
+
+
+def test_perjalanan_otomatis_menyimpan_lintasan_xy_eksplisit():
+    naskah = {
+        "judul": "Perjalanan",
+        "inti": "Pengelana berjalan menuju tepi kanan.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan menuju tepi kanan.",
+            "dalil": [], "kata_kunci": ["berjalan"], "suasana": "senja",
+            "peran": ["pengelana"],
+        }],
+    }
+    from sutradara.direktur import rancang
+    hasil = rancang(naskah)
+    aktor = hasil["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["tujuan"] == "tepi:kanan"
+    assert aktor["lintasan"][0][1:] == [aktor["x"][0][1], aktor["y"]]
+    assert aktor["lintasan"][1][1] == aktor["x"][-1][1]
+    assert aktor["lintasan"][1][2] == aktor["y"]

@@ -92,3 +92,54 @@ def test_allah_tidak_dapat_dimasukkan_sebagai_peran_visual(nama):
         "narasi": "Renungkan makna kisah ini.", "kata_kunci": [], "dalil": [], "peran": [nama],
     }]}
     assert any("tidak boleh menjadi peran visual" in pesan for pesan in validasi(naskah))
+
+
+
+def test_blocking_otomatis_mengikuti_visual_inti_dan_memisahkan_pihak():
+    naskah = {
+        "judul": "Pembangunan bahtera",
+        "inti": "Nabi Nuh dan pengikut beriman membangun bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengikut beriman membangun bahtera.",
+            "dalil": [], "kata_kunci": ["membangun"], "suasana": "senja",
+            "peran": ["pengikut beriman", "kaum penentang"],
+        }],
+    }
+    hasil = rancang(naskah)
+    beat = hasil["beat"][0]
+    shot = beat["shot"][0]
+    kapal = next(b for b in shot["benda"] if b["jenis"] == "bahtera")
+    pengikut = next(t for t in shot["tokoh"] if t["peran"] == "pengikut_beriman")
+    penentang = next(t for t in shot["tokoh"] if t["peran"] == "kaum_penentang")
+    assert abs(pengikut["x"] - kapal["x"]) < abs(penentang["x"] - kapal["x"])
+    assert beat["pelaku"] == ["pengikut_beriman"]
+    temuan = periksa(hasil)
+    assert not [t for t in temuan if t.kode in {"PELAKU_JAUH", "BUKAN_PELAKU_DEKAT"}]
+
+
+def test_dialog_reverse_shot_mempertahankan_sisi_dan_mengganti_pembicara():
+    naskah = {
+        "judul": "Percakapan",
+        "inti": "Nabi Nuh berbicara kepada seorang penentang.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Nabi Nuh berkata kepada penentang itu.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Nabi Nuh", "penentang"],
+            "dialog": [{"pembicara": "Nabi Nuh", "penjawab": "penentang",
+                        "ucapan": "Dengarkan seruanku."}],
+        }],
+    }
+    hasil = rancang(naskah)
+    shots = hasil["beat"][0]["shot"]
+    assert len(shots) == 2
+    kiri, kanan = shots
+    assert kiri["nur"][0]["x"] == kanan["nur"][0]["x"]
+    assert kiri["tokoh"][0]["x"] == kanan["tokoh"][0]["x"]
+    assert kiri["nur"][0]["bicara"]
+    assert not kanan["nur"][0]["bicara"]
+    assert kanan["tokoh"][0]["bicara"]
+    assert not kiri["tokoh"][0]["bicara"]
+    assert kiri["tokoh"][0]["arah"] == "samping"
+    assert kanan["tokoh"][0]["arah"] == "samping"

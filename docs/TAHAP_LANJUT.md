@@ -173,7 +173,7 @@ Aturan wajibnya ada di `AGENTS.md` (tabel adab saluran). Kerjakan:
 |---|---|---|
 | D0 | Langkah 0: pisahkan inti dan paket genre | selesai (#44, #46) |
 | D1 | Poin 0b, 1, 2, 4: sisa kebocoran genre, templat naskah + validator, keputusan tingkat video dan shot | selesai (#45) |
-| D2 | Poin 3, 3b, 3c, 3d: penataan panggung, liputan dialog, arah hadap, berjalan dengan tujuan dan lintasan | belum |
+| D2 | Poin 3, 3b, 3c, 3d: penataan panggung, liputan dialog, arah hadap, berjalan dengan tujuan dan lintasan | belum (implementasi parsial; bukti tes dan render belum lengkap) |
 | D3 | Poin 5, 6, 7: perpustakaan resep, model AI opsional, bukti video Nuh dan Hud otomatis | belum |
 
 **Langkah 0 — pisahkan inti dan genre, kerjakan SEBELUM poin lainnya** (keputusan pemilik 21 Nov 2026).
@@ -244,6 +244,8 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
    - Penjaga: GAGAL bila `jalan`/`lari` tidak punya lintasan atau tujuan, kecuali ditandai `di_tempat` dengan
      alasan (mis. kamera ikut bergerak). PERIKSA bila arah hadap berlawanan dengan arah gerak, atau arah layar
      berganti antar-shot menuju tujuan yang sama.
+**Status D2:** belum selesai. Implementasi awal pada cabang `tahap-d2-blocking-dialog-gerak` memperbaiki penetapan sisi blocking dari visual inti, pasangan shot–reverse shot agar posisi layar stabil, serta lintasan x/y dan tujuan gerak yang diturunkan dari narasi. Penjaga kedekatan pelaku menjadi `GAGAL` untuk rencana otomatis. Status tetap belum sampai seluruh tes lokal/CI dan render contoh blocking, dialog/arah hadap, serta perjalanan berhasil dijalankan dan lembar kontak diperiksa secara visual. Jangan lanjut ke D3 sebelum bukti D2 lengkap.
+
 4. **[D1] Keputusan tingkat shot:**
    - pecah enumerasi menjadi shot per kata dan eskalasi pada pengulangan;
    - kamera mengikuti posisi beat;

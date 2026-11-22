@@ -123,7 +123,14 @@ def periksa_khusus(rencana: dict, *, final: bool = False) -> list[Temuan]:
                                         f"beat {i} shot {j}: tokoh berada di area punggung Buraq; penunggang tidak boleh digambar sebagai manusia"))
             t += _periksa_kartu(s, dalil, final, f"beat {i} shot {j}")
             if b.get("pelaku"):
-                t += _periksa_penataan(s, b["pelaku"], vi["benda"], peran, f"beat {i} shot {j}")
+                temuan_penataan = _periksa_penataan(s, b["pelaku"], vi["benda"], peran, f"beat {i} shot {j}")
+                if rencana.get("dibuat_otomatis"):
+                    temuan_penataan = [
+                        Temuan("GAGAL", x.kode, x.pesan)
+                        if x.kode in {"PELAKU_JAUH", "BUKAN_PELAKU_DEKAT"} else x
+                        for x in temuan_penataan
+                    ]
+                t += temuan_penataan
         if len(b["shot"]) < len(b.get("potong_di", [])) + 1:
             t.append(Temuan("PERIKSA", "POTONG_DI_KATA", f"beat {i}: {len(b.get('potong_di', []))} kata potong tapi hanya {len(b['shot'])} shot"))
     if len(dipakai) < 2:

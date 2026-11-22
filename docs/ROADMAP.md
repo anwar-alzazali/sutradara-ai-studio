@@ -159,6 +159,8 @@ hook, resep data, tata panggung, dialog, arah hadap, dan lintasan jalan/lari. Mo
   bawaan, menerima adapter yang diinjeksi lewat `--adapter modul:fungsi`, dan biaya agregat dicatat tanpa prompt atau rahasia. Bukti render Nuh/Hud
 dan batas cakupan D1 tercatat di deskripsi PR; penilaian layak tayang tetap keputusan pemilik.
 
+**Status Tahap D2:** belum selesai. Cabang `tahap-d2-blocking-dialog-gerak` memuat perbaikan awal pada blocking otomatis, shot–reverse shot, dan lintasan perjalanan x/y. Penjaga kedekatan pelaku dibuat keras untuk rencana otomatis. D2 tetap berstatus belum sampai seluruh tes lokal/CI dan bukti render + pemeriksaan lembar kontak untuk blocking, dialog/arah hadap, serta perjalanan tersedia. D3 dan Fase 4 tetap belum selesai.
+
 ### ○ Fase 5 — Periksa & kritikus
 1. Periksa teknis (salin `mesin-video/periksa.py`): resolusi, durasi, audio hilang, clipping, layar kosong, teks terpotong.
 2. Lembar kontak otomatis (16 bingkai) + kritik terhadap resep: visual inti tidak berubah, shot terlalu mirip berturut-turut,
@@ -306,3 +308,5 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - 22 Nov 2026 — Tahap D1 (bertumpuk di PR #44): format antrean diperluas dengan `peran` per beat dan validator menjelaskan kesalahan struktur dalam bahasa Indonesia. Templat ChatGPT/Gemini ditempatkan di paket Kisah Islami; rujukan dalil tetap berupa ID untuk diverifikasi mesin, bukan teks Arab/terjemahan buatan AI.
 
 - 22 Nov 2026 — Tahap D1, poin 0b: aturan sisipan waktu baca dan efek kemunculan dipindahkan ke hook `PaketGenre`. Garis waktu dan pencampur suara hanya memanggil kontrak generik; paket Kisah Islami mendaftarkan perilaku kartu dan kilau. Waktu konfigurasi genre yang bersifat absolut tetap dipertahankan saat skala shot berubah. Tes membuktikan hook paket tiruan bekerja dan inti tidak menyebut `kartu_dalil`/`kilau_cahaya`.
+
+- 22 Nov 2026 — Tahap D2 (implementasi parsial): sisi blocking dihitung dari geometri visual inti; pasangan shot–reverse shot mempertahankan sisi layar dan mengalihkan status bicara ke subjek aktif; lintasan perjalanan mencatat tujuan dan keyframe x/y. Penjaga `PELAKU_JAUH`/`BUKAN_PELAKU_DEKAT` menjadi GAGAL pada rencana otomatis. D2 belum dicentang: tes penuh, render contoh, dan pemeriksaan visual lembar kontak masih wajib.

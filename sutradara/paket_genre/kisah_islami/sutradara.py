@@ -178,51 +178,68 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
         shot["teks"]["sumber"] = " · ".join(dalil_label[x] for x in dalil if x in dalil_label)
     posisi: dict[str, float] = {}
     gerak = resep.get("gerak", "berdiri")
+    subjek_dialog = dialog.get("subjek", dialog.get("pembicara")) if dialog else None
+    pasangan_dialog = []
     if dialog:
         p1, p2 = dialog["pembicara"], dialog.get("penjawab")
-        for pid in (p1, p2):
-            if pid and pid not in hadir:
+        pasangan_dialog = [pid for pid in (p1, p2) if pid]
+        for pid in pasangan_dialog:
+            if pid not in hadir:
                 hadir.append(pid)
-        posisi[p1] = 285 if peta[p1]["kategori"] == "nabi" else 380
+        # Sisi layar ditetapkan oleh urutan pasangan, bukan giliran bicara.
+        posisi[p1] = 380
         if p2:
             posisi[p2] = 820
+    elif pelaku:
+        visual_x = float(keadaan.get("x", 540))
+        setengah = {"bahtera": 390, "dinding_yajuj": 200, "kota_kuno": 145}.get(inti, 180)
+        sisi_pelaku = max(150.0, min(930.0, visual_x + setengah - 45.0))
+        sisi_lawan = max(120.0, min(950.0, visual_x - setengah - 130.0))
+        for pid in hadir:
+            dasar = sisi_pelaku if pid in pelaku else sisi_lawan
+            kelompok_ids = pelaku if pid in pelaku else [x for x in hadir if x not in pelaku]
+            urutan = kelompok_ids.index(pid)
+            posisi[pid] = max(120.0, min(960.0, dasar + (urutan - 0.5) * 54.0))
     else:
         for i, pid in enumerate(hadir):
             posisi[pid] = 250 if peta[pid]["kategori"] == "nabi" else (775 + i*45 if i else 430)
     for pid in hadir:
         p = peta[pid]
         x = posisi.get(pid, 740)
-        bicara = bool(dialog and pid == dialog.get("pembicara"))
+        bicara = bool(dialog and pid == subjek_dialog)
         if p["kategori"] == "nabi":
             shot["nur"].append({"peran":pid,"x":x,"y":1370,"sinar_ke":"kanan" if x<540 else "kiri",
                                 "nama":p["nama"],"bicara":[[.15,max(.25,durasi-.15)]] if bicara else []})
         elif p["kategori"] == "malaikat":
             shot["nur"].append({"peran":pid,"x":x,"y":1300,"_kategori_peran":"malaikat"})
         else:
-            arah="samping" if dialog and dialog.get("penjawab") else "depan"
-            balik=bool(dialog and pid == dialog.get("penjawab"))
             kelompok = p.get("kolektif") is True and pid != fokus and dialog is None
             xs = [x - 86, x, x + 86] if kelompok else [x]
+            lawan = next((q for q in (pasangan_dialog if dialog else (pelaku or [])) if q != pid), None)
+            arah = "samping" if lawan else "depan"
+            balik = bool(lawan and x > posisi.get(lawan, x))
             for xi in xs:
                 a=_aktor(pid,peta,xi,fokus=(pid==fokus),wajah=resep.get("wajah","datar"),
                          gerak=resep.get("gerak","berdiri"),durasi=durasi,bicara=bicara,arah=arah,balik=balik,
                          skala=.78 if kelompok else 1.0)
                 if perjalanan and pid == fokus:
-                    dx = -1 if x > 540 else 1
+                    teks_arah = _polos(narasi)
+                    if "tepi kiri" in teks_arah or "ke kiri" in teks_arah:
+                        tujuan, dx = "tepi:kiri", -1
+                    elif "tepi kanan" in teks_arah or "ke kanan" in teks_arah:
+                        tujuan, dx = "tepi:kanan", 1
+                    else:
+                        dx = 1 if x < 540 else -1
+                        tujuan = f"tepi:{'kanan' if dx > 0 else 'kiri'}"
                     ujung = max(110, min(970, x + 280*dx))
                     kecepatan = abs(ujung - x) / max(durasi, .1)
                     dasar = 120.0 if gerak == "lari" else 74.0
                     faktor = max(.45, min(2.5, kecepatan / dasar))
-                    a.update(x=[[0, x],[durasi, ujung]], arah="samping", balik=(dx < 0),
-                             tujuan=f"tepi:{'kiri' if dx < 0 else 'kanan'}",
+                    lintasan = [[0, x, 1510], [durasi, ujung, 1510]]
+                    a.update(x=[[0, x],[durasi, ujung]], lintasan=lintasan,
+                             arah="samping", balik=(dx < 0), tujuan=tujuan,
                              gerak=gerak, faktor_gerak=round(faktor, 3))
                 shot["tokoh"].append(a)
-    if dialog and dialog.get("penjawab"):
-        # Kedua lawan tetap menatap satu sama lain pada two-shot; reverse shot
-        # memakai fokus tokoh masing-masing pada giliran yang sama.
-        for a in shot["tokoh"]:
-            a["arah"]="samping"
-            a["balik"]=(a["peran"]==dialog["penjawab"])
     return shot
 
 
@@ -273,11 +290,13 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         keadaan,_obj=_keadaan(inti,jalur,teks,i,len(naskah["beat"]))
         jdl=_JUDUL.get(keadaan, " ".join((cuts or b.get("kata_kunci",[]) or [keadaan])[:2]).upper())
         judul=[w for w in re.sub(r"[^A-Z0-9' ]"," ",jdl.upper()).split()[:3]]
+        pelaku = [pid for pid in hadir if peran_map[pid]["kategori"] in {"manusia","nabi"}] if any(v in tindakan for v in ("membangun","membuat","menggali")) else None
         shots=[]
         if dialog:
             for giliran in dialog:
-                for pid in ([giliran["pembicara"], giliran["penjawab"]] if giliran.get("penjawab") else [giliran["pembicara"]]):
-                    g=dict(giliran); g["pembicara"]=pid
+                peserta = [giliran["pembicara"], giliran["penjawab"]] if giliran.get("penjawab") else [giliran["pembicara"]]
+                for pid in peserta:
+                    g=dict(giliran); g["subjek"]=pid
                     shots.append(_shot(inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep,
                                        fokus=pid,dialog=g,pelaku=None))
         else:
@@ -285,8 +304,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
             for si in range(jumlah):
                 fokus = hadir[min(si,len(hadir)-1)] if cuts else None
                 shots.append(_shot(inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep,
-                                   fokus=fokus,pelaku=None,perjalanan=(gerak in {"jalan","lari"} and fokus is not None)))
-        pelaku = [pid for pid in hadir if peran_map[pid]["kategori"] in {"manusia","nabi"}] if any(v in tindakan for v in ("membangun","membuat","menggali")) else None
+                                   fokus=fokus,pelaku=pelaku,perjalanan=(gerak in {"jalan","lari"} and fokus is not None)))
         if pelaku:
             for s in shots:
                 s["pelaku"] = pelaku
