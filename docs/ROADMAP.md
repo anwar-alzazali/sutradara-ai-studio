@@ -153,6 +153,12 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 - **Kriteria selesai:** naskah kisah Nabi Nuh → video otomatis penuh; pemilik menilai "layak tayang" dibanding versi manual.
   Lalu satu kisah baru (mis. Nabi Hud) juga layak tanpa campur tangan kode.
 
+**Implementasi Tahap D1 (PR #45):** format antrean divalidasi dan dirancang oleh paket genre; inti hanya menyediakan
+kontrak, CLI, dan pemeriksaan umum. Keputusan paket Kisah Islami mencakup visual inti/jalur keadaan, preset, peran,
+hook, resep data, tata panggung, dialog, arah hadap, dan lintasan jalan/lari. Model bersifat opsional, mati secara
+  bawaan, menerima adapter yang diinjeksi lewat `--adapter modul:fungsi`, dan biaya agregat dicatat tanpa prompt atau rahasia. Bukti render Nuh/Hud
+dan batas cakupan D1 tercatat di deskripsi PR; penilaian layak tayang tetap keputusan pemilik.
+
 ### ○ Fase 5 — Periksa & kritikus
 1. Periksa teknis (salin `mesin-video/periksa.py`): resolusi, durasi, audio hilang, clipping, layar kosong, teks terpotong.
 2. Lembar kontak otomatis (16 bingkai) + kritik terhadap resep: visual inti tidak berubah, shot terlalu mirip berturut-turut,
@@ -296,3 +302,7 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - 22 Nov 2026 — Tahap D0: pemeriksaan kontinuitas identitas stabil (kartu pemeran vs atribut per shot, termasuk pemeran individu dalam kerumunan) dipindahkan ke `sutradara/rencana/pemeriksaan_umum.py`. Pemeriksaan mode tampil tetap berada di paket Kisah Islami; tidak mengubah kategori adab atau aturan visual genre.
 
 - 22 Nov 2026 — Tahap D0 pemisahan renderer: komponen visual dan data dalil khusus Kisah Islami dipindahkan ke `sutradara/paket_genre/kisah_islami/`; jalur impor lama dipertahankan sebagai shim. Renderer inti menerima hasil lapisan netral melalui kontrak paket. Skema dalil menjadi ekstensi paket, bukan properti inti.
+
+- 22 Nov 2026 — Tahap D1 (bertumpuk di PR #44): format antrean diperluas dengan `peran` per beat dan validator menjelaskan kesalahan struktur dalam bahasa Indonesia. Templat ChatGPT/Gemini ditempatkan di paket Kisah Islami; rujukan dalil tetap berupa ID untuk diverifikasi mesin, bukan teks Arab/terjemahan buatan AI.
+
+- 22 Nov 2026 — Tahap D1, poin 0b: aturan sisipan waktu baca dan efek kemunculan dipindahkan ke hook `PaketGenre`. Garis waktu dan pencampur suara hanya memanggil kontrak generik; paket Kisah Islami mendaftarkan perilaku kartu dan kilau. Waktu konfigurasi genre yang bersifat absolut tetap dipertahankan saat skala shot berubah. Tes membuktikan hook paket tiruan bekerja dan inti tidak menyebut `kartu_dalil`/`kilau_cahaya`.

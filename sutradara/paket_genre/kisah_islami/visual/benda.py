@@ -101,6 +101,40 @@ def lapak(x: float, y: float, warna: str = "#b8452e") -> str:
             f'<path d="M{x - 20} {y} h240" stroke="#f0e0c0" stroke-width="8" stroke-dasharray="24 16"/>{buah}')
 
 
+def kota_kuno(x: float, y: float, s: float = 1.0, *, runtuh: float = 0.0) -> str:
+    """Permukiman tanah generik; runtuh 0..1 mengubah bangunan utuh menjadi reruntuhan."""
+    runtuh = max(0.0, min(1.0, float(runtuh)))
+    bangunan = []
+    for i, (dx, lebar, tinggi) in enumerate(((-390, 100, 170), (-275, 135, 240), (-115, 105, 185),
+                                               (10, 150, 275), (188, 115, 205), (325, 95, 150))):
+        roboh = runtuh * (0.45 + (i % 3) * 0.16)
+        pecah = tinggi * roboh
+        atap = tinggi - pecah
+        bangunan.append(
+            f'<g transform="translate({dx + (i % 2) * pecah * .35:.1f},{-pecah:.1f})">'
+            f'<path d="M0 0 V{-atap:.1f} L{lebar*.28:.1f} {-atap-18:.1f} L{lebar*.5:.1f} {-atap+8:.1f} '
+            f'L{lebar*.72:.1f} {-atap-12:.1f} L{lebar} {-atap+4:.1f} V0Z" fill="{["#73533b", "#876246", "#674936"][i%3]}" stroke="#38281f" stroke-width="8"/>'
+            f'<path d="M{lebar*.22:.1f} -18 v-30 m{lebar*.28:.1f} 30 v-42 m{lebar*.28:.1f} 42 v-24" stroke="#d3a875" stroke-width="7" opacity=".65"/>'
+            f'<rect x="{lebar*.42:.1f}" y="{-min(70, atap*.35):.1f}" width="{lebar*.16:.1f}" height="{min(70, atap*.35):.1f}" fill="#261b19"/>'
+            f'</g>')
+    return (f'<g transform="translate({x:.1f},{y:.1f}) scale({s:.3f})">'
+            '<path d="M-520 0 Q-280 -42 0 -8 Q260 -48 520 0Z" fill="#3e3029" opacity=".8"/>'
+            + "".join(bangunan) + '</g>')
+
+
+def angin(x: float, y: float, kuat: float = 0.0, *, t: float = 0.0, seed: int = 19) -> str:
+    """Garis dan debu lingkungan yang bergerak mengikuti intensitas angin, tanpa sosok atau wujud ghaib."""
+    kuat = max(0.0, min(1.0, float(kuat)))
+    rnd = random.Random(seed)
+    garis = []
+    for i in range(18):
+        yy = y - 260 + i * 29
+        maju = (t * (80 + kuat * 300) + i * 91) % 1180 - 80
+        panjang = 45 + kuat * rnd.randint(40, 180)
+        garis.append(f'<path d="M{maju:.1f} {yy:.1f} q {panjang/2:.1f} {-4+i%8:.1f} {panjang:.1f} 0" stroke="#f2d8ad" stroke-width="{1+kuat*3:.1f}" opacity="{.08+kuat*.26:.2f}" fill="none"/>')
+    return f'<g class="angin" opacity="{kuat:.3f}">' + "".join(garis) + '</g>'
+
+
 def sungai(jenis: str, *, sisi: str, seed: int = 33, t: float = 0.0) -> str:
     """Sungai dari kaki bukit tengah ke depan. jenis: 'air' | 'api'; sisi: 'kiri' | 'kanan'."""
     rnd = random.Random(seed)

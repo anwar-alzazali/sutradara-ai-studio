@@ -1,0 +1,19 @@
+{
+  "judul": "Nuh: Kapal di Tengah Daratan",
+  "inti": "Seruan Nabi Nuh, penolakan kaumnya, dan keselamatan yang datang dari Allah.",
+  "dalil": [
+    {"id": "nuuh11_38", "jenis": "quran", "label": "QS HUD 38", "surah": 11, "ayat": "38"},
+    {"id": "nuuh11_42", "jenis": "quran", "label": "QS HUD 42", "surah": 11, "ayat": "42"},
+    {"id": "nuuh11_43", "jenis": "quran", "label": "QS HUD 43", "surah": 11, "ayat": "43"},
+    {"id": "nuuh11_44", "jenis": "quran", "label": "QS HUD 44", "surah": 11, "ayat": "44"},
+    {"id": "nuuh11_46", "jenis": "quran", "label": "QS HUD 46", "surah": 11, "ayat": "46"},
+    {"id": "nuuh71_2", "jenis": "quran", "label": "QS NUH 2-4", "surah": 71, "ayat": "2-4"}
+  ],
+  "beat": [
+    {"narasi": "Nuh menyeru kaumnya agar menyembah Allah dan memohon ampun kepada-Nya.", "kata_kunci": ["menyeru", "memohon ampun"], "dalil": ["nuuh71_2"], "suasana": "senja", "peran": ["Nabi Nuh", "kaum Nuh"]},
+    {"narasi": "Saat Nabi Nuh membuat kapal, para pemuka kaumnya melewati dan mengejeknya.", "kata_kunci": ["membuat kapal", "mengejek"], "dalil": ["nuuh11_38"], "suasana": "senja", "peran": ["Nabi Nuh", "pemuka kaum Nuh"]},
+    {"narasi": "Di tengah gelombang seperti gunung, Nuh memanggil putranya untuk naik bersama mereka.", "kata_kunci": ["gelombang", "memanggil"], "dalil": ["nuuh11_42"], "suasana": "malam_merah", "peran": ["Nabi Nuh", "putra Nuh"], "dialog": [{"pembicara": "Nabi Nuh", "ucapan": "Naiklah bersama kami.", "penjawab": "putra Nuh"}]},
+    {"narasi": "Putranya berkata akan berlindung ke gunung, lalu gelombang memisahkan mereka.", "kata_kunci": ["gunung", "gelombang"], "dalil": ["nuuh11_43"], "suasana": "malam_merah", "peran": ["Nabi Nuh", "putra Nuh"], "dialog": [{"pembicara": "putra Nuh", "ucapan": "Aku akan berlindung ke gunung.", "penjawab": "Nabi Nuh"}]},
+    {"narasi": "Air surut, kapal berlabuh di Judi, dan Nuh memahami bahwa keselamatan bukan ditentukan oleh nasab.", "kata_kunci": ["air surut", "Judi", "keselamatan"], "dalil": ["nuuh11_44", "nuuh11_46"], "suasana": "fajar", "peran": ["Nabi Nuh"]}
+  ]
+}

@@ -34,6 +34,19 @@ def test_shot_tidak_boleh_memakai_nabi_sebagai_tokoh():
     assert "TOKOH_SUCI" in kode(periksa(r))
 
 
+def test_penjaga_rencana_otomatis_mewajibkan_tujuan_dan_lintasan_jalan():
+    r = muat("nuh_mengejek.json")
+    r["beat"] = [r["beat"][0]]
+    r["beat"][0]["shot"] = [r["beat"][0]["shot"][0]]
+    r["hook"]["dari_beat"] = 0
+    r["dibuat_otomatis"] = True
+    aktor = r["beat"][0]["shot"][0]["tokoh"][0]
+    aktor.update(gerak="jalan", x=aktor["x"] if isinstance(aktor["x"], (int, float)) else 430)
+    assert {"TUJUAN_GERAK_TAK_ADA", "LINTASAN_TAK_ADA"} <= kode(periksa(r))
+    aktor.update(tujuan="tepi:kiri", x=[[0, 520], [2, 300]], arah="samping", balik=True)
+    assert not {"TUJUAN_GERAK_TAK_ADA", "LINTASAN_TAK_ADA"} & kode(periksa(r))
+
+
 def test_nur_hanya_untuk_tokoh_suci():
     r = muat("nuh_mengejek.json")
     r["peran"][1]["tampil"] = "nur"

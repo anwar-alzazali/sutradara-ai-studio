@@ -8,8 +8,8 @@ from sutradara import antrean as A
 
 DATA = Path(__file__).parent / "data"
 NASKAH = {"judul": "Uji", "inti": "x", "dalil": [{"id": "b1", "jenis": "hadis", "label": "HR. BUKHARI 1", "kitab": "bukhari", "nomor": "1"}],
-          "beat": [{"narasi": "Kalimat pertama yang kuat.", "dalil": ["b1"], "suasana": "senja", "kata_kunci": ["kuat"]},
-                   {"narasi": "Kalimat kedua.", "dalil": [], "suasana": "malam"}]}
+          "beat": [{"narasi": "Kalimat pertama yang kuat.", "dalil": ["b1"], "suasana": "senja", "kata_kunci": ["kuat"], "peran": ["tokoh utama"]},
+                   {"narasi": "Kalimat kedua.", "dalil": [], "suasana": "malam", "kata_kunci": [], "peran": []}]}
 
 
 class QuranTiruan:
@@ -32,6 +32,46 @@ def test_validasi_menangkap_kesalahan_format():
     g = " | ".join(A.validasi(rusak))
     for kata in ("huruf Arab", "tidakada", "surah/ayat", "ahmad"):
         assert kata in g
+
+
+def test_validator_menjelaskan_kesalahan_kunci_format_beat():
+    rusak = json.loads(json.dumps(NASKAH))
+    del rusak["beat"][0]["peran"]
+    rusak["beat"][1]["kata_kunci"] = "malam"
+    rusak["beat"][1]["dalil"] = [{"bukan": "id"}]
+    galat = " | ".join(A.validasi(rusak))
+    assert "peran harus berupa daftar" in galat
+    assert "kata_kunci harus berupa daftar" in galat
+    assert "dalil harus berupa daftar id" in galat
+
+
+def test_validator_menolak_id_dalil_ganda_dan_peran_tidak_teks():
+    rusak = json.loads(json.dumps(NASKAH))
+    rusak["dalil"].append(dict(rusak["dalil"][0]))
+    rusak["beat"][0]["peran"] = [None]
+    galat = " | ".join(A.validasi(rusak))
+    assert "dipakai lebih dari sekali" in galat
+    assert "peran harus berupa daftar" in galat
+
+
+def test_validator_dialog_memerlukan_pembicara_ucapan_dan_penjawab_bertipe_teks():
+    n = json.loads(json.dumps(NASKAH))
+    n["beat"][0]["peran"] = ["Nabi", "kaum"]
+    n["beat"][0]["dialog"] = [{"pembicara": "Nabi", "ucapan": "Jangan takut.", "penjawab": "kaum"}]
+    assert A.validasi(n) == []
+    n["beat"][0]["dialog"] = [{"pembicara": " ", "ucapan": 3, "penjawab": 2}]
+    galat = " ".join(A.validasi(n))
+    assert "pembicara kosong" in galat
+    assert "ucapan kosong" in galat
+    assert "penjawab harus berupa nama peran" in galat
+
+
+def test_validator_dialog_mengharuskan_peran_terdaftar_dan_tidak_menggambar_allah():
+    n = json.loads(json.dumps(NASKAH))
+    n["beat"][0]["dialog"] = [{"pembicara": "Allah", "ucapan": "...", "penjawab": "tokoh yang tidak ada"}]
+    galat = " | ".join(A.validasi(n))
+    assert "Allah tidak digambarkan" in galat
+    assert "belum tercantum di peran" in galat
 
 
 def test_narasi_tempelan_tidak_boleh_diubah_ai():
@@ -65,14 +105,26 @@ def test_tempel_narasi_diambil_apa_adanya_walau_ai_mengubah(tmp_path, monkeypatc
     monkeypatch.setattr(H, "DATA", DATA / "hadis")
     asal = "Judul: Uji Tempel\n\nKalimat pertama, mereka mengejeknya. (QS Hud 38)\n\nKalimat kedua.\n\nKalimat ketiga yang terlewat AI."
     d = _siapkan(tmp_path, "tempel", asal)
-    peta = {"judul": "Judul karangan AI", "dalil": [{"id": "hud38", "jenis": "quran", "label": "QS HUD 38", "surah": 11, "ayat": "38"}],
-            "beat": [{"paragraf": [2], "dalil": [], "suasana": "malam"}, {"paragraf": [1], "dalil": ["hud38"], "suasana": "senja",
+    peta = {"judul": "Judul karangan AI", "inti": "Uji pemetaan paragraf.", "dalil": [{"id": "hud38", "jenis": "quran", "label": "QS HUD 38", "surah": 11, "ayat": "38"}],
+            "beat": [{"paragraf": [2], "dalil": [], "suasana": "malam", "kata_kunci": ["kedua"], "peran": []},
+                     {"paragraf": [1], "dalil": ["hud38"], "suasana": "senja", "kata_kunci": ["ejekan"], "peran": ["Nabi Nuh"],
                       "narasi": "mereka mengejek Nuh (diubah AI, harus diabaikan)"}]}
     st = A.proses("u1", "tempel", folder=tmp_path, tanya=lambda *a, **k: (json.dumps(peta), 1), quran=QuranTiruan(), kirim_tg=False)
     n = json.loads((d / "naskah.json").read_text(encoding="utf-8"))
     assert n["judul"] == "Uji Tempel"
     assert [b["narasi"] for b in n["beat"]] == ["Kalimat pertama, mereka mengejeknya.", "Kalimat kedua.", "Kalimat ketiga yang terlewat AI."]
     assert n["beat"][0]["dalil"] == ["hud38"] and st["tahap"]["diterima"] == "selesai"
+
+
+def test_tempel_mengurutkan_paragraf_berdasarkan_nomor_bukan_kecocokan_substring():
+    asal = "Nabi Nuh pergi.\n\nNabi Nuh pergi ke laut."
+    peta = {"judul": "Uji urutan", "inti": "Uji urutan paragraf.",
+            "dalil": [], "beat": [
+                {"paragraf": [2], "dalil": [], "kata_kunci": [], "peran": []},
+                {"paragraf": [1], "dalil": [], "kata_kunci": [], "peran": []},
+            ]}
+    n, _ = A.buat_naskah("tempel", asal, tanya=lambda *a, **k: (json.dumps(peta), 1))
+    assert [b["narasi"] for b in n["beat"]] == ["Nabi Nuh pergi.", "Nabi Nuh pergi ke laut."]
 
 
 def test_paragraf_membuang_rujukan_dalam_kurung():
@@ -94,9 +146,10 @@ def test_teks_tinjauan_memuat_tanda_dalil_dan_muat_telegram():
 
 
 def test_normalisasi_keluaran_ai_yang_wajar_salah():
-    n = {"judul": "x", "dalil": [{"id": "a", "jenis": "QS", "surah": "11", "ayat": "38 "},
+    n = {"judul": "x", "inti": "Inti kisah.", "dalil": [{"id": "a", "jenis": "QS", "surah": "11", "ayat": "38 "},
                                  {"id": "b", "jenis": "Hadits", "kitab": "Sahih Muslim", "nomor": " 2934B"}],
-         "beat": [{"narasi": "x", "dalil": ["a", "b"], "suasana": "Tegas, penuh ejekan"}]}
+         "beat": [{"narasi": "x", "dalil": ["a", "b"], "suasana": "Tegas, penuh ejekan",
+                   "kata_kunci": ["x"], "peran": []}]}
     A.normalisasi(n)
     assert A.validasi(n) == []
     assert n["dalil"][0]["surah"] == 11 and n["dalil"][1]["kitab"] == "muslim" and n["dalil"][1]["nomor"] == "2934b"
@@ -130,7 +183,19 @@ def test_urutan_model_cadangan_lite():
         ["gemini-3.8-flash", "gemini-3.5-flash", "gemini-3.8-flash-lite"]
 
 
-def test_rujukan_tanpa_dalil_dibuang_dengan_peringatan():
+def test_rujukan_tidak_dikenal_dipertahankan_dan_menggagalkan_validasi():
     n = json.loads(json.dumps(NASKAH)); n["beat"][1]["dalil"] = ["b1", "hud53"]
     A.normalisasi(n)
-    assert A.validasi(n) == [] and n["beat"][1]["dalil"] == ["b1"] and "hud53" in n["peringatan"][0]
+    assert n["beat"][1]["dalil"] == ["b1", "hud53"]
+    assert any("hud53" in galat for galat in A.validasi(n))
+    assert "hud53" in n["peringatan"][0]
+
+
+@pytest.mark.parametrize("peringatan", [None, "teks salah", 7, {}])
+def test_normalisasi_tidak_gagal_jika_peringatan_bukan_daftar(peringatan):
+    n = json.loads(json.dumps(NASKAH))
+    n["beat"][1]["dalil"] = ["b1", "hud53"]
+    n["peringatan"] = peringatan
+    A.normalisasi(n)
+    assert isinstance(n["peringatan"], list)
+    assert "hud53" in n["peringatan"][0]

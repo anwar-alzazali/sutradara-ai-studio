@@ -64,6 +64,12 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 - Pihak yang berseberangan (yang mengejek, yang menolak) datang dari sisi lain atau melintas di depan, menghadap pelaku.
 - Posisi tiap pihak dipertahankan antar-shot (resep A5) supaya penonton tidak bingung arah.
 - Dicek otomatis: tulis `pelaku` di beat → penjaga memberi `PELAKU_JAUH` / `BUKAN_PELAKU_DEKAT`.
+- Sutradara dari naskah mengisi koordinat tanpa koordinat tangan: visual inti berada di pusat tengah, pelaku aksi
+  ditempatkan dekat tepinya, sedangkan pihak lawan dipertahankan di sisi seberang. Pembicara dan penjawab mendapat
+  shot dekat bergantian; dua pihak dalam dialog menghadap satu sama lain. Pilar nur boleh memiliki status bicara,
+  tetapi tetap tanpa wajah atau bentuk tubuh.
+- Jalan/lari otomatis harus memiliki tujuan dan keyframe lintasan; arah samping serta sisi kiri/kanan mengikuti
+  perpindahan. Gerak siklus di tempat hanya boleh bila diberi `di_tempat` dan alasan yang menjelaskan pilihan kamera.
 
 ## 3b. Suara mengikuti aksi
 - Efek suara terikat pada apa yang SEDANG DILAKUKAN di layar, bukan ditempel menurut detik. Palu mengikuti gerak

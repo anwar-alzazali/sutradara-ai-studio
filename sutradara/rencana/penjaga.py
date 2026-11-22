@@ -86,11 +86,15 @@ def periksa(rencana: dict, *, final: bool = False) -> list[Temuan]:
     if temuan:
         return temuan
 
-    if paket.validator is None:
-        return []
-    hasil = paket.validator(rencana, final=final)
-    if not isinstance(hasil, list) or any(not isinstance(item, Temuan) for item in hasil):
-        raise TypeError(f"validator genre {paket.nama!r} harus mengembalikan list[Temuan]")
+    hasil: list[Temuan] = []
+    if paket.validator is not None:
+        khusus = paket.validator(rencana, final=final)
+        if not isinstance(khusus, list) or any(not isinstance(item, Temuan) for item in khusus):
+            raise TypeError(f"validator genre {paket.nama!r} harus mengembalikan list[Temuan]")
+        hasil.extend(khusus)
+    if rencana.get("dibuat_otomatis") is True:
+        from .pemeriksaan_umum import periksa_lintasan_dan_interaksi
+        hasil.extend(periksa_lintasan_dan_interaksi(rencana))
     return hasil
 
 

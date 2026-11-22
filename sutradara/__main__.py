@@ -5,6 +5,7 @@
   python -m sutradara video contoh/nuh_mengejek.json -o keluaran/nuh.mp4 [--fps 30] [--lembar]
   python -m sutradara verifikasi contoh/nuh_mengejek.json [-o hasil.json] # isi status dalil dari sumber resmi
   python -m sutradara naskah contoh/nuh_mengejek.json   # cek naskah sebelum membayar narasi (potong_di, Arab, jumlah huruf)
+  python -m sutradara sutradarai naskah/nuh.json -o keluaran/nuh_plan.json # rancang dari format antrean
   python -m sutradara suara contoh/nuh_mengejek.json    # buat narasi ElevenLabs (butuh ELEVENLABS_API_KEY; dipakai workflow)
   python -m sutradara ambil-suara                       # ambil narasi hasil workflow dari cabang `suara`
   python -m sutradara video contoh/nuh_mengejek.json --suara -o keluaran/nuh.mp4  # video bersuara
@@ -12,6 +13,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import sys
 from pathlib import Path
@@ -34,6 +36,10 @@ def main(argv=None) -> int:
     sub.add_parser("ambil-suara")
     sub.add_parser("diagnosa-quran", help="cek kunci Quran Foundation per lingkungan/scope (tanpa mencetak rahasia)")
     v = sub.add_parser("verifikasi"); v.add_argument("rencana"); v.add_argument("-o", "--keluar", help="bawaan: timpa berkas rencana")
+    d = sub.add_parser("sutradarai", help="ubah naskah antrean menjadi rencana melalui paket genre")
+    d.add_argument("naskah"); d.add_argument("-o", "--keluar", required=True)
+    d.add_argument("--pakai-model", action="store_true", help="izinkan adapter model opsional bila aturan ragu")
+    d.add_argument("--adapter", help="fungsi Python adapter berbentuk modul:fungsi; mengembalikan (rencana, biaya)")
     arg = ap.parse_args(argv)
 
     if arg.perintah == "diagnosa-quran":
@@ -48,6 +54,24 @@ def main(argv=None) -> int:
         for env in ("production", "prelive"):
             h = periksa_lingkungan(env)
             print("HADIS | " + " | ".join(f"{k}={v}" for k, v in h.items()))
+        return 0
+
+    if arg.perintah == "sutradarai":
+        from .direktur import rancang
+        naskah = json.loads(Path(arg.naskah).read_text(encoding="utf-8-sig"))
+        adapter = None
+        if arg.adapter:
+            if ":" not in arg.adapter:
+                raise ValueError("--adapter harus berbentuk modul:fungsi")
+            modul, fungsi = arg.adapter.split(":", 1)
+            adapter = getattr(importlib.import_module(modul), fungsi)
+        if arg.pakai_model and adapter is None:
+            raise ValueError("--pakai-model perlu --adapter modul:fungsi; model tidak dipanggil tanpa adapter eksplisit")
+        rencana = rancang(naskah, gunakan_model=True if arg.pakai_model else None, model=adapter)
+        tujuan = Path(arg.keluar)
+        tujuan.parent.mkdir(parents=True, exist_ok=True)
+        tujuan.write_text(json.dumps(rencana, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print("rencana ditulis:", tujuan)
         return 0
 
     if arg.perintah == "verifikasi":
