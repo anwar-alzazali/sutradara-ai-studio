@@ -17,7 +17,9 @@ _KATA_EMOSI = {
 }
 _GERAK = {"membangun": "palu", "membuat": "palu", "menggali": "gali", "mengejek": "tertawa",
           "tertawa": "tertawa", "berjalan": "jalan", "melintas": "jalan", "berlari": "lari",
-          "lari": "lari", "kabur": "lari", "melarikan diri": "lari", "berdoa": "berdoa", "memohon": "berdoa", "mundur": "jalan"}
+          "lari": "lari", "kabur": "lari", "melarikan diri": "lari", "menunjuk": "tunjuk", "menuding": "tunjuk",
+          "mengulurkan": "ulurkan", "menyerahkan": "ulurkan", "memberikan": "ulurkan", "menerima": "ulurkan",
+          "berdoa": "berdoa", "memohon": "berdoa", "mundur": "jalan"}
 _JUDUL = {
     "rangka": "MULAI MEMBANGUN", "jadi": "KAPAL SELESAI", "badai": "BANJIR DATANG", "tenang": "SELAMAT",
     "seruan": "MENYERU", "menolak": "MEREKA MENOLAK", "angin": "ANGIN DATANG", "selamat": "DISELAMATKAN",
