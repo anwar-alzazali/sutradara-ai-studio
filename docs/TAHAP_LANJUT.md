@@ -217,6 +217,19 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
    ikut tokoh, kepergian, atau tokoh yang sedang memandang sesuatu. Sutradara yang memilih arah hadap, bukan nilai
    bawaan. Bila perlu, tambahkan arah tiga-perempat di rangka tokoh. Penjaga memberi PERIKSA (bukan GAGAL) bila
    pasangan serah-terima/dialog sama-sama menghadap kamera tanpa alasan.
+3d. **Berjalan/berlari sesuai tujuan** (pemilik, 22 Nov 2026). Saat ini `jalan`/`lari` hanya siklus kaki di
+   tempat; tokoh tidak berpindah dan tidak otomatis menghadap arah gerak.
+   - Tokoh yang berjalan/berlari punya **tujuan** (benda, tokoh, atau tepi layar yang mewakili tempat) dan
+     **lintasan** x/y dari awal ke tujuan. Tubuh menghadap arah lintasan (samping dan sisi kiri/kanan otomatis
+     dari arah gerak), atau menjauh/mendekat (belakang/depan) bila lintasannya ke dalam/keluar layar.
+   - Kecepatan langkah selaras dengan kecepatan berpindah, supaya kaki tidak tampak meluncur.
+   - **Arah layar konsisten antar-shot:** perjalanan menuju tempat yang sama tetap bergerak ke sisi layar yang
+     sama (kaidah 180 derajat). Kembali/kabur = arah sebaliknya. Pengejar dan yang dikejar searah.
+   - Berbalik arah hanya bila cerita memang berbalik, dengan putaran badan (depan/samping/belakang sudah bisa
+     diinterpolasi).
+   - Penjaga: GAGAL bila `jalan`/`lari` tidak punya lintasan atau tujuan, kecuali ditandai `di_tempat` dengan
+     alasan (mis. kamera ikut bergerak). PERIKSA bila arah hadap berlawanan dengan arah gerak, atau arah layar
+     berganti antar-shot menuju tujuan yang sama.
 4. **Keputusan tingkat shot:**
    - pecah enumerasi menjadi shot per kata dan eskalasi pada pengulangan;
    - kamera mengikuti posisi beat;
