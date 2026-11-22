@@ -94,6 +94,35 @@ def test_kontrak_paket_tidak_bisa_diubah_setelah_dibuat():
         paket.bawaan["mode"] = "berubah"
 
 
+def test_skema_tambahan_tidak_bisa_diubah_secara_tidak_langsung():
+    skema = {
+        "properties": {
+            "muatan": {
+                "type": "object",
+                "required": ["kode"],
+                "properties": {"kode": {"type": "string"}},
+            }
+        }
+    }
+    paket = PaketGenre(nama="genre_skema_terkunci_uji", skema_tambahan=skema)
+
+    # Perubahan ke manifest asal atau objek bersarang yang terlihat tidak boleh mengubah kontrak.
+    skema["properties"]["muatan"]["properties"]["kode"]["type"] = "integer"
+    with pytest.raises(TypeError):
+        paket.skema_tambahan["properties"]["muatan"]["properties"]["kode"]["type"] = "integer"
+    with pytest.raises(TypeError):
+        paket.skema_tambahan["properties"]["muatan"]["required"][0] = "lain"
+
+    skema_efektif = _skema_paket(paket)
+    assert skema_efektif["properties"]["muatan"]["properties"]["kode"]["type"] == "string"
+    validator = Draft202012Validator(skema_efektif)
+    rencana = _rencana_tanpa_dalil()
+    rencana["muatan"] = {"kode": "teks"}
+    assert validator.is_valid(rencana)
+    rencana["muatan"] = {"kode": 123}
+    assert not validator.is_valid(rencana)
+
+
 def test_skema_menerima_genre_opsional_dengan_nama_paket_generik():
     validator = Draft202012Validator(_skema_paket(dari_rencana({})))
     contoh = Path(__file__).resolve().parents[1] / "contoh" / "nuh_mengejek.json"
