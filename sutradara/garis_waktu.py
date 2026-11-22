@@ -88,37 +88,37 @@ def frasa(kata: list[dict], maks: int = MAKS_KATA_FRASA) -> list[dict]:
     return hasil
 
 
-def skala_waktu(spec, f: float):
-    """Kalikan semua waktu di dalam spesifikasi shot dengan f (keyframe [[t,v]], jadwal [[t,nama]], peristiwa)."""
+def skala_waktu(spec, f: float, paket=None):
+    """Kalikan waktu shot; paket genre dapat menandai konfigurasi waktu yang bersifat absolut."""
     if isinstance(spec, dict):
         out = {}
         for k, v in spec.items():
             if k in KUNCI_MULAI and isinstance(v, (int, float)):
                 out[k] = v * f
-            elif k == "kartu_dalil":
-                out[k] = v  # waktu kartu dihitung dari waktu baca, tidak diskala
+            elif paket is not None and paket.waktu_tetap and paket.waktu_tetap(spec, k):
+                out[k] = copy.deepcopy(v)
             else:
-                out[k] = skala_waktu(v, f)
+                out[k] = skala_waktu(v, f, paket)
         return out
     if isinstance(spec, list):
         if spec and all(isinstance(p, (list, tuple)) and len(p) == 2 and isinstance(p[0], (int, float))
                         and not isinstance(p[0], bool) for p in spec):
-            return [[p[0] * f, skala_waktu(p[1], f) if isinstance(p[1], (dict, list)) else p[1]] for p in spec]
-        return [skala_waktu(v, f) for v in spec]
+            return [[p[0] * f, skala_waktu(p[1], f, paket) if isinstance(p[1], (dict, list)) else p[1]] for p in spec]
+        return [skala_waktu(v, f, paket) for v in spec]
     return spec
 
 
-def _sisipan_kartu(shot: dict) -> bool:
-    return bool(shot.get("kartu_dalil")) and "durasi" not in shot
+def _sisipan_waktu_baca(shot: dict, paket) -> bool:
+    return bool(paket.sisipan_waktu_baca and paket.sisipan_waktu_baca(shot)) and "durasi" not in shot
 
 
 def _durasi_rancangan(shot: dict, dl: dict) -> float:
     return adegan.durasi(shot, dl)
 
 
-def _shot_baru(shot: dict, durasi_baru: float, dl: dict) -> dict:
+def _shot_baru(shot: dict, durasi_baru: float, dl: dict, paket) -> dict:
     lama = _durasi_rancangan(shot, dl)
-    s = skala_waktu(copy.deepcopy(shot), durasi_baru / lama) if lama > 0 and not _sisipan_kartu(shot) else copy.deepcopy(shot)
+    s = skala_waktu(copy.deepcopy(shot), durasi_baru / lama, paket) if lama > 0 and not _sisipan_waktu_baca(shot, paket) else copy.deepcopy(shot)
     s["durasi"] = round(durasi_baru, 3)
     tx = s.get("teks")
     if tx:  # subtitle kini dari waktu kata (global); subtitle tulisan tangan dibuang
@@ -129,7 +129,9 @@ def _shot_baru(shot: dict, durasi_baru: float, dl: dict) -> dict:
 
 def susun(rencana: dict, narasi: dict) -> Garis:
     """`narasi` = isi JSON dari suara.narasi.buat: {"beat": [[[t0, t1, teks], ...], ...]}."""
-    dl = {d["id"]: d for d in rencana.get("dalil", [])}
+    from .genre import dari_rencana
+    paket = dari_rencana(rencana)
+    dl = paket.data_render(rencana) if paket.data_render else {}
     cfg = rencana.get("suara") or {}
     jeda_umum, awal = cfg.get("jeda", JEDA), cfg.get("awal", AWAL)
     kata_semua = narasi["beat"]
@@ -141,12 +143,12 @@ def susun(rencana: dict, narasi: dict) -> Garis:
     for i, (beat, kk) in enumerate(zip(rencana["beat"], kata_semua)):
         g.awal_beat.append(v)
         shots = beat["shot"]
-        kartu = [s for s in shots if _sisipan_kartu(s)]
-        bicara = [s for s in shots if not _sisipan_kartu(s)]
+        sisipan = [s for s in shots if _sisipan_waktu_baca(s, paket)]
+        bicara = [s for s in shots if not _sisipan_waktu_baca(s, paket)]
         if not kk:  # beat tanpa narasi: durasi rancangan apa adanya
             for s in shots:
                 d = _durasi_rancangan(s, dl)
-                g.shot.append(_shot_baru(s, d, dl)); g.potong.append(v); v += d
+                g.shot.append(_shot_baru(s, d, dl, paket)); g.potong.append(v); v += d
             continue
         # potongan audio beat ini: sedikit napas sebelum kata pertama dan ekor sesudah kata terakhir
         sblm = kata_semua[i - 1][-1][1] if i > 0 and kata_semua[i - 1] else 0.0
@@ -161,11 +163,11 @@ def susun(rencana: dict, narasi: dict) -> Garis:
         kata_v = [{"t0": t0 + geser, "t1": t1 + geser, "teks": w, "beat": i} for t0, t1, w in kk]
         g.kata += kata_v
         jeda = beat.get("jeda", jeda_umum)
-        akhir_bicara = kata_v[-1]["t1"] + (EKOR if i == n_beat - 1 and not kartu else jeda)
-        if not bicara:  # hanya kartu: narasi di atas kartu
-            d = max(akhir_bicara - v, sum(_durasi_rancangan(s, dl) for s in kartu))
-            ds = [_durasi_rancangan(s, dl) for s in kartu]; ds[-1] += d - sum(ds)
-            for s, dd in zip(kartu, ds):
+        akhir_bicara = kata_v[-1]["t1"] + (EKOR if i == n_beat - 1 and not sisipan else jeda)
+        if not bicara:  # hanya sisipan: narasi berjalan di atasnya
+            d = max(akhir_bicara - v, sum(_durasi_rancangan(s, dl) for s in sisipan))
+            ds = [_durasi_rancangan(s, dl) for s in sisipan]; ds[-1] += d - sum(ds)
+            for s, dd in zip(sisipan, ds):
                 g.shot.append(_shot_baru(s, dd, dl)); g.potong.append(v); v += dd
             continue
         # titik potong di antara shot berbicara
@@ -187,9 +189,9 @@ def susun(rencana: dict, narasi: dict) -> Garis:
         for s, t0, t1 in zip(bicara, batas, batas[1:]):
             d = max(MIN_SHOT, t1 - t0)
             g.shot.append(_shot_baru(s, d, dl)); g.potong.append(v); v += d
-        for s in kartu:
+        for s in sisipan:
             d = _durasi_rancangan(s, dl) + (EKOR * 0.5 if i == n_beat - 1 else 0)
-            g.shot.append(_shot_baru(s, d, dl)); g.potong.append(v); v += d
+            g.shot.append(_shot_baru(s, d, dl, paket)); g.potong.append(v); v += d
     g.total = v
     return g
 
@@ -205,7 +207,9 @@ def periksa_naskah(rencana: dict) -> list[str]:
                 pos = next(j for j in range(pos, len(kata)) if _cocok(kata[j], w)) + 1
             except StopIteration:
                 galat.append(f"beat {i}: kata potong '{w}' tidak ada (atau tidak berurutan) di narasi")
-        n_bicara = len([s for s in b["shot"] if not _sisipan_kartu(s)])
+        from .genre import dari_rencana
+        paket = dari_rencana(rencana)
+        n_bicara = len([s for s in b["shot"] if not _sisipan_waktu_baca(s, paket)])
         if b.get("potong_di") and len(b["potong_di"]) != n_bicara - 1:
             galat.append(f"beat {i}: potong_di berisi {len(b['potong_di'])} kata untuk {n_bicara} shot berbicara (harus {n_bicara - 1})")
     return galat
