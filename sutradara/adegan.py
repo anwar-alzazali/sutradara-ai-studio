@@ -169,7 +169,7 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
         tengah.append((m["y"] - 1, s))
     for n in sp.get("nur", []):
         if not n.get("di_belakang_benda"):
-            tengah.append((n["y"], _cahaya_mulia(n, tg)))
+            tengah.append((n["y"], _cahaya_mulia(n, tg, komponen)))
     for d in sp.get("dajjal", []):
         tengah.append((d["y"], komponen["dajjal.belakang"](d["x"], d["y"], d.get("s", 1), t=tg, jalan=d.get("jalan", False), jubah_berkibar=d.get("jubah_berkibar", 0.0), buka=d.get("buka", 0.0)) if d.get("arah") == "belakang" else komponen["dajjal.sosok"](d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"))))
     for i, (tk, asli) in enumerate(zip(sp.get("tokoh", []), shot.get("tokoh", []))):
