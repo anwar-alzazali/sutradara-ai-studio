@@ -31,6 +31,9 @@ class PaketGenre:
     panduan_gaya: str|None=None
     resep: str|None=None
     bawaan: Mapping[str,Any]=field(default_factory=dict)
+    sisipan_waktu_baca: Callable[[dict[str,Any]],bool]|None=None
+    waktu_tetap: Callable[[dict[str,Any],str],bool]|None=None
+    efek_kemunculan: Callable[[dict[str,Any]],list[dict[str,Any]]]|None=None
     def __post_init__(self):
         object.__setattr__(self,"komponen",MappingProxyType(dict(self.komponen)))
         object.__setattr__(self,"skema_tambahan",MappingProxyType(dict(self.skema_tambahan)))
