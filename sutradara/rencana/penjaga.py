@@ -5,6 +5,7 @@ tidak putus selama pemisahan implementasi.
 """
 from __future__ import annotations
 
+import copy
 import importlib
 import json
 from dataclasses import dataclass
@@ -26,17 +27,47 @@ class Temuan:
         return f"[{self.tingkat}] {self.kode}: {self.pesan}"
 
 
+def _skema_paket(paket) -> dict[str, Any]:
+    """Gabungkan ekstensi skema paket ke skema inti tanpa mengizinkan override diam-diam."""
+    hasil = copy.deepcopy(SKEMA)
+    tambahan = dict(paket.skema_tambahan)
+    properti = tambahan.pop("properties", {})
+    if not isinstance(properti, dict):
+        raise TypeError(f"skema_tambahan paket {paket.nama!r}: properties harus berupa objek")
+    inti = hasil.setdefault("properties", {})
+    bentrok = set(inti).intersection(properti)
+    if bentrok:
+        raise ValueError(
+            f"skema_tambahan paket {paket.nama!r} menimpa properti inti: {', '.join(sorted(bentrok))}"
+        )
+    inti.update(properti)
+
+    wajib = tambahan.pop("required", [])
+    if not isinstance(wajib, list) or any(not isinstance(n, str) for n in wajib):
+        raise TypeError(f"skema_tambahan paket {paket.nama!r}: required harus berupa daftar nama")
+    if wajib:
+        hasil["required"] = list(dict.fromkeys([*hasil.get("required", []), *wajib]))
+
+    # Kata kunci JSON Schema lain tetap didukung sebagai batas tambahan,
+    # bukan pengganti aturan inti.
+    if tambahan:
+        hasil = {"allOf": [hasil, tambahan]}
+    return hasil
+
+
 def periksa(rencana: dict, *, final: bool = False) -> list[Temuan]:
-    """Periksa skema inti, lalu delegasikan aturan domain ke paket genre aktif."""
+    """Periksa skema inti + ekstensi paket, lalu delegasikan aturan domain."""
+    from ..genre import dari_rencana
+
+    paket = dari_rencana(rencana)
+    skema = _skema_paket(paket)
     temuan = [
         Temuan("GAGAL", "SKEMA", f"{'/'.join(map(str, e.path)) or '(akar)'}: {e.message}")
-        for e in sorted(Draft202012Validator(SKEMA).iter_errors(rencana), key=lambda e: list(e.path))
+        for e in sorted(Draft202012Validator(skema).iter_errors(rencana), key=lambda e: list(e.path))
     ]
     if temuan:
         return temuan
 
-    from ..genre import dari_rencana
-    paket = dari_rencana(rencana)
     if paket.validator is None:
         return []
     hasil = paket.validator(rencana, final=final)
