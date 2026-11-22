@@ -248,7 +248,11 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
             menunjuk_visual = "menunjuk" in _polos(narasi) and any(
                 k in _polos(narasi) for k in ("bahtera", "kapal", "dinding", "kota")
             )
-            if lawan:
+            if pelaku and pid in pelaku:
+                # Pelaku aksi menghadap visual inti yang sedang dikerjakan.
+                arah = "samping"
+                balik = x > float(keadaan.get("x", 540))
+            elif lawan:
                 arah = "samping"
                 balik = x > posisi.get(lawan, x)
             elif menunjuk_visual:
@@ -352,7 +356,9 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         resep = dict(resep); resep["gerak"] = gerak
         cuts=[]
         for kata in b.get("kata_kunci",[]):
-            if _polos(kata) in tindakan and len(cuts)<2:
+            kata_polos = _polos(kata)
+            if (kata_polos in tindakan and len(cuts) < 2
+                    and not (gerak in {"jalan", "lari"} and kata_polos in {"berjalan", "berlari", "lari", "melintas", "kabur"})):
                 cuts.append(kata)
         dialog = []
         for giliran in b.get("dialog",[]):
@@ -388,7 +394,9 @@ def rancang(naskah: dict) -> tuple[dict, float]:
             jumlah=1+len(cuts)
             for si in range(jumlah):
                 fokus = hadir[min(si,len(hadir)-1)] if cuts else (
-                    interaksi[0] if interaksi else (hadir[0] if gerak in {"jalan", "lari"} else None)
+                    interaksi[0] if interaksi else (
+                        hadir[0] if gerak in {"jalan", "lari"} or "menunjuk" in tindakan else None
+                    )
                 )
                 shots.append(_shot(inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep,
                                    fokus=fokus,pelaku=pelaku,interaksi=interaksi,
