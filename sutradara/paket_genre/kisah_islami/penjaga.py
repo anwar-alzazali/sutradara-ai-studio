@@ -17,16 +17,6 @@ PITA_KEDALAMAN = 180  # tokoh yang kakinya > 180 px di depan visual inti diangga
 ALASAN_SILUET = {"misteri", "kilas_balik", "kerumunan_sangat_jauh", "wajah_disembunyikan"}
 
 
-@dataclass
-class Temuan:
-    tingkat: str  # GAGAL | PERIKSA
-    kode: str
-    pesan: str
-
-    def __str__(self) -> str:
-        return f"[{self.tingkat}] {self.kode}: {self.pesan}"
-
-
 def periksa_khusus(rencana: dict, *, final: bool = False) -> list[Temuan]:
     """Jalankan aturan adab, dalil, dan resep yang khusus untuk genre Kisah Islami."""
     t: list[Temuan] = []
