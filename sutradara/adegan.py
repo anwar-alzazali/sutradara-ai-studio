@@ -28,21 +28,21 @@ import math
 import random
 
 from . import kamera as KM
-from .gaya import benda as BD, dajjal as DJ, dasar, kartu as KT, latar as LT, makhluk as MK, nur as NR, teks as TX, tokoh as TK
+from .gaya import benda as BD, dasar, latar as LT, teks as TX, tokoh as TK
+from .genre import ambil
 from .waktu import pada
-from .gaya import akhir_zaman as AZ, malaikat as MA
 
 DURASI_BAWAAN = 3.0
 
 
-def _cahaya_mulia(n: dict, tg: float) -> str:
-    """Pilih bentuk cahaya berdasarkan kategori; malaikat tidak pernah menjadi pilar."""
+def _cahaya_mulia(n: dict, tg: float, komponen) -> str:
+    """Pilih bentuk cahaya yang disediakan paket genre aktif."""
     if n.get("_kategori_peran") == "malaikat":
-        return MA.berkas(n["x"], n["y"], tinggi=n.get("tinggi", 620),
-                         lebar=n.get("lebar", 260), t=tg, seed=n.get("seed", 17))
-    return NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
-                    tinggi=n.get("tinggi", 400), lebar=n.get("lebar", 118),
-                    pendar_rx=n.get("pendar_rx", 155), pendar_ry=n.get("pendar_ry", 190), t=tg)
+        return komponen["malaikat.berkas"](n["x"], n["y"], tinggi=n.get("tinggi", 620),
+                                            lebar=n.get("lebar", 260), t=tg, seed=n.get("seed", 17))
+    return komponen["nur.pilar"](n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
+                                  tinggi=n.get("tinggi", 400), lebar=n.get("lebar", 118),
+                                  pendar_rx=n.get("pendar_rx", 155), pendar_ry=n.get("pendar_ry", 190), t=tg)
 
 
 def _npc_jauh(spec: dict, tg: float) -> list[str]:
@@ -67,11 +67,13 @@ def _muncul(svg: str, mulai: float, t: float, cy: float) -> str:
     return f'<g opacity="{u:.3f}" transform="translate(540,{cy}) scale({s:.4f}) translate(-540,{-cy})">{svg}</g>'
 
 
-def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | None = None, sub=None) -> str:
+def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | None = None, sub=None,
+          *, genre: str = "kisah_islami") -> str:
     """SVG utuh untuk shot pada detik lokal `t`. `tg` = waktu global video (untuk gerak hidup yang menyambung antar shot).
     `dalil` = {id: entri dalil terverifikasi} dari rencana, dipakai oleh "kartu_dalil": {"dalil": id, "mulai": detik}.
     `sub` = (kata, indeks_aktif) dari garis waktu narasi (fase 2); menggantikan subtitle tulisan di shot."""
     tg = t if tg is None else tg
+    komponen = ambil(genre).komponen
     sp = pada(shot, t)
     p = sp["preset"]
     dunia = [LT.langit(p, matahari=tuple(sp["matahari"]) if sp.get("matahari") else None)]
@@ -89,30 +91,30 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     # Pilar tertentu boleh berada di belakang benda utama agar tidak menutupi kapal/objek.
     for n in sp.get("nur", []):
         if n.get("di_belakang_benda"):
-            dunia.append(_cahaya_mulia(n, tg))
+            dunia.append(_cahaya_mulia(n, tg, komponen))
     for b in sp.get("buraq", []):
-        dunia.append(AZ.buraq(b["x"], b["y"], b.get("s", 1), t=tg))
+        dunia.append(komponen["akhir_zaman.buraq"](b["x"], b["y"], b.get("s", 1), t=tg))
     tanda_overlay = []
     for b in sp.get("akhir_zaman", []):
         j = b["jenis"]
         if j == "dinding_yajuj":
-            dunia.append(AZ.dinding_yajuj(b["x"], b["y"], b.get("s", 1), lubang=b.get("lubang", 0)))
+            dunia.append(komponen["akhir_zaman.dinding_yajuj"](b["x"], b["y"], b.get("s", 1), lubang=b.get("lubang", 0)))
         elif j == "danau_surut":
-            dunia.append(AZ.danau_surut(b["x"], b["y"], b.get("s", 1), surut=b.get("surut", 0)))
+            dunia.append(komponen["akhir_zaman.danau_surut"](b["x"], b["y"], b.get("s", 1), surut=b.get("surut", 0)))
         elif j == "tanda_wajah":
-            tanda_overlay.append(AZ.tanda_wajah(b["x"], b["y"], b.get("s", 1)))
+            tanda_overlay.append(komponen["akhir_zaman.tanda_wajah"](b["x"], b["y"], b.get("s", 1)))
         else:
             raise ValueError(f"komponen akhir zaman tak dikenal: {j}")
     for b in sp.get("benda", []):
         j = b["jenis"]
         if j == "bahtera":
-            dunia.append(BD.bahtera(b["x"], b["y"], b.get("s", 1), jadi=b.get("jadi", 1.0), goyang=b.get("goyang", 0.0),
+            dunia.append(komponen["benda.bahtera"](b["x"], b["y"], b.get("s", 1), jadi=b.get("jadi", 1.0), goyang=b.get("goyang", 0.0),
                                     cahaya=b.get("cahaya", .8), pintu=b.get("pintu", 0.0), orang=int(b.get("orang", 0)),
                                     darat=b.get("darat", True), t=tg))
         elif j == "lapak":
             dunia.append(BD.lapak(b["x"], b["y"], b.get("warna", "#b8452e")))
         elif j == "sungai":
-            dunia.append(BD.sungai(b["isi"], sisi=b["sisi"], t=tg))
+            dunia.append(komponen["benda.sungai"](b["isi"], sisi=b["sisi"], t=tg))
         elif j == "bukit":
             dunia.append(f'<path d="M300 1260 Q 540 1060 780 1260Z" fill="{b.get("warna", "#160e18")}"/>')
         else:
@@ -162,14 +164,14 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
                 "skala": item.get("skala", .72), "warna": item.get("warna"),
             })
     for m in sp.get("kabut_tanpa_wujud", []):
-        s = (MK.retakan(m["x"], m["y"]) if m.get("retakan", True) else "") + MK.kabut_tanpa_wujud(
+        s = (komponen["makhluk.retakan"](m["x"], m["y"]) if m.get("retakan", True) else "") + komponen["makhluk.kabut_tanpa_wujud"](
             m["x"], m["y"], tinggi=m.get("tinggi", 820), keluar=m.get("keluar", 1.0), t=tg)
         tengah.append((m["y"] - 1, s))
     for n in sp.get("nur", []):
         if not n.get("di_belakang_benda"):
             tengah.append((n["y"], _cahaya_mulia(n, tg)))
     for d in sp.get("dajjal", []):
-        tengah.append((d["y"], DJ.belakang(d["x"], d["y"], d.get("s", 1), t=tg, jalan=d.get("jalan", False), jubah_berkibar=d.get("jubah_berkibar", 0.0), buka=d.get("buka", 0.0)) if d.get("arah") == "belakang" else DJ.sosok(d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"))))
+        tengah.append((d["y"], komponen["dajjal.belakang"](d["x"], d["y"], d.get("s", 1), t=tg, jalan=d.get("jalan", False), jubah_berkibar=d.get("jubah_berkibar", 0.0), buka=d.get("buka", 0.0)) if d.get("arah") == "belakang" else komponen["dajjal.sosok"](d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"))))
     for i, (tk, asli) in enumerate(zip(sp.get("tokoh", []), shot.get("tokoh", []))):
         ident = tk.get("_identitas") or {}
         # gerak & wajah boleh jadwal [[detik, nama]] -> diambil dari spesifikasi ASLI (bukan hasil `pada`)
@@ -206,7 +208,7 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
         d = (dalil or {}).get(kd["dalil"])
         if d is None:
             raise ValueError(f"kartu_dalil merujuk dalil '{kd['dalil']}' yang tidak ada di rencana")
-        lapis.append(KT.kartu(d, KT.potongan(d), t, mulai=kd.get("mulai", 0.0), idx_uid=f"kd{kd['dalil']}", preset=p))
+        lapis.append(komponen["kartu_dalil.kartu"](d, komponen["kartu_dalil.potongan"](d), t, mulai=kd.get("mulai", 0.0), idx_uid=f"kd{kd['dalil']}", preset=p))
     if sub:
         lapis.append(TX.subtitle_frasa(sub[0], sub[1]))
     elif tx.get("subtitle"):
@@ -214,11 +216,12 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     return dasar.dokumen("\n".join(lapis))
 
 
-def durasi(shot: dict, dalil: dict | None = None) -> float:
+def durasi(shot: dict, dalil: dict | None = None, *, genre: str = "kisah_islami") -> float:
     """Durasi shot. Shot berkartu dalil tanpa `durasi` = waktu baca semua potongan (otomatis)."""
     if "durasi" in shot:
         return float(shot["durasi"])
     kd = shot.get("kartu_dalil")
     if kd and dalil and kd["dalil"] in dalil:
-        return KT.durasi_total(KT.potongan(dalil[kd["dalil"]]), kd.get("mulai", 0.0))
+        komponen = ambil(genre).komponen
+        return komponen["kartu_dalil.durasi_total"](komponen["kartu_dalil.potongan"](dalil[kd["dalil"]]), kd.get("mulai", 0.0))
     return DURASI_BAWAAN
