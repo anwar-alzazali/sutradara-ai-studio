@@ -11,6 +11,7 @@ from __future__ import annotations
 from html import escape
 
 from ..dalil import segmen as SG
+from ..dalil.koreksi import terapkan_terjemah
 
 Y_ATAS = 150           # tepi atas isi pita (di bawah bilah atas TikTok); pita memudar ke bawah
 TINGGI = 470
@@ -40,7 +41,10 @@ def _potong_cache(ar: str, tr: str) -> tuple:
 
 def teks_kartu(dalil: dict) -> tuple[str, str]:
     """Teks yang tampil: kutipan (bila ada, wajib potongan persis teks terverifikasi) atau teks utuh."""
-    return dalil.get("kutipan_ar") or dalil.get("teks_ar", ""), dalil.get("kutipan_id") or dalil.get("terjemah", "")
+    ar = dalil.get("kutipan_ar") or dalil.get("teks_ar", "")
+    terjemah = dalil.get("kutipan_id") or dalil.get("terjemah", "")
+    terjemah = terapkan_terjemah(dalil, terjemah)
+    return ar, terjemah
 
 
 def potongan(dalil: dict) -> list[tuple[str, str]]:
