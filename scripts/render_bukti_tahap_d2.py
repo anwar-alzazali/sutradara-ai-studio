@@ -61,6 +61,16 @@ def main() -> None:
                 "kata_kunci": ["berjalan"], "dalil": [], "suasana": "fajar",
                 "peran": ["Pengelana"],
             },
+            {
+                "narasi": "Pengelana menghadap serong tiga perempat ke bahtera.",
+                "kata_kunci": [], "dalil": [], "suasana": "senja",
+                "peran": ["Pengelana"],
+            },
+            {
+                "narasi": "Pengelana berbalik arah lalu kabur ke kiri.",
+                "kata_kunci": ["berlari"], "dalil": [], "suasana": "senja",
+                "peran": ["Pengelana"],
+            },
         ],
     }
     rencana, _ = rancang(naskah)
@@ -85,6 +95,12 @@ def main() -> None:
     assert beat_benda["shot"][0]["tokoh"][0]["tujuan"] == "benda:bahtera"
     beat_kedalaman = next(b for b in rencana["beat"] if b["narasi"].startswith("Pengelana berjalan menjauh"))
     assert beat_kedalaman["shot"][0]["tokoh"][0]["arah"] == "belakang"
+    beat_serong = next(b for b in rencana["beat"] if b["narasi"].startswith("Pengelana menghadap serong"))
+    assert beat_serong["shot"][0]["tokoh"][0]["arah"] == "tiga_perempat"
+    beat_putar = next(b for b in rencana["beat"] if b["narasi"].startswith("Pengelana berbalik arah"))
+    aktor_putar = beat_putar["shot"][0]["tokoh"][0]
+    assert aktor_putar["berbalik_sesuai_cerita"] is True
+    assert isinstance(aktor_putar["arah"], list) and isinstance(aktor_putar["balik"], list)
     temuan = periksa(rencana)
     gagal = [str(x) for x in temuan if x.tingkat == "GAGAL"]
     if gagal:
