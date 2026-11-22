@@ -274,3 +274,22 @@ def test_pengejar_dan_yang_dikejar_bergerak_searah():
     dx_b = pencuri["x"][-1][1] - pencuri["x"][0][1]
     assert dx_a > 0 and dx_b > 0
     assert pengelana["tujuan"] == pencuri["tujuan"] == "tepi:kanan"
+
+
+def test_arah_tiga_perempat_dikenali_dan_dipakai_bila_disebut_narasi():
+    from sutradara.gaya.tokoh import _arah_derajat
+
+    naskah = {
+        "judul": "Menghadap serong",
+        "inti": "Pengelana menghadap serong tiga perempat ke bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana menghadap serong tiga perempat ke bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(naskah)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["arah"] == "tiga_perempat"
+    assert _arah_derajat("tiga_perempat", 0) == 45.0
+    assert _arah_derajat("tiga_perempat_belakang", 0) == 135.0
