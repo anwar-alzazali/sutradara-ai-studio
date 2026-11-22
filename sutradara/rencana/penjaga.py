@@ -198,25 +198,13 @@ def _periksa_identitas(rencana: dict) -> list[Temuan]:
                     ident = {}
                 else:
                     ident = kartu.get(pid) or {}
-                if not ident:
-                    id_peran = tokoh.get("peran")
-                    mode_dasar = peran_mode(peta_peran, id_peran)
-                    mode_shot = tokoh.get("mode", mode_dasar)
-                    if mode_shot != mode_dasar:
-                        alasan = str(tokoh.get("perubahan_gaya", "")).strip()
-                        if alasan:
-                            hasil.append(Temuan("PERIKSA", "PERUBAHAN_GAYA_DISENGAJA",
-                                                f"beat {bi} shot {si} {pid}: gaya {mode_dasar} -> {mode_shot}; alasan: {alasan}"))
-                        else:
-                            hasil.append(Temuan("PERIKSA", "IDENTITAS_GAYA_BERUBAH",
-                                                f"beat {bi} shot {si} {pid}: gaya {mode_dasar} -> {mode_shot} tanpa perubahan_gaya yang menjelaskan pengungkapan/perubahan visual"))
-                    continue
-                beda = [(field, ident[acuan], tokoh[field]) for field, acuan in kunci.items()
-                        if field in tokoh and acuan in ident and tokoh[field] != ident[acuan]]
-                if beda:
-                    rincian = ", ".join(f"{f}: {a!r} -> {b!r}" for f, a, b in beda)
-                    hasil.append(Temuan("PERIKSA", "IDENTITAS_BERUBAH",
-                                        f"beat {bi} shot {si} {pid}: ciri kartu pemeran berubah ({rincian}); perbarui kartu hanya bila perubahan memang menjadi desain baru"))
+                if ident:
+                    beda = [(field, ident[acuan], tokoh[field]) for field, acuan in kunci.items()
+                            if field in tokoh and acuan in ident and tokoh[field] != ident[acuan]]
+                    if beda:
+                        rincian = ", ".join(f"{f}: {a!r} -> {b!r}" for f, a, b in beda)
+                        hasil.append(Temuan("PERIKSA", "IDENTITAS_BERUBAH",
+                                            f"beat {bi} shot {si} {pid}: ciri kartu pemeran berubah ({rincian}); perbarui kartu hanya bila perubahan memang menjadi desain baru"))
                 id_peran = tokoh.get("peran")
                 mode_dasar = peran_mode(peta_peran, id_peran)
                 mode_shot = tokoh.get("mode", mode_dasar)
