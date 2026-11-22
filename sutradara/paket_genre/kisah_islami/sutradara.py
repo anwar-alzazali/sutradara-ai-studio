@@ -387,7 +387,9 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         else:
             jumlah=1+len(cuts)
             for si in range(jumlah):
-                fokus = hadir[min(si,len(hadir)-1)] if cuts else (interaksi[0] if interaksi else None)
+                fokus = hadir[min(si,len(hadir)-1)] if cuts else (
+                    interaksi[0] if interaksi else (hadir[0] if gerak in {"jalan", "lari"} else None)
+                )
                 shots.append(_shot(inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep,
                                    fokus=fokus,pelaku=pelaku,interaksi=interaksi,
                                    perjalanan=(gerak in {"jalan","lari"} and fokus is not None)))
