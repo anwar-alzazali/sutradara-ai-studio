@@ -51,10 +51,21 @@ def potongan(dalil: dict) -> list[tuple[str, str]]:
     # Bila Quran Foundation memberi pasangan resmi, jangan potong Arab dan terjemah secara proporsional.
     pasangan = dalil.get("pasangan_kata") or []
     if pasangan and all(p.get("ar") and p.get("id") for p in pasangan):
-        hasil = []
-        for awal in range(0, len(pasangan), 5):
-            bagian = pasangan[awal:awal + 5]
-            hasil.append((" ".join(p["ar"] for p in bagian), " ".join(p["id"] for p in bagian)))
+        hasil, ar_kini, id_kini = [], [], []
+        for p in pasangan:
+            calon_ar = " ".join(ar_kini + [p["ar"]])
+            calon_id = " ".join(id_kini + [p["id"]])
+            if len(SG.baris(p["ar"], True)) > 2 or len(SG.baris(p["id"], False)) > 2:
+                # Satu pasangan yang terlalu panjang tidak dapat dipasang utuh di kartu; jangan memaksakan layout.
+                return list(_potong_cache(" ".join(x["ar"] for x in pasangan),
+                                          " ".join(x["id"] for x in pasangan)))
+            if ar_kini and (len(SG.baris(calon_ar, True)) > 2 or len(SG.baris(calon_id, False)) > 2):
+                hasil.append((" ".join(ar_kini), " ".join(id_kini)))
+                ar_kini, id_kini = [p["ar"]], [p["id"]]
+            else:
+                ar_kini.append(p["ar"]); id_kini.append(p["id"])
+        if ar_kini:
+            hasil.append((" ".join(ar_kini), " ".join(id_kini)))
         return hasil
     ar, tr = teks_kartu(dalil)
     return list(_potong_cache(ar, tr)) if ar and tr else []
