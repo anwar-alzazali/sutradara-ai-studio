@@ -164,12 +164,19 @@ async function daftarModelGemini(env) {
   return modelGemini;
 }
 async function gemini(env, body) {
-  const badan = JSON.stringify({ ...keGemini(body.system, body.messages), generationConfig: { maxOutputTokens: Math.max(8192, body.max_tokens || 0) } });
   let galat = null;
   for (const model of await daftarModelGemini(env)) {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-      method: "POST", headers: { "x-goog-api-key": env.GEMINI_API_KEY, "content-type": "application/json" }, body: badan });
-    if (!r.ok) { galat = new Error(`Gemini ${model} ${r.status}`); continue; }  // 429/5xx -> model berikutnya
+    // Worker hanya punya ~30 dtk sesudah membalas webhook: pikir dibuat ringan dan tiap panggilan dibatasi waktunya.
+    const pikir = /^gemini-2\./.test(model) ? { thinkingBudget: 0 } : { thinkingLevel: "low" };
+    const badan = JSON.stringify({ ...keGemini(body.system, body.messages),
+      generationConfig: { maxOutputTokens: Math.max(4096, body.max_tokens || 0), thinkingConfig: pikir } });
+    let r;
+    try {
+      r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: "POST", headers: { "x-goog-api-key": env.GEMINI_API_KEY, "content-type": "application/json" }, body: badan,
+        signal: AbortSignal.timeout(12000) });
+    } catch (e) { galat = new Error(`Gemini ${model} ${e.name === "TimeoutError" ? "lewat 12 dtk" : e.message}`); continue; }
+    if (!r.ok) { galat = new Error(`Gemini ${model} ${r.status} ${(await r.text()).slice(0, 120)}`); continue; }  // 429/5xx -> model berikutnya
     const j = await r.json();
     const jawab = (((j.candidates || [])[0] || {}).content || {}).parts?.map((x) => x.text || "").join("").trim();
     if (!jawab) { galat = new Error(`Gemini ${model} kosong`); continue; }
@@ -434,6 +441,14 @@ export default {
       const a = await TG(env, "setWebhook", { url: `${url.origin}/tg`, secret_token: env.WEBHOOK_SECRET, allowed_updates: ["message", "callback_query"] });
       const b = await TG(env, "setMyCommands", { commands: PERINTAH });
       return Response.json({ webhook: a.ok, perintah: b.ok });
+    }
+    if (url.pathname === "/cek" && env.WEBHOOK_SECRET && url.searchParams.get("k") === env.WEBHOOK_SECRET) {
+      // Diagnosa AI tanpa membuka rahasia: model mana yang menjawab, berapa lama, galatnya apa.
+      const mulai = Date.now(), hasil = { gemini_kunci: !!env.GEMINI_API_KEY, claude_kunci: !!env.ANTHROPIC_API_KEY };
+      try { const h = await gemini(env, { system: "Jawab satu kata.", messages: [{ role: "user", content: "tes" }] }); hasil.gemini = { model: h.model, jawab: h.jawab.slice(0, 40) }; }
+      catch (e) { hasil.gemini_galat = String(e.message || e).slice(0, 300); }
+      hasil.detik = (Date.now() - mulai) / 1000;
+      return Response.json(hasil);
     }
     if (url.pathname === "/tg" && req.method === "POST") {
       if (req.headers.get("x-telegram-bot-api-secret-token") !== env.WEBHOOK_SECRET) return new Response("no", { status: 403 });
