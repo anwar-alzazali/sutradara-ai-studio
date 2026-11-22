@@ -112,7 +112,9 @@ def test_blocking_otomatis_mengikuti_visual_inti_dan_memisahkan_pihak():
     kapal = next(b for b in shot["benda"] if b["jenis"] == "bahtera")
     pengikut = next(t for t in shot["tokoh"] if t["peran"] == "pengikut_beriman")
     penentang = next(t for t in shot["tokoh"] if t["peran"] == "kaum_penentang")
-    assert abs(pengikut["x"] - kapal["x"]) < abs(penentang["x"] - kapal["x"])
+    assert abs(pengikut["x"] - kapal["x"]) < 150
+    assert abs(penentang["x"] - kapal["x"]) > 180
+    assert all(120 <= tokoh["x"] <= 960 for tokoh in shot["tokoh"])
     assert beat["pelaku"] == ["pengikut_beriman"]
     temuan = periksa(hasil)
     assert not [t for t in temuan if t.kode in {"PELAKU_JAUH", "BUKAN_PELAKU_DEKAT"}]
