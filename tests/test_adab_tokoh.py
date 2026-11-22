@@ -246,6 +246,35 @@ def test_pemeriksaan_umum_menolak_pemeran_id_tanpa_kartu():
     assert any(x.kode == "PEMERAN_TAK_TERDAFTAR" and x.tingkat == "GAGAL" for x in temuan)
 
 
+
+def test_pemeriksaan_kontinuitas_barang_berada_di_inti_netral_genre():
+    from sutradara.rencana.pemeriksaan_umum import periksa_kontinuitas_barang
+
+    r = _rencana()
+    awal = copy.deepcopy(r["beat"][0]["shot"][0])
+    akhir = copy.deepcopy(awal)
+    awal["barang"] = [{"id": "benda_uji", "jenis": "benda", "pemilik": "kaum"}]
+    akhir["barang"] = [{"id": "benda_uji", "jenis": "benda", "pemilik": "pengikut_beriman"}]
+    r["beat"] = [copy.deepcopy(r["beat"][0]), copy.deepcopy(r["beat"][0])]
+    r["beat"][0]["shot"] = [awal]
+    r["beat"][1]["shot"] = [akhir]
+    temuan = periksa_kontinuitas_barang(r)
+    assert any(x.kode == "PEMILIK_BARANG_BERUBAH" and x.tingkat == "GAGAL" for x in temuan)
+
+
+def test_pemeriksaan_barang_umum_tidak_mengasumsikan_kategori_nabi_atau_pilar():
+    from sutradara.rencana.pemeriksaan_umum import periksa_kontinuitas_barang
+
+    r = _rencana()
+    r["beat"][0]["shot"][0]["barang"] = [
+        {"id": "benda_uji", "jenis": "benda", "pemilik": "kaum", "tangan": "ki"}
+    ]
+    temuan = periksa_kontinuitas_barang(r)
+    assert not any(x.kode in {"BARANG_NABI_TANPA_PILAR", "PILAR_PASANGAN_TAK_TAMPIL"}
+                   for x in temuan)
+
+
+
 def test_janggut_dapat_dikunci_dari_kartu_identitas():
     pendek = tokoh.orang(500, 1500, janggut="pendek", warna_janggut="#123456")
     tanpa = tokoh.orang(500, 1500, janggut="tanpa")

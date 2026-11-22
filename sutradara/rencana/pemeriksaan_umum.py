@@ -76,3 +76,61 @@ def periksa_kontinuitas_identitas(rencana: dict[str, Any]) -> list[Temuan]:
                         "perbarui kartu hanya bila perubahan memang menjadi desain baru",
                     ))
     return hasil
+
+
+def periksa_kontinuitas_barang(rencana: dict[str, Any]) -> list[Temuan]:
+    """Periksa invarians barang lintas-shot tanpa asumsi kategori atau genre.
+
+    Kepemilikan hanya berubah melalui pasangan aksi ulurkan/terima. Pemeriksaan
+    ini tidak menentukan bagaimana pemilik divisualkan atau apakah ia hadir
+    sebagai tubuh, cahaya, maupun representasi lain.
+    """
+    hasil: list[Temuan] = []
+    sebelumnya: dict[str, dict[str, Any]] = {}
+    peran = {p["id"]: p for p in rencana.get("peran", [])}
+    for bi, beat in enumerate(rencana.get("beat", [])):
+        for si, shot in enumerate(beat.get("shot", [])):
+            lokasi = f"beat {bi} shot {si}"
+            sekarang: dict[str, dict[str, Any]] = {}
+            for item in shot.get("barang", []):
+                iid, pemilik = item.get("id"), item.get("pemilik")
+                if not iid or iid in sekarang:
+                    hasil.append(Temuan("GAGAL", "ID_BARANG",
+                                        f"{lokasi}: id barang kosong atau duplikat ({iid})"))
+                    continue
+                sekarang[iid] = item
+                if pemilik not in peran:
+                    hasil.append(Temuan("GAGAL", "PEMILIK_BARANG",
+                                        f"{lokasi}: pemilik {pemilik!r} tidak terdaftar"))
+                    continue
+                if item.get("tangan", "ka") not in {"ka", "ki"}:
+                    hasil.append(Temuan("GAGAL", "TANGAN_BARANG",
+                                        f"{lokasi} {iid}: tangan harus ka/ki"))
+                aksi = item.get("aksi", "pegang")
+                if aksi in {"ulurkan", "terima"}:
+                    titik = item.get("titik_serah")
+                    if not titik or len(titik) != 2:
+                        hasil.append(Temuan("GAGAL", "TITIK_SERAH_BARANG",
+                                            f"{lokasi} {iid}: aksi {aksi} perlu titik_serah [x,y]"))
+                    pasangan = item.get("penerima") if aksi == "ulurkan" else item.get("pemberi")
+                    if pasangan not in peran:
+                        hasil.append(Temuan("GAGAL", "PASANGAN_SERAH_TERIMA",
+                                            f"{lokasi} {iid}: pasangan serah-terima tidak terdaftar"))
+                if iid in sebelumnya:
+                    lama = sebelumnya[iid]
+                    pemilik_lama = lama.get("pemilik")
+                    if pemilik_lama != pemilik:
+                        sah = (lama.get("aksi") == "ulurkan" and lama.get("penerima") == pemilik
+                               and aksi == "terima" and item.get("pemberi") == pemilik_lama)
+                        if not sah:
+                            hasil.append(Temuan("GAGAL", "PEMILIK_BARANG_BERUBAH",
+                                                f"{lokasi} {iid}: pemilik berubah {pemilik_lama} -> {pemilik} tanpa pasangan ulurkan/terima"))
+                elif aksi == "terima":
+                    hasil.append(Temuan("PERIKSA", "BARANG_TANPA_ADEGAN_ULUR",
+                                        f"{lokasi} {iid}: adegan terima tidak punya shot ulurkan sebelumnya"))
+            for iid in sebelumnya:
+                if iid not in sekarang:
+                    hasil.append(Temuan("PERIKSA", "BARANG_TIDAK_DIBAWA",
+                                        f"{lokasi}: barang {iid} dari shot sebelumnya tidak dicantumkan; periksa kesinambungan"))
+            sebelumnya = sekarang
+    return hasil
