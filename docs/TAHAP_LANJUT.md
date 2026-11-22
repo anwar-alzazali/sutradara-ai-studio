@@ -167,6 +167,15 @@ Aturan wajibnya ada di `AGENTS.md` (tabel adab saluran). Kerjakan:
 5. **Bacaan latin di kartu:** JANGAN dikerjakan sebelum pemilik memintanya. Cukup siapkan kodenya di balik bendera yang mati.
 
 ## Tahap D — Sutradara otomatis v1 (Fase 4) — inti produk
+**Dikerjakan dalam 4 PR berurutan** (keputusan pemilik 22 Nov 2026):
+
+| Bagian | Isi | Status |
+|---|---|---|
+| D0 | Langkah 0: pisahkan inti dan paket genre | selesai (#44, #46) |
+| D1 | Poin 0b, 1, 2, 4: sisa kebocoran genre, templat naskah + validator, keputusan tingkat video dan shot | selesai (#45) |
+| D2 | Poin 3, 3b, 3c, 3d: penataan panggung, liputan dialog, arah hadap, berjalan dengan tujuan dan lintasan | belum |
+| D3 | Poin 5, 6, 7: perpustakaan resep, model AI opsional, bukti video Nuh dan Hud otomatis | belum |
+
 **Langkah 0 — pisahkan inti dan genre, kerjakan SEBELUM poin lainnya** (keputusan pemilik 21 Nov 2026).
 Kelak akan ada genre lain (komedi, edukasi, cerita anak). Genre itu belum dibangun sekarang, tetapi sambungannya harus
 sudah ada supaya kesulitannya tidak bertambah seiring kode membesar.
