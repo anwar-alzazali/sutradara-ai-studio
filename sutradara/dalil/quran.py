@@ -191,9 +191,9 @@ class QuranFoundation:
             # API dapat menyertakan penanda akhir ayat/non-kata; itu bukan unit terjemahan.
             if kata.get("char_type_name") not in (None, "word"):
                 continue
-            ar_kata = kata.get("text_uthmani", "").strip()
+            ar_kata = (kata.get("text_uthmani") or "").strip()
             terjemah_kata = kata.get("translation") or {}
-            id_kata = bersihkan(terjemah_kata.get("text", "")) if isinstance(terjemah_kata, dict) else ""
+            id_kata = bersihkan(terjemah_kata.get("text") or "") if isinstance(terjemah_kata, dict) else ""
             if ar_kata and id_kata:
                 pasangan.append({"ar": ar_kata, "id": id_kata})
         # Jangan membuat pasangan proporsional lalu menyebutnya word-by-word.
