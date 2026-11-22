@@ -164,19 +164,32 @@ def _aktor(pid: str, peran: dict, x: float, *, y: float = 1510, fokus: bool = Fa
 
 
 def _pasangan_interaksi(teks: str, hadir: list[str], peta: dict[str, dict]) -> tuple[str, str] | None:
-    """Kenali pasangan interaksi hanya bila kedua nama peran disebut eksplisit."""
+    """Pilih pasangan dari nama yang disebut atau konteks peran yang hadir.
+
+    Bila narasi hanya menyebut pelaku, lawan interaksi dapat diinferensikan
+    dari satu-satunya peran lain yang hadir. Tanpa nama yang dikenali, inferensi
+    dibatasi pada tepat dua peran agar kerumunan tidak dipasangkan sembarang.
+    """
     polos = _polos(teks)
     kata_aksi = ("menunjuk", "mengejek", "mengolok", "mengulurkan", "menyerahkan",
                  "memberikan", "menerima", "menyapa", "mengejar", "dikejar")
-    if not any(k in polos for k in kata_aksi):
+    if not any(k in polos for k in kata_aksi) or len(hadir) < 2:
         return None
     cocok = []
-    for pid in hadir:
+    for urutan, pid in enumerate(hadir):
         nama = _polos(peta[pid].get("nama", ""))
         if nama and nama in polos:
-            cocok.append((polos.find(nama), pid))
+            cocok.append((polos.find(nama), urutan, pid))
     cocok.sort()
-    return (cocok[0][1], cocok[1][1]) if len(cocok) >= 2 else None
+    if len(cocok) >= 2:
+        return cocok[0][2], cocok[1][2]
+    if len(cocok) == 1:
+        pelaku = cocok[0][2]
+        lawan = next((pid for pid in hadir if pid != pelaku), None)
+        return (pelaku, lawan) if lawan else None
+    if len(hadir) == 2:
+        return hadir[0], hadir[1]
+    return None
 
 
 def _reaksi_pendengar(teks: str) -> tuple[str, str] | None:
