@@ -3,7 +3,7 @@
 // Dibawa: webhook, chat pribadi, balas komentar, simpan ke repo. Baru: persetujuan video (Setujui/Tolak + alasan).
 // TIDAK dibawa (keputusan pemilik): saldo/QRIS, proyek pengguna, rakit pengguna, Studio, naskah NGOPAI/iklan.
 // Rahasia di Cloudflare (bukan di berkas): TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, WEBHOOK_SECRET, GH_TOKEN,
-// ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (riwayat chat & catatan biaya di schema `konten`).
+// ANTHROPIC_API_KEY, GEMINI_API_KEY (opsional, dipakai dulu karena gratis), SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (riwayat chat & catatan biaya di schema `konten`).
 
 export const ALASAN = {
   hook: "Hook lemah", visual: "Visual tidak sesuai", suara: "Suara/efek", dalil: "Dalil/isi",
@@ -132,6 +132,75 @@ async function claude(env, body) {
            idr: Math.round(((masuk * hm + keluar * hk) / 1e6) * KURS(env)) };
 }
 
+// ---------- Gemini gratis dulu, Claude cadangan (pola sama dengan antrean naskah) ----------
+// Pesan memakai format Claude ({role, content: string | [{type:"text"|"image"}]}); diubah ke format Gemini.
+export const keGemini = (system, messages) => ({
+  ...(system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
+  contents: messages.map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: (typeof m.content === "string" ? [{ type: "text", text: m.content }] : m.content).map((c) =>
+      c.type === "image" ? { inline_data: { mime_type: c.source.media_type, data: c.source.data } } : { text: c.text || "" }),
+  })),
+});
+export const pilihModelGemini = (nama) => {
+  const flash = [], lite = [];
+  for (const n of nama) {
+    const m = /^gemini-(\d+(?:\.\d+)?)-flash(-lite)?$/.exec(n);
+    if (m) (m[2] ? lite : flash).push([parseFloat(m[1]), n]);
+  }
+  const urut = (a) => a.sort((x, y) => y[0] - x[0]).map((x) => x[1]);
+  return [...urut(flash).slice(0, 2), ...urut(lite).slice(0, 1)];
+};
+let modelGemini = null;  // disimpan selama isolate hidup
+async function daftarModelGemini(env) {
+  if (env.GEMINI_MODEL) return [env.GEMINI_MODEL];
+  if (modelGemini) return modelGemini;
+  // Isolate baru sering muncul: simpan daftar model sehari di Supabase supaya tidak bertanya ke Google tiap pesan.
+  try {
+    const s = JSON.parse((await ambilPengaturan(env, "gemini_model")) || "null");
+    if (s && Date.now() - s.waktu < 864e5 && s.daftar?.length) return (modelGemini = s.daftar);
+  } catch { /* abaikan, ambil ulang */ }
+  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": env.GEMINI_API_KEY } });
+  if (!r.ok) throw new Error("Gemini models " + r.status);
+  const j = await r.json();
+  const nama = (j.models || []).filter((m) => (m.supportedGenerationMethods || []).includes("generateContent")).map((m) => String(m.name).replace(/^models\//, ""));
+  modelGemini = pilihModelGemini(nama);
+  if (!modelGemini.length) throw new Error("Tidak ada model Gemini flash");
+  await simpanPengaturan(env, "gemini_model", JSON.stringify({ waktu: Date.now(), daftar: modelGemini })).catch(() => {});
+  return modelGemini;
+}
+async function gemini(env, body) {
+  let galat = null;
+  for (const model of await daftarModelGemini(env)) {
+    // Worker hanya punya ~30 dtk sesudah membalas webhook: pikir dibuat ringan dan tiap panggilan dibatasi waktunya.
+    const pikir = /^gemini-2\./.test(model) ? { thinkingBudget: 0 } : { thinkingLevel: "low" };
+    const badan = JSON.stringify({ ...keGemini(body.system, body.messages),
+      generationConfig: { maxOutputTokens: Math.max(4096, body.max_tokens || 0), thinkingConfig: pikir } });
+    let r;
+    try {
+      r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: "POST", headers: { "x-goog-api-key": env.GEMINI_API_KEY, "content-type": "application/json" }, body: badan,
+        signal: AbortSignal.timeout(12000) });
+    } catch (e) { galat = new Error(`Gemini ${model} ${e.name === "TimeoutError" ? "lewat 12 dtk" : e.message}`); continue; }
+    if (!r.ok) { galat = new Error(`Gemini ${model} ${r.status} ${(await r.text()).slice(0, 120)}`); continue; }  // 429/5xx -> model berikutnya
+    const j = await r.json();
+    const jawab = (((j.candidates || [])[0] || {}).content || {}).parts?.map((x) => x.text || "").join("").trim();
+    if (!jawab) { galat = new Error(`Gemini ${model} kosong`); continue; }
+    const u = j.usageMetadata || {};
+    return { jawab, token: (u.promptTokenCount || 0) + (u.candidatesTokenCount || 0), idr: 0, model };
+  }
+  throw galat || new Error("Gemini gagal");
+}
+// Coba Gemini (gratis); bila tak ada kunci atau gagal, pakai Claude.
+async function tanyaAI(env, body) {
+  TG(env, "sendChatAction", { chat_id: env.CHAT || env.TELEGRAM_CHAT_ID, action: "typing" }).catch(() => {});  // tanda "sedang mengetik"
+  if (env.GEMINI_API_KEY && env.AI_UTAMA !== "claude") {
+    try { return await gemini(env, body); } catch (e) { console.log("gemini gagal, pakai Claude:", e.message); }
+  }
+  return { ...(await claude(env, body)), model: body.model };
+}
+export const labelBiaya = (h) => (h.idr ? `≈Rp${h.idr}` : "Rp0") + ` · ${/gemini/.test(h.model || "") ? "Gemini" : "Claude"}`;
+
 // ---------- chat pribadi ----------
 const SISTEM_CHAT = (tgl) => `Kamu asisten pribadi Anwar Alzazali (Indonesia, zona Asia/Jakarta). Hari ini ${tgl}. Jawab santai, singkat, langsung inti; beri langkah konkret. Jujur: bila tidak yakin atau butuh data terbaru, katakan, jangan ngarang. Anggaran rendah, utamakan gratis/murah. Jangan minta kunci/token.`;
 
@@ -141,11 +210,11 @@ async function chatPribadi(env, teks) {
   riwayat.push({ role: "user", content: teks.slice(0, 4000) }); riwayat = riwayat.slice(-12);
   while (riwayat.length && riwayat[0].role !== "user") riwayat.shift();
   const tgl = new Date().toLocaleDateString("id-ID", { timeZone: "Asia/Jakarta", dateStyle: "full" });
-  const h = await claude(env, { model, max_tokens: 1500, system: SISTEM_CHAT(tgl), messages: riwayat });
+  const h = await tanyaAI(env, { model, max_tokens: 1500, system: SISTEM_CHAT(tgl), messages: riwayat });
   riwayat.push({ role: "assistant", content: h.jawab });
   await simpanPengaturan(env, kunci, JSON.stringify(riwayat.slice(-12))).catch(() => {});
-  await catatBiaya(env, "chat", h.token, h.idr);
-  const ekor = `\n\n≈Rp${h.idr} · ${h.token} token`;
+  if (h.idr) await catatBiaya(env, "chat", h.token, h.idr);
+  const ekor = `\n\n${labelBiaya(h)} · ${h.token} token`;
   for (let i = 0; i < h.jawab.length; i += 3800) await kirim(env, h.jawab.slice(i, i + 3800) + (i + 3800 >= h.jawab.length ? ekor : ""));
 }
 
@@ -164,10 +233,10 @@ async function balasKomentar(env, fileId, catatan) {
   if (buf.byteLength > 20 * 1024 * 1024) throw new Error("Berkas melebihi batas 20 MB.");
   const isi = [{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: keBase64(buf) } },
                { type: "text", text: catatan ? "Catatan dari Anwar: " + catatan : "Buatkan draf balasan." }];
-  const h = await claude(env, { model: env.MODEL_CHAT || MODEL_CHAT, max_tokens: 1200, system: SISTEM_KOMENTAR, messages: [{ role: "user", content: isi }] });
-  await catatBiaya(env, "komentar", h.token, h.idr);
+  const h = await tanyaAI(env, { model: env.MODEL_CHAT || MODEL_CHAT, max_tokens: 1200, system: SISTEM_KOMENTAR, messages: [{ role: "user", content: isi }] });
+  if (h.idr) await catatBiaya(env, "komentar", h.token, h.idr);
   let daftar = null; try { const m = h.jawab.match(/\[[\s\S]*\]/); daftar = JSON.parse(m ? m[0] : h.jawab); } catch { daftar = null; }
-  if (!Array.isArray(daftar)) { for (let i = 0; i < h.jawab.length; i += 3800) await kirim(env, h.jawab.slice(i, i + 3800)); return kirim(env, `≈Rp${h.idr}`); }
+  if (!Array.isArray(daftar)) { for (let i = 0; i < h.jawab.length; i += 3800) await kirim(env, h.jawab.slice(i, i + 3800)); return kirim(env, labelBiaya(h)); }
   for (const k of daftar) {  // satu pesan per komentar; tombol Salin sekali ketuk
     const bl = (k.balasan || []).filter(Boolean).map((x) => String(x).slice(0, 256));
     let teks = `💬 ${k.nama || "?"}: ${k.komentar || ""}`;
@@ -175,7 +244,7 @@ async function balasKomentar(env, fileId, catatan) {
     if (k.catatan) teks += `\n\n📝 ${k.catatan}`;
     await kirim(env, teks, bl.length ? [bl.map((x, i) => ({ text: `📋 Salin ${i + 1}`, copy_text: { text: x } }))] : undefined);
   }
-  await kirim(env, `✅ ${daftar.length} komentar · ≈Rp${h.idr}`);
+  await kirim(env, `✅ ${daftar.length} komentar · ${labelBiaya(h)}`);
 }
 
 async function dispatch(env, workflow, inputs) {
@@ -379,6 +448,14 @@ export default {
       const a = await TG(env, "setWebhook", { url: `${url.origin}/tg`, secret_token: env.WEBHOOK_SECRET, allowed_updates: ["message", "callback_query"] });
       const b = await TG(env, "setMyCommands", { commands: PERINTAH });
       return Response.json({ webhook: a.ok, perintah: b.ok });
+    }
+    if (url.pathname === "/cek" && env.WEBHOOK_SECRET && url.searchParams.get("k") === env.WEBHOOK_SECRET) {
+      // Diagnosa AI tanpa membuka rahasia: model mana yang menjawab, berapa lama, galatnya apa.
+      const mulai = Date.now(), hasil = { gemini_kunci: !!env.GEMINI_API_KEY, claude_kunci: !!env.ANTHROPIC_API_KEY };
+      try { const h = await gemini(env, { system: "Jawab satu kata.", messages: [{ role: "user", content: "tes" }] }); hasil.gemini = { model: h.model, jawab: h.jawab.slice(0, 40) }; }
+      catch (e) { hasil.gemini_galat = String(e.message || e).slice(0, 300); }
+      hasil.detik = (Date.now() - mulai) / 1000;
+      return Response.json(hasil);
     }
     if (url.pathname === "/tg" && req.method === "POST") {
       if (req.headers.get("x-telegram-bot-api-secret-token") !== env.WEBHOOK_SECRET) return new Response("no", { status: 403 });
