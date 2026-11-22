@@ -46,7 +46,7 @@ POSE = G.SEMUA  # nama gerak yang sah (termasuk pose lama: tunjuk, tertawa, sila
 
 def _arah_derajat(arah, t: float) -> float:
     """Sudut depan/samping/belakang dengan interpolasi smoothstep."""
-    sudut = {"depan": 0.0, "samping": 90.0, "belakang": 180.0}
+    sudut = {"depan": 0.0, "tiga_perempat": 45.0, "samping": 90.0, "tiga_perempat_belakang": 135.0, "belakang": 180.0}
     if isinstance(arah, str):
         if arah not in sudut:
             raise ValueError("arah harus depan, samping, atau belakang")
