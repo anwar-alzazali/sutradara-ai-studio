@@ -58,6 +58,16 @@ jobs:
           name: bukti-visual-tahap-b2
           path: keluaran-bukti/tahap-b2/
           if-no-files-found: warn
+      - name: Render bukti kartu pasangan kata Tahap C
+        if: github.head_ref == 'tahap-c-penguatan-dalil'
+        run: python scripts/render_bukti_tahap_c.py
+      - name: Unggah bukti visual kartu Tahap C
+        if: always() && github.head_ref == 'tahap-c-penguatan-dalil'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bukti-visual-tahap-c
+          path: keluaran-bukti/tahap-c/kartu-pasangan-kata.jpg
+          if-no-files-found: error
       - name: Cache dataset hadis untuk verifikasi contoh Ya'juj
         uses: actions/cache@v4
         with:
@@ -90,9 +100,12 @@ jobs:
         if: success()
         run: |
           set -e
-          mkdir -p /tmp/tahap-b-bukti /tmp/tahap-b-bukti-b2
+          mkdir -p /tmp/tahap-b-bukti /tmp/tahap-b-bukti-b2 /tmp/tahap-c-bukti
           cp keluaran-bukti/tahap-b/*.jpg /tmp/tahap-b-bukti/
           cp keluaran-bukti/tahap-b2/*.jpg /tmp/tahap-b-bukti-b2/
+          if [ -f keluaran-bukti/tahap-c/kartu-pasangan-kata.jpg ]; then
+            cp keluaran-bukti/tahap-c/kartu-pasangan-kata.jpg /tmp/tahap-c-bukti/
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if git ls-remote --exit-code --heads origin bukti >/dev/null 2>&1; then
@@ -114,3 +127,26 @@ jobs:
           git add tahap-b tahap-b2
           git commit -m "Bukti visual Tahap B ${GITHUB_SHA}"
           git push origin HEAD:bukti
+
+      - name: Simpan bukti Tahap C ke cabang terpisah
+        if: success() && github.head_ref == 'tahap-c-penguatan-dalil'
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin 'bukti/tahap-c' >/dev/null 2>&1; then
+            git fetch origin 'refs/heads/bukti/tahap-c:refs/remotes/origin/bukti/tahap-c'
+            git checkout -B bukti-tahap-c origin/bukti/tahap-c
+          else
+            git checkout --orphan bukti-tahap-c
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          mkdir -p tahap-c
+          cp /tmp/tahap-c-bukti/kartu-pasangan-kata.jpg tahap-c/
+          git add tahap-c/kartu-pasangan-kata.jpg
+          if git diff --cached --quiet; then
+            echo "Bukti Tahap C tidak berubah."
+            exit 0
+          fi
+          git commit -m "Bukti visual Tahap C ${GITHUB_SHA}"
+          git push origin HEAD:bukti/tahap-c
