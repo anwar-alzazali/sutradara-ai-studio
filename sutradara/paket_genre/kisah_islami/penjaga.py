@@ -260,8 +260,10 @@ def _periksa_penataan(s: dict, pid: str | list[str], inti: str, peran: dict, lok
         (aktor, peran[aktor]["nama"], float(pos[0]), float(pos[1]))
         for aktor, pos in posisi
     ]
+    punya_y_visual = isinstance(benda.get("y"), (int, float))
+    y_visual = float(benda["y"]) if punya_y_visual else 0.0
     tokoh_lain = [
-        (str(tk.get("peran")), float(tk["x"]), float(tk["y"]))
+        (str(tk.get("peran")), float(tk["x"]), float(tk["y"]) if punya_y_visual else y_visual)
         for tk in s.get("tokoh", [])
         if tk.get("peran") not in id_pelaku
         and isinstance(tk.get("x"), (int, float))
@@ -269,7 +271,7 @@ def _periksa_penataan(s: dict, pid: str | list[str], inti: str, peran: dict, lok
     ]
     return periksa_kedekatan_pelaku(
         visual_x=float(benda["x"]),
-        visual_y=float(benda.get("y", 0)),
+        visual_y=y_visual,
         setengah_lebar=setengah_lebar,
         pelaku=pelaku,
         tokoh_lain=tokoh_lain,
