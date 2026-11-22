@@ -210,6 +210,13 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
    bergantian dekat (setengah badan) ke pembicara, dengan sisipan reaksi pendengar bila reaksinya penting. Konsep
    `dialogue_exchanges` (pembicara -> penjawab) sudah ada di mesin-video cabang `feat/short-term-production-intelligence`
    (`docs/AI_STORY_DIRECTOR.md`): bawa konsepnya. Layar tenang/gerak minimal boleh bila dialog yang membawa cerita.
+3c. **Arah hadap saat berinteraksi** (pemilik, 22 Nov 2026, dari bukti serah-terima B2 yang semua tokohnya
+   menghadap kamera): tokoh yang saling bicara, menyerahkan/menerima barang, menunjuk, atau mengejek harus
+   menghadap lawannya (samping atau tiga-perempat, sisi kiri/kanan sesuai posisi), bukan menghadap kamera. Tampak
+   depan untuk berbicara ke penonton, kerumunan yang menonton, atau reaksi; tampak belakang untuk sudut pandang
+   ikut tokoh, kepergian, atau tokoh yang sedang memandang sesuatu. Sutradara yang memilih arah hadap, bukan nilai
+   bawaan. Bila perlu, tambahkan arah tiga-perempat di rangka tokoh. Penjaga memberi PERIKSA (bukan GAGAL) bila
+   pasangan serah-terima/dialog sama-sama menghadap kamera tanpa alasan.
 4. **Keputusan tingkat shot:**
    - pecah enumerasi menjadi shot per kata dan eskalasi pada pengulangan;
    - kamera mengikuti posisi beat;
