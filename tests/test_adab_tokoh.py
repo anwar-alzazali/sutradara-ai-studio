@@ -275,3 +275,60 @@ def test_detail_ekspresi_tidak_diterapkan_pada_wajah_cahaya_sahabat():
 def test_batas_penjaga_bahtera_tidak_dilemahkan():
     from sutradara.rencana.penjaga import SETENGAH_LEBAR
     assert SETENGAH_LEBAR["bahtera"] == 500
+
+
+def test_variasi_ciri_antar_individu_kerumunan_tidak_memicu_drift_palsu():
+    r = _rencana()
+    for role in r["peran"]:
+        if role["id"] in ("kaum", "pengikut_beriman"):
+            role["kolektif"] = True
+    shot_awal = r["beat"][1]["shot"][0]
+    shot_awal["tokoh"] = [
+        {"x": 700, "y": 1500, "peran": "kaum", "kepala": "imamah"},
+        {"x": 860, "y": 1500, "peran": "kaum", "kepala": "kain"},
+        {"x": 990, "y": 1500, "peran": "pengikut_beriman", "kepala": "kopiah"},
+    ]
+    shot_lanjut = copy.deepcopy(shot_awal)
+    shot_lanjut["tokoh"] = [
+        {"x": 710, "y": 1500, "peran": "kaum", "kepala": "kain"},
+        {"x": 870, "y": 1500, "peran": "pengikut_beriman", "kepala": "imamah"},
+    ]
+    r["beat"][1]["shot"] = [shot_awal]
+    r["beat"][2]["shot"] = [shot_lanjut]
+    assert not any(x.kode == "IDENTITAS_BERUBAH" for x in periksa(r))
+
+
+def test_identitas_individu_di_dalam_kerumunan_tetap_dijaga_antar_shot():
+    r = _rencana()
+    for role in r["peran"]:
+        if role["id"] == "kaum":
+            role["kolektif"] = True
+    r["pemeran"] = [{
+        "id": "pengejek_01",
+        "nama": "Pengejek 01",
+        "identitas": {
+            "jenis": "pria", "usia": "dewasa", "zaman": "arab_kuno",
+            "penutup_kepala": "imamah",
+        },
+    }]
+    tokoh_awal = {"x": 700, "y": 1500, "peran": "kaum",
+                  "pemeran_id": "pengejek_01", "kepala": "imamah"}
+    tokoh_akhir = {**tokoh_awal, "kepala": "kain"}
+    awal = copy.deepcopy(r["beat"][1]["shot"][0])
+    akhir = copy.deepcopy(awal)
+    awal["tokoh"] = [tokoh_awal]
+    akhir["tokoh"] = [tokoh_akhir]
+    r["beat"][1]["shot"] = [awal]
+    r["beat"][2]["shot"] = [akhir]
+    temuan = periksa(r)
+    assert any(x.kode == "IDENTITAS_BERUBAH" and x.tingkat == "PERIKSA"
+               and "pengejek_01" in x.pesan for x in temuan)
+
+
+def test_tokoh_tunggal_tanpa_peran_kolektif_tetap_diperiksa_dari_kartu_peran():
+    r = _rencana()
+    shot = r["beat"][0]["shot"][0]
+    shot["tokoh"] = [{"x": 500, "y": 1500, "peran": "kaum", "kepala": "kain"}]
+    temuan = periksa(r)
+    assert any(x.kode == "IDENTITAS_BERUBAH" and x.tingkat == "PERIKSA"
+               for x in temuan)
