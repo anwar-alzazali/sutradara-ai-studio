@@ -238,30 +238,46 @@ def _posisi_pelaku(s: dict, pid: str, peran: dict) -> tuple[float, float] | None
 
 
 def _periksa_penataan(s: dict, pid: str | list[str], inti: str, peran: dict, lokasi: str) -> list[Temuan]:
-    """Semua pelaku bersama harus dekat dengan visual inti; tokoh non-pelaku yang lebih dekat tetap ditandai."""
+    """Adaptasi aturan blocking Kisah Islami ke pemeriksa geometri inti."""
+    from sutradara.rencana.pemeriksaan_umum import periksa_kedekatan_pelaku
+
     benda = next((b for b in s.get("benda", []) if b.get("jenis") == inti), None)
     if benda is None or not isinstance(benda.get("x"), (int, float)):
         return []
     ids = [pid] if isinstance(pid, str) else list(pid)
     posisi = [(aktor, _posisi_pelaku(s, aktor, peran)) for aktor in ids]
-    posisi = [(aktor, pos) for aktor, pos in posisi if pos is not None and isinstance(pos[0], (int, float))]
+    posisi = [(aktor, pos) for aktor, pos in posisi
+              if pos is not None and isinstance(pos[0], (int, float))
+              and isinstance(pos[1], (int, float))]
     if not posisi:
         return []
-    hw = SETENGAH_LEBAR.get(inti, SETENGAH_LEBAR_BAWAAN) * float(benda.get("s", 1) if isinstance(benda.get("s", 1), (int, float)) else 1)
-    jarak = lambda x: max(0.0, abs(x - benda["x"]) - hw)
-    t = []
-    jarak_pelaku = {aktor: jarak(pos[0]) for aktor, pos in posisi}
-    jauh = [(aktor, jp) for aktor, jp in jarak_pelaku.items() if jp > JARAK_PELAKU_MAKS]
-    if jauh:
-        nama = ", ".join(peran[aktor]["nama"] for aktor, _ in jauh)
-        t.append(Temuan("PERIKSA", "PELAKU_JAUH", f"{lokasi}: {nama} berbuat pada {inti} tetapi terlalu jauh dari tepinya"))
-    jp_terdekat = min(jarak_pelaku.values())
+
+    skala = benda.get("s", 1)
+    skala = float(skala) if isinstance(skala, (int, float)) else 1.0
+    setengah_lebar = SETENGAH_LEBAR.get(inti, SETENGAH_LEBAR_BAWAAN) * skala
     id_pelaku = set(ids)
-    lain = [tk for tk in s.get("tokoh", []) if tk.get("peran") not in id_pelaku and isinstance(tk.get("x"), (int, float))]
-    lebih_dekat = [tk for tk in lain if jarak(tk["x"]) + 1 < jp_terdekat and abs(tk["y"] - benda.get("y", tk["y"])) < PITA_KEDALAMAN]
-    if lebih_dekat:
-        t.append(Temuan("PERIKSA", "BUKAN_PELAKU_DEKAT", f"{lokasi}: {len(lebih_dekat)} tokoh non-pelaku lebih dekat ke {inti} daripada pelaku terdekat"))
-    return t
+    pelaku = [
+        (aktor, peran[aktor]["nama"], float(pos[0]), float(pos[1]))
+        for aktor, pos in posisi
+    ]
+    tokoh_lain = [
+        (str(tk.get("peran")), float(tk["x"]), float(tk["y"]))
+        for tk in s.get("tokoh", [])
+        if tk.get("peran") not in id_pelaku
+        and isinstance(tk.get("x"), (int, float))
+        and isinstance(tk.get("y"), (int, float))
+    ]
+    return periksa_kedekatan_pelaku(
+        visual_x=float(benda["x"]),
+        visual_y=float(benda.get("y", 0)),
+        setengah_lebar=setengah_lebar,
+        pelaku=pelaku,
+        tokoh_lain=tokoh_lain,
+        jarak_maks=JARAK_PELAKU_MAKS,
+        pita_kedalaman=PITA_KEDALAMAN,
+        label_visual=inti,
+        lokasi=lokasi,
+    )
 
 
 def ringkas(temuan: list[Temuan]) -> str:
