@@ -21,7 +21,7 @@ def test_geometri_panggung_mendeteksi_tokoh_lain_yang_menghalangi_blocking():
         visual_x=540,
         visual_y=1200,
         setengah_lebar=500,
-        pelaku=[("aktor-1", "Pelaku", 1240, 1200)],
+        pelaku=[("aktor-1", "Pelaku", 1190, 1200)],
         tokoh_lain=[("aktor-2", 1030, 1200)],
         jarak_maks=160,
         pita_kedalaman=180,
