@@ -1,0 +1,53 @@
+{
+  "versi": 1,
+  "resep": [
+    {
+      "id": "kaum_mengejek",
+      "kata": ["mengejek", "mengolok", "tertawa", "sindiran"],
+      "suasana": "senja",
+      "gerak": "tertawa",
+      "wajah": "ejek",
+      "fokus": "lawan"
+    },
+    {
+      "id": "azab_datang",
+      "kata": ["badai", "angin", "banjir", "azab", "gelombang"],
+      "suasana": "malam_merah",
+      "gerak": "kaget",
+      "wajah": "takut",
+      "fokus": "visual_inti"
+    },
+    {
+      "id": "doa_sunyi",
+      "kata": ["berdoa", "memohon", "doa"],
+      "suasana": "malam",
+      "gerak": "berdoa",
+      "wajah": "sedih",
+      "fokus": "pembicara"
+    },
+    {
+      "id": "seruan",
+      "kata": ["menyeru", "berkata", "menjawab", "seruan"],
+      "suasana": "senja",
+      "gerak": "berdiri",
+      "wajah": "datar",
+      "fokus": "pembicara"
+    },
+    {
+      "id": "perjalanan",
+      "kata": ["berjalan", "melintas", "berlari", "pergi", "mendekat"],
+      "suasana": "senja",
+      "gerak": "jalan",
+      "wajah": "datar",
+      "fokus": "tujuan"
+    },
+    {
+      "id": "renungan",
+      "kata": ["kamu", "pelajaran", "hikmah", "pilihan"],
+      "suasana": "fajar",
+      "gerak": "berdiri",
+      "wajah": "datar",
+      "fokus": "teks"
+    }
+  ]
+}

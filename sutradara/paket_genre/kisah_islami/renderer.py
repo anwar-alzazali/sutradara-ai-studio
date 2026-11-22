@@ -23,6 +23,9 @@ def render_adegan(shot,sp,t,tg,data):
         elif j=="lapak":latar.append(benda.lapak(b["x"],b["y"],b.get("warna","#b8452e")))
         elif j=="sungai":latar.append(benda.sungai(b["isi"],sisi=b["sisi"],t=tg))
         elif j=="bukit":latar.append(f'<path d="M300 1260 Q 540 1060 780 1260Z" fill="{b.get("warna","#160e18")}"/>')
+        elif j=="kota_kuno":latar.append(benda.kota_kuno(b["x"],b["y"],b.get("s",1),runtuh=b.get("runtuh",0)))
+        elif j=="angin":latar.append(benda.angin(b["x"],b["y"],b.get("kuat",0),t=tg,seed=b.get("seed",19)))
+        elif j=="dinding_yajuj":latar.append(akhir_zaman.dinding_yajuj(b["x"],b["y"],b.get("s",1),lubang=b.get("lubang",0)))
         else:raise ValueError(f"benda tak dikenal: {j}")
     for item in sp.get("barang",[]):
         owner=item.get("pemilik")

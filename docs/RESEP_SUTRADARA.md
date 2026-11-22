@@ -10,6 +10,18 @@ Sumber: `papan/kisah/nuh2_buat.py` (23 beat, ±128 dtk) dan `papan/kisah/yajuj2_
 
 ## A. Keputusan tingkat video (dibuat sekali, sebelum shot apa pun)
 
+### A0. Resep aturan untuk naskah antrean
+Paket Kisah Islami memuat pustaka data `sutradara/paket_genre/kisah_islami/resep_adegan.json` yang dapat diperluas
+tanpa mengubah inti: `kaum_mengejek`, `azab_datang`, `doa_sunyi`, `seruan`, `perjalanan`, dan `renungan`. Pilihan
+resep memakai kata-kata pada narasi, sedangkan visual inti mengikuti kisah yang dikenali. Untuk Nuh, bahtera
+bertahap dari rangka menuju badai dan keselamatan; untuk Hud, permukiman generik berubah oleh angin tanpa memberi
+detail budaya sebagai fakta. Rencana otomatis mengisi preset, peran, hook, blocking, dan shot dari format `antrean.py`.
+Ucapan hanya berasal dari dialog yang masuk; peliputan dibuat shot–reverse shot dengan arah hadap antarperan.
+Jalan/lari mensyaratkan tujuan dan lintasan keyframe. Model opsional hanya dipanggil bila diaktifkan dan skor aturan
+di bawah ambang; adapter `modul:fungsi` mengembalikan `(rencana, biaya)`. Tanpa bendera dan adapter, tidak ada
+panggilan model; bila aturan ragu, rencana lokal tetap dihasilkan. Hasil model tetap melewati penjaga yang sama.
+Biaya dan pemakaian token dicatat tanpa prompt atau kunci rahasia.
+
 ### A1. Satu VISUAL INTI yang berubah keadaan sepanjang video
 Setiap video punya satu benda pusat dengan **parameter keadaan** yang dianimasikan dari awal sampai akhir. Penonton mengikuti cerita lewat perubahan benda itu.
 

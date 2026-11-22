@@ -39,6 +39,7 @@ Keluarkan **hanya satu objek JSON valid**, tanpa Markdown, komentar, atau teks p
   - "dalil": daftar id dari daftar dalil, atau [] hanya untuk pembuka nonfaktual, renungan, atau ajakan;
   - "suasana": salah satu dari "senja", "dhuha", "malam", "malam_merah", "fajar"; pilih waktu/cahaya adegan, bukan emosi;
   - "peran": daftar nama tokoh/pihak yang hadir atau sedang dibahas pada beat itu. Gunakan nama yang konsisten di seluruh naskah; gunakan [] bila tidak ada tokoh/pihak.
+  - "dialog" (opsional): daftar ucapan langsung berbentuk {"pembicara":"nama peran","ucapan":"...","penjawab":"nama peran"}. Pembicara dan penjawab harus tercantum di "peran" beat yang sama. Jangan membuat ucapan yang tidak didukung dalil.
 - "peringatan": daftar hal yang perlu diperiksa manusia, atau [].
 
 ### Kerangka JSON

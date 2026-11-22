@@ -54,6 +54,26 @@ def test_validator_menolak_id_dalil_ganda_dan_peran_tidak_teks():
     assert "peran harus berupa daftar" in galat
 
 
+def test_validator_dialog_memerlukan_pembicara_ucapan_dan_penjawab_bertipe_teks():
+    n = json.loads(json.dumps(NASKAH))
+    n["beat"][0]["peran"] = ["Nabi", "kaum"]
+    n["beat"][0]["dialog"] = [{"pembicara": "Nabi", "ucapan": "Jangan takut.", "penjawab": "kaum"}]
+    assert A.validasi(n) == []
+    n["beat"][0]["dialog"] = [{"pembicara": " ", "ucapan": 3, "penjawab": 2}]
+    galat = " ".join(A.validasi(n))
+    assert "pembicara kosong" in galat
+    assert "ucapan kosong" in galat
+    assert "penjawab harus berupa nama peran" in galat
+
+
+def test_validator_dialog_mengharuskan_peran_terdaftar_dan_tidak_menggambar_allah():
+    n = json.loads(json.dumps(NASKAH))
+    n["beat"][0]["dialog"] = [{"pembicara": "Allah", "ucapan": "...", "penjawab": "tokoh yang tidak ada"}]
+    galat = " | ".join(A.validasi(n))
+    assert "Allah tidak digambarkan" in galat
+    assert "belum tercantum di peran" in galat
+
+
 def test_narasi_tempelan_tidak_boleh_diubah_ai():
     asal = "Kalimat pertama yang kuat.\n\nKalimat kedua."
     assert A.narasi_utuh(NASKAH, asal) == []

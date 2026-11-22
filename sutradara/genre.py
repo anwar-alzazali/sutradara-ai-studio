@@ -60,6 +60,7 @@ class PaketGenre:
     sisipan_waktu_baca: Callable[[dict[str,Any]],bool]|None=None
     waktu_tetap: Callable[[dict[str,Any],str],bool]|None=None
     efek_kemunculan: Callable[[dict[str,Any]],list[dict[str,Any]]]|None=None
+    sutradara: Callable[[dict[str,Any]],tuple[dict[str,Any],float]]|None=None
     def __post_init__(self):
         object.__setattr__(self,"komponen",MappingProxyType(dict(self.komponen)))
         object.__setattr__(self,"skema_tambahan",bekukan_data(self.skema_tambahan))
@@ -68,7 +69,7 @@ _PAKET={}; _POLA_NAMA=re.compile(r"^[a-z][a-z0-9_]*$"); _KUNCI=RLock()
 def daftarkan(paket,*,ganti=False):
     if not isinstance(paket,PaketGenre): raise TypeError("paket harus berupa PaketGenre")
     if not isinstance(paket.nama,str) or not _POLA_NAMA.fullmatch(paket.nama): raise ValueError(f"nama genre tidak sah: {paket.nama!r}")
-    if not any((paket.komponen,paket.renderer_adegan,paket.adaptasi_shot,paket.durasi_shot,paket.data_render,paket.validator,paket.skema_tambahan,paket.modul_dalil,paket.panduan_gaya,paket.resep,paket.bawaan,paket.sisipan_waktu_baca,paket.waktu_tetap,paket.efek_kemunculan)): raise ValueError("paket genre harus menyediakan minimal satu kemampuan")
+    if not any((paket.komponen,paket.renderer_adegan,paket.adaptasi_shot,paket.durasi_shot,paket.data_render,paket.validator,paket.skema_tambahan,paket.modul_dalil,paket.panduan_gaya,paket.resep,paket.bawaan,paket.sisipan_waktu_baca,paket.waktu_tetap,paket.efek_kemunculan,paket.sutradara)): raise ValueError("paket genre harus menyediakan minimal satu kemampuan")
     if any(not isinstance(k,str) or not k.strip() for k in paket.komponen): raise ValueError("nama komponen harus berupa teks yang tidak kosong")
     with _KUNCI:
         if paket.nama in _PAKET and not ganti: raise ValueError(f"genre sudah terdaftar: {paket.nama}")

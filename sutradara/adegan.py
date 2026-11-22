@@ -36,7 +36,10 @@ def susun(shot,t=0.0,tg=None,data_render=None,sub=None,*,genre=None,**opsi_kompa
     tengah=list(hasil.tengah)
     for i,(tk,asli) in enumerate(zip(sp.get("tokoh",[]),shot.get("tokoh",[]))):
         ident=tk.get("_identitas_render") or {}
-        tengah.append((tk["y"],TK.orang(tk["x"],tk["y"],tk.get("s",1),gerak=asli.get("gerak",asli.get("pose","berdiri")),t=t+i*.37,
+        nama_gerak=asli.get("gerak",asli.get("pose","berdiri"))
+        gerak_awal=nama_gerak[0][1] if isinstance(nama_gerak,list) and nama_gerak else nama_gerak
+        faktor=float(asli.get("faktor_gerak",1.0)) if gerak_awal in {"jalan","lari"} else 1.0
+        tengah.append((tk["y"],TK.orang(tk["x"],tk["y"],tk.get("s",1),gerak=nama_gerak,t=(t+i*.37)*faktor,
             indeks=tk.get("indeks",i),mode=tk.get("_mode_render",tk.get("mode","pakaian")),kepala=tk.get("kepala"),jenis=tk.get("jenis","pria"),
             wajah=asli.get("wajah","datar"),arah=asli.get("arah",tk.get("arah","depan")),usia=tk.get("usia","dewasa"),zaman=tk.get("zaman","arab_kuno"),
             bicara=asli.get("bicara"),detail_wajah=asli.get("detail_wajah"),balik=tk.get("balik",False),wajah_cahaya=bool(tk.get("_wajah_cahaya",False)),gambar_item=paket.komponen.get("aktor.item"),

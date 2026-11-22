@@ -183,6 +183,26 @@ def validasi(n: dict) -> list[str]:
         peran = b.get("peran")
         if not isinstance(peran, list) or any(not isinstance(x, str) or not x.strip() for x in peran):
             g.append(f"beat {i}: peran harus berupa daftar nama tokoh/pihak yang hadir atau dibahas; gunakan [] bila tidak ada")
+        dialog = b.get("dialog", [])
+        if not isinstance(dialog, list):
+            g.append(f"beat {i}: dialog harus berupa daftar giliran bicara; gunakan [] bila tidak ada")
+        else:
+            nama_peran = {x for x in peran if isinstance(x, str)} if isinstance(peran, list) else set()
+            for j, giliran in enumerate(dialog, 1):
+                if not isinstance(giliran, dict):
+                    g.append(f"beat {i} dialog {j}: harus berupa objek dengan pembicara dan ucapan")
+                    continue
+                for kunci in ("pembicara", "ucapan"):
+                    if not isinstance(giliran.get(kunci), str) or not giliran[kunci].strip():
+                        g.append(f"beat {i} dialog {j}: {kunci} kosong; isi nama peran/ucapan")
+                if giliran.get("penjawab") is not None and not isinstance(giliran.get("penjawab"), str):
+                    g.append(f"beat {i} dialog {j}: penjawab harus berupa nama peran atau null")
+                for sisi in ("pembicara", "penjawab"):
+                    nama = giliran.get(sisi)
+                    if isinstance(nama, str) and nama.strip() and nama not in nama_peran:
+                        g.append(f"beat {i} dialog {j}: {sisi} '{nama}' belum tercantum di peran; tambahkan agar bisa ditata dan digambar dengan aman")
+                    if isinstance(nama, str) and _polos(nama) in {"allah", "tuhan"}:
+                        g.append(f"beat {i} dialog {j}: Allah tidak digambarkan sebagai tokoh; gunakan narasi atau cahaya tanpa sosok")
         rujukan = b.get("dalil")
         if not isinstance(rujukan, list) or any(not isinstance(x, str) for x in rujukan):
             g.append(f"beat {i}: dalil harus berupa daftar id rujukan; gunakan [] bila beat bukan pernyataan fakta")
@@ -216,10 +236,11 @@ ATURAN = f"""Aturan WAJIB (akun TikTok/FB "Alzazali | Kisah Islami"):
 - Narasi bahasa Indonesia, sapa penonton "kamu". Tidak ada huruf Arab di narasi.
 - Mutu cerita: fakta terkuat yang menyangkut nasib penonton di kalimat pertama; satu video = cerita utuh (janji hook dijawab di video ini); setiap kalimat menambah informasi atau ketegangan, buang yang mengulang; durasi mengikuti cerita.
 - Setiap beat berisi narasi, kata_kunci, dalil (id rujukan saja), suasana, dan peran (nama tokoh/pihak yang hadir atau dibahas; [] bila tidak ada).
+- Bila ada ucapan langsung, tambahkan `dialog`: daftar `{{"pembicara": "nama peran", "ucapan": "...", "penjawab": "nama peran"}}`. Jangan membuat dialog baru yang tidak didukung sumber.
 - Setiap beat yang menyatakan fakta/peristiwa wajib merujuk dalil yang benar-benar mendukungnya. Tanpa dalil hanya untuk pembuka nonfaktual, renungan, atau ajakan; jangan mengubah dugaan menjadi fakta.
 - Jangan menebak nomor dalil. Jika ragu, jangan mencantumkannya dan beri catatan bahwa rujukan perlu diperiksa pemilik.
 Keluarkan HANYA JSON valid berbentuk:
-{{"judul": "...", "inti": "satu kalimat inti", "dalil": [{{"id": "hud50", "jenis": "quran", "label": "QS HUD 50", "surah": 11, "ayat": "50"}}, {{"id": "b3343", "jenis": "hadis", "label": "HR. BUKHARI 3343", "kitab": "bukhari", "nomor": "3343"}}], "beat": [{{"narasi": "...", "kata_kunci": ["..."], "dalil": ["hud50"], "suasana": "senja|dhuha|malam|malam_merah|fajar", "peran": ["Nabi Hud", "kaum 'Ad"]}}]}}"""
+{{"judul": "...", "inti": "satu kalimat inti", "dalil": [{{"id": "hud50", "jenis": "quran", "label": "QS HUD 50", "surah": 11, "ayat": "50"}}, {{"id": "b3343", "jenis": "hadis", "label": "HR. BUKHARI 3343", "kitab": "bukhari", "nomor": "3343"}}], "beat": [{{"narasi": "...", "kata_kunci": ["..."], "dalil": ["hud50"], "suasana": "senja|dhuha|malam|malam_merah|fajar", "peran": ["Nabi Hud", "kaum 'Ad"], "dialog": [{{"pembicara": "Nabi Hud", "ucapan": "...", "penjawab": "kaum 'Ad"}}]}}]}}"""
 
 SISTEM = {
     "ide": "Kamu penulis naskah video pendek Kisah Islami yang jujur dan kuat bercerita. Tulis naskah utuh dari topik pemilik.\n" + ATURAN,
@@ -384,10 +405,10 @@ def buat_naskah(mode: str, masukan: str, naskah_lama: dict | None = None, *, tan
             dipakai.update(nomor)
             beat_berurut.append((min(nomor), {"narasi": " ".join(par[i - 1] for i in nomor), "dalil": b.get("dalil", []),
                                                "suasana": b.get("suasana"), "kata_kunci": b.get("kata_kunci", []),
-                                               "peran": b.get("peran", [])}))
+                                               "peran": b.get("peran", []), "dialog": b.get("dialog", [])}))
         for i in range(1, len(par) + 1):  # paragraf yang terlewat AI tidak boleh hilang
             if i not in dipakai:
-                beat_berurut.append((i, {"narasi": par[i - 1], "dalil": [], "kata_kunci": [], "peran": []}))
+                beat_berurut.append((i, {"narasi": par[i - 1], "dalil": [], "kata_kunci": [], "peran": [], "dialog": []}))
                 dipakai.add(i)
         beat = [b for _, b in sorted(beat_berurut, key=lambda pasangan: pasangan[0])]
         for b in beat:

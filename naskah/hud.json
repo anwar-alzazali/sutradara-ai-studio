@@ -1,0 +1,98 @@
+{
+  "judul": "Hud dan Kaum 'Ad",
+  "inti": "Hud menyeru kaum 'Ad untuk menyembah Allah dan mengingatkan mereka agar tidak sombong.",
+  "dalil": [
+    {
+      "id": "hud50",
+      "jenis": "quran",
+      "label": "QS HUD 50",
+      "surah": 11,
+      "ayat": "50"
+    },
+    {
+      "id": "hud52",
+      "jenis": "quran",
+      "label": "QS HUD 52",
+      "surah": 11,
+      "ayat": "52"
+    },
+    {
+      "id": "hud53_57",
+      "jenis": "quran",
+      "label": "QS HUD 53-57",
+      "surah": 11,
+      "ayat": "53-57"
+    },
+    {
+      "id": "hud58_60",
+      "jenis": "quran",
+      "label": "QS HUD 58-60",
+      "surah": 11,
+      "ayat": "58-60"
+    },
+    {
+      "id": "hud69_6_8",
+      "jenis": "quran",
+      "label": "QS AL-HAQQAH 6-8",
+      "surah": 69,
+      "ayat": "6-8"
+    }
+  ],
+  "beat": [
+    {
+      "narasi": "Hud menyeru kaum 'Ad agar menyembah Allah serta mengajak mereka memohon ampun dan bertobat.",
+      "kata_kunci": [
+        "menyeru",
+        "kaum 'Ad"
+      ],
+      "dalil": [
+        "hud50",
+        "hud52"
+      ],
+      "suasana": "senja",
+      "peran": [
+        "Nabi Hud",
+        "kaum 'Ad"
+      ]
+    },
+    {
+      "narasi": "Mereka menuduh Hud membawa bukti palsu dan menyatakan tidak akan meninggalkan sesembahan mereka.",
+      "kata_kunci": [
+        "menuduh",
+        "menolak"
+      ],
+      "dalil": [
+        "hud53_57"
+      ],
+      "suasana": "malam_merah",
+      "peran": [
+        "Nabi Hud",
+        "kaum 'Ad"
+      ],
+      "dialog": [
+        {
+          "pembicara": "kaum 'Ad",
+          "ucapan": "Kami tidak akan meninggalkan sesembahan kami.",
+          "penjawab": "Nabi Hud"
+        }
+      ]
+    },
+    {
+      "narasi": "Angin dahsyat selama tujuh malam dan delapan hari membinasakan kaum 'Ad; Hud dan orang beriman diselamatkan.",
+      "kata_kunci": [
+        "diselamatkan",
+        "dibinasakan"
+      ],
+      "dalil": [
+        "hud69_6_8",
+        "hud58_60"
+      ],
+      "suasana": "fajar",
+      "peran": [
+        "Nabi Hud",
+        "orang-orang beriman",
+        "kaum 'Ad"
+      ]
+    }
+  ]
+}

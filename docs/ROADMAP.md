@@ -153,6 +153,12 @@ Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang
 - **Kriteria selesai:** naskah kisah Nabi Nuh → video otomatis penuh; pemilik menilai "layak tayang" dibanding versi manual.
   Lalu satu kisah baru (mis. Nabi Hud) juga layak tanpa campur tangan kode.
 
+**Implementasi Tahap D1 (PR #45):** format antrean divalidasi dan dirancang oleh paket genre; inti hanya menyediakan
+kontrak, CLI, dan pemeriksaan umum. Keputusan paket Kisah Islami mencakup visual inti/jalur keadaan, preset, peran,
+hook, resep data, tata panggung, dialog, arah hadap, dan lintasan jalan/lari. Model bersifat opsional, mati secara
+  bawaan, menerima adapter yang diinjeksi lewat `--adapter modul:fungsi`, dan biaya agregat dicatat tanpa prompt atau rahasia. Bukti render Nuh/Hud
+dan batas cakupan D1 tercatat di deskripsi PR; penilaian layak tayang tetap keputusan pemilik.
+
 ### ○ Fase 5 — Periksa & kritikus
 1. Periksa teknis (salin `mesin-video/periksa.py`): resolusi, durasi, audio hilang, clipping, layar kosong, teks terpotong.
 2. Lembar kontak otomatis (16 bingkai) + kritik terhadap resep: visual inti tidak berubah, shot terlalu mirip berturut-turut,

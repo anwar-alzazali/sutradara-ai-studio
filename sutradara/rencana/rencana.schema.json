@@ -201,6 +201,22 @@
           "keadaan": {
             "type": "string"
           },
+          "resep": {
+            "type": "string",
+            "description": "Id resep adegan dari pustaka paket genre."
+          },
+          "dialog": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["pembicara", "ucapan"],
+              "properties": {
+                "pembicara": {"type": "string", "minLength": 1},
+                "ucapan": {"type": "string", "minLength": 1},
+                "penjawab": {"type": ["string", "null"]}
+              }
+            }
+          },
           "potong_di": {
             "type": "array",
             "items": {
@@ -322,6 +338,23 @@
                       "peran": {
                         "type": "string"
                       },
+                      "x": {},
+                      "y": {},
+                      "s": {"type": "number", "exclusiveMinimum": 0},
+                      "gerak": {},
+                      "pose": {"type": "string"},
+                      "wajah": {},
+                      "arah": {},
+                      "balik": {"type": "boolean"},
+                      "bicara": {
+                        "type": "array",
+                        "items": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}
+                      },
+                      "tujuan": {"type": "string", "minLength": 1},
+                      "di_tempat": {"type": "boolean"},
+                      "alasan_di_tempat": {"type": "string"},
+                      "berbalik_sesuai_cerita": {"type": "boolean"},
+                      "faktor_gerak": {"type": "number", "exclusiveMinimum": 0},
                       "pemeran_id": {
                         "type": "string",
                         "description": "id kartu pemeran individual; stabil antar-shot"
@@ -569,6 +602,10 @@
       "type": "string",
       "pattern": "^[a-z][a-z0-9_]*$",
       "description": "Nama paket genre; bila tidak ada, rencana lama memakai kisah_islami."
+    },
+    "dibuat_otomatis": {
+      "type": "boolean",
+      "description": "Rencana dihasilkan oleh sutradara otomatis; penjaga menerapkan pemeriksaan tambahan lintasan dan interaksi."
     }
   }
 }
