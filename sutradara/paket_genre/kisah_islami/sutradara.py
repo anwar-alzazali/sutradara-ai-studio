@@ -278,6 +278,11 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                 balik = x > float(keadaan.get("x", 540))
             else:
                 arah, balik = "depan", False
+            # Sudut tiga-perempat dipilih hanya bila narasi menyebut orientasi
+            # serong secara eksplisit; relasi dialog/interaksi tetap prioritas.
+            teks_hadap = _polos(narasi)
+            if not dialog and any(k in teks_hadap for k in ("tiga perempat", "serong tiga perempat", "menghadap serong")):
+                arah = "tiga_perempat_belakang" if "dari belakang" in teks_hadap else "tiga_perempat"
             for xi in xs:
                 wajah_tokoh = resep.get("wajah", "datar")
                 gerak_tokoh = resep.get("gerak", "berdiri")
