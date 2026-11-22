@@ -380,6 +380,8 @@ def rancang(naskah: dict) -> tuple[dict, float]:
     label = {d["id"]:d["label"] for d in dalil}
     beat_hasil=[]
     hooks=[]
+    # Arah layar disimpan per identitas pemeran sepanjang urutan beat.
+    arah_terakhir: dict[str, int] = {}
     for i, b in enumerate(naskah["beat"]):
         teks = b["narasi"]
         resep = _resep_untuk(teks)
@@ -441,11 +443,26 @@ def rancang(naskah: dict) -> tuple[dict, float]:
                         hadir[0] if gerak in {"jalan", "lari"} or "menunjuk" in tindakan else None
                     )
                 )
-                shots.append(_shot(inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep,
-                                   fokus=fokus,pelaku=pelaku,interaksi=interaksi,
-                                   perjalanan=(gerak in {"jalan","lari"} and fokus is not None),
-                                   perjalanan_semua=("mengejar" in tindakan or "dikejar" in tindakan),
-                                   arah_perjalanan=(-1 if "ke kiri" in tindakan else 1 if "ke kanan" in tindakan else None)))
+                eksplisit = -1 if "ke kiri" in tindakan else 1 if "ke kanan" in tindakan else None
+                # Untuk gerak tanpa arah eksplisit, pertahankan arah layar yang
+                # sudah dipakai pemeran. _shot membaliknya sekali bila narasi
+                # menyatakan kembali/kabur/berbalik arah.
+                arah_memori = eksplisit if eksplisit is not None else arah_terakhir.get(fokus)
+                shot_baru = _shot(inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep,
+                                  fokus=fokus,pelaku=pelaku,interaksi=interaksi,
+                                  perjalanan=(gerak in {"jalan","lari"} and fokus is not None),
+                                  perjalanan_semua=("mengejar" in tindakan or "dikejar" in tindakan),
+                                  arah_perjalanan=arah_memori)
+                shots.append(shot_baru)
+                # Simpan arah aktual setelah target/tepi dan pembalikan naratif
+                # selesai dihitung oleh _shot, bukan arah rencana awal.
+                for aktor_jadi in shot_baru.get("tokoh", []):
+                    pid_jadi = aktor_jadi.get("peran")
+                    lintasan_jadi = aktor_jadi.get("lintasan", [])
+                    if pid_jadi and len(lintasan_jadi) >= 2:
+                        dx_jadi = (float(lintasan_jadi[-1][1]) > float(lintasan_jadi[0][1])) - (float(lintasan_jadi[-1][1]) < float(lintasan_jadi[0][1]))
+                        if dx_jadi:
+                            arah_terakhir[pid_jadi] = dx_jadi
         if pelaku:
             for s in shots:
                 s["pelaku"] = pelaku
