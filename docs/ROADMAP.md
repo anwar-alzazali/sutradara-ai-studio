@@ -228,8 +228,8 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 ### Dalil
 - [x] Fondasi bacaan latin ayat disiapkan di balik `FITUR_BACAAN_LATIN = False`; tidak dipanggil dan tidak tampil sampai pemilik meminta.
 - [ ] Musnad Ahmad tetap ditolak penjaga. Audit kandidat belum menemukan bukti yang sekaligus memastikan lisensi publik, teks Arab, dan penilaian derajat yang dapat ditelusuri untuk riwayat yang diperlukan; jangan mengimpor atau mengarang derajat.
-- [ ] Pemeriksa hadis kedua Quran Foundation terblokir sampai pemilik menjalankan workflow `verifikasi dalil` yang sudah ada di `.github/workflows/verifikasi.yml` dari `main`, memilih cabang Tahap C, dan hasil diagnosa menampilkan akses scope `content.hadith.read` serta endpoint hadis dapat dibaca. Jangan menyimpulkan akses dari scope ayat.
-- [x] Mekanisme koreksi terjemah dengan teks asli/koreksi/alasan berdampingan; kartu hanya menerapkan status `disetujui_pemilik`. Usulan Muslim 2934b (`surga` → `sungai`, النهر) masih `menunggu_persetujuan_pemilik`, jadi layar tetap memakai teks sumber.
+- [ ] Diagnostik akses Quran Foundation diarahkan ke tiga route resmi Hadith References v4: `GET /hadith_references/by_ayah/{ayah_key}`, `GET /hadith_references/by_ayah/{ayah_key}/hadiths`, dan `GET /hadith_references/count_within_range?from={verse_key}&to={verse_key}`. Scope `content.hadith.read` tercantum pada token, tetapi uji sebelumnya memakai route keliru `/hadiths/by_ayah/{ayah_key}` dan menghasilkan 403; uji ulang live menunggu workflow dispatch `verifikasi dalil` pada cabang Tahap C. Pemeriksa kedua hanya dapat membandingkan hadis yang ada dalam peta referensi ayat Quran Foundation; API ini bukan pencarian bebas berdasarkan kitab+nomor. Jika tidak ada referensi/matan yang cocok di peta, hasilnya `tidak_tercakup`/`tidak_terbukti`, bukan lulus; gunakan dataset lokal sebagai sumber pemeriksaan selanjutnya. Jangan menyimpulkan status dari hasil kosong.
+- [x] Koreksi Muslim 2934b (`mendatangi surga yang ia lihat berupa api` → `mendatangi sungai yang ia lihat berupa api`, النهر) telah disetujui pemilik pada 22 Nov 2026 (commit `c05926c`); status `disetujui_pemilik`. Jangan membatalkan atau menimpa persetujuan tersebut.
 - [x] Pasangan Arab–terjemah memakai data word-by-word Quran Foundation bila semua kata memiliki terjemah resmi; jika tidak tersedia, tidak mengklaim pasangan kata dan memakai pemotongan lama.
 
 ### Mesin & otomatisasi
@@ -280,3 +280,10 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - 21 Nov 2026 — Aset suara lama dipakai sebagai fallback sesuai kebutuhan Tahap A; provenance/lisensi aset lama belum terdokumentasi penuh. Rekaman dari workflow tunduk pada ketentuan lisensi akun ElevenLabs pemilik; PR tidak menyatakan asetnya public-domain.
 
 - 22 Nov 2026 — Bukti visual Tahap C disimpan di cabang bukti-tahap-c. Cabang lama bukti dipertahankan agar bukti Tahap B/B2 dan tautannya tidak rusak; Git tidak dapat membuat ref bukti/tahap-c ketika ref bukti masih ada.
+
+
+## Catatan tambahan Tahap C — 22 Nov 2026
+
+- Dokumentasi Content API v4 mengonfirmasi route referensi `GET /hadith_references/by_ayah/{ayah_key}`, payload `GET /hadith_references/by_ayah/{ayah_key}/hadiths`, dan hitungan `GET /hadith_references/count_within_range?from=...&to=...`. Route lama `/hadiths/by_ayah/{ayah_key}` tidak sesuai; 403 sebelumnya tidak membuktikan scope tidak diberikan. Diagnostik sekarang memeriksa ketiga route dan bentuk responsnya.
+- Hadith References memetakan hubungan hadis↔ayat, bukan endpoint pencarian kitab+nomor. Pemeriksa kedua hanya berlaku bila peta mengembalikan referensi yang cocok; tidak ditemukan bukan lulus dan dataset lokal tetap menjadi jalur untuk hadis di luar peta. Uji live harus diulang melalui workflow dispatch `verifikasi dalil`.
+- Persetujuan pemilik Muslim 2934b tercatat pada commit `c05926c`: frasa lengkap `mendatangi surga yang ia lihat berupa api` dikoreksi menjadi `mendatangi sungai yang ia lihat berupa api`; status `disetujui_pemilik`. Perubahan berikutnya tidak mengubah berkas koreksi yang disetujui.
