@@ -179,3 +179,38 @@ def test_perjalanan_kedalaman_depan_belakang_tidak_diberi_peringatan_mendatar():
     }
     temuan = periksa_lintasan_dan_interaksi(rencana)
     assert "ARAH_GERAK" not in {t.kode for t in temuan}
+
+
+
+def test_penjaga_mendeteksi_tokoh_bertumpuk_dan_posisi_berubah_antar_shot():
+    from sutradara.rencana.pemeriksaan_umum import periksa_kontinuitas_panggung
+
+    rencana = {
+        "beat": [{
+            "shot": [
+                {"tokoh": [
+                    {"peran": "pemberi", "x": 400, "y": 1500, "s": .68},
+                    {"peran": "penerima", "x": 420, "y": 1500, "s": .68},
+                ]},
+                {"tokoh": [
+                    {"peran": "pemberi", "x": 650, "y": 1500, "s": .68},
+                    {"peran": "penerima", "x": 820, "y": 1500, "s": .68},
+                ]},
+            ]
+        }]
+    }
+    temuan = periksa_kontinuitas_panggung(rencana)
+    kode_temuan = {t.kode for t in temuan}
+    assert "TOKOH_BERTUMPUK" in kode_temuan
+    assert "POSISI_BERUBAH_ANTAR_SHOT" in kode_temuan
+
+
+def test_penjaga_tidak_menganggap_anggota_kelompok_satu_peran_bertumpuk():
+    from sutradara.rencana.pemeriksaan_umum import periksa_kontinuitas_panggung
+
+    rencana = {"beat": [{"shot": [{"tokoh": [
+        {"peran": "kaum", "x": 400, "y": 1500},
+        {"peran": "kaum", "x": 430, "y": 1500},
+        {"peran": "kaum", "x": 460, "y": 1500},
+    ]}]}]}
+    assert not periksa_kontinuitas_panggung(rencana)
