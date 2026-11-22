@@ -11,6 +11,7 @@ from __future__ import annotations
 from html import escape
 
 from ..dalil import segmen as SG
+from ..dalil.koreksi import terapkan_terjemah
 
 Y_ATAS = 150           # tepi atas isi pita (di bawah bilah atas TikTok); pita memudar ke bawah
 TINGGI = 470
@@ -40,10 +41,39 @@ def _potong_cache(ar: str, tr: str) -> tuple:
 
 def teks_kartu(dalil: dict) -> tuple[str, str]:
     """Teks yang tampil: kutipan (bila ada, wajib potongan persis teks terverifikasi) atau teks utuh."""
-    return dalil.get("kutipan_ar") or dalil.get("teks_ar", ""), dalil.get("kutipan_id") or dalil.get("terjemah", "")
+    ar = dalil.get("kutipan_ar") or dalil.get("teks_ar", "")
+    terjemah = dalil.get("kutipan_id") or dalil.get("terjemah", "")
+    terjemah = terapkan_terjemah(dalil, terjemah)
+    return ar, terjemah
+
+
+def per_kata(dalil: dict) -> bool:
+    return (dalil.get("mode_terjemah") == "per_kata" and bool(dalil.get("pasangan_kata"))
+            and not dalil.get("kutipan_ar") and not dalil.get("kutipan_id"))
 
 
 def potongan(dalil: dict) -> list[tuple[str, str]]:
+    # Terjemah per kata HANYA tampil bila diminta eksplisit (mode_terjemah="per_kata") dan tidak ada kutipan.
+    # Bawaan tetap terjemah resmi utuh (Kemenag): gabungan glosa per kata bukan terjemah yang lazim dibaca
+    # dan tidak boleh tampil di bawah nama sumber terjemah resmi. Kutipan tidak boleh dimekarkan jadi ayat utuh.
+    pasangan = (dalil.get("pasangan_kata") or []) if per_kata(dalil) else []
+    if pasangan and all(isinstance(p, dict) and p.get("ar") and p.get("id") for p in pasangan):
+        hasil, ar_kini, id_kini = [], [], []
+        for p in pasangan:
+            calon_ar = " ".join(ar_kini + [p["ar"]])
+            calon_id = " ".join(id_kini + [p["id"]])
+            if len(SG.baris(p["ar"], True)) > 2 or len(SG.baris(p["id"], False)) > 2:
+                # Satu pasangan yang terlalu panjang tidak dapat dipasang utuh di kartu; jangan memaksakan layout.
+                return list(_potong_cache(" ".join(x["ar"] for x in pasangan),
+                                          " ".join(x["id"] for x in pasangan)))
+            if ar_kini and (len(SG.baris(calon_ar, True)) > 2 or len(SG.baris(calon_id, False)) > 2):
+                hasil.append((" ".join(ar_kini), " ".join(id_kini)))
+                ar_kini, id_kini = [p["ar"]], [p["id"]]
+            else:
+                ar_kini.append(p["ar"]); id_kini.append(p["id"])
+        if ar_kini:
+            hasil.append((" ".join(ar_kini), " ".join(id_kini)))
+        return hasil
     ar, tr = teks_kartu(dalil)
     return list(_potong_cache(ar, tr)) if ar and tr else []
 
@@ -66,6 +96,8 @@ def _label(dalil: dict) -> str:
     lab = dalil.get("label", "")
     if dalil.get("jenis") == "hadis" and dalil.get("derajat") in ("sahih", "hasan"):
         lab += f" · {dalil['derajat'].upper()}"
+    if per_kata(dalil):
+        lab += " · TERJEMAH PER KATA"
     return lab
 
 

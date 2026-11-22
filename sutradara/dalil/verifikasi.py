@@ -53,6 +53,11 @@ def verifikasi_quran(d: dict, quran) -> str:
     nama = hasil[0].nama_surah
     d.update(status="terverifikasi", teks_ar=" ".join(h.ar for h in hasil), terjemah=" ".join(h.terjemah for h in hasil),
              sumber_teks=f"Quran Foundation · {hasil[0].sumber_terjemah}", rujukan=hasil[0].tautan)
+    # Pasangan hanya disimpan bila setiap kata memiliki terjemah word-by-word dari API.
+    if hasil and all(h.kata for h in hasil):
+        d["pasangan_kata"] = [pasangan for h in hasil for pasangan in h.kata]
+    else:
+        d.pop("pasangan_kata", None)
     d.pop("alasan", None)
     _tanda(d)
     nomor_ayat = str(d["ayat"]).replace(" ", "")

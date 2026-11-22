@@ -1,0 +1,317 @@
+import json
+
+from sutradara.dalil import koreksi
+from sutradara.dalil.quran import QuranFoundation
+from sutradara.dalil.verifikasi import verifikasi_quran
+from sutradara.gaya import kartu
+
+
+def test_koreksi_terjemah_menunggu_persetujuan_pemilik():
+    dalil = {"jenis": "hadis", "kitab": "muslim", "nomor": "2934b"}
+    usulan = [{"kitab": "muslim", "nomor": "2934b", "teks_asli": "surga",
+               "teks_koreksi": "sungai", "status": "menunggu_persetujuan_pemilik"}]
+    assert koreksi.terapkan_terjemah(dalil, "Dia menuju surga.", koreksi=usulan) == "Dia menuju surga."
+    disetujui = [dict(usulan[0], status="disetujui_pemilik")]
+    assert koreksi.terapkan_terjemah(dalil, "Dia menuju surga.", koreksi=disetujui) == "Dia menuju sungai."
+    assert koreksi.terapkan_terjemah(dalil, "surga dan surga", koreksi=disetujui) == "surga dan surga"
+
+
+def test_kartu_hanya_menerapkan_koreksi_yang_disetujui(monkeypatch):
+    dalil = {"jenis": "hadis", "kitab": "muslim", "nomor": "2934b", "teks_ar": "النهر",
+             "terjemah": "surga"}
+    monkeypatch.setattr(koreksi, "daftar", lambda: [
+        {"kitab": "muslim", "nomor": "2934b", "teks_asli": "surga", "teks_koreksi": "sungai",
+         "status": "menunggu_persetujuan_pemilik"}
+    ])
+    assert kartu.teks_kartu(dalil) == ("النهر", "surga")
+    monkeypatch.setattr(koreksi, "daftar", lambda: [
+        {"kitab": "muslim", "nomor": "2934b", "teks_asli": "surga", "teks_koreksi": "sungai",
+         "status": "disetujui_pemilik"}
+    ])
+    assert kartu.teks_kartu(dalil) == ("النهر", "sungai")
+
+
+def test_kartu_memakai_pasangan_kata_resmi_tanpa_potong_proporsional():
+    dalil = {"jenis": "quran", "teks_ar": "نص عربي كامل", "terjemah": "terjemahan utuh",
+             "mode_terjemah": "per_kata", "pasangan_kata": [{"ar": "وَيَصْنَعُ", "id": "dan membuat"},
+                               {"ar": "الْفُلْكَ", "id": "kapal"}]}
+    assert kartu.potongan(dalil) == [("وَيَصْنَعُ الْفُلْكَ", "dan membuat kapal")]
+
+
+def test_quran_foundation_menyimpan_pasangan_kata_dari_api(tmp_path):
+    def transport(metode, url, kepala, data=None):
+        if url.endswith("/oauth2/token"):
+            return 200, {"access_token": "token-uji", "expires_in": 3600}
+        if "/resources/translations" in url:
+            return 200, {"translations": [{"id": 33, "name": "Kemenag", "language_name": "indonesian"}]}
+        if "/chapters" in url:
+            return 200, {"chapters": [{"id": 11, "name_simple": "Hud"}]}
+        if "/verses/by_key/11:38" in url:
+            return 200, {"verse": {
+                "text_uthmani": "وَيَصْنَعُ الْفُلْكَ",
+                "translations": [{"resource_id": 33, "text": "Dan dia membuat kapal."}],
+                "words": [
+                    {"text_uthmani": "وَيَصْنَعُ", "translation": {"text": "dan membuat", "language_name": "indonesian"}},
+                    {"text_uthmani": "الْفُلْكَ", "translation": {"text": "kapal", "language_name": "indonesian"}},
+                    {"text_uthmani": "۝", "char_type_name": "end", "translation": {}}
+                ]
+            }}
+        return 404, {}
+
+    quran = QuranFoundation(transport=transport, cache=tmp_path)
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "surah": 11, "ayat": "38"}
+    laporan = verifikasi_quran(dalil, quran)
+    assert "✓" in laporan
+    assert dalil["pasangan_kata"] == [
+        {"ar": "وَيَصْنَعُ", "id": "dan membuat"},
+        {"ar": "الْفُلْكَ", "id": "kapal"}
+    ]
+
+
+def test_bacaan_latin_tetap_mati_tanpa_permintaan_pemilik(monkeypatch):
+    from sutradara.dalil import quran
+    monkeypatch.setattr(quran, "FITUR_BACAAN_LATIN", False)
+    klien = QuranFoundation(transport=lambda *a, **k: (_ for _ in ()).throw(AssertionError("API tidak boleh dipanggil")),
+                            cache=None)
+    assert klien.transliterasi_latin(1, 1) is None
+
+
+def test_pemeriksa_scope_hadis_menguji_tiga_route_resmi_content_api_v4(monkeypatch):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_ID", "id-rahasia-uji")
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-rahasia-uji")
+    panggilan = []
+
+    def request(url, *, headers, data=None):
+        panggilan.append((url, data))
+        if url.endswith("/oauth2/token"):
+            return 200, {"access_token": "token-uji", "scope": "content.hadith.read"}
+        if "/hadith_references/by_ayah/1:1/hadiths?" in url:
+            return 200, {"hadiths": [], "page": 1, "limit": 1, "has_more": False}
+        if "/hadith_references/by_ayah/1:1?" in url:
+            return 200, {"hadith_references": []}
+        if "/hadith_references/count_within_range?" in url:
+            return 200, {"1:1": 0}
+        return 404, {}
+
+    monkeypatch.setattr(akses_hadis, "_request", request)
+    hasil = akses_hadis.periksa_lingkungan("production")
+    assert hasil["status"] == "akses_terbukti"
+    assert hasil["status"] != "lulus"
+    assert hasil["scope_diminta"] == "content.hadith.read"
+    assert "content.hadith.read" in panggilan[0][1].decode()
+    assert panggilan[1][0].endswith("/content/api/v4/hadith_references/by_ayah/1:1?language=en")
+    assert panggilan[2][0].endswith("/content/api/v4/hadith_references/by_ayah/1:1/hadiths?language=ar&page=1&limit=1")
+    assert panggilan[3][0].endswith("/content/api/v4/hadith_references/count_within_range?from=1:1&to=1:1")
+    assert hasil["endpoint_http"] == {"referensi": 200, "isi_hadis": 200, "jumlah_rentang": 200}
+    assert "secret-rahasia-uji" not in repr(hasil)
+
+
+def test_pemeriksa_scope_hadis_tidak_lulus_jika_salah_satu_route_403(monkeypatch):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_ID", "id-uji")
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-uji")
+
+    def request(url, *, headers, data=None):
+        if url.endswith("/oauth2/token"):
+            return 200, {"access_token": "token-uji", "scope": "content.hadith.read"}
+        if "/hadith_references/by_ayah/1:1?" in url and "/hadiths?" not in url:
+            return 403, {"type": "insufficient_scope"}
+        if "/hadith_references/by_ayah/1:1/hadiths?" in url:
+            return 200, {"hadiths": []}
+        return 200, {"1:1": 0}
+
+    monkeypatch.setattr(akses_hadis, "_request", request)
+    hasil = akses_hadis.periksa_lingkungan("production")
+    assert hasil["status"] == "endpoint_tidak_terbukti"
+    assert hasil["endpoint_http"]["referensi"] == 403
+
+
+def test_pemeriksa_scope_hadis_tidak_membocorkan_dan_menghentikan_jika_secret_kosong(monkeypatch):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.delenv("QURAN_FOUNDATION_CLIENT_ID", raising=False)
+    monkeypatch.delenv("QURAN_FOUNDATION_CLIENT_SECRET", raising=False)
+    hasil = akses_hadis.periksa_lingkungan("production")
+    assert hasil["status"] == "terblokir"
+    assert "rahasia" not in repr(hasil).lower()
+
+
+def test_pasangan_kata_dikelompokkan_maksimal_dua_baris():
+    pasangan = [{"ar": f"كلمة{i}", "id": ("terjemahan panjang " + str(i) + " ")*2}
+                for i in range(4)]
+    dalil = {"jenis": "quran", "teks_ar": "teks Arab", "terjemah": "teks lama",
+             "mode_terjemah": "per_kata", "pasangan_kata": pasangan}
+    potongan = kartu.potongan(dalil)
+    assert len(potongan) >= 2
+    from sutradara.dalil import segmen
+    assert all(len(segmen.baris(ar, True)) <= 2 and len(segmen.baris(id_, False)) <= 2
+               for ar, id_ in potongan)
+
+
+def test_cli_diagnosa_quran_juga_mencetak_hasil_scope_hadis(monkeypatch, capsys):
+    from sutradara import __main__ as cli
+    from sutradara.dalil import akses_hadis
+    from sutradara.dalil.quran import QuranFoundation
+
+    monkeypatch.setattr(QuranFoundation, "diagnosa", lambda self: [])
+    monkeypatch.setattr(akses_hadis, "periksa_lingkungan",
+                        lambda env: {"lingkungan": env, "status": "terblokir"})
+    assert cli.main(["diagnosa-quran"]) == 0
+    keluaran = capsys.readouterr().out
+    assert "HADIS" in keluaran and "production" in keluaran and "prelive" in keluaran
+
+
+def test_cli_diagnosa_hadis_tetap_berjalan_jika_secret_kosong(monkeypatch, capsys):
+    from sutradara import __main__ as cli
+    from sutradara.dalil import akses_hadis
+    from sutradara.dalil.quran import QuranFoundation
+
+    monkeypatch.setattr(QuranFoundation, "diagnosa",
+                        lambda self: (_ for _ in ()).throw(RuntimeError("kredensial kosong")))
+    monkeypatch.setattr(akses_hadis, "periksa_lingkungan",
+                        lambda env: {"lingkungan": env, "status": "terblokir"})
+    assert cli.main(["diagnosa-quran"]) == 0
+    keluaran = capsys.readouterr().out
+    assert "QURAN | status=terblokir" in keluaran and "HADIS" in keluaran
+
+
+def test_pemeriksa_membedakan_akses_scope_legacy_dari_scope_granular(monkeypatch):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_ID", "id-uji")
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-uji")
+    panggilan = []
+
+    def request(url, *, headers, data=None):
+        panggilan.append((url, data))
+        if url.endswith("/oauth2/token") and b"scope=content.hadith.read" in data:
+            return 400, {"error": "invalid_scope"}
+        if url.endswith("/oauth2/token"):
+            return 200, {"access_token": "token-legacy", "scope": "content"}
+        if "/hadith_references/by_ayah/1:1/hadiths?" in url:
+            return 200, {"hadiths": []}
+        if "/hadith_references/by_ayah/1:1?" in url:
+            return 200, {"hadith_references": []}
+        if "/hadith_references/count_within_range?" in url:
+            return 200, {"1:1": 0}
+        return 404, {}
+
+    monkeypatch.setattr(akses_hadis, "_request", request)
+    hasil = akses_hadis.periksa_lingkungan("production")
+    assert hasil["status"] == "akses_legacy_content"
+    assert hasil["scope_cadangan"] == "content (legacy)"
+    assert b"scope=content" in panggilan[1][1]
+
+
+
+def test_quran_foundation_menolak_pasangan_dari_bahasa_lain(tmp_path):
+    def transport(metode, url, kepala, data=None):
+        if url.endswith("/oauth2/token"):
+            return 200, {"access_token": "token-uji", "expires_in": 3600}
+        if "/resources/translations" in url:
+            return 200, {"translations": [{"id": 33, "name": "Kemenag", "language_name": "indonesian"}]}
+        if "/chapters" in url:
+            return 200, {"chapters": [{"id": 11, "name_simple": "Hud"}]}
+        if "/verses/by_key/11:38" in url:
+            return 200, {"verse": {
+                "text_uthmani": "وَيَصْنَعُ الْفُلْكَ",
+                "translations": [{"resource_id": 33, "text": "Dan dia membuat kapal."}],
+                "words": [
+                    {"text_uthmani": "وَيَصْنَعُ", "translation": {"text": "and makes", "language_name": "english"}},
+                    {"text_uthmani": "الْفُلْكَ", "translation": {"text": "the ship", "language_name": "english"}}
+                ]
+            }}
+        return 404, {}
+
+    quran = QuranFoundation(transport=transport, cache=tmp_path)
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "surah": 11, "ayat": "38"}
+    verifikasi_quran(dalil, quran)
+    assert not dalil.get("pasangan_kata")
+
+
+def test_main_scope_hadis_hanya_lulus_jika_production_granular(monkeypatch, capsys):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_ID", "id-uji")
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-uji")
+    monkeypatch.setattr(akses_hadis, "periksa_lingkungan", lambda env: {
+        "lingkungan": env,
+        "status": "akses_legacy_content" if env == "production" else "akses_terbukti"
+    })
+    assert akses_hadis.main() == 1
+    assert "akses_legacy_content" in capsys.readouterr().out
+
+
+def test_main_scope_hadis_tidak_lulus_hanya_dari_prelive(monkeypatch, capsys):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_ID", "id-uji")
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-uji")
+    monkeypatch.setattr(akses_hadis, "periksa_lingkungan", lambda env: {
+        "lingkungan": env,
+        "status": "akses_terbukti" if env == "prelive" else "tidak_terbukti"
+    })
+    assert akses_hadis.main() == 1
+    capsys.readouterr()
+
+
+def test_musnad_ahmad_tetap_ditolak_tanpa_dataset_dan_derajat_terverifikasi():
+    from sutradara.dalil import hadis
+
+    assert hadis.kitab_baku("Musnad Ahmad") is None
+    assert hadis.cari("Musnad Ahmad", "22308") == []
+
+
+
+def test_kartu_memilih_potongan_pasangan_sesuai_waktu():
+    from sutradara.gaya import kartu
+
+    pasangan = [
+        {"ar": "وَيَصْنَعُ", "id": "dan membuat"},
+        {"ar": "الْفُلْكَ", "id": "kapal"},
+        {"ar": "وَكُلَّمَا", "id": "dan setiap kali"},
+        {"ar": "مَرَّ", "id": "lewat"},
+        {"ar": "عَلَيْهِ", "id": "kepadanya"},
+        {"ar": "مَلَأٌ", "id": "para pembesar"},
+        {"ar": "مِنْ", "id": "dari"},
+        {"ar": "قَوْمِهِ", "id": "kaumnya"},
+        {"ar": "سَخِرُوا", "id": "mereka mengejek"},
+        {"ar": "مِنْهُ", "id": "darinya"},
+    ]
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "mode_terjemah": "per_kata", "pasangan_kata": pasangan}
+    potongan = kartu.potongan(dalil)
+    assert len(potongan) >= 2
+    waktu = kartu.rencana_waktu(potongan)
+    token_pertama = potongan[0][0].split()[0]
+    token_kedua = potongan[1][0].split()[0]
+    svg_pertama = kartu.kartu(dalil, potongan, waktu[0][1] - 0.25, mulai=0.0, idx_uid="uji-1")
+    svg_kedua = kartu.kartu(dalil, potongan, waktu[1][1] - 0.25, mulai=0.0, idx_uid="uji-2")
+    assert token_pertama in svg_pertama
+    assert token_pertama not in svg_kedua
+    assert token_kedua in svg_kedua
+    assert token_kedua not in svg_pertama
+
+
+def test_bawaan_tetap_terjemah_resmi_walau_ada_pasangan_kata():
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "teks_ar": "وَيَصْنَعُ الْفُلْكَ",
+             "terjemah": "Dan mulailah dia membuat kapal.",
+             "pasangan_kata": [{"ar": "وَيَصْنَعُ", "id": "dan membuat"}, {"ar": "الْفُلْكَ", "id": "kapal"}]}
+    assert " ".join(id_ for _, id_ in kartu.potongan(dalil)) == "Dan mulailah dia membuat kapal."
+    assert "PER KATA" not in kartu._label(dalil)
+
+
+def test_kutipan_tidak_dimekarkan_oleh_pasangan_kata():
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "mode_terjemah": "per_kata",
+             "teks_ar": "وَيَصْنَعُ الْفُلْكَ", "terjemah": "Dan mulailah dia membuat kapal.",
+             "kutipan_ar": "الْفُلْكَ", "kutipan_id": "kapal",
+             "pasangan_kata": [{"ar": "وَيَصْنَعُ", "id": "dan membuat"}, {"ar": "الْفُلْكَ", "id": "kapal"}]}
+    assert kartu.potongan(dalil) == [("الْفُلْكَ", "kapal")]
+
+
+def test_label_per_kata_jelas():
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "mode_terjemah": "per_kata",
+             "pasangan_kata": [{"ar": "مِنْهُ", "id": "darinya"}]}
+    assert kartu._label(dalil).endswith("TERJEMAH PER KATA")

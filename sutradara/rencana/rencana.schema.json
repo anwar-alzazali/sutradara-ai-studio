@@ -303,6 +303,24 @@
           "kutipan_id": {
             "type": "string",
             "description": "potongan PERSIS dari terjemah yang tampil di kartu"
+          },
+          "mode_terjemah": {
+            "type": "string",
+            "enum": ["resmi", "per_kata"],
+            "description": "resmi (bawaan) = terjemah utuh sumber resmi; per_kata = tampilkan glosa per kata dari pasangan_kata dengan label TERJEMAH PER KATA. per_kata diabaikan bila ada kutipan."
+          },
+          "pasangan_kata": {
+            "type": "array",
+            "description": "Pasangan Arab-terjemah per kata yang dikembalikan Quran Foundation; bila tidak tersedia, properti dihilangkan.",
+            "items": {
+              "type": "object",
+              "required": ["ar", "id"],
+              "additionalProperties": false,
+              "properties": {
+                "ar": {"type": "string", "minLength": 1},
+                "id": {"type": "string", "minLength": 1}
+              }
+            }
           }
         }
       }

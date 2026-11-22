@@ -38,8 +38,16 @@ def main(argv=None) -> int:
 
     if arg.perintah == "diagnosa-quran":
         from .dalil.quran import QuranFoundation
-        for b in QuranFoundation(cache=None).diagnosa():
-            print(" | ".join(f"{k}={v}" for k, v in b.items()))
+        from .dalil.akses_hadis import periksa_lingkungan
+        try:
+            for b in QuranFoundation(cache=None).diagnosa():
+                print("QURAN | " + " | ".join(f"{k}={v}" for k, v in b.items()))
+        except Exception as e:
+            # Diagnosa hadis tetap dijalankan walau endpoint ayat sedang tidak terjangkau.
+            print(f"QURAN | status=terblokir | jenis_galat={type(e).__name__}")
+        for env in ("production", "prelive"):
+            h = periksa_lingkungan(env)
+            print("HADIS | " + " | ".join(f"{k}={v}" for k, v in h.items()))
         return 0
 
     if arg.perintah == "verifikasi":

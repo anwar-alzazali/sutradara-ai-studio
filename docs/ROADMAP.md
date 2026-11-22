@@ -123,12 +123,12 @@ Dibawa dari mesin-video (narasi_api.py, dlib.py, campur_rekaman, 47 efek `aset/s
 - Bukan satu kartu besar yang menutupi layar: pita ATAS tembus pandang (warna ikut preset suasana) berisi SATU potongan (Arab <= 2 baris + terjemah <= 2 baris),
   Arab disapu kanan->kiri, terjemah diketik, lalu diganti potongan berikutnya (`sutradara/gaya/kartu.py`).
 - Pemotongan (`sutradara/dalil/segmen.py`): terjemah dipotong lebih dulu di akhir kalimat/kata sambung, Arab di tanda
-  waqaf/kata sambung و ف pada proporsi yang sama. Gabungan potongan = teks utuh terverifikasi (dites). Pasangan
-  Arab-terjemah = perkiraan (tidak ada pemetaan kata resmi).
+  waqaf/kata sambung و ف pada proporsi yang sama. Gabungan potongan = teks utuh terverifikasi (dites). Pasangan Arab-terjemah awalnya perkiraan; Tahap C menambahkan
+  pasangan word-by-word Quran Foundation bila seluruh token kata memiliki terjemah, dengan fallback aman bila tidak.
 - Hadis memakai `kutipan_ar`/`kutipan_id` (matan saja, tanpa sanad) yang WAJIB potongan persis teks terverifikasi
   (`KUTIPAN_TIDAK_ADA_DI_SUMBER`). Label kartu hadis menyertakan derajat.
 - Durasi shot kartu otomatis dari waktu baca (±13 huruf/dtk, min 2,6 dtk per potongan); di fase 2 disesuaikan narasi.
-- Belum: bacaan latin ayat (transliterasi Quran Foundation) — ditunda sampai diminta.
+- Fondasi transliterasi Quran Foundation disiapkan di balik bendera mati; tidak dipanggil/ditampilkan sampai pemilik meminta.
 - **Bukti:** contoh Nuh + kartu QS Hud 38 (4 potongan), contoh Dajjal + kartu HR Muslim 2934 (3 potongan); 5 tes.
 
 ### ○ Fase 4 — Sutradara otomatis v1
@@ -226,12 +226,11 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - [x] Dabbah ditampilkan hanya sebagai gumpalan kabut/debu tanpa anatomi dan tanpa tanda wajah; dialog disampaikan melalui narasi/teks. Tidak mengarang bentuk yang tidak dijelaskan dalil.
 
 ### Dalil
-- [ ] Bacaan latin ayat di kartu (transliterasi Quran Foundation) — hanya bila pemilik meminta.
-- [ ] Musnad Ahmad belum ada di dataset (mis. Ahmad 22308, tanda di wajah oleh Dabbah) — cari sumber berlisensi jelas.
-- [ ] Pakai scope `content.hadith.read` Quran Foundation sebagai pemeriksa hadis kedua.
-- [ ] Terjemah hadis dataset kadang keliru (mis. Muslim 2934b: "surga" padahal النهر = sungai): tandai untuk tinjauan pemilik,
-      pertimbangkan terjemah sendiri yang ditinjau.
-- [ ] Pasangan Arab–terjemah di kartu masih perkiraan; pertimbangkan pemetaan kata (word-by-word) Quran Foundation.
+- [x] Fondasi bacaan latin ayat disiapkan di balik `FITUR_BACAAN_LATIN = False`; tidak dipanggil dan tidak tampil sampai pemilik meminta.
+- [ ] Musnad Ahmad tetap ditolak penjaga. Audit kandidat belum menemukan bukti yang sekaligus memastikan lisensi publik, teks Arab, dan penilaian derajat yang dapat ditelusuri untuk riwayat yang diperlukan; jangan mengimpor atau mengarang derajat.
+- [ ] Diagnostik akses Quran Foundation diarahkan ke tiga route resmi Hadith References v4: `GET /hadith_references/by_ayah/{ayah_key}`, `GET /hadith_references/by_ayah/{ayah_key}/hadiths`, dan `GET /hadith_references/count_within_range?from={verse_key}&to={verse_key}`. Scope `content.hadith.read` tercantum pada token, tetapi uji sebelumnya memakai route keliru `/hadiths/by_ayah/{ayah_key}` dan menghasilkan 403; uji ulang live menunggu workflow dispatch `verifikasi dalil` pada cabang Tahap C. Pemeriksa kedua hanya dapat membandingkan hadis yang ada dalam peta referensi ayat Quran Foundation; API ini bukan pencarian bebas berdasarkan kitab+nomor. Jika tidak ada referensi/matan yang cocok di peta, hasilnya `tidak_tercakup`/`tidak_terbukti`, bukan lulus; gunakan dataset lokal sebagai sumber pemeriksaan selanjutnya. Jangan menyimpulkan status dari hasil kosong.
+- [x] Koreksi Muslim 2934b (`mendatangi surga yang ia lihat berupa api` → `mendatangi sungai yang ia lihat berupa api`, النهر) telah disetujui pemilik pada 22 Nov 2026 (commit `c05926c`); status `disetujui_pemilik`. Jangan membatalkan atau menimpa persetujuan tersebut.
+- [x] Pasangan Arab–terjemah memakai data word-by-word Quran Foundation bila semua kata memiliki terjemah resmi; jika tidak tersedia, tidak mengklaim pasangan kata dan memakai pemotongan lama.
 
 ### Mesin & otomatisasi
 - [ ] Fase 4 sutradara otomatis: templat naskah untuk AI gratis, keputusan visual inti/preset/peran/hook, **penataan panggung
@@ -254,6 +253,10 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - Bot & Studio lama, film3d, cabang hasil per video, berkas audio/video lama.
 
 ## Log keputusan
+- 22 Nov 2026 — Tahap C: pemeriksa scope hadis dipisah dari diagnosa ayat; perintah `diagnosa-quran` kini juga meminta `content.hadith.read` dan menguji endpoint hadis tanpa mencetak rahasia. Pemeriksaan live harus dijalankan pemilik melalui workflow `verifikasi dalil` yang sudah ada di `main` dengan memilih cabang Tahap C; belum dijalankan, sehingga pemeriksa hadis kedua tetap terblokir.
+- 22 Nov 2026 — Tahap C: koreksi terjemah disimpan sebagai usulan terpisah dari dataset sumber. Muslim 2934b: `surga` → `sungai` (lafaz `النهر`) belum disetujui; renderer hanya memakai koreksi dengan status `disetujui_pemilik`.
+- 22 Nov 2026 — Tahap C: pasangan kata ayat diambil dari `words[].translation` Quran Foundation; hanya dipakai bila setiap kata punya pasangan. Bendera transliterasi latin tetap mati dan tidak ada bacaan latin yang ditampilkan.
+- 22 Nov 2026 — Tahap C: Musnad Ahmad belum ditambahkan. Untuk Ahmad 22308 ditemukan halaman yang menyebut matan dan derajat Sahih menurut Al-Arna'ut ([HadithWeb](https://hadithweb.com/ahmad%3A22308), [Abu Amina Elias](https://www.abuaminaelias.com/dailyhadithonline/2014/11/30/mark-of-the-beast/)); izin lisensi/penerbitan ulang data halaman itu tidak jelas. Kandidat tambahan: [HadeethEnc 65149](https://hadeethenc.com/ar/browse/hadith/65149) menampilkan derajat Sahih dan rujukan Ahmad 36/646 (22308), tetapi [dataset quranlab/hadith](https://huggingface.co/datasets/quranlab/hadith) memisahkan ahmad-ar (matan tanpa derajat) dari hadeethenc-ar (pilihan hadis berderajat) dengan lisensi per baris; pencocokan baris, lisensi teks Arab, dan asal penilai untuk riwayat ini belum diverifikasi. [Sanadset 650K](https://takhrij.org/en/sources/) menyatakan CC BY 4.0 untuk teks Arab, tetapi pasangan teks/grade/edisi untuk riwayat ini belum terbukti. Karena itu tidak ada rekaman yang diimpor dan penjaga tetap menolak kitab yang belum didukung. Rujukan audit: [Quran Foundation scope](https://api-docs.quran.foundation/docs/user_related_apis_versioned/scopes/), [quranlab/hadith sources](https://huggingface.co/datasets/quranlab/hadith/blob/main/SOURCES.md), [quranlab/hadith licenses](https://huggingface.co/datasets/quranlab/hadith/blob/main/LICENSES.md).
 - 21 Nov 2026 — Tanah bertekstur menjadi bawaan preset; jenis dan seed dapat diatur per shot. Tekstur statis di koordinat dunia, berkontras rendah, dan dirender di bawah benda/tokoh. Batu foreground tetap tajam tanpa blur.
 - 21 Nov 2026 — Tahap B: dokumentasi audit delapan kriteria diperbarui; bukti teknis dan batas tinjauan visual dicatat di `docs/TAHAP_B_AUDIT.md`. Dabbah dikunci sebagai kabut tanpa wujud dan tanpa penanda wajah.
 - 21 Nov 2026 — Tanah bertekstur menjadi bawaan preset; jenis dan seed dapat diatur per shot. Tekstur statis di koordinat dunia, berkontras rendah, dan dirender di bawah benda/tokoh. Batu foreground tetap tajam tanpa blur.
@@ -275,3 +278,12 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - 21 Nov 2026 — Fase 1b didahulukan (permintaan pemilik). Tokoh lama (pose diam) diganti rangka bersendi; nama pose lama tetap berlaku.
 - 21 Nov 2026 — Tahap A efek terikat aksi: keterlihatan kamera/lapis depan, variasi ketukan, permukaan/fallback, tawa/NPC/kabut/retakan, sumber palu Nuh, ekor efek, batas 40 ketukan, tes render dan workflow manual; rekaman khusus tetap menunggu dispatch pemilik.
 - 21 Nov 2026 — Aset suara lama dipakai sebagai fallback sesuai kebutuhan Tahap A; provenance/lisensi aset lama belum terdokumentasi penuh. Rekaman dari workflow tunduk pada ketentuan lisensi akun ElevenLabs pemilik; PR tidak menyatakan asetnya public-domain.
+
+- 22 Nov 2026 — Bukti visual Tahap C disimpan di cabang bukti-tahap-c. Cabang lama bukti dipertahankan agar bukti Tahap B/B2 dan tautannya tidak rusak; Git tidak dapat membuat ref bukti/tahap-c ketika ref bukti masih ada.
+
+
+## Catatan tambahan Tahap C — 22 Nov 2026
+
+- Dokumentasi Content API v4 mengonfirmasi route referensi `GET /hadith_references/by_ayah/{ayah_key}` ([referensi per ayat](https://api-docs.quran.foundation/docs/content_apis_versioned/4.0.0/hadith-references-by-ayah/)), payload `GET /hadith_references/by_ayah/{ayah_key}/hadiths` ([hadis per ayat](https://api-docs.quran.foundation/docs/content_apis_versioned/4.0.0/hadiths-by-ayah/)), dan hitungan `GET /hadith_references/count_within_range?from=...&to=...` ([hitungan rentang](https://api-docs.quran.foundation/docs/content_apis_versioned/4.0.0/hadith-count-within-range/)). Route lama `/hadiths/by_ayah/{ayah_key}` tidak sesuai; 403 sebelumnya tidak membuktikan scope tidak diberikan. Diagnostik sekarang memeriksa ketiga route dan bentuk responsnya.
+- Hadith References memetakan hubungan hadis↔ayat, bukan endpoint pencarian kitab+nomor. Pemeriksa kedua hanya berlaku bila peta mengembalikan referensi yang cocok; tidak ditemukan bukan lulus dan dataset lokal tetap menjadi jalur untuk hadis di luar peta. Uji live harus diulang melalui workflow dispatch `verifikasi dalil`.
+- Persetujuan pemilik Muslim 2934b tercatat pada commit `c05926c`: frasa lengkap `mendatangi surga yang ia lihat berupa api` dikoreksi menjadi `mendatangi sungai yang ia lihat berupa api`; status `disetujui_pemilik`. Perubahan berikutnya tidak mengubah berkas koreksi yang disetujui.
