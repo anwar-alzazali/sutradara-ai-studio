@@ -355,7 +355,8 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                         balik_jadwal = [[0.0, awal_dx < 0], [durasi * .68, dx < 0]]
                     a.update(x=[[0, x_awal], [durasi, ujung_x]], lintasan=lintasan,
                              arah=arah_jadwal, balik=balik_jadwal, tujuan=tujuan,
-                             gerak=gerak, faktor_gerak=round(faktor, 3))
+                             gerak=gerak, faktor_gerak=round(faktor, 3),
+                             **({"berbalik_sesuai_cerita": True} if membalik else {}))
                     if dy:
                         a["y"] = [[0, y_awal], [durasi, ujung_y]]
                 shot["tokoh"].append(a)
