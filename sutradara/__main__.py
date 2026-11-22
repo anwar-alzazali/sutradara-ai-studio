@@ -38,8 +38,12 @@ def main(argv=None) -> int:
 
     if arg.perintah == "diagnosa-quran":
         from .dalil.quran import QuranFoundation
+        from .dalil.akses_hadis import periksa_lingkungan
         for b in QuranFoundation(cache=None).diagnosa():
-            print(" | ".join(f"{k}={v}" for k, v in b.items()))
+            print("QURAN | " + " | ".join(f"{k}={v}" for k, v in b.items()))
+        for env in ("production", "prelive"):
+            h = periksa_lingkungan(env)
+            print("HADIS | " + " | ".join(f"{k}={v}" for k, v in h.items()))
         return 0
 
     if arg.perintah == "verifikasi":
