@@ -306,7 +306,10 @@
           },
           "mode_terjemah": {
             "type": "string",
-            "enum": ["resmi", "per_kata"],
+            "enum": [
+              "resmi",
+              "per_kata"
+            ],
             "description": "resmi (bawaan) = terjemah utuh sumber resmi; per_kata = tampilkan glosa per kata dari pasangan_kata dengan label TERJEMAH PER KATA. per_kata diabaikan bila ada kutipan."
           },
           "pasangan_kata": {
@@ -314,11 +317,20 @@
             "description": "Pasangan Arab-terjemah per kata yang dikembalikan Quran Foundation; bila tidak tersedia, properti dihilangkan.",
             "items": {
               "type": "object",
-              "required": ["ar", "id"],
+              "required": [
+                "ar",
+                "id"
+              ],
               "additionalProperties": false,
               "properties": {
-                "ar": {"type": "string", "minLength": 1},
-                "id": {"type": "string", "minLength": 1}
+                "ar": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                }
               }
             }
           }
@@ -556,13 +568,41 @@
                         "type": "object",
                         "additionalProperties": false,
                         "properties": {
-                          "kelopak": {"type": "number", "minimum": -1, "maximum": 1},
-                          "lirikan": {"type": "number", "minimum": -1, "maximum": 1},
-                          "alis_dalam": {"type": "number", "minimum": -1, "maximum": 1},
-                          "alis_luar": {"type": "number", "minimum": -1, "maximum": 1},
-                          "alis_rapat": {"type": "number", "minimum": 0, "maximum": 1},
-                          "kerut_hidung": {"type": "number", "minimum": 0, "maximum": 1},
-                          "mulut_bulat": {"type": "number", "minimum": 0, "maximum": 1}
+                          "kelopak": {
+                            "type": "number",
+                            "minimum": -1,
+                            "maximum": 1
+                          },
+                          "lirikan": {
+                            "type": "number",
+                            "minimum": -1,
+                            "maximum": 1
+                          },
+                          "alis_dalam": {
+                            "type": "number",
+                            "minimum": -1,
+                            "maximum": 1
+                          },
+                          "alis_luar": {
+                            "type": "number",
+                            "minimum": -1,
+                            "maximum": 1
+                          },
+                          "alis_rapat": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "kerut_hidung": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "mulut_bulat": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          }
                         },
                         "description": "Kendali mikro ekspresi wajah manusia biasa; tidak berlaku untuk wajah cahaya atau pilar."
                       }
@@ -688,6 +728,11 @@
           }
         }
       }
+    },
+    "genre": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Nama paket genre; bila tidak ada, rencana lama memakai kisah_islami."
     }
   }
 }
