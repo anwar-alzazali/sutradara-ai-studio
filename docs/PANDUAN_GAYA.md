@@ -29,6 +29,16 @@ Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jala
 - Barang milik nabi tidak ditempelkan pada tangan atau tubuh: renderer meletakkannya di sisi pilar cahaya dengan pendar. Serah-terima manusia–nabi ditunjukkan dengan tangan manusia menuju/dari titik di dekat pilar; nabi tetap hanya pilar.
 
 ## 1b. Gerak & ekspresi
+**Kontrak preset wajah (nama stabil untuk dipakai sutradara dan rencana):**
+- Preset dasar yang dipertahankan: `datar`, `senyum`, `tertawa`, `ejek`, `cemberut`, `sedih`, `marah`, `takut`, `kaget`, `pejam`.
+- Preset mikro tambahan yang sudah dibakukan: `kepergok_panik`, `jijik_ilfil`, `sinis`, `curiga`, `heran`.
+- Daftar otoritatif kode: `sutradara.gaya.tokoh.WAJAH`. Nama-nama di atas adalah API publik internal renderer; jangan mengganti, menghapus, atau memakai alias baru ketika memperbaiki bentuk gambar. Perubahan visual di masa depan harus kompatibel dengan nama ini.
+- Pemanggilan: `tokoh.orang(..., wajah="nama_preset")`; `wajah` juga menerima jadwal `[[detik, nama_preset], ...]` untuk transisi antar-ekspresi. Parameter `detail_wajah={...}` opsional untuk kendali mikro per-shot dan menggabungkan/menimpa nilai bawaan preset.
+- Kunci `detail_wajah`: `kelopak`, `lirikan`, `alis_dalam`, `alis_luar` bernilai -1.0 sampai 1.0; `alis_rapat`, `kerut_hidung`, `mulut_bulat` bernilai 0.0 sampai 1.0. Nilai di luar rentang dijepit renderer ke batas rentang.
+- Arti: `kelopak` mengatur bukaan mata; `lirikan` menggeser pupil; `alis_dalam` dan `alis_luar` mengubah sudut bagian dalam/luar alis; `alis_rapat` merapatkan alis; `kerut_hidung` menambah kerut pangkal hidung; `mulut_bulat` mengatur bentuk mulut bulat kecil.
+- Preset mikro memakai bentuk dasar yang sudah ada (kepergok/panik → takut; jijik/ilfil → cemberut; sinis → ejek; curiga/heran → datar) ditambah kendali mikro. Ini pemetaan implementasi, bukan nama pengganti.
+- Preset dan kendali mikro hanya untuk wajah manusia biasa. Jangan terapkan ke wajah cahaya sahabat atau pilar nabi; wajah cahaya tidak memiliki fitur wajah.
+
 - Arah tokoh memakai `arah`: `depan`, `samping`, `belakang`, atau jadwal `[[detik, arah], ...]`. Perubahan sudut memakai smoothstep; tampilan wajah memudar saat tokoh membelakangi kamera.
 - Ragam anatomi memakai `usia`: `anak`, `dewasa`, `lansia`; busana memakai `zaman`: `arab_kuno`, `mesir_kuno`, `umum`. Semua pilihan memakai rangka bersendi yang sama.
 - Gerak dan ekspresi melayani cerita: pilih yang dinyatakan narasi (yang "lewat" berjalan, yang "mengejek" tertawa/menunjuk
