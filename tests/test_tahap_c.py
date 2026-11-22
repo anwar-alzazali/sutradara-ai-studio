@@ -118,3 +118,30 @@ def test_pasangan_kata_dikelompokkan_maksimal_dua_baris():
     from sutradara.dalil import segmen
     assert all(len(segmen.baris(ar, True)) <= 2 and len(segmen.baris(id_, False)) <= 2
                for ar, id_ in potongan)
+
+
+def test_cli_diagnosa_quran_juga_mencetak_hasil_scope_hadis(monkeypatch, capsys):
+    from sutradara import __main__ as cli
+    from sutradara.dalil import akses_hadis
+    from sutradara.dalil.quran import QuranFoundation
+
+    monkeypatch.setattr(QuranFoundation, "diagnosa", lambda self: [])
+    monkeypatch.setattr(akses_hadis, "periksa_lingkungan",
+                        lambda env: {"lingkungan": env, "status": "terblokir"})
+    assert cli.main(["diagnosa-quran"]) == 0
+    keluaran = capsys.readouterr().out
+    assert "HADIS" in keluaran and "production" in keluaran and "prelive" in keluaran
+
+
+def test_cli_diagnosa_hadis_tetap_berjalan_jika_secret_kosong(monkeypatch, capsys):
+    from sutradara import __main__ as cli
+    from sutradara.dalil import akses_hadis
+    from sutradara.dalil.quran import QuranFoundation
+
+    monkeypatch.setattr(QuranFoundation, "diagnosa",
+                        lambda self: (_ for _ in ()).throw(RuntimeError("kredensial kosong")))
+    monkeypatch.setattr(akses_hadis, "periksa_lingkungan",
+                        lambda env: {"lingkungan": env, "status": "terblokir"})
+    assert cli.main(["diagnosa-quran"]) == 0
+    keluaran = capsys.readouterr().out
+    assert "QURAN | status=terblokir" in keluaran and "HADIS" in keluaran
