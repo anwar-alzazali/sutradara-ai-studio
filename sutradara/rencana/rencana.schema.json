@@ -94,6 +94,10 @@
             "type": "string",
             "description": "wajib bila tampil=siluet: misteri | kilas_balik | kerumunan_sangat_jauh | wajah_disembunyikan"
           },
+          "kolektif": {
+            "type": "boolean",
+            "description": "true bila peran mewakili kerumunan; variasi antarindividu tidak dibandingkan dengan identitas contoh peran. Individu tetap dapat dikunci lewat pemeran_id."
+          },
           "identitas": {
             "type": "object",
             "description": "Kartu identitas pemeran yang stabil; rujuk melalui id peran di setiap shot.",
