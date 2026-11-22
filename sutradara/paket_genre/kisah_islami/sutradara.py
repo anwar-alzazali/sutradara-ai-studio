@@ -296,6 +296,7 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                     x_awal, y_awal = float(x), 1510.0
                     ujung_y = y_awal
                     arah_hadap = "samping"
+                    membalik = False
                     if any(k in teks_arah for k in ("mendekat ke kamera", "mendekati kamera", "menuju kamera")):
                         dx, dy = 0, 160
                         tujuan, arah_hadap = "kedalaman:depan", "depan"
