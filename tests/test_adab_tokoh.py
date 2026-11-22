@@ -310,6 +310,7 @@ def test_identitas_individu_di_dalam_kerumunan_tetap_dijaga_antar_shot():
             "jenis": "pria", "usia": "dewasa", "zaman": "arab_kuno",
             "penutup_kepala": "imamah",
         },
+        "saluran_id": "kisah_islami",
     }]
     tokoh_awal = {"x": 700, "y": 1500, "peran": "kaum",
                   "pemeran_id": "pengejek_01", "kepala": "imamah"}
