@@ -48,6 +48,8 @@ def periksa_lingkungan(env: str) -> dict:
         data=payload,
     )
     hasil = {"lingkungan": env, "scope_diminta": SCOPE, "token_http": status}
+    if not isinstance(token_body, dict):
+        token_body = {}
     token = token_body.get("access_token")
     if status != 200 or not token:
         hasil.update(status="tidak_terbukti", alasan=str(token_body.get("error") or "token tidak diberikan"))
@@ -58,11 +60,14 @@ def periksa_lingkungan(env: str) -> dict:
         headers={"x-auth-token": token, "x-client-id": client_id},
     )
     hasil["endpoint_hadis_http"] = endpoint_status
+    if not isinstance(endpoint_body, dict):
+        endpoint_body = {}
     if endpoint_status == 200 and isinstance(endpoint_body.get("hadiths"), list):
         hasil.update(status="lulus", alasan="Token diterima dan endpoint hadis mengembalikan struktur yang sah")
     else:
         # Hanya keluarkan kategori/status; jangan menyalin pesan server yang mungkin memuat data tak terduga.
-        jenis = endpoint_body.get("type") or endpoint_body.get("error", {}).get("code")
+        error = endpoint_body.get("error")
+        jenis = endpoint_body.get("type") or (error.get("code") if isinstance(error, dict) else error)
         hasil.update(status="tidak_terbukti", alasan=f"Endpoint hadis menolak/gagal (HTTP {endpoint_status}; {jenis or 'tanpa kode'})")
     return hasil
 
