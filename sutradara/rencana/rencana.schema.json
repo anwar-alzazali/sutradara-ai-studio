@@ -303,6 +303,19 @@
           "kutipan_id": {
             "type": "string",
             "description": "potongan PERSIS dari terjemah yang tampil di kartu"
+          },
+          "pasangan_kata": {
+            "type": "array",
+            "description": "Pasangan Arab-terjemah per kata yang dikembalikan Quran Foundation; bila tidak tersedia, properti dihilangkan.",
+            "items": {
+              "type": "object",
+              "required": ["ar", "id"],
+              "additionalProperties": false,
+              "properties": {
+                "ar": {"type": "string", "minLength": 1},
+                "id": {"type": "string", "minLength": 1}
+              }
+            }
           }
         }
       }
