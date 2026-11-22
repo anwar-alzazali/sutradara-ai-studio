@@ -54,7 +54,8 @@ def _gabung_skema(target: dict[str, Any], tambahan: dict[str, Any], *, paket: st
         elif kunci in target and isinstance(target[kunci], dict) and isinstance(nilai, dict):
             _gabung_skema(target[kunci], nilai, paket=paket, lokasi=jalur)
         elif kunci in target and target[kunci] != nilai:
-            raise ValueError(f"skema_tambahan paket {paket!r} menimpa aturan inti: {jalur}")
+            jenis = "properti inti" if ".properties." in lokasi else "aturan inti"
+            raise ValueError(f"skema_tambahan paket {paket!r} menimpa {jenis}: {jalur}")
         else:
             target[kunci] = copy.deepcopy(nilai)
 
