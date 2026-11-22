@@ -1,13 +1,17 @@
 """Render bukti kartu word-by-word Tahap C (fixture tata letak, tanpa API/rahasia)."""
 
 from pathlib import Path
+import sys
+
+AKAR = Path(__file__).resolve().parents[1]
+if str(AKAR) not in sys.path:
+    sys.path.insert(0, str(AKAR))
 
 from PIL import Image
 
 from sutradara.gaya import dasar, kartu
 from sutradara.render import png
 
-AKAR = Path(__file__).resolve().parents[1]
 KELUAR = AKAR / "keluaran-bukti/tahap-c"
 TEMP = KELUAR / "sementara"
 
