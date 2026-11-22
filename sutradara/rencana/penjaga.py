@@ -27,31 +27,43 @@ class Temuan:
         return f"[{self.tingkat}] {self.kode}: {self.pesan}"
 
 
+def _gabung_skema(target: dict[str, Any], tambahan: dict[str, Any], *, paket: str, lokasi: str = "") -> None:
+    """Gabungkan ekstensi secara rekursif, termasuk properti bertingkat, tanpa override diam-diam."""
+    for kunci, nilai in tambahan.items():
+        jalur = f"{lokasi}.{kunci}" if lokasi else kunci
+        if kunci == "properties":
+            if not isinstance(nilai, dict):
+                raise TypeError(f"skema_tambahan paket {paket!r}: {jalur} harus berupa objek")
+            dasar = target.setdefault("properties", {})
+            if not isinstance(dasar, dict):
+                raise TypeError(f"skema inti {jalur} bukan objek")
+            for nama, skema_properti in nilai.items():
+                lokasi_properti = f"{jalur}.{nama}"
+                if nama not in dasar:
+                    dasar[nama] = copy.deepcopy(skema_properti)
+                elif isinstance(dasar[nama], dict) and isinstance(skema_properti, dict):
+                    _gabung_skema(dasar[nama], skema_properti, paket=paket, lokasi=lokasi_properti)
+                else:
+                    raise ValueError(
+                        f"skema_tambahan paket {paket!r} menimpa properti inti: {lokasi_properti}"
+                    )
+        elif kunci == "required":
+            if not isinstance(nilai, list) or any(not isinstance(n, str) for n in nilai):
+                raise TypeError(f"skema_tambahan paket {paket!r}: {jalur} harus berupa daftar nama")
+            target[kunci] = list(dict.fromkeys([*target.get(kunci, []), *nilai]))
+        elif kunci in target and isinstance(target[kunci], dict) and isinstance(nilai, dict):
+            _gabung_skema(target[kunci], nilai, paket=paket, lokasi=jalur)
+        elif kunci in target and target[kunci] != nilai:
+            raise ValueError(f"skema_tambahan paket {paket!r} menimpa aturan inti: {jalur}")
+        else:
+            target[kunci] = copy.deepcopy(nilai)
+
+
 def _skema_paket(paket) -> dict[str, Any]:
     """Gabungkan ekstensi skema paket ke skema inti tanpa mengizinkan override diam-diam."""
     hasil = copy.deepcopy(SKEMA)
     tambahan = dict(paket.skema_tambahan)
-    properti = tambahan.pop("properties", {})
-    if not isinstance(properti, dict):
-        raise TypeError(f"skema_tambahan paket {paket.nama!r}: properties harus berupa objek")
-    inti = hasil.setdefault("properties", {})
-    bentrok = set(inti).intersection(properti)
-    if bentrok:
-        raise ValueError(
-            f"skema_tambahan paket {paket.nama!r} menimpa properti inti: {', '.join(sorted(bentrok))}"
-        )
-    inti.update(properti)
-
-    wajib = tambahan.pop("required", [])
-    if not isinstance(wajib, list) or any(not isinstance(n, str) for n in wajib):
-        raise TypeError(f"skema_tambahan paket {paket.nama!r}: required harus berupa daftar nama")
-    if wajib:
-        hasil["required"] = list(dict.fromkeys([*hasil.get("required", []), *wajib]))
-
-    # Kata kunci JSON Schema lain tetap didukung sebagai batas tambahan,
-    # bukan pengganti aturan inti.
-    if tambahan:
-        hasil = {"allOf": [hasil, tambahan]}
+    _gabung_skema(hasil, tambahan, paket=paket.nama)
     return hasil
 
 

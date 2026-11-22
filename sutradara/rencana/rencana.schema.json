@@ -2,14 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/anwar-alzazali/sutradara-ai-studio/rencana.schema.json",
   "title": "Rencana sutradara (resep bagian G)",
-  "description": "Keputusan tingkat video (visual inti, preset suasana, peran, hook, dalil) + daftar beat yang masing-masing berisi shot. Struktur dicek skema ini; aturan keselamatan dicek sutradara/rencana/penjaga.py.",
+  "description": "Keputusan tingkat video (visual inti, preset suasana, peran, dan hook) + daftar beat yang masing-masing berisi shot. Struktur dicek skema ini; aturan keselamatan dicek sutradara/rencana/penjaga.py.",
   "type": "object",
   "required": [
     "judul",
     "visual_inti",
     "peran",
     "hook",
-    "dalil",
     "beat"
   ],
   "additionalProperties": false,
@@ -221,12 +220,6 @@
             "type": "string"
           },
           "potong_di": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "dalil": {
             "type": "array",
             "items": {
               "type": "string"

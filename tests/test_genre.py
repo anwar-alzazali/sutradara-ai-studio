@@ -188,3 +188,23 @@ def test_skema_tambahan_tidak_boleh_menimpa_properti_inti():
 def test_renderer_inti_tidak_menyebut_elemen_khusus_genre():
     sumber=(Path(__file__).resolve().parents[1]/"sutradara"/"adegan.py").read_text(encoding="utf-8")
     for nama in ("nur","dajjal","buraq","kabut_tanpa_wujud","kartu_dalil","dalil"): assert nama not in sumber
+
+
+
+def test_skema_dalil_hanya_dimiliki_paket_kisah_islami():
+    from sutradara.rencana.penjaga import SKEMA
+
+    assert "dalil" not in SKEMA["required"]
+    assert "dalil" not in SKEMA["properties"]
+    assert "dalil" not in SKEMA["properties"]["beat"]["items"]["properties"]
+
+    islami = _skema_paket(dari_rencana({}))
+    assert "dalil" in islami["required"]
+    assert "dalil" in islami["properties"]
+    assert "dalil" in islami["properties"]["beat"]["items"]["properties"]
+
+    paket_tiruan = PaketGenre(nama="genre_tanpa_dalil_uji", komponen={"lingkaran": lambda: "<circle/>"})
+    netral = _skema_paket(paket_tiruan)
+    assert "dalil" not in netral["required"]
+    assert "dalil" not in netral["properties"]
+    assert "dalil" not in netral["properties"]["beat"]["items"]["properties"]
