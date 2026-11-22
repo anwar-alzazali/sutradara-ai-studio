@@ -227,3 +227,26 @@ def test_menunjuk_visual_inti_menghadap_ke_benda():
     assert aktor["balik"] is False
     assert aktor["gerak"] == "tunjuk"
     assert aktor["x"] < 650
+
+
+
+def test_dialog_menyisipkan_reaksi_pendengar_bila_disebut_narasi():
+    naskah = {
+        "judul": "Seruan",
+        "inti": "Seorang penyeru menyampaikan peringatan kepada pendengar.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penyeru berbicara. Pendengar terkejut dan tersentak.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penyeru", "Pendengar"],
+            "dialog": [{"pembicara": "Penyeru", "penjawab": "Pendengar", "ucapan": "Dengarkan peringatan ini."}],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 3
+    reaksi = shot[1]["tokoh"]
+    pendengar = next(t for t in reaksi if t["peran"] == "pendengar")
+    assert pendengar["gerak"] == "kaget"
+    assert pendengar["wajah"] == "kaget"
+    assert "bicara" not in pendengar
+    assert shot[2]["tokoh"][0]["peran"] == "pendengar"
