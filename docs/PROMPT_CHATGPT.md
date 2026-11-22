@@ -103,6 +103,24 @@ ditinjau lagi hanya bila CI hijau dan ringkasan audit sudah diperbarui:
    - tes yang membuktikan;
    - angka render;
    - poin yang terblokir beserta alasannya.
+10. **Pelajaran dari audit Claude (22 Nov 2026) — wajib dicek juga:**
+   - **Tes yang dilonggarkan:** bandingkan setiap `assert` yang diubah/dihapus. Angka penjaga atau tes yang diubah
+     supaya CI hijau (contoh: lebar lambung 500 -> 350, pilar `== 205`) = GAGAL kecuali alasannya benar.
+   - **Teks di layar vs sumbernya:** apa pun yang tampil di bawah nama sumber (Kemenag, kitab hadis) harus teks sumber
+     itu persis. Contoh temuan: glosa per kata tampil sebagai "terjemah Kemenag"; kutipan sebagian dimekarkan jadi ayat utuh.
+   - **Lihat bukti JPG sendiri**, jangan percaya ringkasan: tembok setinggi orang padahal disebut "masif", pilar menempel
+     lambung, tokoh menghadap kamera saat serah-terima.
+   - **Perubahan bawaan diam-diam:** fitur baru harus mati/opsional bila mengubah tampilan video lama.
+   - **Langkah CI yang mengotori pohon kerja** (berkas berubah setelah verifikasi) sehingga langkah berikutnya gagal.
+   - **Dalil:** tiap rujukan dicek isinya sesuai narasi (bukan sekadar nomornya ada); dalil "belum" tidak boleh lolos final.
+
+## Audit oleh sesi ChatGPT terpisah (bila kuota Claude habis)
+Pemilik boleh memakai obrolan ChatGPT BARU (bukan obrolan yang mengerjakan) sebagai auditor. Auditor:
+- membaca diff PR lengkap, deskripsi, log CI, dan bukti JPG di cabang bukti;
+- memakai daftar periksa di atas (poin 1–10) dan menulis hasilnya sebagai komentar PR berjudul "Audit ChatGPT";
+- memberi putusan LULUS / PERBAIKI (dengan daftar temuan berkas:baris) / TOLAK;
+- tidak memperbaiki sendiri dan tidak merge. Merge dilakukan pemilik hanya bila putusan LULUS dan CI hijau.
+Claude mengaudit ulang PR yang di-merge dengan cara ini setelah kuotanya pulih, dan menandai temuan susulan.
 
 ## Keputusan yang tetap menunggu pemilik (jangan diputuskan sendiri)
 
