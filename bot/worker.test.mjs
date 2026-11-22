@@ -57,3 +57,26 @@ test("id antrean aman, pendek, dan tombolnya terbaca", () => {
   assert.equal(st.tahap.diterima, "jalan");
   assert.ok(tombolKartu(st).flat().every((b) => b.callback_data === "menu"));
 });
+
+import { keGemini, pilihModelGemini, labelBiaya } from "./worker.js";
+
+test("pesan format Claude diubah ke format Gemini (teks, gambar, peran)", () => {
+  const g = keGemini("sistem", [
+    { role: "user", content: [{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: "QUJD" } }, { type: "text", text: "balas" }] },
+    { role: "assistant", content: "oke" },
+  ]);
+  assert.equal(g.systemInstruction.parts[0].text, "sistem");
+  assert.deepEqual(g.contents[0].parts[0], { inline_data: { mime_type: "image/jpeg", data: "QUJD" } });
+  assert.equal(g.contents[0].parts[1].text, "balas");
+  assert.equal(g.contents[1].role, "model");
+});
+
+test("model Gemini: dua flash terbaru lalu satu lite", () => {
+  assert.deepEqual(pilihModelGemini(["gemini-2.0-flash", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro", "gemini-3.0-flash", "gemini-2.0-flash-lite"]),
+    ["gemini-3.0-flash", "gemini-2.5-flash", "gemini-2.5-flash-lite"]);
+});
+
+test("label biaya menandai penyedia", () => {
+  assert.equal(labelBiaya({ idr: 0, model: "gemini-2.5-flash" }), "Rp0 · Gemini");
+  assert.equal(labelBiaya({ idr: 12, model: "claude-sonnet-4-5" }), "≈Rp12 · Claude");
+});

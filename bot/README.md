@@ -27,6 +27,9 @@ Supabase (schema `konten`); riwayat chat dan catatan biaya masih memakai tabel `
    simpan di Cloudflare sebagai Secret `GH_TOKEN`.
 3. Secret lain di Cloudflare tidak berubah (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, WEBHOOK_SECRET, ANTHROPIC_API_KEY,
    SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY).
+   Opsional: `GEMINI_API_KEY` (boleh kunci yang sama dengan Secret GitHub). Bila ada, chat pribadi dan balas komentar
+   memakai Gemini gratis dulu; Claude hanya cadangan bila Gemini gagal/kena batas. Pesan biaya menampilkan penyedianya
+   ("Rp0 · Gemini" atau "≈RpX · Claude"). `AI_UTAMA=claude` memaksa Claude; `GEMINI_MODEL` mengunci satu model.
 4. Buka sekali di peramban: `https://<alamat-worker>/pasang?k=<WEBHOOK_SECRET>`. Hasil yang benar:
    `{"webhook":true,"perintah":true}` (memasang webhook + daftar perintah di tombol Menu Telegram).
 5. **Uji:** GitHub → Actions → *tes telegram* → Run workflow. Tekan ✅ di Telegram → tombol berubah jadi "✅ Disetujui"
