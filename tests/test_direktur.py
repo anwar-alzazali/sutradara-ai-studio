@@ -311,3 +311,13 @@ def test_gerak_berbalik_menyimpan_jadwal_putaran_badan():
     assert isinstance(aktor["arah"], list)
     assert aktor["arah"] == [[0.0, "samping"], [3.8 * .34, "depan"], [3.8 * .68, "samping"]]
     assert aktor["balik"] == [[0.0, False], [3.8 * .68, True]]
+
+
+def test_jadwal_mirror_tubuh_diinterpolasi_halus():
+    from sutradara.gaya.tokoh import _balik_pada
+
+    jadwal = [[0.0, False], [2.5, True]]
+    assert _balik_pada(jadwal, 0.0) is False
+    assert _balik_pada(jadwal, 2.49) is False
+    assert _balik_pada(jadwal, 2.5) is True
+    assert _balik_pada(jadwal, 3.8) is True
