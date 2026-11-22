@@ -44,6 +44,19 @@ KEPALA = ("imamah", "kain", "kopiah", "kerudung", "tanpa")
 POSE = G.SEMUA  # nama gerak yang sah (termasuk pose lama: tunjuk, tertawa, silang, angkat, kaget, mundur, tutup, berdiri)
 
 
+def _balik_pada(balik, t: float) -> bool:
+    """Nilai orientasi kiri/kanan dari bool tetap atau jadwal keyframe."""
+    if isinstance(balik, bool):
+        return balik
+    jadwal = sorted((float(a), bool(v)) for a, v in balik)
+    aktif = False
+    for waktu, nilai in jadwal:
+        if t < waktu:
+            break
+        aktif = nilai
+    return aktif
+
+
 def _arah_derajat(arah, t: float) -> float:
     """Sudut depan/samping/belakang dengan interpolasi smoothstep."""
     sudut = {"depan": 0.0, "tiga_perempat": 45.0, "samping": 90.0, "tiga_perempat_belakang": 135.0, "belakang": 180.0}
@@ -213,6 +226,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     wanita = jenis == "wanita"
     kepala = kepala or ("kerudung" if wanita else "imamah")
     sudut = _arah_derajat(arah, t)
+    balik_aktif = _balik_pada(balik, t)
     proyeksi = 0.55 + 0.45 * abs(math.cos(math.radians(sudut)))
     tampak_wajah = max(0.0, min(1.0, (105.0 - abs(sudut)) / 40.0))
     membelakangi = abs(sudut) > 135.0
@@ -247,7 +261,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         bx, by = _putar(sisi * 40, 12, J["tubuh"]); bahu[sisi] = (leher[0] + bx, leher[1] + by)
     # Target serah-terima memakai koordinat dunia; sudut sendi dihitung ulang dengan IK yang sama.
     if target_tangan:
-        skala_x = (-1 if balik else 1) * s * proyeksi * skala_usia
+        skala_x = (-1 if balik_aktif else 1) * s * proyeksi * skala_usia
         skala_y = s * skala_usia
         for sisi, k in ((+1, "ka"), (-1, "ki")):
             if k in target_tangan:
@@ -262,7 +276,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         tangan[sisi] = _ruas(*siku[sisi], J[f"sa_{k}"] - J["tubuh"] * sisi, LENGAN_B, sisi)
     kx, ky = _putar(0, -38, J["tubuh"] + J["kepala"]); pk = (leher[0] + kx, leher[1] + ky)
 
-    g = [f'<g transform="translate({x:.1f},{y:.1f}) scale({(-1 if balik else 1) * s * proyeksi * skala_usia:.4f},{s * skala_usia:.4f})">',
+    g = [f'<g transform="translate({x:.1f},{y:.1f}) scale({(-1 if balik_aktif else 1) * s * proyeksi * skala_usia:.4f},{s * skala_usia:.4f})">',
          f'<ellipse cx="{px:.1f}" cy="4" rx="{70 * (1 - min(.5, max(0, -J["naik"]) / 240)):.1f}" ry="12" fill="#000" opacity=".35"/>']
     if J["bangku"] > 0.5:
         g.append(f'<rect x="{px - 72:.1f}" y="{py + 8:.1f}" width="144" height="{-py - 8:.1f}" rx="8" fill="#6b4630"/>'
