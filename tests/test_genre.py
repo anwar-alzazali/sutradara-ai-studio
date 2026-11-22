@@ -118,3 +118,24 @@ def test_penjaga_mendelegasikan_validasi_ke_paket_genre():
         assert [x.kode for x in temuan] == ["VALIDATOR_TIRUAN"]
     finally:
         genre._PAKET.pop(nama, None)
+
+
+def test_renderer_paket_tiruan_menyumbang_elemen_tanpa_mengubah_inti():
+    from sutradara import genre
+    from sutradara.adegan import susun
+
+    nama = "genre_renderer_tiruan_uji"
+    dipanggil = []
+
+    def renderer(shot, hasil_evaluasi, waktu_lokal, waktu_global):
+        dipanggil.append((waktu_lokal, waktu_global))
+        return [(hasil_evaluasi["tanah_y"], '<circle id="elemen-genre-tiruan" cx="540" cy="900" r="12"/>')]
+
+    paket = PaketGenre(nama=nama, renderer_adegan=renderer)
+    daftarkan(paket)
+    try:
+        svg = susun({"preset": "senja", "durasi": 2, "tanah_y": 1250}, t=0.5, tg=3.5, genre=nama)
+        assert dipanggil == [(0.5, 3.5)]
+        assert 'id="elemen-genre-tiruan"' in svg
+    finally:
+        genre._PAKET.pop(nama, None)
