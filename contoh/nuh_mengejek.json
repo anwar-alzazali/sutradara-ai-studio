@@ -37,7 +37,8 @@
         ],
         "suara": "pria dewasa rendah",
         "ciri_wajah": "rahang lebar dan hidung sedang"
-      }
+      },
+      "kolektif": true
     },
     {
       "id": "pengikut_beriman",
@@ -60,7 +61,8 @@
         ],
         "suara": "pria dewasa sedang",
         "ciri_wajah": "wajah oval dan alis tebal"
-      }
+      },
+      "kolektif": true
     }
   ],
   "hook": {
