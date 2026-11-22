@@ -250,3 +250,25 @@ def test_dialog_menyisipkan_reaksi_pendengar_bila_disebut_narasi():
     assert pendengar["wajah"] == "kaget"
     assert "bicara" not in pendengar
     assert shot[2]["tokoh"][0]["peran"] == "pendengar"
+
+
+
+def test_pengejar_dan_yang_dikejar_bergerak_searah():
+    naskah = {
+        "judul": "Pengejaran",
+        "inti": "Pengelana mengejar pencuri ke tepi kanan.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana mengejar pencuri ke tepi kanan.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Pencuri"],
+        }],
+    }
+    tokoh = rancang(naskah)["beat"][0]["shot"][0]["tokoh"]
+    pengelana = next(t for t in tokoh if t["peran"] == "pengelana")
+    pencuri = next(t for t in tokoh if t["peran"] == "pencuri")
+    assert pengelana["gerak"] == pencuri["gerak"] == "lari"
+    dx_a = pengelana["x"][-1][1] - pengelana["x"][0][1]
+    dx_b = pencuri["x"][-1][1] - pencuri["x"][0][1]
+    assert dx_a > 0 and dx_b > 0
+    assert pengelana["tujuan"] == pencuri["tujuan"] == "tepi:kanan"
