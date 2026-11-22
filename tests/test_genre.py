@@ -13,7 +13,8 @@ def test_rencana_lama_tetap_memilih_kisah_islami():
 def test_manifest_kisah_islami_dimuat_melalui_registri():
     paket = dari_rencana({})
     assert paket.nama == "kisah_islami"
-    assert {"nur", "malaikat", "makhluk", "dajjal", "akhir_zaman", "kartu_dalil"} <= set(paket.komponen)
+    assert {"nur.pilar", "malaikat.berkas", "makhluk.kabut_tanpa_wujud", "dajjal.sosok", "akhir_zaman.buraq", "kartu_dalil.kartu"} <= set(paket.komponen)
+    assert all(callable(fungsi) for fungsi in paket.komponen.values())
     assert paket.modul_dalil == "sutradara.dalil"
     assert paket.bawaan["bacaan_arab_tts"] is False
     assert paket.bawaan["terjemah_kartu_utuh"] is True
