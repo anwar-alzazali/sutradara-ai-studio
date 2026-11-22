@@ -52,7 +52,7 @@ def main() -> None:
     lembar = Image.new("RGB", (1080, 960), "#171717")
     for indeks in range(2):
         awal, akhir = waktu[indeks]
-        svg = dasar.dokumen(latar + kartu.kartu(dalil, potongan, akhir - 0.04, mulai=awal,
+        svg = dasar.dokumen(latar + kartu.kartu(dalil, potongan, akhir - 0.25, mulai=awal,
                                                 idx_uid=f"tahapc{indeks}", preset="dhuha"))
         png(svg, TEMP / f"potongan-{indeks + 1}.png")
         with Image.open(TEMP / f"potongan-{indeks + 1}.png") as gambar:
