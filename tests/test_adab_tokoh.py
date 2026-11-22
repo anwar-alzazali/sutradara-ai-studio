@@ -223,6 +223,29 @@ def test_kartu_identitas_mengikat_ciri_tetap_pada_tokoh_sahabat():
     assert any(x.kode == "IDENTITAS_BERUBAH" and x.tingkat == "PERIKSA" for x in temuan)
 
 
+
+def test_pemeriksaan_kontinuitas_identitas_berada_di_inti_netral_genre():
+    from sutradara.rencana.pemeriksaan_umum import periksa_kontinuitas_identitas
+
+    r = json.loads((CONTOH / "b2_adab_barang.json").read_text(encoding="utf-8"))
+    shot = r["beat"][0]["shot"][0]
+    sahabat = next(t for t in shot["tokoh"] if t["peran"] == "sahabat")
+    sahabat["warna_baju"] = "#abcdef"
+    temuan = periksa_kontinuitas_identitas(r)
+    assert any(x.kode == "IDENTITAS_BERUBAH" and x.tingkat == "PERIKSA" for x in temuan)
+
+
+def test_pemeriksaan_umum_menolak_pemeran_id_tanpa_kartu():
+    from sutradara.rencana.pemeriksaan_umum import periksa_kontinuitas_identitas
+
+    r = _rencana()
+    r["beat"][0]["shot"][0]["tokoh"].append({
+        "x": 700, "y": 1400, "peran": "kaum", "pemeran_id": "pemeran_tidak_terdaftar",
+    })
+    temuan = periksa_kontinuitas_identitas(r)
+    assert any(x.kode == "PEMERAN_TAK_TERDAFTAR" and x.tingkat == "GAGAL" for x in temuan)
+
+
 def test_janggut_dapat_dikunci_dari_kartu_identitas():
     pendek = tokoh.orang(500, 1500, janggut="pendek", warna_janggut="#123456")
     tanpa = tokoh.orang(500, 1500, janggut="tanpa")

@@ -140,49 +140,15 @@ def peran_mode(peta_peran: dict, pid: str) -> str:
 
 
 def _periksa_identitas(rencana: dict) -> list[Temuan]:
-    """Bandingkan ciri stabil shot dengan kartu pemeran dan pisahkan drift dari perubahan gaya.
+    """Gabungkan pemeriksaan identitas umum dengan aturan mode tampil Kisah Islami."""
+    from sutradara.rencana.pemeriksaan_umum import periksa_kontinuitas_identitas
 
-    Asal: adaptasi konsep pemeriksaan kontinuitas dari
-    mesin-video/papan/intelligence.py (feat/short-term-production-intelligence),
-    terutama profil atribut stabil dan REVIEW alih-alih ERROR untuk perubahan desain.
-    Identitas di repo ini menggunakan peran.id + peran.identitas, tanpa registri/SQLite lama.
-    """
-    hasil = []
-    kunci = {
-        "jenis": "jenis", "usia": "usia", "zaman": "zaman", "indeks": "indeks",
-        "warna_kulit": "warna_kulit", "warna_baju": "warna_baju",
-        "warna_aksen": "warna_aksen", "rambut": "rambut", "janggut": "janggut",
-        "warna_janggut": "warna_janggut", "aksesori": "aksesori", "suara": "suara",
-        "ciri_wajah": "ciri_wajah", "kepala": "penutup_kepala",
-    }
+    hasil = periksa_kontinuitas_identitas(rencana)
     peta_peran = {p["id"]: p for p in rencana.get("peran", [])}
-    kartu_pemeran = {p["id"]: p for p in rencana.get("pemeran", [])}
-    kartu = {pid: p.get("identitas", {}) for pid, p in peta_peran.items()}
-    kartu.update({pid: p.get("identitas", {}) for pid, p in kartu_pemeran.items()})
     for bi, beat in enumerate(rencana.get("beat", [])):
         for si, shot in enumerate(beat.get("shot", [])):
             for tokoh in shot.get("tokoh", []):
                 pid = tokoh.get("pemeran_id") or tokoh.get("peran")
-                if tokoh.get("pemeran_id") and pid not in kartu_pemeran:
-                    hasil.append(Temuan("GAGAL", "PEMERAN_TAK_TERDAFTAR",
-                                        f"beat {bi} shot {si}: pemeran_id {pid!r} tidak memiliki kartu identitas"))
-                    continue
-                id_peran = tokoh.get("peran")
-                definisi_peran = peta_peran.get(id_peran, {})
-                # Peran kolektif menggambarkan banyak individu: ciri tiap orang
-                # tidak boleh dibandingkan dengan satu kartu contoh milik kelompok.
-                # Individu dalam kelompok tetap diaudit melalui pemeran_id yang stabil.
-                if not tokoh.get("pemeran_id") and definisi_peran.get("kolektif", False):
-                    ident = {}
-                else:
-                    ident = kartu.get(pid) or {}
-                if ident:
-                    beda = [(field, ident[acuan], tokoh[field]) for field, acuan in kunci.items()
-                            if field in tokoh and acuan in ident and tokoh[field] != ident[acuan]]
-                    if beda:
-                        rincian = ", ".join(f"{f}: {a!r} -> {b!r}" for f, a, b in beda)
-                        hasil.append(Temuan("PERIKSA", "IDENTITAS_BERUBAH",
-                                            f"beat {bi} shot {si} {pid}: ciri kartu pemeran berubah ({rincian}); perbarui kartu hanya bila perubahan memang menjadi desain baru"))
                 id_peran = tokoh.get("peran")
                 mode_dasar = peran_mode(peta_peran, id_peran)
                 mode_shot = tokoh.get("mode", mode_dasar)
@@ -195,7 +161,6 @@ def _periksa_identitas(rencana: dict) -> list[Temuan]:
                         hasil.append(Temuan("PERIKSA", "IDENTITAS_GAYA_BERUBAH",
                                             f"beat {bi} shot {si} {pid}: gaya {mode_dasar} -> {mode_shot} tanpa perubahan_gaya yang menjelaskan pengungkapan/perubahan visual"))
     return hasil
-
 
 def _periksa_barang(rencana: dict, peran: dict) -> list[Temuan]:
     """Jaga kepemilikan, serah-terima, dan keberlanjutan barang antar-shot."""
