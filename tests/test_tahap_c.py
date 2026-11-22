@@ -51,8 +51,8 @@ def test_quran_foundation_menyimpan_pasangan_kata_dari_api(tmp_path):
                 "text_uthmani": "وَيَصْنَعُ الْفُلْكَ",
                 "translations": [{"resource_id": 33, "text": "Dan dia membuat kapal."}],
                 "words": [
-                    {"text_uthmani": "وَيَصْنَعُ", "translation": {"text": "dan membuat"}},
-                    {"text_uthmani": "الْفُلْكَ", "translation": {"text": "kapal"}},
+                    {"text_uthmani": "وَيَصْنَعُ", "translation": {"text": "dan membuat", "language_name": "indonesian"}},
+                    {"text_uthmani": "الْفُلْكَ", "translation": {"text": "kapal", "language_name": "indonesian"}},
                     {"text_uthmani": "۝", "char_type_name": "end", "translation": {}}
                 ]
             }}
@@ -167,3 +167,62 @@ def test_pemeriksa_membedakan_akses_scope_legacy_dari_scope_granular(monkeypatch
     assert hasil["status"] == "akses_legacy_content"
     assert hasil["scope_cadangan"] == "content (legacy)"
     assert b"scope=content" in panggilan[1][1]
+
+
+
+def test_quran_foundation_menolak_pasangan_dari_bahasa_lain(tmp_path):
+    def transport(metode, url, kepala, data=None):
+        if url.endswith("/oauth2/token"):
+            return 200, {"access_token": "token-uji", "expires_in": 3600}
+        if "/resources/translations" in url:
+            return 200, {"translations": [{"id": 33, "name": "Kemenag", "language_name": "indonesian"}]}
+        if "/chapters" in url:
+            return 200, {"chapters": [{"id": 11, "name_simple": "Hud"}]}
+        if "/verses/by_key/11:38" in url:
+            return 200, {"verse": {
+                "text_uthmani": "وَيَصْنَعُ الْفُلْكَ",
+                "translations": [{"resource_id": 33, "text": "Dan dia membuat kapal."}],
+                "words": [
+                    {"text_uthmani": "وَيَصْنَعُ", "translation": {"text": "and makes", "language_name": "english"}},
+                    {"text_uthmani": "الْفُلْكَ", "translation": {"text": "the ship", "language_name": "english"}}
+                ]
+            }}
+        return 404, {}
+
+    quran = QuranFoundation(transport=transport, cache=tmp_path)
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "surah": 11, "ayat": "38"}
+    verifikasi_quran(dalil, quran)
+    assert not dalil.get("pasangan_kata")
+
+
+def test_main_scope_hadis_hanya_lulus_jika_production_granular(monkeypatch, capsys):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_ID", "id-uji")
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-uji")
+    monkeypatch.setattr(akses_hadis, "periksa_lingkungan", lambda env: {
+        "lingkungan": env,
+        "status": "akses_legacy_content" if env == "production" else "lulus"
+    })
+    assert akses_hadis.main() == 1
+    assert "akses_legacy_content" in capsys.readouterr().out
+
+
+def test_main_scope_hadis_tidak_lulus_hanya_dari_prelive(monkeypatch, capsys):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_ID", "id-uji")
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-uji")
+    monkeypatch.setattr(akses_hadis, "periksa_lingkungan", lambda env: {
+        "lingkungan": env,
+        "status": "lulus" if env == "prelive" else "tidak_terbukti"
+    })
+    assert akses_hadis.main() == 1
+    capsys.readouterr()
+
+
+def test_musnad_ahmad_tetap_ditolak_tanpa_dataset_dan_derajat_terverifikasi():
+    from sutradara.dalil import hadis
+
+    assert hadis.kitab_baku("Musnad Ahmad") is None
+    assert hadis.cari("Musnad Ahmad", "22308") == []

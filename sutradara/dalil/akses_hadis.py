@@ -102,7 +102,9 @@ def main() -> int:
     hasil = [periksa_lingkungan(env) for env in ENVIRONMENTS]
     for item in hasil:
         print(" | ".join(f"{k}={v}" for k, v in item.items()))
-    return 0 if any(x["status"] in ("lulus", "akses_legacy_content") for x in hasil) else 1
+    # Hanya scope granular di production yang meluluskan pemeriksa ini. Akses legacy
+    # tetap dilaporkan, tetapi bukan bukti bahwa content.hadith.read telah diberikan.
+    return 0 if any(x["lingkungan"] == "production" and x["status"] == "lulus" for x in hasil) else 1
 
 
 if __name__ == "__main__":

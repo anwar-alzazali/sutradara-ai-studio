@@ -193,7 +193,8 @@ class QuranFoundation:
                 continue
             ar_kata = (kata.get("text_uthmani") or "").strip()
             terjemah_kata = kata.get("translation") or {}
-            id_kata = bersihkan(terjemah_kata.get("text") or "") if isinstance(terjemah_kata, dict) else ""
+            bahasa = str(terjemah_kata.get("language_name") or "").strip().casefold() if isinstance(terjemah_kata, dict) else ""
+            id_kata = bersihkan(terjemah_kata.get("text") or "") if bahasa in ("indonesian", "bahasa indonesia", "id") else ""
             if ar_kata and id_kata:
                 pasangan.append({"ar": ar_kata, "id": id_kata})
         # Jangan membuat pasangan proporsional lalu menyebutnya word-by-word.
