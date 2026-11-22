@@ -34,7 +34,7 @@ def _request(url: str, *, headers: dict, data: bytes | None = None) -> tuple[int
 
 
 def periksa_lingkungan(env: str) -> dict:
-    """Minta scope hadis granular; deteksi akses legacy content tanpa menyamakannya dengan scope granular."""
+    """Uji ketiga route Hadith References v4 yang didokumentasikan; tidak pernah mencetak kredensial/token."""
     if env not in ENVIRONMENTS:
         raise ValueError(f"Lingkungan tidak dikenal: {env}")
     client_id = os.environ.get("QURAN_FOUNDATION_CLIENT_ID", "")
@@ -60,8 +60,7 @@ def periksa_lingkungan(env: str) -> dict:
     scope_diberi = token_body.get("scope") or ""
     akses_legacy = False
 
-    # Klien Quran Foundation lama dapat memakai scope payung content; laporkan terpisah,
-    # jangan menganggapnya sebagai bukti bahwa scope granular sudah terpasang.
+    # Klien lama dapat memakai scope payung content; tetap dicatat terpisah dari scope granular.
     if not token and token_body.get("error") == "invalid_scope":
         hasil["scope_cadangan"] = "content (legacy)"
         status, token_body = minta_token("content")
@@ -77,22 +76,42 @@ def periksa_lingkungan(env: str) -> dict:
         return hasil
 
     hasil["scope_diberi"] = scope_diberi or "(tidak dikembalikan)"
-    endpoint_status, endpoint_body = _request(
-        api_url + "/content/api/v4/hadiths/by_ayah/1:1?language=ar&page=1&limit=1",
-        headers={"x-auth-token": token, "x-client-id": client_id},
+    headers = {"x-auth-token": token, "x-client-id": client_id}
+    # Route dan bentuk respons mengikuti Content API v4 Hadith References docs.
+    # Ayah contoh 1:1 sengaja dipakai untuk smoke test yang deterministik.
+    pemeriksaan = (
+        ("referensi", "/hadith_references/by_ayah/1:1?language=en", "hadith_references"),
+        ("isi_hadis", "/hadith_references/by_ayah/1:1/hadiths?language=ar&page=1&limit=1", "hadiths"),
+        ("jumlah_rentang", "/hadith_references/count_within_range?from=1:1&to=1:1", "counts"),
     )
-    if not isinstance(endpoint_body, dict):
-        endpoint_body = {}
-    hasil["endpoint_hadis_http"] = endpoint_status
-    if endpoint_status == 200 and isinstance(endpoint_body.get("hadiths"), list):
-        if akses_legacy or (scope_diberi and "content" in scope_diberi.split() and SCOPE not in scope_diberi.split()):
-            hasil.update(status="akses_legacy_content", alasan="Endpoint hadis dapat dibaca melalui scope payung legacy; scope granular belum terbukti")
+    status_endpoint = {}
+    semua_valid = True
+    for nama, jalur, bentuk in pemeriksaan:
+        http, body = _request(api_url + "/content/api/v4" + jalur, headers=headers)
+        if not isinstance(body, dict):
+            body = {}
+        status_endpoint[nama] = http
+        if http != 200:
+            semua_valid = False
+        elif bentuk == "hadith_references":
+            semua_valid = semua_valid and isinstance(body.get("hadith_references"), list)
+        elif bentuk == "hadiths":
+            semua_valid = semua_valid and isinstance(body.get("hadiths"), list)
         else:
-            hasil.update(status="lulus", alasan="Token diterima dan endpoint hadis mengembalikan struktur yang sah")
+            # count-within-range mengembalikan map verse_key -> integer count.
+            semua_valid = semua_valid and bool(body) and all(
+                isinstance(k, str) and isinstance(v, int) and not isinstance(v, bool)
+                for k, v in body.items()
+            )
+
+    hasil["endpoint_http"] = status_endpoint
+    granular = SCOPE in scope_diberi.split()
+    if semua_valid and granular and not akses_legacy:
+        hasil.update(status="lulus", alasan="Ketiga route resmi Hadith References v4 mengembalikan struktur yang sah")
+    elif semua_valid:
+        hasil.update(status="akses_legacy_content", alasan="Ketiga route dapat dibaca, tetapi token tidak membuktikan scope granular content.hadith.read")
     else:
-        error = endpoint_body.get("error")
-        jenis = endpoint_body.get("type") or (error.get("code") if isinstance(error, dict) else error)
-        hasil.update(status="tidak_terbukti", alasan=f"Endpoint hadis menolak/gagal (HTTP {endpoint_status}; {jenis or 'tanpa kode'})")
+        hasil.update(status="endpoint_tidak_terbukti", alasan="Satu atau lebih route resmi gagal atau bentuk respons tidak sesuai; periksa kode HTTP per endpoint")
     return hasil
 
 def main() -> int:
