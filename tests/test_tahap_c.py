@@ -33,7 +33,7 @@ def test_kartu_hanya_menerapkan_koreksi_yang_disetujui(monkeypatch):
 
 def test_kartu_memakai_pasangan_kata_resmi_tanpa_potong_proporsional():
     dalil = {"jenis": "quran", "teks_ar": "نص عربي كامل", "terjemah": "terjemahan utuh",
-             "pasangan_kata": [{"ar": "وَيَصْنَعُ", "id": "dan membuat"},
+             "mode_terjemah": "per_kata", "pasangan_kata": [{"ar": "وَيَصْنَعُ", "id": "dan membuat"},
                                {"ar": "الْفُلْكَ", "id": "kapal"}]}
     assert kartu.potongan(dalil) == [("وَيَصْنَعُ الْفُلْكَ", "dan membuat kapal")]
 
@@ -143,7 +143,7 @@ def test_pasangan_kata_dikelompokkan_maksimal_dua_baris():
     pasangan = [{"ar": f"كلمة{i}", "id": ("terjemahan panjang " + str(i) + " ")*2}
                 for i in range(4)]
     dalil = {"jenis": "quran", "teks_ar": "teks Arab", "terjemah": "teks lama",
-             "pasangan_kata": pasangan}
+             "mode_terjemah": "per_kata", "pasangan_kata": pasangan}
     potongan = kartu.potongan(dalil)
     assert len(potongan) >= 2
     from sutradara.dalil import segmen
@@ -281,7 +281,7 @@ def test_kartu_memilih_potongan_pasangan_sesuai_waktu():
         {"ar": "سَخِرُوا", "id": "mereka mengejek"},
         {"ar": "مِنْهُ", "id": "darinya"},
     ]
-    dalil = {"jenis": "quran", "label": "QS HUD 38", "pasangan_kata": pasangan}
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "mode_terjemah": "per_kata", "pasangan_kata": pasangan}
     potongan = kartu.potongan(dalil)
     assert len(potongan) >= 2
     waktu = kartu.rencana_waktu(potongan)
@@ -293,3 +293,25 @@ def test_kartu_memilih_potongan_pasangan_sesuai_waktu():
     assert token_pertama not in svg_kedua
     assert token_kedua in svg_kedua
     assert token_kedua not in svg_pertama
+
+
+def test_bawaan_tetap_terjemah_resmi_walau_ada_pasangan_kata():
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "teks_ar": "وَيَصْنَعُ الْفُلْكَ",
+             "terjemah": "Dan mulailah dia membuat kapal.",
+             "pasangan_kata": [{"ar": "وَيَصْنَعُ", "id": "dan membuat"}, {"ar": "الْفُلْكَ", "id": "kapal"}]}
+    assert " ".join(id_ for _, id_ in kartu.potongan(dalil)) == "Dan mulailah dia membuat kapal."
+    assert "PER KATA" not in kartu._label(dalil)
+
+
+def test_kutipan_tidak_dimekarkan_oleh_pasangan_kata():
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "mode_terjemah": "per_kata",
+             "teks_ar": "وَيَصْنَعُ الْفُلْكَ", "terjemah": "Dan mulailah dia membuat kapal.",
+             "kutipan_ar": "الْفُلْكَ", "kutipan_id": "kapal",
+             "pasangan_kata": [{"ar": "وَيَصْنَعُ", "id": "dan membuat"}, {"ar": "الْفُلْكَ", "id": "kapal"}]}
+    assert kartu.potongan(dalil) == [("الْفُلْكَ", "kapal")]
+
+
+def test_label_per_kata_jelas():
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "mode_terjemah": "per_kata",
+             "pasangan_kata": [{"ar": "مِنْهُ", "id": "darinya"}]}
+    assert kartu._label(dalil).endswith("TERJEMAH PER KATA")

@@ -38,6 +38,7 @@ def main() -> None:
         "label": "CONTOH PEMETAAN KATA · QS HUD 38",
         "teks_ar": "وَيَصْنَعُ الْفُلْكَ وَكُلَّمَا مَرَّ عَلَيْهِ مَلَأٌ مِنْ قَوْمِهِ سَخِرُوا مِنْهُ",
         "terjemah": "Dan dia membuat kapal. Setiap kali para pemuka kaumnya berjalan melewatinya, mereka mengejeknya.",
+        "mode_terjemah": "per_kata",
         "pasangan_kata": PASANGAN,
     }
     potongan = kartu.potongan(dalil)

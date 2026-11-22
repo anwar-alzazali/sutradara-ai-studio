@@ -47,9 +47,16 @@ def teks_kartu(dalil: dict) -> tuple[str, str]:
     return ar, terjemah
 
 
+def per_kata(dalil: dict) -> bool:
+    return (dalil.get("mode_terjemah") == "per_kata" and bool(dalil.get("pasangan_kata"))
+            and not dalil.get("kutipan_ar") and not dalil.get("kutipan_id"))
+
+
 def potongan(dalil: dict) -> list[tuple[str, str]]:
-    # Bila Quran Foundation memberi pasangan resmi, jangan potong Arab dan terjemah secara proporsional.
-    pasangan = dalil.get("pasangan_kata") or []
+    # Terjemah per kata HANYA tampil bila diminta eksplisit (mode_terjemah="per_kata") dan tidak ada kutipan.
+    # Bawaan tetap terjemah resmi utuh (Kemenag): gabungan glosa per kata bukan terjemah yang lazim dibaca
+    # dan tidak boleh tampil di bawah nama sumber terjemah resmi. Kutipan tidak boleh dimekarkan jadi ayat utuh.
+    pasangan = (dalil.get("pasangan_kata") or []) if per_kata(dalil) else []
     if pasangan and all(isinstance(p, dict) and p.get("ar") and p.get("id") for p in pasangan):
         hasil, ar_kini, id_kini = [], [], []
         for p in pasangan:
@@ -89,6 +96,8 @@ def _label(dalil: dict) -> str:
     lab = dalil.get("label", "")
     if dalil.get("jenis") == "hadis" and dalil.get("derajat") in ("sahih", "hasan"):
         lab += f" · {dalil['derajat'].upper()}"
+    if per_kata(dalil):
+        lab += " · TERJEMAH PER KATA"
     return lab
 
 
