@@ -16,7 +16,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
 
@@ -26,6 +26,8 @@ AUTH = {"production": "https://oauth2.quran.foundation", "prelive": "https://pre
 API = {"production": "https://apis.quran.foundation", "prelive": "https://apis-prelive.quran.foundation"}
 CACHE = AKAR / "data/cache/quran"
 UMUR_CACHE = 7 * 24 * 3600
+# Keputusan Tahap C: bacaan latin belum boleh tampil sebelum diminta pemilik.
+FITUR_BACAAN_LATIN = False
 UA = "sutradara-ai-studio/0.1 (python-urllib)"
 # Klien baru Quran Foundation memegang scope RINCI (datar, tidak saling mewarisi); klien lama memegang `content`.
 # Diminta berurutan: rinci -> content -> tanpa scope. Ayat butuh quran.read, terjemah butuh translations.read.
@@ -41,6 +43,7 @@ class Ayat:
     ar: str
     terjemah: str
     sumber_terjemah: str
+    kata: list[dict] = field(default_factory=list)
 
     @property
     def kunci(self) -> str:
@@ -162,14 +165,25 @@ class QuranFoundation:
         if not (1 <= surah <= 114 and ayat >= 1):
             return None
         tr = self.terjemahan()
-        body = self._tersimpan(f"ayat_{surah}_{ayat}_{tr['id']}",
-                               lambda: self._get(f"/verses/by_key/{surah}:{ayat}?translations={tr['id']}&fields=text_uthmani&words=false"))
+        body = self._tersimpan(f"ayat_{surah}_{ayat}_{tr['id']}_wbw",
+                               lambda: self._get(f"/verses/by_key/{surah}:{ayat}?translations={tr['id']}&fields=text_uthmani&words=true&language=id&word_fields=text_uthmani"))
         v = (body or {}).get("verse")
         if not v or not v.get("text_uthmani"):
             return None
         t = next((bersihkan(x.get("text", "")) for x in v.get("translations", []) if x.get("resource_id") == tr["id"]), None) \
             or next((bersihkan(x.get("text", "")) for x in v.get("translations", [])), "")
-        return Ayat(surah, ayat, self.nama_surah(surah), v["text_uthmani"], t, tr["nama"])
+        kata_api = v.get("words") or []
+        pasangan = []
+        for kata in kata_api:
+            ar_kata = kata.get("text_uthmani", "").strip()
+            terjemah_kata = kata.get("translation") or {}
+            id_kata = bersihkan(terjemah_kata.get("text", "")) if isinstance(terjemah_kata, dict) else ""
+            if ar_kata and id_kata:
+                pasangan.append({"ar": ar_kata, "id": id_kata})
+        # Jangan membuat pasangan proporsional lalu menyebutnya word-by-word.
+        if len(pasangan) != len(kata_api):
+            pasangan = []
+        return Ayat(surah, ayat, self.nama_surah(surah), v["text_uthmani"], t, tr["nama"], pasangan)
 
 
 class QuranComPublik(QuranFoundation):
