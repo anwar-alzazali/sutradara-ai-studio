@@ -50,7 +50,7 @@ def teks_kartu(dalil: dict) -> tuple[str, str]:
 def potongan(dalil: dict) -> list[tuple[str, str]]:
     # Bila Quran Foundation memberi pasangan resmi, jangan potong Arab dan terjemah secara proporsional.
     pasangan = dalil.get("pasangan_kata") or []
-    if pasangan and all(p.get("ar") and p.get("id") for p in pasangan):
+    if pasangan and all(isinstance(p, dict) and p.get("ar") and p.get("id") for p in pasangan):
         hasil, ar_kini, id_kini = [], [], []
         for p in pasangan:
             calon_ar = " ".join(ar_kini + [p["ar"]])
