@@ -34,7 +34,7 @@ def _request(url: str, *, headers: dict, data: bytes | None = None) -> tuple[int
 
 
 def periksa_lingkungan(env: str) -> dict:
-    """Minta scope hadis secara eksplisit lalu uji endpoint hadis; nilai rahasia tidak masuk hasil."""
+    """Minta scope hadis granular; deteksi akses legacy content tanpa menyamakannya dengan scope granular."""
     if env not in ENVIRONMENTS:
         raise ValueError(f"Lingkungan tidak dikenal: {env}")
     client_id = os.environ.get("QURAN_FOUNDATION_CLIENT_ID", "")
@@ -43,36 +43,57 @@ def periksa_lingkungan(env: str) -> dict:
         return {"lingkungan": env, "status": "terblokir", "alasan": "GitHub Secrets QURAN_FOUNDATION_CLIENT_ID/SECRET kosong"}
     auth_url, api_url = ENVIRONMENTS[env]
     basic = base64.b64encode(f"{client_id}:{secret}".encode()).decode()
-    payload = urllib.parse.urlencode({"grant_type": "client_credentials", "scope": SCOPE}).encode()
-    status, token_body = _request(
-        auth_url + "/oauth2/token",
-        headers={"Authorization": "Basic " + basic, "Content-Type": "application/x-www-form-urlencoded"},
-        data=payload,
-    )
-    hasil = {"lingkungan": env, "scope_diminta": SCOPE, "token_http": status}
+
+    def minta_token(scope: str) -> tuple[int, dict]:
+        payload = urllib.parse.urlencode({"grant_type": "client_credentials", "scope": scope}).encode()
+        return _request(
+            auth_url + "/oauth2/token",
+            headers={"Authorization": "Basic " + basic, "Content-Type": "application/x-www-form-urlencoded"},
+            data=payload,
+        )
+
+    status, token_body = minta_token(SCOPE)
     if not isinstance(token_body, dict):
         token_body = {}
+    hasil = {"lingkungan": env, "scope_diminta": SCOPE, "token_http": status}
     token = token_body.get("access_token")
-    if status != 200 or not token:
+    scope_diberi = token_body.get("scope") or ""
+    akses_legacy = False
+
+    # Klien Quran Foundation lama dapat memakai scope payung content; laporkan terpisah,
+    # jangan menganggapnya sebagai bukti bahwa scope granular sudah terpasang.
+    if not token and token_body.get("error") == "invalid_scope":
+        hasil["scope_cadangan"] = "content (legacy)"
+        status, token_body = minta_token("content")
+        if not isinstance(token_body, dict):
+            token_body = {}
+        hasil["token_legacy_http"] = status
+        token = token_body.get("access_token")
+        scope_diberi = token_body.get("scope") or "content"
+        akses_legacy = bool(token)
+
+    if not token:
         hasil.update(status="tidak_terbukti", alasan=str(token_body.get("error") or "token tidak diberikan"))
         return hasil
-    hasil["scope_diberi"] = token_body.get("scope") or "(tidak dikembalikan)"
+
+    hasil["scope_diberi"] = scope_diberi or "(tidak dikembalikan)"
     endpoint_status, endpoint_body = _request(
         api_url + "/content/api/v4/hadiths/by_ayah/1:1?language=ar&page=1&limit=1",
         headers={"x-auth-token": token, "x-client-id": client_id},
     )
-    hasil["endpoint_hadis_http"] = endpoint_status
     if not isinstance(endpoint_body, dict):
         endpoint_body = {}
+    hasil["endpoint_hadis_http"] = endpoint_status
     if endpoint_status == 200 and isinstance(endpoint_body.get("hadiths"), list):
-        hasil.update(status="lulus", alasan="Token diterima dan endpoint hadis mengembalikan struktur yang sah")
+        if akses_legacy or (scope_diberi and "content" in scope_diberi.split() and SCOPE not in scope_diberi.split()):
+            hasil.update(status="akses_legacy_content", alasan="Endpoint hadis dapat dibaca melalui scope payung legacy; scope granular belum terbukti")
+        else:
+            hasil.update(status="lulus", alasan="Token diterima dan endpoint hadis mengembalikan struktur yang sah")
     else:
-        # Hanya keluarkan kategori/status; jangan menyalin pesan server yang mungkin memuat data tak terduga.
         error = endpoint_body.get("error")
         jenis = endpoint_body.get("type") or (error.get("code") if isinstance(error, dict) else error)
         hasil.update(status="tidak_terbukti", alasan=f"Endpoint hadis menolak/gagal (HTTP {endpoint_status}; {jenis or 'tanpa kode'})")
     return hasil
-
 
 def main() -> int:
     if not os.environ.get("QURAN_FOUNDATION_CLIENT_ID") or not os.environ.get("QURAN_FOUNDATION_CLIENT_SECRET"):
@@ -81,7 +102,7 @@ def main() -> int:
     hasil = [periksa_lingkungan(env) for env in ENVIRONMENTS]
     for item in hasil:
         print(" | ".join(f"{k}={v}" for k, v in item.items()))
-    return 0 if any(x["status"] == "lulus" for x in hasil) else 1
+    return 0 if any(x["status"] in ("lulus", "akses_legacy_content") for x in hasil) else 1
 
 
 if __name__ == "__main__":
