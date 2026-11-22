@@ -25,6 +25,13 @@ jobs:
         run: node --test bot/worker.test.mjs
       - name: Tes lengkap (tanpa render bukti)
         run: python -m pytest -q
+      - name: Periksa final semua contoh
+        run: |
+          set -e
+          for rencana in contoh/*.json; do
+            echo "Periksa final: $rencana"
+            python -m sutradara periksa "$rencana" --final
+          done
       - name: Render bukti Nuh dengan narasi tiruan
         run: python scripts/render_bukti_nuh.py
       - name: Buat crop tanah 1:1 dari render Nuh untuk audit ponsel
@@ -42,6 +49,15 @@ jobs:
         run: python scripts/benchmark_render_tahap_b.py
       - name: Render lembar kontak visual Tahap B
         run: python scripts/render_bukti_tahap_b.py
+      - name: Render bukti visual Tahap B2
+        run: python scripts/render_bukti_tahap_b2.py
+      - name: Unggah bukti visual Tahap B2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bukti-visual-tahap-b2
+          path: keluaran-bukti/tahap-b2/
+          if-no-files-found: warn
       - name: Cache dataset hadis untuk verifikasi contoh Ya'juj
         uses: actions/cache@v4
         with:
@@ -74,8 +90,9 @@ jobs:
         if: success()
         run: |
           set -e
-          mkdir -p /tmp/tahap-b-bukti
+          mkdir -p /tmp/tahap-b-bukti /tmp/tahap-b-bukti-b2
           cp keluaran-bukti/tahap-b/*.jpg /tmp/tahap-b-bukti/
+          cp keluaran-bukti/tahap-b2/*.jpg /tmp/tahap-b-bukti-b2/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if git ls-remote --exit-code --heads origin bukti >/dev/null 2>&1; then
@@ -85,11 +102,15 @@ jobs:
             git checkout --orphan bukti
             git rm -rf . >/dev/null 2>&1 || true
           fi
-          mkdir -p tahap-b
+          mkdir -p tahap-b tahap-b2
+          for file in /tmp/tahap-b-bukti-b2/*.jpg; do
+            nama=$(basename "$file" .jpg)
+            cp "$file" "tahap-b2/${nama}-${GITHUB_SHA}.jpg"
+          done
           for file in /tmp/tahap-b-bukti/*.jpg; do
             nama=$(basename "$file" .jpg)
             cp "$file" "tahap-b/${nama}-${GITHUB_SHA}.jpg"
           done
-          git add tahap-b
+          git add tahap-b tahap-b2
           git commit -m "Bukti visual Tahap B ${GITHUB_SHA}"
           git push origin HEAD:bukti

@@ -84,12 +84,93 @@
               "siluet",
               "kabut_tanpa_wujud",
               "dajjal_b",
-              "hewan"
-            ]
+              "hewan",
+              "cahaya_malaikat",
+              "wajah_cahaya"
+            ],
+            "description": "nabi=nur (pilar), malaikat=cahaya_malaikat (berkas tanpa wujud), sahabat=wajah_cahaya (tubuh berbaju dengan wajah bercahaya), manusia=pakaian/siluet"
           },
           "alasan_siluet": {
             "type": "string",
             "description": "wajib bila tampil=siluet: misteri | kilas_balik | kerumunan_sangat_jauh | wajah_disembunyikan"
+          },
+          "kolektif": {
+            "type": "boolean",
+            "description": "true bila peran mewakili kerumunan; variasi antarindividu tidak dibandingkan dengan identitas contoh peran. Individu tetap dapat dikunci lewat pemeran_id."
+          },
+          "identitas": {
+            "type": "object",
+            "description": "Kartu identitas pemeran yang stabil; rujuk melalui id peran di setiap shot.",
+            "properties": {
+              "jenis": {
+                "enum": [
+                  "pria",
+                  "wanita"
+                ]
+              },
+              "usia": {
+                "enum": [
+                  "anak",
+                  "dewasa",
+                  "lansia"
+                ]
+              },
+              "zaman": {
+                "enum": [
+                  "arab_kuno",
+                  "mesir_kuno",
+                  "umum"
+                ]
+              },
+              "indeks": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "warna_kulit": {
+                "type": "string"
+              },
+              "rambut": {
+                "type": "string"
+              },
+              "janggut": {
+                "enum": [
+                  "tanpa",
+                  "tipis",
+                  "pendek",
+                  "panjang"
+                ]
+              },
+              "penutup_kepala": {
+                "enum": [
+                  "imamah",
+                  "kain",
+                  "kopiah",
+                  "kerudung",
+                  "tanpa"
+                ]
+              },
+              "warna_baju": {
+                "type": "string"
+              },
+              "warna_aksen": {
+                "type": "string"
+              },
+              "aksesori": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "suara": {
+                "type": "string"
+              },
+              "ciri_wajah": {
+                "type": "string"
+              },
+              "warna_janggut": {
+                "type": "string"
+              }
+            }
           }
         }
       }
@@ -273,15 +354,319 @@
               "type": "object",
               "required": [
                 "preset"
-              ]
+              ],
+              "properties": {
+                "barang": {
+                  "type": "array",
+                  "description": "Status barang per shot; id barang yang sama mempertahankan identitas lintas-shot.",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "jenis",
+                      "pemilik"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9_]+$"
+                      },
+                      "jenis": {
+                        "enum": [
+                          "tongkat",
+                          "buku",
+                          "baju",
+                          "gulungan",
+                          "kendi",
+                          "cawan",
+                          "surat",
+                          "kantong"
+                        ]
+                      },
+                      "pemilik": {
+                        "type": "string",
+                        "description": "id peran pemilik saat shot ini; perubahan harus mengikuti serah-terima."
+                      },
+                      "tangan": {
+                        "enum": [
+                          "ka",
+                          "ki"
+                        ]
+                      },
+                      "aksi": {
+                        "enum": [
+                          "pegang",
+                          "ulurkan",
+                          "terima"
+                        ]
+                      },
+                      "penerima": {
+                        "type": "string"
+                      },
+                      "pemberi": {
+                        "type": "string"
+                      },
+                      "tangan_pasangan": {
+                        "enum": [
+                          "ka",
+                          "ki"
+                        ]
+                      },
+                      "titik_serah": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 2,
+                        "maxItems": 2
+                      },
+                      "sisi_x": {
+                        "type": "number"
+                      },
+                      "sisi_y": {
+                        "type": "number"
+                      },
+                      "skala": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
+                      "warna": {
+                        "type": "string"
+                      },
+                      "angle": {
+                        "type": "number"
+                      },
+                      "posisi_genggam": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        },
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "description": "Titik target tangan dalam koordinat dunia agar lengan mengikuti barang saat dipegang."
+                      }
+                    }
+                  }
+                },
+                "tokoh": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "peran": {
+                        "type": "string"
+                      },
+                      "pemeran_id": {
+                        "type": "string",
+                        "description": "id kartu pemeran individual; stabil antar-shot"
+                      },
+                      "perubahan_gaya": {
+                        "type": "string",
+                        "description": "alasan perubahan mode visual yang disengaja"
+                      },
+                      "mode": {
+                        "enum": [
+                          "pakaian",
+                          "siluet"
+                        ]
+                      },
+                      "warna_kulit": {
+                        "type": "string"
+                      },
+                      "warna_baju": {
+                        "type": "string"
+                      },
+                      "warna_aksen": {
+                        "type": "string"
+                      },
+                      "jenis": {
+                        "enum": [
+                          "pria",
+                          "wanita"
+                        ]
+                      },
+                      "usia": {
+                        "enum": [
+                          "anak",
+                          "dewasa",
+                          "lansia"
+                        ]
+                      },
+                      "zaman": {
+                        "enum": [
+                          "arab_kuno",
+                          "mesir_kuno",
+                          "umum"
+                        ]
+                      },
+                      "kepala": {
+                        "enum": [
+                          "imamah",
+                          "kain",
+                          "kopiah",
+                          "kerudung",
+                          "tanpa"
+                        ]
+                      },
+                      "rambut": {
+                        "type": "string"
+                      },
+                      "janggut": {
+                        "enum": [
+                          "tanpa",
+                          "tipis",
+                          "pendek",
+                          "panjang"
+                        ]
+                      },
+                      "warna_janggut": {
+                        "type": "string"
+                      },
+                      "aksesori": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "suara": {
+                        "type": "string"
+                      },
+                      "ciri_wajah": {
+                        "type": "string"
+                      },
+                      "detail_wajah": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "kelopak": {"type": "number", "minimum": -1, "maximum": 1},
+                          "lirikan": {"type": "number", "minimum": -1, "maximum": 1},
+                          "alis_dalam": {"type": "number", "minimum": -1, "maximum": 1},
+                          "alis_luar": {"type": "number", "minimum": -1, "maximum": 1},
+                          "alis_rapat": {"type": "number", "minimum": 0, "maximum": 1},
+                          "kerut_hidung": {"type": "number", "minimum": 0, "maximum": 1},
+                          "mulut_bulat": {"type": "number", "minimum": 0, "maximum": 1}
+                        },
+                        "description": "Kendali mikro ekspresi wajah manusia biasa; tidak berlaku untuk wajah cahaya atau pilar."
+                      }
+                    }
+                  }
+                }
+              }
             }
           },
           "pelaku": {
             "oneOf": [
-              { "type": "string" },
-              { "type": "array", "items": { "type": "string" }, "minItems": 1, "uniqueItems": true }
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              }
             ],
             "description": "id peran atau daftar id peran yang bersama-sama melakukan aksi pada visual inti di beat ini. Penjaga memeriksa semua pelaku dan tetap membandingkannya dengan tokoh non-pelaku."
+          }
+        }
+      }
+    },
+    "pemeran": {
+      "type": "array",
+      "description": "Kartu identitas pemeran individual; id stabil dirujuk setiap shot melalui tokoh.pemeran_id.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "nama",
+          "identitas"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "nama": {
+            "type": "string"
+          },
+          "identitas": {
+            "type": "object",
+            "properties": {
+              "jenis": {
+                "enum": [
+                  "pria",
+                  "wanita"
+                ]
+              },
+              "usia": {
+                "enum": [
+                  "anak",
+                  "dewasa",
+                  "lansia"
+                ]
+              },
+              "zaman": {
+                "enum": [
+                  "arab_kuno",
+                  "mesir_kuno",
+                  "umum"
+                ]
+              },
+              "indeks": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "warna_kulit": {
+                "type": "string"
+              },
+              "rambut": {
+                "type": "string"
+              },
+              "janggut": {
+                "enum": [
+                  "tanpa",
+                  "tipis",
+                  "pendek",
+                  "panjang"
+                ]
+              },
+              "warna_janggut": {
+                "type": "string"
+              },
+              "penutup_kepala": {
+                "enum": [
+                  "imamah",
+                  "kain",
+                  "kopiah",
+                  "kerudung",
+                  "tanpa"
+                ]
+              },
+              "warna_baju": {
+                "type": "string"
+              },
+              "warna_aksen": {
+                "type": "string"
+              },
+              "aksesori": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "suara": {
+                "type": "string"
+              },
+              "ciri_wajah": {
+                "type": "string"
+              }
+            }
+          },
+          "saluran_id": {
+            "type": "string",
+            "description": "Namespace pustaka pemeran per saluran; disiapkan untuk pemakaian lintas-episode."
           }
         }
       }

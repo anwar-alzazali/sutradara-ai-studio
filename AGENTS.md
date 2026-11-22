@@ -24,7 +24,7 @@ Baca berurutan sebelum menulis kode:
   Alasannya (untuk menjelaskan ke penonton): pilar hanya untuk nabi agar kedudukan nabi tidak disamakan dengan
   siapa pun; wajah sahabat tidak digambar sebagai adab dan penghormatan, tetapi mereka tetap manusia yang beraksi.
   Benda yang dipegang nabi (tongkat Musa, baju Yusuf) tidak boleh memunculkan tangan/tubuh: ditampilkan di sisi
-  pilar dengan cahaya. Sampai Tahap B2 selesai, malaikat & sahabat sementara memakai pilar/nur yang ada.
+  pilar dengan cahaya. Malaikat memakai berkas cahaya tanpa wujud; sahabat memakai tubuh berbaju dengan wajah cahaya. Pilar tetap khusus nabi.
 - **Wujud ghaib hanya sesuai dalil sahih.** Tidak dijelaskan dalil → kabut tanpa wujud. Dijelaskan → hanya ciri yang disebut dalil.
 - **Dalil hanya sahih/hasan**, nomor dicek ke sumber resmi, sumber tampil di layar. Bacaan Arab tidak disuarakan AI.
 - **Tidak mengarang klaim**, bukan fatwa, topik berat tidak dijadikan sensasi, selalu ada jalan keluar.

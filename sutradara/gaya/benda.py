@@ -121,3 +121,40 @@ def sungai(jenis: str, *, sisi: str, seed: int = 33, t: float = 0.0) -> str:
         s.append(f'<path d="M{x - 18:.0f} {y:.0f} Q {x - 6:.0f} {y - h * .6:.0f} {x:.0f} {y - h:.0f} Q {x + 8:.0f} {y - h * .5:.0f} {x + 18:.0f} {y:.0f}Z" fill="#ffb24a" opacity=".85"/>')
     s.append(f'<ellipse cx="{880 if sisi == "kanan" else 200}" cy="1560" rx="300" ry="160" fill="#ff7a2a" opacity=".3" filter="url(#b60)"/>')
     return "\n".join(s)
+
+
+# Barang yang dipegang tokoh: geometri lokal ditempelkan pada pergelangan tangan oleh rangka tokoh.
+JENIS_BARANG_TANGAN = {
+    "tongkat", "buku", "baju", "gulungan", "kendi", "cawan", "surat", "kantong",
+}
+
+
+def barang(x: float, y: float, jenis: str, *, angle: float = 0.0, s: float = 1.0,
+           warna: str | None = None, cahaya: bool = False) -> str:
+    """Gambar satu barang pada titik genggam atau titik dunia; posisi tangan dihitung oleh IK rangka."""
+    if jenis not in JENIS_BARANG_TANGAN:
+        raise ValueError(f"jenis barang tak dikenal: {jenis}")
+    warna = warna or "#b9874f"
+    bentuk = {
+        "tongkat": f'<path d="M0 0 L112 -8" stroke="{warna}" stroke-width="9" stroke-linecap="round"/>'
+                   f'<path d="M96 -9 l18 1" stroke="#f1d49a" stroke-width="3"/>',
+        "buku": f'<path d="M0 -27 Q28 -35 55 -22 L55 28 Q28 14 0 24Z" fill="{warna}" stroke="#3d2a1c" stroke-width="3"/>'
+                f'<path d="M55 -22 Q82 -35 110 -27 L110 24 Q82 14 55 28Z" fill="#ead9b7" stroke="#3d2a1c" stroke-width="3"/>'
+                f'<path d="M55 -22 V28" stroke="#765338" stroke-width="3"/>',
+        "baju": f'<path d="M18 -28 L40 -42 L60 -30 L78 -42 L100 -25 L84 -5 L75 -14 L75 40 L35 40 L35 -14 L26 -5Z" fill="{warna}" stroke="#49311f" stroke-width="3"/>',
+        "gulungan": f'<rect x="4" y="-23" width="92" height="46" rx="8" fill="{warna}" stroke="#49311f" stroke-width="3"/>'
+                    f'<ellipse cx="4" cy="0" rx="9" ry="23" fill="#ead9b7" stroke="#49311f" stroke-width="3"/>'
+                    f'<ellipse cx="96" cy="0" rx="9" ry="23" fill="#ead9b7" stroke="#49311f" stroke-width="3"/>',
+        "kendi": f'<path d="M35 -35 Q28 -12 10 -2 Q0 28 35 36 Q70 28 60 -2 Q42 -12 45 -35Z" fill="{warna}" stroke="#49311f" stroke-width="3"/>'
+                 f'<path d="M35 -35 h10 M37 -35 v-13 h8 v13" stroke="#49311f" stroke-width="4" fill="none"/>',
+        "cawan": f'<path d="M8 -18 H68 L58 25 Q38 38 18 25Z" fill="{warna}" stroke="#49311f" stroke-width="3"/>'
+                 f'<path d="M68 -8 Q95 -8 84 14 Q75 25 62 18" stroke="#49311f" stroke-width="5" fill="none"/>',
+        "surat": f'<path d="M0 -28 H82 V28 H0Z" fill="#f2e7ca" stroke="#49311f" stroke-width="3"/>'
+                 f'<path d="M8 -15 H72 M8 -3 H66 M8 9 H56" stroke="{warna}" stroke-width="3"/>',
+        "kantong": f'<path d="M20 -28 Q40 -18 60 -28 L72 28 Q42 48 8 28Z" fill="{warna}" stroke="#49311f" stroke-width="3"/>'
+                   f'<path d="M18 -20 Q40 -5 62 -20" stroke="#ead9b7" stroke-width="4" fill="none"/>',
+    }[jenis]
+    halo = (f'<ellipse cx="48" cy="0" rx="82" ry="58" fill="#fff2c8" opacity=".28" filter="url(#b10)"/>'
+            if cahaya else "")
+    return (f'<g class="barang" transform="translate({x:.1f},{y:.1f}) rotate({angle:.1f}) scale({s:.3f})">'
+            + halo + bentuk + "</g>")

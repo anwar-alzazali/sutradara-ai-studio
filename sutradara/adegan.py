@@ -30,9 +30,19 @@ import random
 from . import kamera as KM
 from .gaya import benda as BD, dajjal as DJ, dasar, kartu as KT, latar as LT, makhluk as MK, nur as NR, teks as TX, tokoh as TK
 from .waktu import pada
-from .gaya import akhir_zaman as AZ
+from .gaya import akhir_zaman as AZ, malaikat as MA
 
 DURASI_BAWAAN = 3.0
+
+
+def _cahaya_mulia(n: dict, tg: float) -> str:
+    """Pilih bentuk cahaya berdasarkan kategori; malaikat tidak pernah menjadi pilar."""
+    if n.get("_kategori_peran") == "malaikat":
+        return MA.berkas(n["x"], n["y"], tinggi=n.get("tinggi", 620),
+                         lebar=n.get("lebar", 260), t=tg, seed=n.get("seed", 17))
+    return NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
+                    tinggi=n.get("tinggi", 400), lebar=n.get("lebar", 118),
+                    pendar_rx=n.get("pendar_rx", 155), pendar_ry=n.get("pendar_ry", 190), t=tg)
 
 
 def _npc_jauh(spec: dict, tg: float) -> list[str]:
@@ -79,9 +89,7 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     # Pilar tertentu boleh berada di belakang benda utama agar tidak menutupi kapal/objek.
     for n in sp.get("nur", []):
         if n.get("di_belakang_benda"):
-            dunia.append(NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
-                                  tinggi=n.get("tinggi", 400), lebar=n.get("lebar", 118),
-                                  pendar_rx=n.get("pendar_rx", 155), pendar_ry=n.get("pendar_ry", 190), t=tg))
+            dunia.append(_cahaya_mulia(n, tg))
     for b in sp.get("buraq", []):
         dunia.append(AZ.buraq(b["x"], b["y"], b.get("s", 1), t=tg))
     tanda_overlay = []
@@ -112,23 +120,70 @@ def susun(shot: dict, t: float = 0.0, tg: float | None = None, dalil: dict | Non
     if sp.get("npc_jauh"):
         dunia += _npc_jauh(sp["npc_jauh"], tg)
     tengah: list[tuple[float, str]] = []
+    # Sistem barang tunggal: status per-shot menentukan pemilik, tangan, dan titik serah.
+    # IK tangan menghitung sudut sendi; geometri barang ditempelkan ke pergelangan.
+    barang_pemilik: dict[str, list[dict]] = {}
+    target_tangan: dict[str, dict] = {}
+    for item in sp.get("barang", []):
+        pemilik = item.get("pemilik")
+        if not pemilik:
+            raise ValueError(f"barang {item.get('id', '?')} wajib memiliki pemilik")
+        aksi = item.get("aksi", "pegang")
+        tangan = item.get("tangan", "ka")
+        if item.get("posisi_genggam") is not None:
+            posisi = item["posisi_genggam"]
+            if not (isinstance(posisi, (list, tuple)) and len(posisi) == 2):
+                raise ValueError(f"barang {item.get('id', '?')} posisi_genggam harus [x, y]")
+            target_tangan.setdefault(pemilik, {})[tangan] = tuple(posisi)
+        if aksi in {"ulurkan", "terima"}:
+            titik = item.get("titik_serah")
+            if not (isinstance(titik, (list, tuple)) and len(titik) == 2):
+                raise ValueError(f"barang {item.get('id', '?')} aksi {aksi} wajib memiliki titik_serah [x, y]")
+            target_tangan.setdefault(pemilik, {})[tangan] = tuple(titik)
+            pasangan = item.get("penerima") if aksi == "ulurkan" else item.get("pemberi")
+            if pasangan:
+                target_tangan.setdefault(pasangan, {})[item.get("tangan_pasangan", "ka")] = tuple(titik)
+        kategori_pemilik = next((tk.get("_kategori_peran") for tk in shot.get("tokoh", [])
+                                 if tk.get("peran") == pemilik), None)
+        kategori_pemilik = kategori_pemilik or next((n.get("_kategori_peran") for n in shot.get("nur", [])
+                                                      if n.get("peran") == pemilik), None)
+        if kategori_pemilik == "nabi":
+            pilar = next((n for n in sp.get("nur", []) if n.get("peran") == pemilik), None)
+            if pilar is None:
+                raise ValueError(f"barang {item.get('id', '?')} milik nabi {pemilik} tetapi pilar tidak ada di shot")
+            svg_barang = BD.barang(pilar["x"] + item.get("sisi_x", 105),
+                                   pilar["y"] + item.get("sisi_y", -65), item["jenis"],
+                                   angle=item.get("angle", -35), s=item.get("skala", .8),
+                                   warna=item.get("warna"), cahaya=True)
+            tengah.append((pilar["y"] + item.get("sisi_y", -65), svg_barang))
+        else:
+            barang_pemilik.setdefault(pemilik, []).append({
+                "jenis": item["jenis"], "tangan": item.get("tangan", "ka"),
+                "skala": item.get("skala", .72), "warna": item.get("warna"),
+            })
     for m in sp.get("kabut_tanpa_wujud", []):
         s = (MK.retakan(m["x"], m["y"]) if m.get("retakan", True) else "") + MK.kabut_tanpa_wujud(
             m["x"], m["y"], tinggi=m.get("tinggi", 820), keluar=m.get("keluar", 1.0), t=tg)
         tengah.append((m["y"] - 1, s))
     for n in sp.get("nur", []):
         if not n.get("di_belakang_benda"):
-            tengah.append((n["y"], NR.pilar(n["x"], n["y"], nama=n.get("nama"), sinar_ke=n.get("sinar_ke", "kanan"),
-                                            tinggi=n.get("tinggi", 400), lebar=n.get("lebar", 118),
-                                            pendar_rx=n.get("pendar_rx", 155), pendar_ry=n.get("pendar_ry", 190), t=tg)))
+            tengah.append((n["y"], _cahaya_mulia(n, tg)))
     for d in sp.get("dajjal", []):
         tengah.append((d["y"], DJ.belakang(d["x"], d["y"], d.get("s", 1), t=tg, jalan=d.get("jalan", False), jubah_berkibar=d.get("jubah_berkibar", 0.0), buka=d.get("buka", 0.0)) if d.get("arah") == "belakang" else DJ.sosok(d["x"], d["y"], d.get("s", 1), lengan=d.get("lengan", "terbuka"))))
     for i, (tk, asli) in enumerate(zip(sp.get("tokoh", []), shot.get("tokoh", []))):
+        ident = tk.get("_identitas") or {}
         # gerak & wajah boleh jadwal [[detik, nama]] -> diambil dari spesifikasi ASLI (bukan hasil `pada`)
         tengah.append((tk["y"], TK.orang(tk["x"], tk["y"], tk.get("s", 1), gerak=asli.get("gerak", asli.get("pose", "berdiri")),
-                                         t=t + i * 0.37, indeks=tk.get("indeks", i), mode=tk.get("mode", "pakaian"),
+                                         t=t + i * 0.37, indeks=tk.get("indeks", i), mode=tk.get("mode", "siluet" if tk.get("_cara_tampil") == "siluet" else "pakaian"),
                                          kepala=tk.get("kepala"), jenis=tk.get("jenis", "pria"), wajah=asli.get("wajah", "datar"), arah=asli.get("arah", tk.get("arah", "depan")), usia=tk.get("usia", "dewasa"), zaman=tk.get("zaman", "arab_kuno"),
-                                         bicara=asli.get("bicara"), balik=tk.get("balik", False))))
+                                         bicara=asli.get("bicara"), detail_wajah=asli.get("detail_wajah"), balik=tk.get("balik", False),
+                                          wajah_cahaya=tk.get("_kategori_peran") == "sahabat",
+                                          barang=barang_pemilik.get(asli.get("peran"), []),
+                                          target_tangan=target_tangan.get(asli.get("peran")),
+                                          warna_kulit=ident.get("warna_kulit"), warna_baju=ident.get("warna_baju"),
+                                          warna_aksen=ident.get("warna_aksen"), rambut=ident.get("rambut"),
+                                          janggut=ident.get("janggut", "pendek"),
+                                          warna_janggut=ident.get("warna_janggut"))))
     dunia += [s for _, s in sorted(tengah, key=lambda a: a[0])]
     # Tanda wajah adalah penanda ilustratif; letakkan di atas tokoh sasaran.
     dunia += tanda_overlay

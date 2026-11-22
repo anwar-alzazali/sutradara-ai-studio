@@ -285,6 +285,26 @@ sedikit), dan tanpa pernah melonggarkan batas wajib.
 5. **Pagar:** dalil, penjaga, dan batas wajib tidak pernah menjadi bahan eksperimen atau optimasi. Ada tes yang
    membuktikan sinyal penonton tidak bisa mendorong pelanggaran (misalnya topik berat dibuat sensasional).
 
-## Sesudah Tahap G
+## Penyempurnaan setelah Tahap G
+
+Poin berikut **ditunda atas keputusan pemilik pada 22 Nov 2026**. Jangan mengerjakannya pada Tahap B2 atau tahap lain sebelum seluruh tahap yang direncanakan selesai. Setelah itu, kerjakan hanya sebagai penyempurnaan visual; **jangan mengganti nama preset maupun antarmuka pemanggilannya** yang telah dibakukan di `docs/PANDUAN_GAYA.md` bagian 1b.
+
+1. **Bedakan `senyum` dan `ejek` lebih tegas.**
+   - Gejala pada bukti saat ini: lengkung mulut senyum dan garis mulut ejek masih berdekatan secara visual; bentuk alis menjadi pembeda utama, tetapi belum cukup jelas pada tampilan kecil.
+   - Bukti JPG: `b2-shot-01.jpg`, `b2-shot-02.jpg`, dan `lembar-ekspresi-b2.jpg` (bandingkan baris/varian senyum dan ejek).
+   - Sasaran nanti: perbedaan terbaca pada ukuran ponsel tanpa membuat ekspresi Kisah Islami menjadi komikal.
+
+2. **Bedakan `takut` dari `kepergok_panik`.**
+   - Gejala pada bukti saat ini: mata tegang dan alis cemas pada kedua preset masih memberi kesan yang mirip; kualitas "baru ketahuan" belum terbaca terpisah dari takut umum.
+   - Bukti JPG: `lembar-ekspresi-b2.jpg` dan `lembar-kontak-b2.jpg`.
+   - Sasaran nanti: `takut` tetap menyatakan ancaman/ketakutan umum, sedangkan `kepergok_panik` menyatakan reaksi spontan saat tertangkap basah. Nama preset tetap.
+
+3. **Perjelas kerut hidung pada `jijik_ilfil`.**
+   - Gejala pada bukti saat ini: kerut hidung sudah dikendalikan oleh parameter, tetapi kurang terbaca pada lembar kontak berukuran kecil.
+   - Bukti JPG: `lembar-ekspresi-b2.jpg` dan `b2-shot-04.jpg`.
+   - Sasaran nanti: kerut pangkal hidung terlihat jelas pada ukuran ponsel, tanpa mengubah nama preset atau menerapkannya ke wajah cahaya.
+
+**Batas pekerjaan tertunda:** jangan mengubah gambar wajah untuk tiga catatan di atas sekarang. Ketiganya bukan penghalang penyelesaian Tahap B2 dan bukan alasan menahan tahap berikutnya. Ketika penyempurnaan nanti disetujui untuk dikerjakan, perubahan cukup pada bentuk/parameter gambar wajah; kontrak nama dan antarmuka tetap kompatibel.
+
 Fase 7 (perluasan genre) **tidak dibuka** sebelum Fase 6 terbukti berjalan, pematangan (Tahap G) menunjukkan hasil dan pemilik menyetujuinya secara tertulis. Ini sesuai keputusan pemilik bahwa Kisah Islami harus
 konsisten dulu. Jangan memulai Fase 7 atas inisiatif sendiri.
