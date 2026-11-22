@@ -206,32 +206,32 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
    `sutradara/suara/campur.py` masih menambah kilau untuk kartu dalil. Jadikan keduanya kait (hook) yang didaftarkan
    paket genre, misalnya "sisipan waktu baca" dan "efek kemunculan elemen", sehingga inti tidak menyebut nama elemen
    genre. Syarat lulus sama dengan D0: render identik dan tes genre tiruan tetap lulus.
-1. **Templat naskah untuk AI gratis.** FORMAT NASKAH SUDAH DITETAPKAN di `sutradara/antrean.py` (dipakai bot: antrean
+1. **[D1] Templat naskah untuk AI gratis.** FORMAT NASKAH SUDAH DITETAPKAN di `sutradara/antrean.py` (dipakai bot: antrean
    `antrean/<id>/naskah.json` yang disetujui pemilik = masukan sutradara). Jangan membuat format kedua; perluas bila perlu.
    - Format per beat: narasi, kata kunci, dalil (rujukan saja; teks diambil oleh verifikasi), suasana, dan peran.
    - Templatnya juga harus mendorong mutu cerita: fakta terkuat di depan, cerita utuh dalam satu video, setiap
      kalimat menambah informasi atau ketegangan.
    - Sertakan validator yang menjelaskan kesalahan dalam bahasa Indonesia yang bisa dipahami orang awam.
-2. **Keputusan tingkat video:**
+2. **[D1] Keputusan tingkat video:**
    - visual inti dan jalur perubahannya;
    - busur emosi diterjemahkan ke preset suasana;
    - peran diterjemahkan ke cara tampil (sesuai tabel PANDUAN_GAYA);
    - hook diambil dari beat paling dramatis.
-3. **Penataan panggung otomatis:** sutradara yang menentukan koordinat. Pelaku aksi ditempatkan di samping visual
+3. **[D2] Penataan panggung otomatis:** sutradara yang menentukan koordinat. Pelaku aksi ditempatkan di samping visual
    inti, pihak lawan di seberang atau melintas, posisi konsisten antar-shot, dan tidak saling menutupi. Penjaga
    `PELAKU_JAUH`/`BUKAN_PELAKU_DEKAT` harus lulus tanpa koordinat yang ditulis tangan.
-3b. **Liputan dialog (shot–reverse shot)**: dari naskah, sutradara tahu siapa bicara dan siapa menjawab, lalu kamera
+3b. **[D2] Liputan dialog (shot–reverse shot)**: dari naskah, sutradara tahu siapa bicara dan siapa menjawab, lalu kamera
    bergantian dekat (setengah badan) ke pembicara, dengan sisipan reaksi pendengar bila reaksinya penting. Konsep
    `dialogue_exchanges` (pembicara -> penjawab) sudah ada di mesin-video cabang `feat/short-term-production-intelligence`
    (`docs/AI_STORY_DIRECTOR.md`): bawa konsepnya. Layar tenang/gerak minimal boleh bila dialog yang membawa cerita.
-3c. **Arah hadap saat berinteraksi** (pemilik, 22 Nov 2026, dari bukti serah-terima B2 yang semua tokohnya
+3c. **[D2] Arah hadap saat berinteraksi** (pemilik, 22 Nov 2026, dari bukti serah-terima B2 yang semua tokohnya
    menghadap kamera): tokoh yang saling bicara, menyerahkan/menerima barang, menunjuk, atau mengejek harus
    menghadap lawannya (samping atau tiga-perempat, sisi kiri/kanan sesuai posisi), bukan menghadap kamera. Tampak
    depan untuk berbicara ke penonton, kerumunan yang menonton, atau reaksi; tampak belakang untuk sudut pandang
    ikut tokoh, kepergian, atau tokoh yang sedang memandang sesuatu. Sutradara yang memilih arah hadap, bukan nilai
    bawaan. Bila perlu, tambahkan arah tiga-perempat di rangka tokoh. Penjaga memberi PERIKSA (bukan GAGAL) bila
    pasangan serah-terima/dialog sama-sama menghadap kamera tanpa alasan.
-3d. **Berjalan/berlari sesuai tujuan** (pemilik, 22 Nov 2026). Saat ini `jalan`/`lari` hanya siklus kaki di
+3d. **[D2] Berjalan/berlari sesuai tujuan** (pemilik, 22 Nov 2026). Saat ini `jalan`/`lari` hanya siklus kaki di
    tempat; tokoh tidak berpindah dan tidak otomatis menghadap arah gerak.
    - Tokoh yang berjalan/berlari punya **tujuan** (benda, tokoh, atau tepi layar yang mewakili tempat) dan
      **lintasan** x/y dari awal ke tujuan. Tubuh menghadap arah lintasan (samping dan sisi kiri/kanan otomatis
@@ -244,21 +244,21 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
    - Penjaga: GAGAL bila `jalan`/`lari` tidak punya lintasan atau tujuan, kecuali ditandai `di_tempat` dengan
      alasan (mis. kamera ikut bergerak). PERIKSA bila arah hadap berlawanan dengan arah gerak, atau arah layar
      berganti antar-shot menuju tujuan yang sama.
-4. **Keputusan tingkat shot:**
+4. **[D1] Keputusan tingkat shot:**
    - pecah enumerasi menjadi shot per kata dan eskalasi pada pengulangan;
    - kamera mengikuti posisi beat;
    - teks layar 1–3 kata yang menamai makna;
    - `potong_di` dipilih otomatis;
    - gerak dan ekspresi tokoh diturunkan dari kata kerja dan emosi narasi;
    - efek suara mengikuti aksi (Tahap A).
-5. **Perpustakaan resep adegan:** potongan siap pakai yang diambil dari video yang disetujui pemilik, misalnya
+5. **[D3] Perpustakaan resep adegan:** potongan siap pakai yang diambil dari video yang disetujui pemilik, misalnya
    "kaum mengejek", "azab datang", "doa sunyi". Sutradara memilih dan merangkainya. Format resep harus bisa
    ditambah orang lain tanpa menyentuh kode inti.
-6. **Model AI (opsional, di balik bendera, mati secara bawaan):**
+6. **[D3] Model AI (opsional, di balik bendera, mati secara bawaan):**
    - model murah dipakai hanya ketika aturan ragu;
    - biaya dicatat per video;
    - mesin harus tetap menghasilkan rencana yang layak tanpa model.
-7. **Bukti:**
+7. **[D3] Bukti:**
    - naskah kisah Nabi Nuh dijadikan rencana dan video otomatis penuh;
    - satu kisah baru (misalnya Nabi Hud) juga dibuat tanpa menyunting kode atau rencana dengan tangan;
    - lampirkan lembar kontak keduanya dan perbandingan dengan versi manual.
