@@ -37,6 +37,24 @@ def test_manifest_kisah_islami_dimuat_melalui_registri():
     assert paket.bawaan["terjemah_kartu_utuh"] is True
 
 
+def test_paket_kisah_islami_mendaftarkan_hook_waktu_baca_dan_efek():
+    paket = dari_rencana({})
+    shot = {"kartu_dalil": {"mulai": 0.7}}
+    assert paket.sisipan_waktu_baca(shot)
+    assert paket.waktu_tetap(shot, "kartu_dalil")
+    assert paket.efek_kemunculan(shot) == [
+        {"berkas": "kilau_cahaya", "offset": 0.7, "vol": 0.35}
+    ]
+
+
+def test_inti_waktu_dan_suara_tidak_menyebut_elemen_kisah_islami():
+    akar = Path(__file__).resolve().parents[1] / "sutradara"
+    for rel in ("garis_waktu.py", "suara/campur.py"):
+        sumber = (akar / rel).read_text(encoding="utf-8")
+        assert "kartu_dalil" not in sumber
+        assert "kilau_cahaya" not in sumber
+
+
 def test_paket_genre_tiruan_dapat_didaftarkan_tanpa_mengubah_inti():
     def gambar_benda_tiruan(*args, **kwargs):
         return '<circle cx="10" cy="10" r="2"/>'
