@@ -8,7 +8,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from sutradara.genre import PaketGenre, ambil, daftar, daftarkan, dari_rencana, nama_dari_rencana
-from sutradara.rencana.penjaga import SKEMA
+from sutradara.rencana.penjaga import _skema_paket
 
 
 def test_rencana_lama_tetap_memilih_kisah_islami():
@@ -21,7 +21,9 @@ def test_manifest_kisah_islami_dimuat_melalui_registri():
     assert paket.nama == "kisah_islami"
     assert {"nur.pilar", "malaikat.berkas", "makhluk.kabut_tanpa_wujud", "dajjal.sosok", "akhir_zaman.buraq", "kartu_dalil.kartu"} <= set(paket.komponen)
     assert all(callable(fungsi) for fungsi in paket.komponen.values())
-    assert paket.modul_dalil == "sutradara.dalil"
+    assert paket.modul_dalil == "sutradara.paket_genre.kisah_islami.dalil"
+    assert paket.renderer_adegan is not None and paket.adaptasi_shot is not None
+    assert paket.durasi_shot is not None and paket.data_render is not None
     assert paket.bawaan["bacaan_arab_tts"] is False
     assert paket.bawaan["terjemah_kartu_utuh"] is True
 
@@ -84,14 +86,14 @@ def test_kontrak_paket_tidak_bisa_diubah_setelah_dibuat():
 
 
 def test_skema_menerima_genre_opsional_dengan_nama_paket_generik():
-    validator = Draft202012Validator(SKEMA)
+    validator = Draft202012Validator(_skema_paket(dari_rencana({})))
     contoh = Path(__file__).resolve().parents[1] / "contoh" / "nuh_mengejek.json"
     rencana_lama = json.loads(contoh.read_text(encoding="utf-8"))
     assert validator.is_valid(rencana_lama)
     rencana_baru = {**rencana_lama, "genre": "genre_tiruan_uji"}
     assert validator.is_valid(rencana_baru)
-    assert "genre" not in SKEMA["required"]
-    assert SKEMA["properties"]["genre"]["pattern"] == "^[a-z][a-z0-9_]*$"
+    assert "genre" not in _skema_paket(dari_rencana({}))["required"]
+    assert _skema_paket(dari_rencana({}))["properties"]["genre"]["pattern"] == "^[a-z][a-z0-9_]*$"
     assert not validator.is_valid({**rencana_lama, "genre": "Nama Genre"})
 
 
@@ -123,23 +125,16 @@ def test_penjaga_mendelegasikan_validasi_ke_paket_genre():
 def test_renderer_paket_tiruan_menyumbang_elemen_tanpa_mengubah_inti():
     from sutradara import genre
     from sutradara.adegan import susun
-
-    nama = "genre_renderer_tiruan_uji"
-    dipanggil = []
-
-    def renderer(shot, hasil_evaluasi, waktu_lokal, waktu_global):
-        dipanggil.append((waktu_lokal, waktu_global))
-        return [(hasil_evaluasi["tanah_y"], '<circle id="elemen-genre-tiruan" cx="540" cy="900" r="12"/>')]
-
-    paket = PaketGenre(nama=nama, renderer_adegan=renderer)
-    daftarkan(paket)
+    from sutradara.genre import HasilAdegan
+    nama="genre_renderer_tiruan_uji"; dipanggil=[]
+    def renderer(shot,hasil_evaluasi,waktu_lokal,waktu_global,data):
+        dipanggil.append((waktu_lokal,waktu_global,data))
+        return HasilAdegan(tengah=((hasil_evaluasi["tanah_y"],'<circle id="elemen-genre-tiruan" cx="540" cy="900" r="12"/>'),))
+    daftarkan(PaketGenre(nama=nama,renderer_adegan=renderer))
     try:
-        svg = susun({"preset": "senja", "durasi": 2, "tanah_y": 1250}, t=0.5, tg=3.5, genre=nama)
-        assert dipanggil == [(0.5, 3.5)]
-        assert 'id="elemen-genre-tiruan"' in svg
-    finally:
-        genre._PAKET.pop(nama, None)
-
+        svg=susun({"preset":"senja","durasi":2,"tanah_y":1250},t=.5,tg=3.5,genre=nama)
+        assert dipanggil==[(.5,3.5,{})] and 'id="elemen-genre-tiruan"' in svg
+    finally: genre._PAKET.pop(nama,None)
 
 
 def test_skema_tambahan_paket_digabung_dan_ditegakkan_penjaga():
@@ -188,3 +183,8 @@ def test_skema_tambahan_tidak_boleh_menimpa_properti_inti():
     )
     with pytest.raises(ValueError, match="menimpa properti inti"):
         _skema_paket(paket)
+
+
+def test_renderer_inti_tidak_menyebut_elemen_khusus_genre():
+    sumber=(Path(__file__).resolve().parents[1]/"sutradara"/"adegan.py").read_text(encoding="utf-8")
+    for nama in ("nur","dajjal","buraq","kabut_tanpa_wujud","kartu_dalil","dalil"): assert nama not in sumber

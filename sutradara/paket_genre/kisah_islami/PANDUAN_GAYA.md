@@ -1,0 +1,103 @@
+# Panduan gaya visual (dikunci pemilik, 21 Nov 2026)
+
+Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jalankan `python -m sutradara gambar contoh/<berkas>.json`.
+
+## 1. Siapa digambar bagaimana
+
+| Peran | Cara tampil | Kode |
+|---|---|---|
+| Nabi | **Pilar cahaya putih** khusus nabi: kapsul tanpa lekuk kepala/bahu/tangan, semburan sinar halus, butiran cahaya, genangan cahaya di tanah. Nama kecil di bawah saat diperkenalkan/saat ucapannya dibacakan. | `gaya/nur.py` |
+| Malaikat | **Berkas/sinar dari atas tanpa wujud**: bidang cahaya terbuka dari tepi atas, sinar menyebar, partikel halus; tidak ada kapsul, siluet, tubuh, wajah, atau anggota badan. | `gaya/malaikat.py` |
+| Sahabat Nabi Muhammad ﷺ (semua) | **Tubuh manusia berbaju** dengan rangka, gerak, gestur, dan barang tetap berfungsi. Bidang wajah diganti cahaya lembut tanpa mata, hidung, mulut, janggut wajah, atau ekspresi; dari depan/profil wajah tetap cahaya, dari belakang tidak menampilkan wajah. | `gaya/tokoh.py` mode `wajah_cahaya=True` |
+| Allah | **Tidak pernah** digambar dalam bentuk apa pun. Firman = teks + cahaya dari atas tanpa sosok. | — |
+| Manusia biasa, kaum, orang beriman | **Berpakaian** (bawaan): gamis berwarna, ikat pinggang, imamah/kain kepala/kopiah, wajah berekspresi. | `gaya/tokoh.py` mode `pakaian` |
+| NPC / kerumunan jauh | Tetap berpakaian, **kecil, tanpa detail wajah, pudar oleh kabut** (perspektif udara). Bukan siluet. | `adegan.npc_jauh` + `latar.kabut_jauh` |
+| Siluet | Hanya dengan alasan: misteri (belum terungkap), kilas balik/mimpi, kerumunan sangat jauh berskala besar, wajah sengaja disembunyikan. Tepi tersinari dari arah cahaya. Tokoh yang terungkap berubah dari siluet ke berpakaian. | mode `siluet` |
+| Makhluk ghaib yang wujudnya **tidak** dijelaskan dalil sahih (Dabbatul Ard, jin) | **Kabut tanah gelap tanpa wujud**: bergulung, tepi selalu berubah, pendar keemasan redup, tanpa mata/kepala/ukuran jelas, ditangkap sebagian. Bukan hitam pekat "jahat", tidak simetris dengan pilar nur. "Berbicara" = teks + narator, tanpa suara makhluk. | `gaya/makhluk.py` |
+| Makhluk yang wujudnya dijelaskan dalil | Digambar **hanya** dengan ciri dari dalil; sisanya netral. | per tokoh |
+| Dajjal | **Desain B**: berpakaian penguasa (jubah merah tua bersulam emas = pilihan gaya), mata kanan buta menonjol seperti anggur & keruh tanpa pupil (Bukhari 7123), ك ف ر di antara kedua mata (Bukhari 7131, Muslim 2933), rambut sangat keriting, muda. Tanpa gore, tanpa taring/tanduk, tanpa ciri ras. Boleh siluet di awal untuk misteri. | `gaya/dajjal.py` |
+| Ya'juj Ma'juj | **Manusia biasa** (keturunan Adam, Bukhari 3348): tinggi bervariasi, pakaian compang-camping, tanpa wajah bila siluet. Kengerian dari **jumlah & gerak** (turun dari setiap tempat tinggi, QS Al-Anbiya 96), bukan bentuk aneh. Tanpa telinga raksasa/tanduk (riwayat lemah) dan tanpa ciri ras. | fase 7 |
+| Buraq | Hewan putih, lebih besar dari keledai & lebih kecil dari bagal, langkahnya sejauh pandangan. **Tanpa sayap, tanpa wajah manusia, tidak pernah digambar dengan penunggang** (penunggang = pilar cahaya). Agung, bukan kartun lucu. Komponen dasar dan penjaga penunggang tersedia; penilaian proporsi visual tetap diperlukan. | `gaya/akhir_zaman.py` |
+
+### Kartu identitas pemeran dan barang
+
+- Setiap tokoh individual yang berulang memakai satu kartu pada `pemeran[]` dengan `id` stabil. Shot merujuknya lewat `tokoh[].pemeran_id`; kategori adab tetap dirujuk terpisah lewat `tokoh[].peran`. Kartu memuat ciri wajah (deskripsi), warna kulit, rambut/janggut, penutup kepala, palet baju, aksesori, dan suara. `saluran_id` menyiapkan namespace pustaka pemeran per saluran untuk pemakaian lintas-episode; penyimpanan pustaka persisten belum dibangun pada tahap ini.
+- Renderer memakai ciri yang didukung rig (jenis, usia, zaman, indeks palet, warna kulit/baju/aksen, rambut, janggut, penutup kepala). Ciri lain tetap menjadi kartu data untuk kesinambungan dan pengembangan pustaka pemeran. Rencana lama boleh memakai `peran[].identitas` sebagai fallback kompatibilitas.
+- Perbedaan shot dari kartu identitas menghasilkan temuan `PERIKSA: IDENTITAS_BERUBAH`, bukan kegagalan otomatis. Bila perubahan kostum/gaya memang disengaja, isi `perubahan_gaya` dengan alasan.
+- Peran yang mewakili kelompok/kerumunan menandai `kolektif: true`; variasi penutup kepala, warna, dan ciri antarindividu tidak dibandingkan dengan kartu contoh peran. Bila satu orang dalam kerumunan harus konsisten antar-shot, beri `pemeran_id` stabil dan kartu `pemeran[]`; perubahan cirinya tetap menghasilkan `PERIKSA: IDENTITAS_BERUBAH`. Peran tunggal tanpa `kolektif` tetap diperiksa terhadap `peran[].identitas`.
+- Barang adegan ditulis per shot pada `barang[]` dengan `id`, `jenis`, dan `pemilik` (id peran). Id barang yang sama menandai benda yang sama antar-shot. Gunakan `tangan` dan `posisi_genggam` agar lengan mengikuti barang melalui IK.
+- Serah-terima memakai `aksi: "ulurkan"`, `penerima`, dan `titik_serah`; shot penerimaan memakai `aksi: "terima"`, `pemberi`, dan titik yang sama. Perubahan pemilik tanpa pasangan aksi akan ditolak penjaga.
+- Barang milik nabi tidak ditempelkan pada tangan atau tubuh: renderer meletakkannya di sisi pilar cahaya dengan pendar. Serah-terima manusia–nabi ditunjukkan dengan tangan manusia menuju/dari titik di dekat pilar; nabi tetap hanya pilar.
+
+## 1b. Gerak & ekspresi
+**Kontrak preset wajah (nama stabil untuk dipakai sutradara dan rencana):**
+- Preset dasar yang dipertahankan: `datar`, `senyum`, `tertawa`, `ejek`, `cemberut`, `sedih`, `marah`, `takut`, `kaget`, `pejam`.
+- Preset mikro tambahan yang sudah dibakukan: `kepergok_panik`, `jijik_ilfil`, `sinis`, `curiga`, `heran`.
+- Daftar otoritatif kode: `sutradara.gaya.tokoh.WAJAH`. Nama-nama di atas adalah API publik internal renderer; jangan mengganti, menghapus, atau memakai alias baru ketika memperbaiki bentuk gambar. Perubahan visual di masa depan harus kompatibel dengan nama ini.
+- Pemanggilan: `tokoh.orang(..., wajah="nama_preset")`; `wajah` juga menerima jadwal `[[detik, nama_preset], ...]` untuk transisi antar-ekspresi. Parameter `detail_wajah={...}` opsional untuk kendali mikro per-shot dan menggabungkan/menimpa nilai bawaan preset.
+- Kunci `detail_wajah`: `kelopak`, `lirikan`, `alis_dalam`, `alis_luar` bernilai -1.0 sampai 1.0; `alis_rapat`, `kerut_hidung`, `mulut_bulat` bernilai 0.0 sampai 1.0. Nilai di luar rentang dijepit renderer ke batas rentang.
+- Arti: `kelopak` mengatur bukaan mata; `lirikan` menggeser pupil; `alis_dalam` dan `alis_luar` mengubah sudut bagian dalam/luar alis; `alis_rapat` merapatkan alis; `kerut_hidung` menambah kerut pangkal hidung; `mulut_bulat` mengatur bentuk mulut bulat kecil.
+- Preset mikro memakai bentuk dasar yang sudah ada (kepergok/panik → takut; jijik/ilfil → cemberut; sinis → ejek; curiga/heran → datar) ditambah kendali mikro. Ini pemetaan implementasi, bukan nama pengganti.
+- Preset dan kendali mikro hanya untuk wajah manusia biasa. Jangan terapkan ke wajah cahaya sahabat atau pilar nabi; wajah cahaya tidak memiliki fitur wajah.
+
+- Arah tokoh memakai `arah`: `depan`, `samping`, `belakang`, atau jadwal `[[detik, arah], ...]`. Perubahan sudut memakai smoothstep; tampilan wajah memudar saat tokoh membelakangi kamera.
+- Ragam anatomi memakai `usia`: `anak`, `dewasa`, `lansia`; busana memakai `zaman`: `arab_kuno`, `mesir_kuno`, `umum`. Semua pilihan memakai rangka bersendi yang sama.
+- Gerak dan ekspresi melayani cerita: pilih yang dinyatakan narasi (yang "lewat" berjalan, yang "mengejek" tertawa/menunjuk
+  dengan mulut bergerak, yang "takut" mundur/menutup telinga). Daftar lengkap: `python -c "from sutradara import gerak; print(gerak.SEMUA)"`.
+- Tidak ada gerak tanpa alasan di latar: NPC jauh hanya bernapas/bergerak kecil.
+- Pilar nur tidak pernah diberi gerak tubuh; hanya cahaya yang berdenyut.
+
+## 2. Suasana & lapisan
+- Preset suasana (`gaya/latar.py`): `senja`, `dhuha`, `malam`, `malam_merah`, `fajar`. Dipakai ulang, dipetakan ke busur emosi.
+- Lapis dunia: belakang (langit, gunung/kota) · tanah bertekstur · tengah (visual inti, tokoh). **Lapis depan bukan bawaan dan harus dihilangkan secara default.** Kedalaman cukup dibangun dari tekstur tanah berperspektif, skala tokoh, dan kabut jauh.
+- Batu/siluet foreground hanya boleh dipakai bila diminta eksplisit per shot (`depan: true`) dan disertai alasan artistik yang jelas pada catatan shot, misalnya sudut mengintip, gua, atau suasana mencekam. Jangan gunakan batu pojok bawah sebagai dekorasi rutin atau sampai mengurangi ruang subtitle. Jika dipakai, ukurannya tidak boleh menutupi area bawah secara dominan.
+- **Tanah bertekstur adalah BAWAAN untuk semua adegan yang memiliki permukaan tanah, bukan aturan wajib.** Tekstur boleh dimatikan per adegan (`permukaan_tanah: "tanpa"`) bila ada alasan artistik yang jelas, misalnya mimpi/kilas balik minimalis, fokus hening, atau adegan di atas air. Jenis tekstur dapat diatur per shot: `tanah_berbatu` (bawaan), `pasir`, `tanah`, `batu`, atau `tanpa`. `seed_tanah` mengunci pola agar konsisten antar-bingkai. Tekstur mengikuti kamera karena berada di koordinat dunia dan digambar di bawah benda/tokoh. Ukuran kerikil meningkat ke arah kamera; sorot dan bayangan harus terbaca di ponsel tetapi tidak mengalahkan tokoh atau visual inti.
+- Kabut cakrawala adalah lapisan atmosfer belakang, bukan overlay: harus berada di bawah tanah, bahtera/benda, NPC, dan tokoh agar tidak membentuk pita yang menimpa visual inti.
+- Kerikil disebar secara alami dalam gerombol dan area renggang/kosong, dengan ukuran bervariasi; hindari jarak dan kepadatan yang tampak seperti kisi. Pola tetap deterministik melalui `seed_tanah`.
+- Waktu kejadian mengikuti dalil (Dabbah keluar di waktu **dhuha**, Muslim 2941 → adegan terang, bukan malam). Tekstur tidak memakai blur.
+
+## 3. Penataan panggung (siapa berdiri di mana)
+- **Pelaku aksi berdiri di dekat visual inti yang ia kerjakan** (yang membangun kapal di samping kapal). Tidak boleh ada
+  tokoh lain yang lebih dekat ke visual inti daripada pelaku, kecuali lewat jelas di depan (lebih dekat ke kamera).
+- Pihak yang berseberangan (yang mengejek, yang menolak) datang dari sisi lain atau melintas di depan, menghadap pelaku.
+- Posisi tiap pihak dipertahankan antar-shot (resep A5) supaya penonton tidak bingung arah.
+- Dicek otomatis: tulis `pelaku` di beat → penjaga memberi `PELAKU_JAUH` / `BUKAN_PELAKU_DEKAT`.
+
+## 3b. Suara mengikuti aksi
+- Efek suara terikat pada apa yang SEDANG DILAKUKAN di layar, bukan ditempel menurut detik. Palu mengikuti gerak
+  `palu`, menggali mengikuti `gali`, dan langkah mengikuti `jalan`/`lari`/`lompat`.
+- Keterlihatan dievaluasi pada waktu setiap bunyi: proyeksi posisi tokoh memakai keyframe `x/y/s`, zoom dan pusat
+  kamera, serta guncang/hentak. Tokoh yang keluar bingkai atau tertutup hampir seluruhnya oleh tokoh di depan/lapis
+  depan tidak diberi bunyi. Kotak tubuh dan sampel area adalah pendekatan konservatif, bukan pelacakan piksel.
+- Posisi kiri-kanan dan volume mengikuti posisi serta ukuran tampak pada waktu bunyi. Variasi kecil deterministik
+  pada waktu, gain, dan kecepatan mencegah ketukan identik terdengar seperti mesin. Jika slot ketukan terbatas,
+  tokoh terdekat/terlihat mendapat prioritas; satu ketukan per tokoh dipilih sebelum ketukan tambahan.
+- Bahan dapat dinyatakan lewat `permukaan` pada tokoh atau shot: `tanah`/`pasir`, `kayu`/`dek`,
+  `air`, atau `batu_besi`. Dek bahtera dan sungai juga dapat dikenali dari posisi tokoh. Rekaman khusus dipakai
+  bila ada; sampai tersedia, kode memakai aset cadangan yang sudah ada.
+- Aksi lain yang memang terdengar: wajah/gerak `tertawa` atau `ejek` menjadi tawa kelompok satu kali;
+  `npc_jauh` menjadi ambience kerumunan jauh; kabut yang nilai `keluar`-nya meningkat dan retakan tanah
+  mendapat gemuruh/retak; perubahan `jadi` bahtera mendapat bunyi pembangunan. Bunyi palu pembangunan sebaiknya
+  bersumber dari tokoh yang terlihat memalu, bukan hanya kapal yang berubah.
+- Tidak semua gerak perlu bunyi: berdiri, bernapas, menoleh, menunjuk, mengangkat tangan, dan gerak ekspresi kecil
+  tetap diam bila tidak ada kontak atau sumber bunyi yang masuk akal. Keheningan menjaga fokus dan mencegah
+  setiap perubahan pose terdengar seperti efek.
+- Efek yang tidak terlihat sumbernya (mis. guntur) dipasang di `beat.efek` pada kata (`"kata"`).
+  Efek satu-kali yang mendekati potongan shot diberi ekor minimum dan fade pendek agar tidak putus menjadi klik;
+  tandai `"lewat": true` bila memang disengaja menyambung.
+- Workflow rekaman `.github/workflows/efek.yml` hanya `workflow_dispatch`, membaca `aset/suara/prompt_efek.json`,
+  melewati berkas yang sudah ada, dan memakai `ELEVENLABS_API_KEY` dari GitHub Secrets. Tidak ada panggilan
+  berbayar di tes/CI. Pemilik menjalankan workflow dengan memilih cabang PR di pemilih branch Actions, bukan
+  `main`, agar hasil rekaman masuk ke cabang yang sedang diaudit.
+
+## 4. Teks
+- Judul layar 1–3 kata kapital yang menamai makna, maksimal 2 baris.
+- Warna: **kuning** = fakta kunci/janji/harapan · **putih** = netral · **merah** = azab/ancaman/kesombongan.
+- Sumber dalil kecil di atas (`QS HUD 38`, `HR. MUSLIM 2934`) di setiap shot yang isinya dari dalil itu.
+- Subtitle satu baris di bawah, kata penting disorot kuning.
+- **Kartu dalil bertahap**: pita ATAS yang tembus pandang (warna mengikuti preset suasana: senja, malam, malam_merah, fajar, dhuha), satu potongan Arab + terjemah (masing-masing <= 2 baris) sekaligus; Arab disapu,
+  terjemah diketik, lalu diganti potongan berikutnya. Adegan tetap terlihat di bawahnya; judul & label sumber disembunyikan selama kartu tampil. Hadis: matan saja (kutipan persis).
+
+## 5. Yang dilarang
+Boneka "kamu" sebagai avatar penonton · siluet sebagai bawaan · nur berbentuk lampu sorot kerucut · sosok manusia dari cahaya
+untuk tokoh suci · wujud ghaib yang dikarang · ciri ras/etnis pada tokoh jahat · logo/merek asli.

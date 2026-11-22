@@ -5,7 +5,7 @@ sutradara.rencana.penjaga tetap menyediakan nama-nama kompatibilitas.
 """
 from __future__ import annotations
 
-from sutradara.dalil.segmen import kutipan_sah
+from .dalil.segmen import kutipan_sah
 from sutradara.gaya.latar import PRESET
 from sutradara.rencana.penjaga import Temuan
 SAKRAL = {"nabi", "malaikat", "sahabat"}

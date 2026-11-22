@@ -289,3 +289,5 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - Persetujuan pemilik Muslim 2934b tercatat pada commit `c05926c`: frasa lengkap `mendatangi surga yang ia lihat berupa api` dikoreksi menjadi `mendatangi sungai yang ia lihat berupa api`; status `disetujui_pemilik`. Perubahan berikutnya tidak mengubah berkas koreksi yang disetujui.
 
 - 22 Nov 2026 — Tahap D0: pemeriksaan kontinuitas identitas stabil (kartu pemeran vs atribut per shot, termasuk pemeran individu dalam kerumunan) dipindahkan ke `sutradara/rencana/pemeriksaan_umum.py`. Pemeriksaan mode tampil tetap berada di paket Kisah Islami; tidak mengubah kategori adab atau aturan visual genre.
+
+- 22 Nov 2026 — Tahap D0 pemisahan renderer: komponen visual dan data dalil khusus Kisah Islami dipindahkan ke `sutradara/paket_genre/kisah_islami/`; jalur impor lama dipertahankan sebagai shim. Renderer inti menerima hasil lapisan netral melalui kontrak paket. Skema dalil menjadi ekstensi paket, bukan properti inti.
