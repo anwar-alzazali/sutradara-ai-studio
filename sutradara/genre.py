@@ -1,5 +1,7 @@
 """Kontrak netral dan pemuat paket genre."""
 from __future__ import annotations
+from collections.abc import Mapping as ABCMapping
+from copy import deepcopy
 from dataclasses import dataclass, field
 from importlib import import_module
 import re
@@ -7,6 +9,30 @@ from threading import RLock
 from types import MappingProxyType
 from typing import Any, Callable, Mapping
 GENRE_BAWAAN="kisah_islami"
+
+
+def bekukan_data(nilai):
+    """Salin data manifest secara rekursif lalu buat seluruh wadahnya hanya-baca."""
+    if isinstance(nilai, ABCMapping):
+        return MappingProxyType({kunci: bekukan_data(item) for kunci, item in nilai.items()})
+    if isinstance(nilai, (list, tuple)):
+        return tuple(bekukan_data(item) for item in nilai)
+    if isinstance(nilai, set):
+        return frozenset(bekukan_data(item) for item in nilai)
+    return deepcopy(nilai)
+
+
+def salin_data(nilai):
+    """Kembalikan salinan biasa yang aman dipakai API eksternal seperti jsonschema."""
+    if isinstance(nilai, ABCMapping):
+        return {kunci: salin_data(item) for kunci, item in nilai.items()}
+    if isinstance(nilai, (list, tuple)):
+        return [salin_data(item) for item in nilai]
+    if isinstance(nilai, (set, frozenset)):
+        return {salin_data(item) for item in nilai}
+    return deepcopy(nilai)
+
+
 @dataclass(frozen=True)
 class HasilAdegan:
     """Lapisan hasil render generik."""
@@ -33,8 +59,8 @@ class PaketGenre:
     bawaan: Mapping[str,Any]=field(default_factory=dict)
     def __post_init__(self):
         object.__setattr__(self,"komponen",MappingProxyType(dict(self.komponen)))
-        object.__setattr__(self,"skema_tambahan",MappingProxyType(dict(self.skema_tambahan)))
-        object.__setattr__(self,"bawaan",MappingProxyType(dict(self.bawaan)))
+        object.__setattr__(self,"skema_tambahan",bekukan_data(self.skema_tambahan))
+        object.__setattr__(self,"bawaan",bekukan_data(self.bawaan))
 _PAKET={}; _POLA_NAMA=re.compile(r"^[a-z][a-z0-9_]*$"); _KUNCI=RLock()
 def daftarkan(paket,*,ganti=False):
     if not isinstance(paket,PaketGenre): raise TypeError("paket harus berupa PaketGenre")

@@ -63,7 +63,9 @@ def _gabung_skema(target: dict[str, Any], tambahan: dict[str, Any], *, paket: st
 def _skema_paket(paket) -> dict[str, Any]:
     """Gabungkan ekstensi skema paket ke skema inti tanpa mengizinkan override diam-diam."""
     hasil = copy.deepcopy(SKEMA)
-    tambahan = dict(paket.skema_tambahan)
+    from ..genre import salin_data
+
+    tambahan = salin_data(paket.skema_tambahan)
     _gabung_skema(hasil, tambahan, paket=paket.nama)
     return hasil
 
