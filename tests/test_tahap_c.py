@@ -73,3 +73,35 @@ def test_bacaan_latin_tetap_mati_tanpa_permintaan_pemilik(monkeypatch):
     klien = QuranFoundation(transport=lambda *a, **k: (_ for _ in ()).throw(AssertionError("API tidak boleh dipanggil")),
                             cache=None)
     assert klien.transliterasi_latin(1, 1) is None
+
+
+def test_pemeriksa_scope_hadis_menguji_izin_endpoint_dengan_scope_tepat(monkeypatch):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_ID", "id-rahasia-uji")
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-rahasia-uji")
+    panggilan = []
+
+    def request(url, *, headers, data=None):
+        panggilan.append((url, data))
+        if url.endswith("/oauth2/token"):
+            return 200, {"access_token": "token-uji", "scope": "content.hadith.read"}
+        return 200, {"hadiths": []}
+
+    monkeypatch.setattr(akses_hadis, "_request", request)
+    hasil = akses_hadis.periksa_lingkungan("production")
+    assert hasil["status"] == "lulus"
+    assert hasil["scope_diminta"] == "content.hadith.read"
+    assert "content.hadith.read" in panggilan[0][1].decode()
+    assert panggilan[1][0].endswith("/hadiths/by_ayah/1:1?language=ar&page=1&limit=1")
+    assert "secret-rahasia-uji" not in repr(hasil)
+
+
+def test_pemeriksa_scope_hadis_tidak_membocorkan_dan_menghentikan_jika_secret_kosong(monkeypatch):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.delenv("QURAN_FOUNDATION_CLIENT_ID", raising=False)
+    monkeypatch.delenv("QURAN_FOUNDATION_CLIENT_SECRET", raising=False)
+    hasil = akses_hadis.periksa_lingkungan("production")
+    assert hasil["status"] == "terblokir"
+    assert "rahasia" not in repr(hasil).lower()
