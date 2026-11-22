@@ -29,6 +29,53 @@ _KUNCI_IDENTITAS = {
 }
 
 
+
+def periksa_kedekatan_pelaku(
+    *,
+    visual_x: float,
+    visual_y: float,
+    setengah_lebar: float,
+    pelaku: list[tuple[str, str, float, float]],
+    tokoh_lain: list[tuple[str, float, float]],
+    jarak_maks: float,
+    pita_kedalaman: float,
+    label_visual: str,
+    lokasi: str,
+) -> list[Temuan]:
+    """Periksa kedekatan pelaku terhadap objek dengan geometri netral-genre.
+
+    Koordinat dan ukuran visual diberikan oleh pemanggil; inti tidak mengetahui
+    nama benda, kategori tokoh, atau cara representasi karakter.
+    """
+    def jarak_tepi(x: float) -> float:
+        return max(0.0, abs(x - visual_x) - setengah_lebar)
+
+    hasil: list[Temuan] = []
+    jarak_pelaku = {pid: jarak_tepi(x) for pid, _nama, x, _y in pelaku}
+    jauh = [(pid, nama) for pid, nama, x, _y in pelaku
+            if jarak_tepi(x) > jarak_maks]
+    if jauh:
+        nama = ", ".join(n for _pid, n in jauh)
+        hasil.append(Temuan(
+            "PERIKSA", "PELAKU_JAUH",
+            f"{lokasi}: {nama} berbuat pada {label_visual} tetapi terlalu jauh dari tepinya",
+        ))
+
+    if jarak_pelaku:
+        terdekat = min(jarak_pelaku.values())
+        lebih_dekat = [
+            pid for pid, x, y in tokoh_lain
+            if jarak_tepi(x) + 1 < terdekat
+            and abs(y - visual_y) < pita_kedalaman
+        ]
+        if lebih_dekat:
+            hasil.append(Temuan(
+                "PERIKSA", "BUKAN_PELAKU_DEKAT",
+                f"{lokasi}: {len(lebih_dekat)} tokoh non-pelaku lebih dekat ke "
+                f"{label_visual} daripada pelaku terdekat",
+            ))
+    return hasil
+
 def periksa_kontinuitas_identitas(rencana: dict[str, Any]) -> list[Temuan]:
     """Tandai pemeran yang tidak terdaftar dan perubahan ciri stabil antar-shot.
 
