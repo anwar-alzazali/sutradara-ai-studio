@@ -15,6 +15,8 @@ def buat_paket() -> PaketGenre:
         nama="kisah_islami",
         komponen={
             "nur.pilar": nur.pilar,
+            "kartu_dalil.potongan": kartu.potongan,
+            "kartu_dalil.durasi_total": kartu.durasi_total,
             "malaikat.berkas": malaikat.berkas,
             "makhluk.kabut_tanpa_wujud": makhluk.kabut_tanpa_wujud,
             "makhluk.retakan": makhluk.retakan,
