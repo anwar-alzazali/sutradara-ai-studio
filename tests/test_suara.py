@@ -108,6 +108,34 @@ def test_garis_waktu_menggunakan_kait_generik_paket():
     assert hasil["kamera"]["hentak"] == [[4.0, 0.1]]
 
 
+def test_rancang_memanggil_hook_efek_kemunculan_paket():
+    from sutradara import genre
+    from sutradara.genre import PaketGenre
+
+    nama = "genre_efek_uji"
+    paket = PaketGenre(
+        nama=nama,
+        efek_kemunculan=lambda shot: (
+            [{"berkas": "palu_kayu", "offset": 0.4, "vol": 0.2}]
+            if shot.get("pemicu_uji") else []
+        ),
+    )
+    genre.daftarkan(paket)
+    try:
+        rencana = {
+            "genre": nama,
+            "suara": {"whoosh": "tidak"},
+            "beat": [{"shot": [{"durasi": 2.0, "pemicu_uji": True}]}],
+        }
+        garis = GW.Garis(shot=[{"durasi": 2.0, "pemicu_uji": True}], awal_beat=[0.0], total=2.0)
+        efek = campur.rancang(rencana, garis)
+        assert len(efek) == 1
+        assert efek[0]["berkas"] == "palu_kayu"
+        assert efek[0]["at"] == 0.4
+    finally:
+        genre._PAKET.pop(nama, None)
+
+
 def test_rancang_efek(narasi_nuh):
     _, n = narasi_nuh
     g = GW.susun(NUH, n)
