@@ -41,9 +41,43 @@ def main() -> None:
                 "kata_kunci": ["berjalan"], "dalil": [], "suasana": "fajar",
                 "peran": ["pengelana"],
             },
+            {
+                "narasi": "Pemberi mengulurkan surat kepada penerima.",
+                "kata_kunci": [], "dalil": [], "suasana": "senja",
+                "peran": ["Pemberi", "Penerima"],
+            },
+            {
+                "narasi": "Pengelana menunjuk bahtera.",
+                "kata_kunci": [], "dalil": [], "suasana": "senja",
+                "peran": ["Pengelana"],
+            },
+            {
+                "narasi": "Pengelana berjalan menuju bahtera.",
+                "kata_kunci": ["berjalan"], "dalil": [], "suasana": "fajar",
+                "peran": ["Pengelana"],
+            },
+            {
+                "narasi": "Pengelana berjalan menjauh dari kamera.",
+                "kata_kunci": ["berjalan"], "dalil": [], "suasana": "fajar",
+                "peran": ["Pengelana"],
+            },
         ],
     }
     rencana, _ = rancang(naskah)
+    # Bukti D2 harus menguji posisi kelompok, pasangan interaksi, gestur,
+    # tujuan benda, dan perjalanan ke kedalaman, bukan sekadar menghasilkan MP4.
+    beat_serah = next(b for b in rencana["beat"] if b["narasi"].startswith("Pemberi"))
+    tokoh_serah = {t["peran"]: t for t in beat_serah["shot"][0]["tokoh"]}
+    assert tokoh_serah["pemberi"]["arah"] == tokoh_serah["penerima"]["arah"] == "samping"
+    assert tokoh_serah["pemberi"]["balik"] is False and tokoh_serah["penerima"]["balik"] is True
+    assert tokoh_serah["pemberi"]["gerak"] == tokoh_serah["penerima"]["gerak"] == "ulurkan"
+    beat_tunjuk = next(b for b in rencana["beat"] if b["narasi"].startswith("Pengelana menunjuk"))
+    assert beat_tunjuk["shot"][0]["tokoh"][0]["gerak"] == "tunjuk"
+    assert beat_tunjuk["shot"][0]["tokoh"][0]["arah"] == "samping"
+    beat_benda = next(b for b in rencana["beat"] if b["narasi"].startswith("Pengelana berjalan menuju bahtera"))
+    assert beat_benda["shot"][0]["tokoh"][0]["tujuan"] == "benda:bahtera"
+    beat_kedalaman = next(b for b in rencana["beat"] if b["narasi"].startswith("Pengelana berjalan menjauh"))
+    assert beat_kedalaman["shot"][0]["tokoh"][0]["arah"] == "belakang"
     temuan = periksa(rencana)
     gagal = [str(x) for x in temuan if x.tingkat == "GAGAL"]
     if gagal:
