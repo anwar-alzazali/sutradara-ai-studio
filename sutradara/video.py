@@ -55,7 +55,9 @@ def peta_dalil(rencana: dict) -> dict:
 
 def total_durasi(rencana: dict) -> float:
     dl = peta_dalil(rencana)
-    return sum(adegan.durasi(s, dl) for s in daftar_shot(rencana))
+    from .genre import nama_dari_rencana
+    genre = nama_dari_rencana(rencana)
+    return sum(adegan.durasi(s, dl, genre=genre) for s in daftar_shot(rencana))
 
 
 def _ffmpeg() -> str:
@@ -69,7 +71,7 @@ def _ffmpeg() -> str:
 def _render_shot_berkas(args):
     """Render satu shot di Chromium milik worker sendiri; hasil disimpan per-shot."""
     from pathlib import Path
-    shot, indeks, tg, fps, dl, garis, folder = args
+    shot, indeks, tg, fps, dl, garis, folder, genre = args
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     n = max(1, round((tg + adegan.durasi(shot, dl)) * fps) - round(tg * fps))
@@ -81,7 +83,7 @@ def _render_shot_berkas(args):
             t = k / fps
             sub = garis.subtitle_pada(tg + t) if garis else None
             pg.evaluate("s => { document.getElementById('k').innerHTML = s; }",
-                        adegan.susun(shot, t, tg + t, dl, sub=sub))
+                        adegan.susun(shot, t, tg + t, dl, sub=sub, genre=genre))
             if k == 0:
                 pg.evaluate("document.fonts.ready")
             (folder / f"frame_{k:08d}.jpg").write_bytes(pg.screenshot(type="jpeg", quality=92))
@@ -102,13 +104,15 @@ def buat(rencana: dict, keluar: Path, *, fps: int = 30, crf: int = 20, kabar=pri
           "-movflags", "+faststart", str(keluar)]
     awal = time.time()
     dl = peta_dalil(rencana)
+    from .genre import nama_dari_rencana
+    genre = nama_dari_rencana(rencana)
     shots = list(garis.shot if garis else daftar_shot(rencana))
     tugas, tg = [], 0.0
     with tempfile.TemporaryDirectory() as d:
         for i, shot in enumerate(shots):
             folder = Path(d) / f"shot_{i:05d}"
-            tugas.append((shot, i, tg, fps, dl, garis, folder))
-            tg = round((tg + adegan.durasi(shot, dl)) * fps) / fps
+            tugas.append((shot, i, tg, fps, dl, garis, folder, genre))
+            tg = round((tg + adegan.durasi(shot, dl, genre=genre)) * fps) / fps
         jumlah_worker = max(1, min(int(workers), len(tugas) or 1))
         with ThreadPoolExecutor(max_workers=jumlah_worker) as pool:
             hasil = list(pool.map(_render_shot_berkas, tugas))
