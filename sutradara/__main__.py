@@ -42,8 +42,9 @@ def main(argv=None) -> int:
         try:
             for b in QuranFoundation(cache=None).diagnosa():
                 print("QURAN | " + " | ".join(f"{k}={v}" for k, v in b.items()))
-        except RuntimeError as e:
-            print(f"QURAN | status=terblokir | alasan={e}")
+        except Exception as e:
+            # Diagnosa hadis tetap dijalankan walau endpoint ayat sedang tidak terjangkau.
+            print(f"QURAN | status=terblokir | jenis_galat={type(e).__name__}")
         for env in ("production", "prelive"):
             h = periksa_lingkungan(env)
             print("HADIS | " + " | ".join(f"{k}={v}" for k, v in h.items()))
