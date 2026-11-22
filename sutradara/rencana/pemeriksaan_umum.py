@@ -132,16 +132,17 @@ def periksa_lintasan_dan_interaksi(rencana: dict[str, Any]) -> list[Temuan]:
                 dx = bergerak_mendatar(aktor)
                 if dx and arah_awal in {"depan", "belakang"}:
                     hasil.append(Temuan("PERIKSA", "ARAH_GERAK", f"{lokasi}: {nama_peran.get(pid, pid)} bergerak mendatar tetapi arah hadapnya {arah_awal}; pastikan lintasan dan orientasi cocok"))
-                elif dx and arah_awal == "samping":
-                    if bool(aktor.get("balik", False)) == (dx > 0):
+                elif dx and arah_awal in {"samping", "tiga_perempat", "tiga_perempat_belakang"}:
+                    balik = aktor.get("balik", False)
+                    balik_awal = bool(balik[0][1]) if isinstance(balik, list) and balik else bool(balik)
+                    if balik_awal == (dx > 0):
                         hasil.append(Temuan("PERIKSA", "ARAH_GERAK", f"{lokasi}: arah hadap {nama_peran.get(pid, pid)} mungkin berlawanan dengan lintasan; periksa balik/arah"))
-                    if dx:
-                        kunci = (str(pid), tujuan)
-                        lama = arah_tujuan.get(kunci)
-                        if lama is not None and lama != dx and not aktor.get("berbalik_sesuai_cerita"):
-                            hasil.append(Temuan("PERIKSA", "ARAH_LAYAR_BERUBAH",
-                                                f"{lokasi}: arah menuju {tujuan!r} berubah untuk {nama_peran.get(pid, pid)}; jaga kaidah 180 derajat atau tandai putar balik yang diceritakan"))
-                        arah_tujuan[kunci] = dx
+                    kunci = (str(pid), tujuan)
+                    lama = arah_tujuan.get(kunci)
+                    if lama is not None and lama != dx and not aktor.get("berbalik_sesuai_cerita"):
+                        hasil.append(Temuan("PERIKSA", "ARAH_LAYAR_BERUBAH",
+                                            f"{lokasi}: arah menuju {tujuan!r} berubah untuk {nama_peran.get(pid, pid)}; jaga kaidah 180 derajat atau tandai putar balik yang diceritakan"))
+                    arah_tujuan[kunci] = dx
 
             # Dialog yang terstruktur harus memperoleh potongan pada pihak yang bicara.
             dialog = beat.get("dialog") or []
