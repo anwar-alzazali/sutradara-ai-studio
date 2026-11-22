@@ -61,33 +61,16 @@
             "type": "string"
           },
           "kategori": {
-            "enum": [
-              "nabi",
-              "malaikat",
-              "sahabat",
-              "manusia",
-              "makhluk_ghaib",
-              "dajjal",
-              "yajuj_majuj",
-              "hewan"
-            ]
+            "type": "string",
+            "description": "Kategori peran ditentukan oleh paket genre."
           },
           "wujud_dalil": {
             "type": "boolean",
             "description": "true bila wujud fisiknya dijelaskan dalil sahih"
           },
           "tampil": {
-            "enum": [
-              "nur",
-              "pakaian",
-              "siluet",
-              "kabut_tanpa_wujud",
-              "dajjal_b",
-              "hewan",
-              "cahaya_malaikat",
-              "wajah_cahaya"
-            ],
-            "description": "nabi=nur (pilar), malaikat=cahaya_malaikat (berkas tanpa wujud), sahabat=wajah_cahaya (tubuh berbaju dengan wajah bercahaya), manusia=pakaian/siluet"
+            "type": "string",
+            "description": "Mode tampilan ditentukan oleh paket genre."
           },
           "alasan_siluet": {
             "type": "string",
@@ -196,7 +179,6 @@
         }
       }
     },
-
     "beat": {
       "type": "array",
       "minItems": 1,

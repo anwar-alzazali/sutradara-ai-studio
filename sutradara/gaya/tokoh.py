@@ -1,4 +1,4 @@
-"""Tokoh manusia biasa dan sahabat dengan RANGKA BERSENDI.
+"""Renderer karakter generik dengan RANGKA BERSENDI.
 
 Tubuh dihitung dari sudut sendi (sutradara/gerak.py): panggul, badan, kepala, lengan atas/bawah, paha/betis.
 Gamis mengikuti bahu-pinggul-lutut sehingga ikut berayun saat berjalan/berlari dan menjuntai saat duduk.
@@ -6,14 +6,14 @@ Mode tampil: "pakaian" (bawaan) atau "siluet" (bentuk sama, gelap, tepi tersinar
 Jenis: "pria" (janggut, imamah/kain/kopiah) atau "wanita" (kerudung, tanpa janggut).
 Wajah: datar, senyum, tertawa, ejek, cemberut, sedih, marah, takut, kaget, pejam (+ kedip otomatis, mulut bicara).
 
-Nabi dan malaikat tidak dirender dengan rangka ini. Sahabat memakai `wajah_cahaya=True`: tubuh berbaju tetap beraksi, tetapi wajah tanpa fitur. Penjaga ada di `sutradara.rencana`.
+Pilihan gaya wajah dan aksesori diberikan oleh pemanggil; aturan kategori dan adab tetap menjadi tanggung jawab paket genre.
 """
 from __future__ import annotations
 
 import math
+from typing import Callable
 
 from .. import gerak as G
-from . import benda as BD
 
 KULIT = ["#c98b62", "#a86a45", "#d9a07a", "#8d5a3b", "#b97a52"]
 BAJU = [("#7a3b2e", "#d9b26a"), ("#3f5a6b", "#c9b48a"), ("#6b5a2e", "#e0d2b0"),
@@ -193,7 +193,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
           target_tangan: dict | None = None, detail_wajah: dict | None = None, warna_kulit: str | None = None,
           warna_baju: str | None = None, warna_aksen: str | None = None,
           rambut: str | None = None, janggut: str = "pendek",
-          warna_janggut: str | None = None) -> str:
+          warna_janggut: str | None = None, gambar_item: Callable[..., str] | None = None) -> str:
     """Satu tokoh, kaki di (x, y), tinggi ±360 px pada s=1. `gerak`/`wajah` boleh jadwal [[detik, nama], ...];
     `bicara` = daftar [mulai, akhir] (detik) saat mulut bergerak. `pose` = nama lama untuk `gerak`.
     `alat` = "palu" | "beliung" di tangan kanan; bawaan otomatis bila jadwal gerak memuat palu/gali."""
@@ -296,7 +296,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
             g.append(f'<ellipse cx="0" cy="2" rx="28" ry="31" fill="{kulit}"/>')
     if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
         if wajah_cahaya:
-            # Wajah sahabat tidak diberi fitur atau ekspresi; cahaya menutup bidang wajah dari depan maupun profil.
+            # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
             lebar_wajah = 22 if profil else 32
             g.append(f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah}" ry="34" fill="#fff8df" opacity=".96"/>'
                      f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah + 7}" ry="39" fill="#fff0bd" opacity=".36" filter="url(#b10)"/>')
@@ -333,14 +333,16 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
                  f'<circle cx="{tx:.1f}" cy="{ty:.1f}" r="13" fill="{kulit}"/>')
         if alat and sisi == +1:
             g.insert(len(g) - 1, _alat(alat, (sx, sy), (tx, ty), GELAP if siluet else None))
+    if barang and gambar_item is None:
+        raise ValueError("renderer item genggam harus disediakan melalui kontrak paket aktif")
     for item in (barang or []):
         sisi = +1 if item.get("tangan", "ka") == "ka" else -1
         if item.get("tangan", "ka") not in ("ka", "ki"):
             raise ValueError("tangan barang harus 'ka' atau 'ki'")
         sx, sy = siku[sisi]; tx, ty = tangan[sisi]
         sudut_barang = math.degrees(math.atan2(ty - sy, tx - sx))
-        g.append(BD.barang(tx, ty, item["jenis"], angle=sudut_barang,
-                           s=item.get("skala", .72), warna=item.get("warna")))
+        g.append(gambar_item(tx, ty, item["jenis"], angle=sudut_barang,
+                             s=item.get("skala", .72), warna=item.get("warna")))
     if siluet:  # tepi tersinari hanya di sisi kiri (arah cahaya)
         mid = f"m{indeks}_{int(x)}_{int(y)}"
         g.insert(1, f'<mask id="{mid}" maskUnits="userSpaceOnUse" x="-300" y="-560" width="600" height="600">'

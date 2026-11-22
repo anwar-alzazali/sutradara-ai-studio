@@ -32,33 +32,36 @@ jobs:
             echo "Periksa final: $rencana"
             python -m sutradara periksa "$rencana" --final
           done
+      - name: Bandingkan frame render sebelum dan sesudah pemisahan genre
+        if: github.head_ref == 'tahap-d0-pemisahan-genre'
+        run: python scripts/bandingkan_render_d0.py --base "${{ github.event.pull_request.base.sha }}"
       - name: Render bukti Nuh dengan narasi tiruan
-        if: github.head_ref != 'tahap-c-penguatan-dalil'
+        if: github.head_ref == 'tahap-b-visual-tokoh' || github.head_ref == 'tahap-b2-adab-barang'
         run: python scripts/render_bukti_nuh.py
       - name: Buat crop tanah 1:1 dari render Nuh untuk audit ponsel
-        if: github.head_ref != 'tahap-c-penguatan-dalil'
+        if: github.head_ref == 'tahap-b-visual-tokoh' || github.head_ref == 'tahap-b2-adab-barang'
         run: python scripts/crop_tanah_tahap_b.py keluaran-bukti/nuh/nuh_bisu.mp4 -o keluaran-bukti/nuh/crop-tanah-1x1.jpg
       - name: Ukur dampak tekstur tanah pada render Nuh dan Dabbah
-        if: github.head_ref != 'tahap-c-penguatan-dalil'
+        if: github.head_ref == 'tahap-b-visual-tokoh' || github.head_ref == 'tahap-b2-adab-barang'
         run: python scripts/benchmark_tekstur_tanah.py
       - name: Unggah laporan benchmark tekstur
-        if: always() && github.head_ref != 'tahap-c-penguatan-dalil'
+        if: always() && (github.head_ref == 'tahap-b-visual-tokoh' || github.head_ref == 'tahap-b2-adab-barang')
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-tekstur-tanah
           path: keluaran-bukti/tahap-b/benchmark-tekstur.json
           if-no-files-found: warn
       - name: Benchmark render serial dan paralel pada runner yang sama
-        if: github.head_ref != 'tahap-c-penguatan-dalil'
+        if: github.head_ref == 'tahap-b-visual-tokoh' || github.head_ref == 'tahap-b2-adab-barang'
         run: python scripts/benchmark_render_tahap_b.py
       - name: Render lembar kontak visual Tahap B
-        if: github.head_ref != 'tahap-c-penguatan-dalil'
+        if: github.head_ref == 'tahap-b-visual-tokoh' || github.head_ref == 'tahap-b2-adab-barang'
         run: python scripts/render_bukti_tahap_b.py
       - name: Render bukti visual Tahap B2
-        if: github.head_ref != 'tahap-c-penguatan-dalil'
+        if: github.head_ref == 'tahap-b2-adab-barang'
         run: python scripts/render_bukti_tahap_b2.py
       - name: Unggah bukti visual Tahap B2
-        if: always() && github.head_ref != 'tahap-c-penguatan-dalil'
+        if: always() && github.head_ref == 'tahap-b2-adab-barang'
         uses: actions/upload-artifact@v4
         with:
           name: bukti-visual-tahap-b2
@@ -75,11 +78,13 @@ jobs:
           path: keluaran-bukti/tahap-c/kartu-pasangan-kata.jpg
           if-no-files-found: error
       - name: Cache dataset hadis untuk verifikasi contoh Ya'juj
+        if: github.head_ref == 'tahap-c-penguatan-dalil' || github.head_ref == 'tahap-d0-pemisahan-genre'
         uses: actions/cache@v4
         with:
           path: data/hadis
-          key: hadis-${{ hashFiles('sutradara/dalil/unduh_hadis.py') }}
+          key: hadis-${{ hashFiles('sutradara/paket_genre/kisah_islami/dalil/unduh_hadis.py') }}
       - name: Verifikasi dalil contoh Ya'juj (API publik dan dataset)
+        if: github.head_ref == 'tahap-c-penguatan-dalil' || github.head_ref == 'tahap-d0-pemisahan-genre'
         run: |
           set -e
           test -f data/hadis/bukhari.json.gz || python -m sutradara.dalil.unduh_hadis
@@ -89,26 +94,26 @@ jobs:
           cp contoh/yajuj_majjuj.json keluaran-bukti/verifikasi/yajuj_majjuj.json
           git checkout -- contoh/yajuj_majjuj.json  # hasil verifikasi CI hanya bukti, jangan kotori pohon kerja
       - name: Unggah hasil verifikasi dalil
-        if: always()
+        if: always() && (github.head_ref == 'tahap-c-penguatan-dalil' || github.head_ref == 'tahap-d0-pemisahan-genre')
         uses: actions/upload-artifact@v4
         with:
           name: verifikasi-dalil-yajuj
           path: keluaran-bukti/verifikasi/yajuj_majjuj.json
           if-no-files-found: warn
       - name: Unggah artefak render Nuh
-        if: always() && github.head_ref != 'tahap-c-penguatan-dalil'
+        if: always() && (github.head_ref == 'tahap-b-visual-tokoh' || github.head_ref == 'tahap-b2-adab-barang')
         uses: actions/upload-artifact@v4
         with:
           name: bukti-render-nuh-tahap-a
           path: keluaran-bukti/nuh/
           if-no-files-found: warn
       - name: Simpan bukti JPG hanya ke cabang bukti
-        if: success() && github.head_ref != 'tahap-c-penguatan-dalil'
+        if: success() && (github.head_ref == 'tahap-b-visual-tokoh' || github.head_ref == 'tahap-b2-adab-barang')
         run: |
           set -e
           mkdir -p /tmp/tahap-b-bukti /tmp/tahap-b-bukti-b2 /tmp/tahap-c-bukti
           cp keluaran-bukti/tahap-b/*.jpg /tmp/tahap-b-bukti/
-          cp keluaran-bukti/tahap-b2/*.jpg /tmp/tahap-b-bukti-b2/
+          if compgen -G 'keluaran-bukti/tahap-b2/*.jpg' > /dev/null; then cp keluaran-bukti/tahap-b2/*.jpg /tmp/tahap-b-bukti-b2/; fi
           if [ -f keluaran-bukti/tahap-c/kartu-pasangan-kata.jpg ]; then
             cp keluaran-bukti/tahap-c/kartu-pasangan-kata.jpg /tmp/tahap-c-bukti/
           fi
@@ -122,10 +127,12 @@ jobs:
             git rm -rf . >/dev/null 2>&1 || true
           fi
           mkdir -p tahap-b tahap-b2
-          for file in /tmp/tahap-b-bukti-b2/*.jpg; do
-            nama=$(basename "$file" .jpg)
-            cp "$file" "tahap-b2/${nama}-${GITHUB_SHA}.jpg"
-          done
+          if compgen -G '/tmp/tahap-b-bukti-b2/*.jpg' > /dev/null; then
+            for file in /tmp/tahap-b-bukti-b2/*.jpg; do
+              nama=$(basename "$file" .jpg)
+              cp "$file" "tahap-b2/${nama}-${GITHUB_SHA}.jpg"
+            done
+          fi
           for file in /tmp/tahap-b-bukti/*.jpg; do
             nama=$(basename "$file" .jpg)
             cp "$file" "tahap-b/${nama}-${GITHUB_SHA}.jpg"

@@ -39,7 +39,7 @@ def susun(shot,t=0.0,tg=None,data_render=None,sub=None,*,genre=None,**opsi_kompa
         tengah.append((tk["y"],TK.orang(tk["x"],tk["y"],tk.get("s",1),gerak=asli.get("gerak",asli.get("pose","berdiri")),t=t+i*.37,
             indeks=tk.get("indeks",i),mode=tk.get("_mode_render",tk.get("mode","pakaian")),kepala=tk.get("kepala"),jenis=tk.get("jenis","pria"),
             wajah=asli.get("wajah","datar"),arah=asli.get("arah",tk.get("arah","depan")),usia=tk.get("usia","dewasa"),zaman=tk.get("zaman","arab_kuno"),
-            bicara=asli.get("bicara"),detail_wajah=asli.get("detail_wajah"),balik=tk.get("balik",False),wajah_cahaya=bool(tk.get("_wajah_cahaya",False)),
+            bicara=asli.get("bicara"),detail_wajah=asli.get("detail_wajah"),balik=tk.get("balik",False),wajah_cahaya=bool(tk.get("_wajah_cahaya",False)),gambar_item=paket.komponen.get("aktor.item"),
             barang=hasil.barang_pemilik.get(asli.get("peran"),[]),target_tangan=hasil.target_tangan.get(asli.get("peran")),
             warna_kulit=ident.get("warna_kulit"),warna_baju=ident.get("warna_baju"),warna_aksen=ident.get("warna_aksen"),rambut=ident.get("rambut"),
             janggut=ident.get("janggut","pendek"),warna_janggut=ident.get("warna_janggut"))))

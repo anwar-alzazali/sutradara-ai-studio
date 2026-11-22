@@ -1,4 +1,4 @@
-"""Adapter data Kisah Islami menuju bentuk karakter netral."""
+"""Adapter aturan Kisah Islami ke atribut renderer karakter yang netral."""
 import copy
 
 def adaptasi_shot(rencana,shot):
