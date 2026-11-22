@@ -29,6 +29,8 @@ def _request(url: str, *, headers: dict, data: bytes | None = None) -> tuple[int
         except (ValueError, OSError):
             body = {}
         return exc.code, body
+    except urllib.error.URLError:
+        return 0, {"error": "network_unavailable"}
 
 
 def periksa_lingkungan(env: str) -> dict:
