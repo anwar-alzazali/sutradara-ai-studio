@@ -189,8 +189,27 @@ def _periksa_identitas(rencana: dict) -> list[Temuan]:
                     hasil.append(Temuan("GAGAL", "PEMERAN_TAK_TERDAFTAR",
                                         f"beat {bi} shot {si}: pemeran_id {pid!r} tidak memiliki kartu identitas"))
                     continue
-                ident = kartu.get(pid) or {}
+                id_peran = tokoh.get("peran")
+                definisi_peran = peta_peran.get(id_peran, {})
+                # Peran kolektif menggambarkan banyak individu: ciri tiap orang
+                # tidak boleh dibandingkan dengan satu kartu contoh milik kelompok.
+                # Individu dalam kelompok tetap diaudit melalui pemeran_id yang stabil.
+                if not tokoh.get("pemeran_id") and definisi_peran.get("kolektif", False):
+                    ident = {}
+                else:
+                    ident = kartu.get(pid) or {}
                 if not ident:
+                    id_peran = tokoh.get("peran")
+                    mode_dasar = peran_mode(peta_peran, id_peran)
+                    mode_shot = tokoh.get("mode", mode_dasar)
+                    if mode_shot != mode_dasar:
+                        alasan = str(tokoh.get("perubahan_gaya", "")).strip()
+                        if alasan:
+                            hasil.append(Temuan("PERIKSA", "PERUBAHAN_GAYA_DISENGAJA",
+                                                f"beat {bi} shot {si} {pid}: gaya {mode_dasar} -> {mode_shot}; alasan: {alasan}"))
+                        else:
+                            hasil.append(Temuan("PERIKSA", "IDENTITAS_GAYA_BERUBAH",
+                                                f"beat {bi} shot {si} {pid}: gaya {mode_dasar} -> {mode_shot} tanpa perubahan_gaya yang menjelaskan pengungkapan/perubahan visual"))
                     continue
                 beda = [(field, ident[acuan], tokoh[field]) for field, acuan in kunci.items()
                         if field in tokoh and acuan in ident and tokoh[field] != ident[acuan]]
