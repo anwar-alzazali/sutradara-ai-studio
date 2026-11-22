@@ -205,3 +205,21 @@ def test_kabur_otomatis_bergerak_berlawanan_dengan_arah_perjalanan_bawaan():
     assert aktor["gerak"] == "lari"
     assert aktor["tujuan"] == "tepi:kiri"
     assert aktor["x"][-1][1] < aktor["x"][0][1]
+
+
+
+def test_menunjuk_visual_inti_menghadap_ke_benda():
+    naskah = {
+        "judul": "Menunjuk bahtera",
+        "inti": "Pengelana menunjuk bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana menunjuk bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(naskah)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["arah"] == "samping"
+    assert aktor["balik"] is False
+    assert aktor["x"] < 650
