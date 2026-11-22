@@ -107,7 +107,7 @@ def periksa_lingkungan(env: str) -> dict:
     hasil["endpoint_http"] = status_endpoint
     granular = SCOPE in scope_diberi.split()
     if semua_valid and granular and not akses_legacy:
-        hasil.update(status="lulus", alasan="Ketiga route resmi Hadith References v4 mengembalikan struktur yang sah")
+        hasil.update(status="akses_terbukti", alasan="Ketiga route resmi Hadith References v4 dapat diakses; ini hanya bukti akses API, bukan verifikasi hadis tertentu")
     elif semua_valid:
         hasil.update(status="akses_legacy_content", alasan="Ketiga route dapat dibaca, tetapi token tidak membuktikan scope granular content.hadith.read")
     else:
@@ -123,7 +123,7 @@ def main() -> int:
         print(" | ".join(f"{k}={v}" for k, v in item.items()))
     # Hanya scope granular di production yang meluluskan pemeriksa ini. Akses legacy
     # tetap dilaporkan, tetapi bukan bukti bahwa content.hadith.read telah diberikan.
-    return 0 if any(x["lingkungan"] == "production" and x["status"] == "lulus" for x in hasil) else 1
+    return 0 if any(x["lingkungan"] == "production" and x["status"] == "akses_terbukti" for x in hasil) else 1
 
 
 if __name__ == "__main__":
