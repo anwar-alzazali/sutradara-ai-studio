@@ -72,6 +72,9 @@ def periksa(rencana: dict, *, final: bool = False) -> list[Temuan]:
     """Periksa skema inti + ekstensi paket, lalu delegasikan aturan domain."""
     from ..genre import dari_rencana
 
+    if not isinstance(rencana, dict):
+        # Akar harus objek: kembalikan temuan skema yang terbaca, jangan crash saat memilih paket genre.
+        return [Temuan("GAGAL", "SKEMA", f"(akar): rencana harus berupa objek JSON, bukan {type(rencana).__name__}")]
     paket = dari_rencana(rencana)
     skema = _skema_paket(paket)
     temuan = [

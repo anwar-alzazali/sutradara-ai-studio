@@ -215,3 +215,11 @@ def test_skema_dalil_hanya_dimiliki_paket_kisah_islami():
     assert "dalil" not in netral["required"]
     assert "dalil" not in netral["properties"]
     assert "dalil" not in netral["properties"]["beat"]["items"]["properties"]
+
+
+def test_akar_bukan_objek_jadi_temuan_skema_bukan_crash():
+    from sutradara.rencana.penjaga import periksa
+    for nilai in ([1, 2], "teks", 3, None):
+        temuan = periksa(nilai)
+        assert [t.kode for t in temuan] == ["SKEMA"], nilai
+        assert temuan[0].tingkat == "GAGAL"

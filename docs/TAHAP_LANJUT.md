@@ -192,6 +192,11 @@ sudah ada supaya kesulitannya tidak bertambah seiring kode membesar.
 
 Tujuan: dari naskah terstruktur menjadi rencana lengkap yang lulus penjaga, dengan mutu setara video yang
 disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMAP Fase 4.
+0b. **Sisa kebocoran genre di inti (temuan audit Claude D0, 22 Nov 2026), kerjakan di awal D1:**
+   `sutradara/garis_waktu.py` masih mengenal `kartu_dalil` dan `rencana["dalil"]` (sisipan waktu baca), dan
+   `sutradara/suara/campur.py` masih menambah kilau untuk kartu dalil. Jadikan keduanya kait (hook) yang didaftarkan
+   paket genre, misalnya "sisipan waktu baca" dan "efek kemunculan elemen", sehingga inti tidak menyebut nama elemen
+   genre. Syarat lulus sama dengan D0: render identik dan tes genre tiruan tetap lulus.
 1. **Templat naskah untuk AI gratis.** FORMAT NASKAH SUDAH DITETAPKAN di `sutradara/antrean.py` (dipakai bot: antrean
    `antrean/<id>/naskah.json` yang disetujui pemilik = masukan sutradara). Jangan membuat format kedua; perluas bila perlu.
    - Format per beat: narasi, kata kunci, dalil (rujukan saja; teks diambil oleh verifikasi), suasana, dan peran.
