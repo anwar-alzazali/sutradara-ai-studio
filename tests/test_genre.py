@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 
 from jsonschema import Draft202012Validator
@@ -82,7 +85,11 @@ def test_kontrak_paket_tidak_bisa_diubah_setelah_dibuat():
 
 def test_skema_menerima_genre_opsional_dengan_nama_paket_generik():
     validator = Draft202012Validator(SKEMA)
-    # Rencana lama tanpa genre tetap sah; nama genre baru tidak dikunci ke daftar Kisah Islami.
-    assert validator.is_valid({"genre": "genre_tiruan_uji"}) is False  # properti lain tetap wajib
+    contoh = Path(__file__).resolve().parents[1] / "contoh" / "nuh_mengejek.json"
+    rencana_lama = json.loads(contoh.read_text(encoding="utf-8"))
+    assert validator.is_valid(rencana_lama)
+    rencana_baru = {**rencana_lama, "genre": "genre_tiruan_uji"}
+    assert validator.is_valid(rencana_baru)
     assert "genre" not in SKEMA["required"]
     assert SKEMA["properties"]["genre"]["pattern"] == "^[a-z][a-z0-9_]*$"
+    assert not validator.is_valid({**rencana_lama, "genre": "Nama Genre"})
