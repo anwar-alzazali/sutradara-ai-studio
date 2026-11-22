@@ -129,11 +129,11 @@ def periksa_lintasan_dan_interaksi(rencana: dict[str, Any]) -> list[Temuan]:
                     continue
                 arah = aktor.get("arah", "samping")
                 arah_awal = arah[0][1] if isinstance(arah, list) and arah else arah
-                if arah_awal in {"depan", "belakang"}:
+                dx = bergerak_mendatar(aktor)
+                if dx and arah_awal in {"depan", "belakang"}:
                     hasil.append(Temuan("PERIKSA", "ARAH_GERAK", f"{lokasi}: {nama_peran.get(pid, pid)} bergerak mendatar tetapi arah hadapnya {arah_awal}; pastikan lintasan dan orientasi cocok"))
-                elif arah_awal == "samping":
-                    dx = bergerak_mendatar(aktor)
-                    if dx and bool(aktor.get("balik", False)) == (dx > 0):
+                elif dx and arah_awal == "samping":
+                    if bool(aktor.get("balik", False)) == (dx > 0):
                         hasil.append(Temuan("PERIKSA", "ARAH_GERAK", f"{lokasi}: arah hadap {nama_peran.get(pid, pid)} mungkin berlawanan dengan lintasan; periksa balik/arah"))
                     if dx:
                         kunci = (str(pid), tujuan)
