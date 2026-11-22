@@ -243,8 +243,17 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
             kelompok = p.get("kolektif") is True and pid != fokus and dialog is None
             xs = [x - 86, x, x + 86] if kelompok else [x]
             lawan = next((q for q in (pasangan_dialog if dialog else (interaksi or pelaku or [])) if q != pid), None)
-            arah = "samping" if lawan else "depan"
-            balik = bool(lawan and x > posisi.get(lawan, x))
+            menunjuk_visual = "menunjuk" in _polos(narasi) and any(
+                k in _polos(narasi) for k in ("bahtera", "kapal", "dinding", "kota")
+            )
+            if lawan:
+                arah = "samping"
+                balik = x > posisi.get(lawan, x)
+            elif menunjuk_visual:
+                arah = "samping"
+                balik = x > float(keadaan.get("x", 540))
+            else:
+                arah, balik = "depan", False
             for xi in xs:
                 a=_aktor(pid,peta,xi,fokus=(pid==fokus),wajah=resep.get("wajah","datar"),
                          gerak=resep.get("gerak","berdiri"),durasi=durasi,bicara=bicara,arah=arah,balik=balik,
@@ -376,7 +385,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         else:
             jumlah=1+len(cuts)
             for si in range(jumlah):
-                fokus = hadir[min(si,len(hadir)-1)] if cuts else None
+                fokus = hadir[min(si,len(hadir)-1)] if cuts else (interaksi[0] if interaksi else None)
                 shots.append(_shot(inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep,
                                    fokus=fokus,pelaku=pelaku,interaksi=interaksi,
                                    perjalanan=(gerak in {"jalan","lari"} and fokus is not None)))
