@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import pytest
 
+from jsonschema import Draft202012Validator
+
 from sutradara.genre import PaketGenre, ambil, daftar, daftarkan, dari_rencana, nama_dari_rencana
+from sutradara.rencana.penjaga import SKEMA
 
 
 def test_rencana_lama_tetap_memilih_kisah_islami():
@@ -75,3 +78,11 @@ def test_kontrak_paket_tidak_bisa_diubah_setelah_dibuat():
         paket.komponen["benda:baru"] = fungsi
     with pytest.raises(TypeError):
         paket.bawaan["mode"] = "berubah"
+
+
+def test_skema_menerima_genre_opsional_dengan_nama_paket_generik():
+    validator = Draft202012Validator(SKEMA)
+    # Rencana lama tanpa genre tetap sah; nama genre baru tidak dikunci ke daftar Kisah Islami.
+    assert validator.is_valid({"genre": "genre_tiruan_uji"}) is False  # properti lain tetap wajib
+    assert "genre" not in SKEMA["required"]
+    assert SKEMA["properties"]["genre"]["pattern"] == "^[a-z][a-z0-9_]*$"
