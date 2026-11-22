@@ -145,3 +145,63 @@ def test_dialog_reverse_shot_mempertahankan_sisi_dan_mengganti_pembicara():
     assert not kiri["tokoh"][0].get("bicara")
     assert kiri["tokoh"][0]["arah"] == "samping"
     assert kanan["tokoh"][0]["arah"] == "samping"
+
+
+
+def test_interaksi_otomatis_menghadapkan_pemberi_dan_penerima():
+    naskah = {
+        "judul": "Serah terima",
+        "inti": "Pemberi mengulurkan surat kepada penerima.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pemberi mengulurkan surat kepada penerima.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pemberi", "Penerima"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"][0]
+    pemberi = next(t for t in shot["tokoh"] if t["peran"] == "pemberi")
+    penerima = next(t for t in shot["tokoh"] if t["peran"] == "penerima")
+    assert (pemberi["x"], penerima["x"]) == (380, 820)
+    assert pemberi["arah"] == penerima["arah"] == "samping"
+    assert pemberi["balik"] is False and penerima["balik"] is True
+
+
+def test_perjalanan_otomatis_mengenali_tujuan_benda_dan_kedalaman():
+    menuju = {
+        "judul": "Menuju bahtera", "inti": "Pengelana berjalan menuju bahtera.", "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan menuju bahtera.", "dalil": [],
+            "kata_kunci": ["berjalan"], "suasana": "senja", "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(menuju)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["tujuan"] == "benda:bahtera"
+    assert aktor["x"][-1][1] < 650 and aktor["x"][-1][1] > aktor["x"][0][1]
+
+    menjauh = {
+        "judul": "Menjauh", "inti": "Pengelana berjalan menjauh dari kamera.", "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan menjauh dari kamera.", "dalil": [],
+            "kata_kunci": ["berjalan"], "suasana": "senja", "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(menjauh)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["tujuan"] == "kedalaman:belakang"
+    assert aktor["arah"] == "belakang"
+    assert aktor["lintasan"][-1][2] < aktor["lintasan"][0][2]
+    assert aktor["y"][-1][1] < aktor["y"][0][1]
+
+
+def test_kabur_otomatis_bergerak_berlawanan_dengan_arah_perjalanan_bawaan():
+    naskah = {
+        "judul": "Kabur", "inti": "Pengelana kabur.", "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana kabur.", "dalil": [],
+            "kata_kunci": [], "suasana": "senja", "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(naskah)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["gerak"] == "lari"
+    assert aktor["tujuan"] == "tepi:kiri"
+    assert aktor["x"][-1][1] < aktor["x"][0][1]
