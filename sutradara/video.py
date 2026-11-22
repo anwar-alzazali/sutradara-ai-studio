@@ -143,3 +143,10 @@ def lembar(video: Path, keluar: Path, *, n: int = 16, kolom: int = 8) -> Path:
 if __name__ == "__main__":  # python -m sutradara.video rencana.json keluaran.mp4
     import sys
     buat(json.loads(Path(sys.argv[1]).read_text(encoding="utf-8")), Path(sys.argv[2]))
+
+
+def __getattr__(nama):
+    """Shim atribut lama; data domain tetap disediakan oleh paket genre aktif."""
+    if nama == "peta_dalil":
+        return data_render
+    raise AttributeError(f"module {__name__!r} has no attribute {nama!r}")

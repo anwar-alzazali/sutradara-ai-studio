@@ -17,7 +17,11 @@ def _muncul(svg,mulai,t,cy):
     if t<mulai:return ""
     u=min(1.0,(t-mulai)/.15); s=.85+.15*(1-(1-u)**3)
     return f'<g opacity="{u:.3f}" transform="translate(540,{cy}) scale({s:.4f}) translate(-540,{-cy})">{svg}</g>'
-def susun(shot,t=0.0,tg=None,data_render=None,sub=None,*,genre=None):
+def susun(shot,t=0.0,tg=None,data_render=None,sub=None,*,genre=None,**opsi_kompat):
+    if opsi_kompat:
+        if data_render is not None or len(opsi_kompat) != 1:
+            raise TypeError("opsi kompatibilitas renderer hanya menerima satu peta data")
+        data_render = next(iter(opsi_kompat.values()))
     tg=t if tg is None else tg; paket=ambil(genre); sp=pada(shot,t); preset=sp["preset"]
     hasil=paket.renderer_adegan(shot,sp,t,tg,data_render or {}) if paket.renderer_adegan else HasilAdegan()
     if not isinstance(hasil,HasilAdegan):raise TypeError(f"renderer paket {paket.nama!r} harus mengembalikan HasilAdegan")

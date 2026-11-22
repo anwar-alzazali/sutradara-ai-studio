@@ -11,6 +11,15 @@ from sutradara.genre import PaketGenre, ambil, daftar, daftarkan, dari_rencana, 
 from sutradara.rencana.penjaga import _skema_paket
 
 
+def _rencana_tanpa_dalil():
+    contoh = Path(__file__).resolve().parents[1] / "contoh" / "nuh_mengejek.json"
+    rencana = json.loads(contoh.read_text(encoding="utf-8"))
+    rencana.pop("dalil", None)
+    for beat in rencana.get("beat", []):
+        beat.pop("dalil", None)
+    return rencana
+
+
 def test_rencana_lama_tetap_memilih_kisah_islami():
     assert nama_dari_rencana({}) == "kisah_islami"
     assert nama_dari_rencana({"genre": "kisah_islami"}) == "kisah_islami"
@@ -112,8 +121,7 @@ def test_penjaga_mendelegasikan_validasi_ke_paket_genre():
 
     daftarkan(PaketGenre(nama=nama, validator=validator))
     try:
-        contoh = Path(__file__).resolve().parents[1] / "contoh" / "nuh_mengejek.json"
-        rencana = json.loads(contoh.read_text(encoding="utf-8"))
+        rencana = _rencana_tanpa_dalil()
         rencana["genre"] = nama
         temuan = periksa(rencana, final=True)
         assert dipanggil == [(nama, True)]
@@ -158,8 +166,7 @@ def test_skema_tambahan_paket_digabung_dan_ditegakkan_penjaga():
     )
     daftarkan(paket)
     try:
-        contoh = Path(__file__).resolve().parents[1] / "contoh" / "nuh_mengejek.json"
-        dasar = json.loads(contoh.read_text(encoding="utf-8"))
+        dasar = _rencana_tanpa_dalil()
         dasar["genre"] = nama
 
         sah = {**dasar, "muatan_genre": {"kode": "ok"}}
