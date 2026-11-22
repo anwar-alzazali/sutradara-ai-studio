@@ -179,11 +179,28 @@ def _pasangan_interaksi(teks: str, hadir: list[str], peta: dict[str, dict]) -> t
     return (cocok[0][1], cocok[1][1]) if len(cocok) >= 2 else None
 
 
+def _reaksi_pendengar(teks: str) -> tuple[str, str] | None:
+    """Pilih reaksi pendengar hanya saat narasi menyebut reaksi yang jelas."""
+    polos = _polos(teks)
+    pilihan = (
+        (("terkejut", "kaget", "tersentak"), ("kaget", "kaget")),
+        (("takut", "gentar", "cemas"), ("mundur", "takut")),
+        (("marah", "murka", "geram"), ("silang", "marah")),
+        (("mengangguk", "setuju", "menerima"), ("mengangguk", "senyum")),
+        (("menolak", "menggeleng", "tidak setuju"), ("menggeleng", "curiga")),
+        (("menunduk", "tertunduk", "sedih"), ("berdoa", "sedih")),
+    )
+    for kata, reaksi in pilihan:
+        if any(k in polos for k in kata):
+            return reaksi
+    return None
+
+
 def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
           dalil: list[str], dalil_label: dict[str, str], semua_peran: list[dict], nama_ke_id: dict[str, str],
           hadir: list[str], resep: dict, *, fokus: str | None = None, dialog: dict | None = None,
           pelaku: list[str] | None = None, interaksi: tuple[str, str] | None = None,
-          durasi: float = 3.8, perjalanan: bool = False) -> dict:
+          durasi: float = 3.8, perjalanan: bool = False, reaksi: bool = False) -> dict:
     peta = {p["id"]: p for p in semua_peran}
     benda = [dict(keadaan)]
     if inti == "kota_kuno" and resep.get("id") == "azab_datang":
@@ -235,7 +252,7 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
     for pid in hadir:
         p = peta[pid]
         x = posisi.get(pid, 740)
-        bicara = bool(dialog and pid == subjek_dialog)
+        bicara = bool(dialog and pid == subjek_dialog and not reaksi)
         if p["kategori"] == "nabi":
             shot["nur"].append({"peran":pid,"x":x,"y":1370,"sinar_ke":"kanan" if x<540 else "kiri",
                                 "nama":p["nama"],"bicara":[[.15,max(.25,durasi-.15)]] if bicara else []})
@@ -261,8 +278,12 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
             else:
                 arah, balik = "depan", False
             for xi in xs:
-                a=_aktor(pid,peta,xi,fokus=(pid==fokus),wajah=resep.get("wajah","datar"),
-                         gerak=resep.get("gerak","berdiri"),durasi=durasi,bicara=bicara,arah=arah,balik=balik,
+                wajah_tokoh = resep.get("wajah", "datar")
+                gerak_tokoh = resep.get("gerak", "berdiri")
+                if reaksi and pid == subjek_dialog:
+                    wajah_tokoh, gerak_tokoh = _reaksi_pendengar(narasi) or ("heran", "kaget")
+                a=_aktor(pid,peta,xi,fokus=(pid==fokus),wajah=wajah_tokoh,
+                         gerak=gerak_tokoh,durasi=durasi,bicara=bicara,arah=arah,balik=balik,
                          skala=.78 if kelompok else 1.0)
                 if perjalanan and pid == fokus:
                     teks_arah = _polos(narasi)
@@ -386,10 +407,16 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         if dialog:
             for giliran in dialog:
                 peserta = [giliran["pembicara"], giliran["penjawab"]] if giliran.get("penjawab") else [giliran["pembicara"]]
-                for pid in peserta:
+                for urutan, pid in enumerate(peserta):
                     g=dict(giliran); g["subjek"]=pid
                     shots.append(_shot(inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep,
                                        fokus=pid,dialog=g,pelaku=None))
+                    reaksi_pendengar = _reaksi_pendengar(teks)
+                    if urutan == 0 and giliran.get("penjawab") and reaksi_pendengar:
+                        pendengar = giliran["penjawab"]
+                        gr=dict(giliran); gr["subjek"]=pendengar
+                        shots.append(_shot(inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep,
+                                           fokus=pendengar,dialog=gr,pelaku=None,reaksi=True))
         else:
             jumlah=1+len(cuts)
             for si in range(jumlah):
