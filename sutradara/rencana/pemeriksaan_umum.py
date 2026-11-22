@@ -135,7 +135,9 @@ def periksa_lintasan_dan_interaksi(rencana: dict[str, Any]) -> list[Temuan]:
                 elif dx and arah_awal in {"samping", "tiga_perempat", "tiga_perempat_belakang"}:
                     balik = aktor.get("balik", False)
                     balik_awal = bool(balik[0][1]) if isinstance(balik, list) and balik else bool(balik)
-                    if balik_awal == (dx > 0):
+                    # Saat narasi memerintahkan putar balik, lintasan dapat mulai bergerak
+                    # sebelum orientasi tubuh selesai berputar. Jangan nilai snapshot awal.
+                    if balik_awal == (dx > 0) and not aktor.get("berbalik_sesuai_cerita"):
                         hasil.append(Temuan("PERIKSA", "ARAH_GERAK", f"{lokasi}: arah hadap {nama_peran.get(pid, pid)} mungkin berlawanan dengan lintasan; periksa balik/arah"))
                     kunci = (str(pid), tujuan)
                     lama = arah_tujuan.get(kunci)
