@@ -226,3 +226,33 @@ def test_musnad_ahmad_tetap_ditolak_tanpa_dataset_dan_derajat_terverifikasi():
 
     assert hadis.kitab_baku("Musnad Ahmad") is None
     assert hadis.cari("Musnad Ahmad", "22308") == []
+
+
+
+def test_kartu_memilih_potongan_pasangan_sesuai_waktu():
+    from sutradara.gaya import kartu
+
+    pasangan = [
+        {"ar": "وَيَصْنَعُ", "id": "dan membuat"},
+        {"ar": "الْفُلْكَ", "id": "kapal"},
+        {"ar": "وَكُلَّمَا", "id": "dan setiap kali"},
+        {"ar": "مَرَّ", "id": "lewat"},
+        {"ar": "عَلَيْهِ", "id": "kepadanya"},
+        {"ar": "مَلَأٌ", "id": "para pembesar"},
+        {"ar": "مِنْ", "id": "dari"},
+        {"ar": "قَوْمِهِ", "id": "kaumnya"},
+        {"ar": "سَخِرُوا", "id": "mereka mengejek"},
+        {"ar": "مِنْهُ", "id": "darinya"},
+    ]
+    dalil = {"jenis": "quran", "label": "QS HUD 38", "pasangan_kata": pasangan}
+    potongan = kartu.potongan(dalil)
+    assert len(potongan) >= 2
+    waktu = kartu.rencana_waktu(potongan)
+    token_pertama = potongan[0][0].split()[0]
+    token_kedua = potongan[1][0].split()[0]
+    svg_pertama = kartu.kartu(dalil, potongan, waktu[0][1] - 0.25, mulai=0.0, idx_uid="uji-1")
+    svg_kedua = kartu.kartu(dalil, potongan, waktu[1][1] - 0.25, mulai=0.0, idx_uid="uji-2")
+    assert token_pertama in svg_pertama
+    assert token_pertama not in svg_kedua
+    assert token_kedua in svg_kedua
+    assert token_kedua not in svg_pertama

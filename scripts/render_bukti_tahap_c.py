@@ -56,8 +56,12 @@ def main() -> None:
     lembar = Image.new("RGB", (1080, 960), "#171717")
     for indeks in range(2):
         awal, akhir = waktu[indeks]
-        svg = dasar.dokumen(latar + kartu.kartu(dalil, potongan, akhir - 0.25, mulai=awal,
+        dalil_panel = {**dalil, "label": f"CONTOH PEMETAAN KATA · QS HUD 38 · POTONGAN {indeks + 1}"}
+        svg = dasar.dokumen(latar + kartu.kartu(dalil_panel, potongan, akhir - 0.25, mulai=0.0,
                                                 idx_uid=f"tahapc{indeks}", preset="dhuha"))
+        kata_awal = potongan[indeks][0].split()[0]
+        if kata_awal not in svg:
+            raise RuntimeError(f"Kartu potongan {indeks + 1} tidak menampilkan pasangan yang dijadwalkan")
         png(svg, TEMP / f"potongan-{indeks + 1}.png")
         with Image.open(TEMP / f"potongan-{indeks + 1}.png") as gambar:
             lembar.paste(gambar.convert("RGB").resize((540, 960)), (indeks * 540, 0))
