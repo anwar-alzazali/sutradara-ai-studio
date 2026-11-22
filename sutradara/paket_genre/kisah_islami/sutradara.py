@@ -17,7 +17,7 @@ _KATA_EMOSI = {
 }
 _GERAK = {"membangun": "palu", "membuat": "palu", "menggali": "gali", "mengejek": "tertawa",
           "tertawa": "tertawa", "berjalan": "jalan", "melintas": "jalan", "berlari": "lari",
-          "lari": "lari", "berdoa": "berdoa", "memohon": "berdoa", "mundur": "mundur"}
+          "lari": "lari", "kabur": "lari", "melarikan diri": "lari", "berdoa": "berdoa", "memohon": "berdoa", "mundur": "jalan"}
 _JUDUL = {
     "rangka": "MULAI MEMBANGUN", "jadi": "KAPAL SELESAI", "badai": "BANJIR DATANG", "tenang": "SELAMAT",
     "seruan": "MENYERU", "menolak": "MEREKA MENOLAK", "angin": "ANGIN DATANG", "selamat": "DISELAMATKAN",
@@ -161,10 +161,27 @@ def _aktor(pid: str, peran: dict, x: float, *, y: float = 1510, fokus: bool = Fa
     return a
 
 
+def _pasangan_interaksi(teks: str, hadir: list[str], peta: dict[str, dict]) -> tuple[str, str] | None:
+    """Kenali pasangan interaksi hanya bila kedua nama peran disebut eksplisit."""
+    polos = _polos(teks)
+    kata_aksi = ("menunjuk", "mengejek", "mengolok", "mengulurkan", "menyerahkan",
+                 "memberikan", "menerima", "menyapa")
+    if not any(k in polos for k in kata_aksi):
+        return None
+    cocok = []
+    for pid in hadir:
+        nama = _polos(peta[pid].get("nama", ""))
+        if nama and nama in polos:
+            cocok.append((polos.find(nama), pid))
+    cocok.sort()
+    return (cocok[0][1], cocok[1][1]) if len(cocok) >= 2 else None
+
+
 def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
           dalil: list[str], dalil_label: dict[str, str], semua_peran: list[dict], nama_ke_id: dict[str, str],
           hadir: list[str], resep: dict, *, fokus: str | None = None, dialog: dict | None = None,
-          pelaku: list[str] | None = None, durasi: float = 3.8, perjalanan: bool = False) -> dict:
+          pelaku: list[str] | None = None, interaksi: tuple[str, str] | None = None,
+          durasi: float = 3.8, perjalanan: bool = False) -> dict:
     peta = {p["id"]: p for p in semua_peran}
     benda = [dict(keadaan)]
     if inti == "kota_kuno" and resep.get("id") == "azab_datang":
@@ -190,6 +207,12 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
         posisi[p1] = 380
         if p2:
             posisi[p2] = 820
+    elif interaksi:
+        p1, p2 = interaksi
+        posisi[p1], posisi[p2] = 380.0, 820.0
+        for pid in hadir:
+            if pid not in posisi:
+                posisi[pid] = 250.0 if peta[pid]["kategori"] == "nabi" else 540.0
     elif pelaku:
         visual_x = float(keadaan.get("x", 540))
         # Tempatkan pelaku di dekat sisi kerja visual inti, bukan di luar
@@ -219,7 +242,7 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
         else:
             kelompok = p.get("kolektif") is True and pid != fokus and dialog is None
             xs = [x - 86, x, x + 86] if kelompok else [x]
-            lawan = next((q for q in (pasangan_dialog if dialog else (pelaku or [])) if q != pid), None)
+            lawan = next((q for q in (pasangan_dialog if dialog else (interaksi or pelaku or [])) if q != pid), None)
             arah = "samping" if lawan else "depan"
             balik = bool(lawan and x > posisi.get(lawan, x))
             for xi in xs:
@@ -228,21 +251,62 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                          skala=.78 if kelompok else 1.0)
                 if perjalanan and pid == fokus:
                     teks_arah = _polos(narasi)
-                    if "tepi kiri" in teks_arah or "ke kiri" in teks_arah:
-                        tujuan, dx = "tepi:kiri", -1
-                    elif "tepi kanan" in teks_arah or "ke kanan" in teks_arah:
-                        tujuan, dx = "tepi:kanan", 1
+                    x_awal, y_awal = float(x), 1510.0
+                    ujung_y = y_awal
+                    arah_hadap = "samping"
+                    if any(k in teks_arah for k in ("mendekat ke kamera", "mendekati kamera", "menuju kamera")):
+                        dx, dy = 0, 160
+                        tujuan, arah_hadap = "kedalaman:depan", "depan"
+                    elif any(k in teks_arah for k in ("menjauh dari kamera", "menjauhi kamera", "menjauh ke belakang")):
+                        dx, dy = 0, -210
+                        tujuan, arah_hadap = "kedalaman:belakang", "belakang"
                     else:
-                        dx = 1 if x < 540 else -1
-                        tujuan = f"tepi:{'kanan' if dx > 0 else 'kiri'}"
-                    ujung = max(110, min(970, x + 280*dx))
-                    kecepatan = abs(ujung - x) / max(durasi, .1)
+                        dy = 0
+                        kata_tujuan = any(k in teks_arah for k in ("menuju", "mendekati", "menghampiri", "ke arah"))
+                        target_peran = None
+                        if kata_tujuan:
+                            for q in hadir:
+                                nama_target = _polos(peta[q].get("nama", ""))
+                                if q != pid and nama_target and nama_target in teks_arah:
+                                    target_peran = q
+                                    break
+                        target_x = None
+                        if target_peran:
+                            target_x = float(posisi[target_peran])
+                            tujuan = f"tokoh:{target_peran}"
+                        elif kata_tujuan and inti == "bahtera" and any(k in teks_arah for k in ("bahtera", "kapal")):
+                            target_x = float(keadaan.get("x", x))
+                            tujuan = "benda:bahtera"
+                        elif kata_tujuan and inti == "dinding_yajuj" and "dinding" in teks_arah:
+                            target_x = float(keadaan.get("x", x))
+                            tujuan = "benda:dinding_yajuj"
+                        if target_x is not None:
+                            dx = (target_x > x) - (target_x < x)
+                            ujung = target_x - dx * 100 if dx else x
+                        elif "tepi kiri" in teks_arah or "ke kiri" in teks_arah:
+                            tujuan, dx = "tepi:kiri", -1
+                            ujung = x + 280 * dx
+                        elif "tepi kanan" in teks_arah or "ke kanan" in teks_arah:
+                            tujuan, dx = "tepi:kanan", 1
+                            ujung = x + 280 * dx
+                        else:
+                            dx = 1 if x < 540 else -1
+                            if any(k in teks_arah for k in ("kembali", "kabur", "melarikan diri", "berbalik arah")):
+                                dx *= -1
+                            tujuan = f"tepi:{'kanan' if dx > 0 else 'kiri'}"
+                            ujung = x + 280 * dx
+                        ujung = max(110, min(970, ujung))
+                    ujung_x = max(110, min(970, x_awal + (280 * dx if dy else ujung - x_awal)))
+                    ujung_y = y_awal + dy
+                    kecepatan = ((ujung_x - x_awal) ** 2 + (ujung_y - y_awal) ** 2) ** .5 / max(durasi, .1)
                     dasar = 120.0 if gerak == "lari" else 74.0
                     faktor = max(.45, min(2.5, kecepatan / dasar))
-                    lintasan = [[0, x, 1510], [durasi, ujung, 1510]]
-                    a.update(x=[[0, x],[durasi, ujung]], lintasan=lintasan,
-                             arah="samping", balik=(dx < 0), tujuan=tujuan,
+                    lintasan = [[0, x_awal, y_awal], [durasi, ujung_x, ujung_y]]
+                    a.update(x=[[0, x_awal], [durasi, ujung_x]], lintasan=lintasan,
+                             arah=arah_hadap, balik=(dx < 0), tujuan=tujuan,
                              gerak=gerak, faktor_gerak=round(faktor, 3))
+                    if dy:
+                        a["y"] = [[0, y_awal], [durasi, ujung_y]]
                 shot["tokoh"].append(a)
     return shot
 
@@ -300,6 +364,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
             if peran_map[pid]["kategori"] in {"manusia", "nabi"}
             and not any(k in _polos(peran_map[pid]["nama"]) for k in kata_lawan)
         ] if any(v in tindakan for v in ("membangun", "membuat", "menggali")) else None
+        interaksi = _pasangan_interaksi(teks, hadir, peran_map) if not dialog else None
         shots=[]
         if dialog:
             for giliran in dialog:
@@ -313,7 +378,8 @@ def rancang(naskah: dict) -> tuple[dict, float]:
             for si in range(jumlah):
                 fokus = hadir[min(si,len(hadir)-1)] if cuts else None
                 shots.append(_shot(inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep,
-                                   fokus=fokus,pelaku=pelaku,perjalanan=(gerak in {"jalan","lari"} and fokus is not None)))
+                                   fokus=fokus,pelaku=pelaku,interaksi=interaksi,
+                                   perjalanan=(gerak in {"jalan","lari"} and fokus is not None)))
         if pelaku:
             for s in shots:
                 s["pelaku"] = pelaku
