@@ -226,12 +226,11 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - [x] Dabbah ditampilkan hanya sebagai gumpalan kabut/debu tanpa anatomi dan tanpa tanda wajah; dialog disampaikan melalui narasi/teks. Tidak mengarang bentuk yang tidak dijelaskan dalil.
 
 ### Dalil
-- [ ] Bacaan latin ayat di kartu (transliterasi Quran Foundation) — hanya bila pemilik meminta.
-- [ ] Musnad Ahmad belum ada di dataset (mis. Ahmad 22308, tanda di wajah oleh Dabbah) — cari sumber berlisensi jelas.
-- [ ] Pakai scope `content.hadith.read` Quran Foundation sebagai pemeriksa hadis kedua.
-- [ ] Terjemah hadis dataset kadang keliru (mis. Muslim 2934b: "surga" padahal النهر = sungai): tandai untuk tinjauan pemilik,
-      pertimbangkan terjemah sendiri yang ditinjau.
-- [ ] Pasangan Arab–terjemah di kartu masih perkiraan; pertimbangkan pemetaan kata (word-by-word) Quran Foundation.
+- [x] Fondasi bacaan latin ayat disiapkan di balik `FITUR_BACAAN_LATIN = False`; tidak dipanggil dan tidak tampil sampai pemilik meminta.
+- [ ] Musnad Ahmad tetap ditolak penjaga. Audit kandidat belum menemukan bukti yang sekaligus memastikan lisensi publik, teks Arab, dan penilaian derajat yang dapat ditelusuri untuk riwayat yang diperlukan; jangan mengimpor atau mengarang derajat.
+- [ ] Pemeriksa hadis kedua Quran Foundation terblokir sampai pemilik menjalankan `.github/workflows/cek-akses-hadis.yml` dan hasil membuktikan scope `content.hadith.read` serta endpoint hadis dapat dibaca. Jangan menyimpulkan akses dari scope ayat.
+- [x] Mekanisme koreksi terjemah dengan teks asli/koreksi/alasan berdampingan; kartu hanya menerapkan status `disetujui_pemilik`. Usulan Muslim 2934b (`surga` → `sungai`, النهر) masih `menunggu_persetujuan_pemilik`, jadi layar tetap memakai teks sumber.
+- [x] Pasangan Arab–terjemah memakai data word-by-word Quran Foundation bila semua kata memiliki terjemah resmi; jika tidak tersedia, tidak mengklaim pasangan kata dan memakai pemotongan lama.
 
 ### Mesin & otomatisasi
 - [ ] Fase 4 sutradara otomatis: templat naskah untuk AI gratis, keputusan visual inti/preset/peran/hook, **penataan panggung
@@ -254,6 +253,10 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - Bot & Studio lama, film3d, cabang hasil per video, berkas audio/video lama.
 
 ## Log keputusan
+- 22 Nov 2026 — Tahap C: pemeriksa scope hadis dipisah dari diagnosa ayat; workflow manual hanya meminta `content.hadith.read` dan menguji endpoint hadis tanpa mencetak rahasia. Belum dijalankan oleh pemilik, sehingga pemeriksa hadis kedua tetap terblokir.
+- 22 Nov 2026 — Tahap C: koreksi terjemah disimpan sebagai usulan terpisah dari dataset sumber. Muslim 2934b: `surga` → `sungai` (lafaz `النهر`) belum disetujui; renderer hanya memakai koreksi dengan status `disetujui_pemilik`.
+- 22 Nov 2026 — Tahap C: pasangan kata ayat diambil dari `words[].translation` Quran Foundation; hanya dipakai bila setiap kata punya pasangan. Bendera transliterasi latin tetap mati dan tidak ada bacaan latin yang ditampilkan.
+- 22 Nov 2026 — Tahap C: Musnad Ahmad belum ditambahkan. Kandidat yang ditemukan memberi bukti lisensi/teks/grade yang tidak cukup untuk menjamin satu riwayat yang dibutuhkan lengkap dan dapat ditelusuri. `sutradara/dalil/hadis.py` dan penjaga tetap menolak kitab yang tidak tersedia. Rujukan audit: [Quran Foundation scope](https://api-docs.quran.foundation/docs/user_related_apis_versioned/scopes/), [Takhrij sources](https://takhrij.org/en/sources/), [quranlab/hadith sources](https://huggingface.co/datasets/quranlab/hadith/blob/main/SOURCES.md).
 - 21 Nov 2026 — Tanah bertekstur menjadi bawaan preset; jenis dan seed dapat diatur per shot. Tekstur statis di koordinat dunia, berkontras rendah, dan dirender di bawah benda/tokoh. Batu foreground tetap tajam tanpa blur.
 - 21 Nov 2026 — Tahap B: dokumentasi audit delapan kriteria diperbarui; bukti teknis dan batas tinjauan visual dicatat di `docs/TAHAP_B_AUDIT.md`. Dabbah dikunci sebagai kabut tanpa wujud dan tanpa penanda wajah.
 - 21 Nov 2026 — Tanah bertekstur menjadi bawaan preset; jenis dan seed dapat diatur per shot. Tekstur statis di koordinat dunia, berkontras rendah, dan dirender di bawah benda/tokoh. Batu foreground tetap tajam tanpa blur.
