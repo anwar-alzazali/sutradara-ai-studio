@@ -114,6 +114,8 @@ def test_setiap_bentuk_cahaya_wajib_menunjuk_id_peran():
 
 def test_kartu_identitas_dipakai_renderer_dan_perubahan_dicatat_periksa():
     r = _rencana()
+    # Tes ini menguji identitas peran tunggal, bukan variasi individu dalam kelompok.
+    next(p for p in r["peran"] if p["id"] == "kaum").pop("kolektif", None)
     shot = r["beat"][0]["shot"][0]
     shot["tokoh"].append({"x": 760, "y": 1390, "s": 0.9, "peran": "kaum"})
     svg = adegan.susun(video.daftar_shot(r)[0])
