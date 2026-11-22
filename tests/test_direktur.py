@@ -344,7 +344,7 @@ def test_kembali_membalik_memori_dan_arah_eksplisit_tidak_dibalik_dua_kali():
     naskah = {
         "judul": "Kembali", "inti": "Pengelana melakukan perjalanan.", "dalil": [],
         "beat": [
-            {"narasi": "Pengelana berjalan ke kiri.", "dalil": [], "kata_kunci:": [],
+            {"narasi": "Pengelana berjalan ke kiri.", "dalil": [], "kata_kunci": [],
              "suasana": "senja", "peran": ["Pengelana"]},
             {"narasi": "Pengelana berjalan kembali.", "dalil": [], "kata_kunci": [],
              "suasana": "senja", "peran": ["Pengelana"]},
