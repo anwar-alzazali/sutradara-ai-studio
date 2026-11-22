@@ -321,3 +321,41 @@ def test_jadwal_mirror_tubuh_diinterpolasi_halus():
     assert _balik_pada(jadwal, 2.49) is False
     assert _balik_pada(jadwal, 2.5) is True
     assert _balik_pada(jadwal, 3.8) is True
+
+
+def test_memori_arah_perjalanan_dipertahankan_antar_beat():
+    naskah = {
+        "judul": "Perjalanan berlanjut", "inti": "Pengelana melintasi jalan.", "dalil": [],
+        "beat": [
+            {"narasi": "Pengelana berjalan ke kiri.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+            {"narasi": "Pengelana terus berjalan menyusuri jalan.", "dalil": [],
+             "kata_kunci": [], "suasana": "senja", "peran": ["Pengelana"]},
+        ],
+    }
+    hasil = rancang(naskah)
+    pertama = hasil["beat"][0]["shot"][0]["tokoh"][0]
+    kedua = hasil["beat"][1]["shot"][0]["tokoh"][0]
+    assert pertama["lintasan"][-1][1] < pertama["lintasan"][0][1]
+    assert kedua["lintasan"][-1][1] < kedua["lintasan"][0][1]
+
+
+def test_kembali_membalik_memori_dan_arah_eksplisit_tidak_dibalik_dua_kali():
+    naskah = {
+        "judul": "Kembali", "inti": "Pengelana melakukan perjalanan.", "dalil": [],
+        "beat": [
+            {"narasi": "Pengelana berjalan ke kiri.", "dalil": [], "kata_kunci:": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+            {"narasi": "Pengelana berjalan kembali.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+            {"narasi": "Pengelana berjalan kembali ke kiri.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+        ],
+    }
+    hasil = rancang(naskah)
+    arah = []
+    for beat in hasil["beat"]:
+        aktor = beat["shot"][0]["tokoh"][0]
+        arah.append((aktor["lintasan"][-1][1] > aktor["lintasan"][0][1]) -
+                    (aktor["lintasan"][-1][1] < aktor["lintasan"][0][1]))
+    assert arah == [-1, 1, -1]
