@@ -70,6 +70,18 @@ def test_paket_genre_tiruan_dapat_didaftarkan_tanpa_mengubah_inti():
         genre._PAKET.pop(nama, None)
 
 
+def test_paket_dapat_didaftarkan_hanya_dengan_hook_generik():
+    from sutradara import genre
+
+    nama = "genre_hook_saja_uji"
+    paket = PaketGenre(nama=nama, sisipan_waktu_baca=lambda shot: bool(shot.get("baca")))
+    daftarkan(paket)
+    try:
+        assert ambil(nama) is paket
+    finally:
+        genre._PAKET.pop(nama, None)
+
+
 def test_pendaftaran_ganda_ditolak_dan_bisa_diganti_secara_eksplisit():
     nama = "genre_tiruan_ganda_uji"
     pertama = PaketGenre(nama=nama, skema_tambahan={"contoh": {"type": "string"}})
