@@ -359,3 +359,35 @@ def test_kembali_membalik_memori_dan_arah_eksplisit_tidak_dibalik_dua_kali():
         arah.append((aktor["lintasan"][-1][1] > aktor["lintasan"][0][1]) -
                     (aktor["lintasan"][-1][1] < aktor["lintasan"][0][1]))
     assert arah == [-1, 1, -1]
+
+
+def test_interaksi_menginferensikan_pasangan_tanpa_nama_lawan_eksplisit():
+    naskah = {
+        "judul": "Memberi air",
+        "inti": "Pengelana memberikan air kepada musafir.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana memberikan air kepada orang di depannya.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Musafir", "Pedagang"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"][0]
+    pengelana = next(t for t in shot["tokoh"] if t["peran"] == "pengelana")
+    musafir = next(t for t in shot["tokoh"] if t["peran"] == "musafir")
+    pedagang = next(t for t in shot["tokoh"] if t["peran"] == "pedagang")
+    assert (pengelana["x"], musafir["x"]) == (380, 820)
+    assert pengelana["arah"] == musafir["arah"] == "samping"
+    assert pedagang["x"] not in {pengelana["x"], musafir["x"]}
+
+
+def test_interaksi_tanpa_nama_tokoh_hanya_diinferensikan_jika_tepat_dua_peran():
+    from sutradara.paket_genre.kisah_islami.sutradara import _pasangan_interaksi
+
+    peta = {
+        "a": {"nama": "Tokoh A"},
+        "b": {"nama": "Tokoh B"},
+        "c": {"nama": "Tokoh C"},
+    }
+    assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b"], peta) == ("a", "b")
+    assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b", "c"], peta) is None
