@@ -81,3 +81,22 @@ def ambil(nama: str) -> PaketGenre:
         daftarkan(paket)
         return paket
 
+
+
+def daftar() -> tuple[str, ...]:
+    """Nama genre yang sudah terdaftar, dalam urutan deterministik."""
+    with _KUNCI:
+        return tuple(sorted(_PAKET))
+
+
+def nama_dari_rencana(rencana: Mapping[str, Any]) -> str:
+    """Rencana lama tanpa kolom genre tetap memakai paket Kisah Islami."""
+    nama = rencana.get("genre", "kisah_islami")
+    if not isinstance(nama, str) or not _POLA_NAMA.fullmatch(nama):
+        raise ValueError("kolom genre harus berupa nama paket yang sah")
+    return nama
+
+
+def dari_rencana(rencana: Mapping[str, Any]) -> PaketGenre:
+    """Resolusi satu pintu untuk rencana baru maupun rencana lama."""
+    return ambil(nama_dari_rencana(rencana))
