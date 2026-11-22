@@ -145,3 +145,25 @@ def test_cli_diagnosa_hadis_tetap_berjalan_jika_secret_kosong(monkeypatch, capsy
     assert cli.main(["diagnosa-quran"]) == 0
     keluaran = capsys.readouterr().out
     assert "QURAN | status=terblokir" in keluaran and "HADIS" in keluaran
+
+
+def test_pemeriksa_membedakan_akses_scope_legacy_dari_scope_granular(monkeypatch):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_ID", "id-uji")
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-uji")
+    panggilan = []
+
+    def request(url, *, headers, data=None):
+        panggilan.append((url, data))
+        if url.endswith("/oauth2/token") and b"scope=content.hadith.read" in data:
+            return 400, {"error": "invalid_scope"}
+        if url.endswith("/oauth2/token"):
+            return 200, {"access_token": "token-legacy", "scope": "content"}
+        return 200, {"hadiths": []}
+
+    monkeypatch.setattr(akses_hadis, "_request", request)
+    hasil = akses_hadis.periksa_lingkungan("production")
+    assert hasil["status"] == "akses_legacy_content"
+    assert hasil["scope_cadangan"] == "content (legacy)"
+    assert b"scope=content" in panggilan[1][1]
