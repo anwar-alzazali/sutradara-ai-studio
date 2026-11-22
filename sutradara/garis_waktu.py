@@ -4,13 +4,13 @@ Masukan: rencana + hasil `suara.narasi` (kata per beat, detik di berkas audio na
 - `shot`: salinan shot dengan `durasi` baru; semua waktu di dalam shot (keyframe, jadwal gerak/wajah, guncang/hentak,
   judul_mulai/subtitle_mulai) DISKALA ke durasi baru, jadi koreografi sutradara tetap utuh walau narasi lebih panjang/pendek.
 - `potongan_audio`: potongan narasi per beat + posisinya di video (narasi dipotong per beat, bukan diputar lurus,
-  supaya kartu dalil bisa mendapat waktu baca sendiri tanpa ditimpa suara).
+  supaya sisipan yang didaftarkan paket genre bisa mendapat waktu baca sendiri tanpa ditimpa suara).
 - `kata`: semua kata pada waktu VIDEO -> subtitle per frasa dengan kata aktif disorot, dan titik efek `@kata`.
 
 Aturan potong (resep B1): shot dipotong 0,1 dtk sebelum kata di `potong_di` diucapkan. Tanpa `potong_di`, waktu
-narasi beat dibagi menurut perbandingan durasi rancangan shot. Shot kartu dalil tanpa `durasi` = sisipan SESUDAH
-narasi beat, selama waktu baca kartu (narasi diam; mata penonton membaca). Beat yang isinya hanya kartu: narasi
-diputar di atas kartu, durasi = yang terpanjang.
+narasi beat dibagi menurut perbandingan durasi rancangan shot. Sisipan yang didaftarkan paket genre dan tidak
+memiliki `durasi` ditempatkan SESUDAH narasi beat selama waktu baca. Beat yang hanya berisi sisipan tetap
+memutar narasi di atasnya, dengan durasi = yang terpanjang.
 """
 from __future__ import annotations
 
@@ -168,7 +168,7 @@ def susun(rencana: dict, narasi: dict) -> Garis:
             d = max(akhir_bicara - v, sum(_durasi_rancangan(s, dl) for s in sisipan))
             ds = [_durasi_rancangan(s, dl) for s in sisipan]; ds[-1] += d - sum(ds)
             for s, dd in zip(sisipan, ds):
-                g.shot.append(_shot_baru(s, dd, dl)); g.potong.append(v); v += dd
+                g.shot.append(_shot_baru(s, dd, dl, paket)); g.potong.append(v); v += dd
             continue
         # titik potong di antara shot berbicara
         span = akhir_bicara - v
@@ -188,7 +188,7 @@ def susun(rencana: dict, narasi: dict) -> Garis:
         batas = [v] + titik + [akhir_bicara]
         for s, t0, t1 in zip(bicara, batas, batas[1:]):
             d = max(MIN_SHOT, t1 - t0)
-            g.shot.append(_shot_baru(s, d, dl)); g.potong.append(v); v += d
+            g.shot.append(_shot_baru(s, d, dl, paket)); g.potong.append(v); v += d
         for s in sisipan:
             d = _durasi_rancangan(s, dl) + (EKOR * 0.5 if i == n_beat - 1 else 0)
             g.shot.append(_shot_baru(s, d, dl, paket)); g.potong.append(v); v += d
