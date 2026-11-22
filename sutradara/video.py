@@ -74,7 +74,7 @@ def _render_shot_berkas(args):
     shot, indeks, tg, fps, dl, garis, folder, genre = args
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
-    n = max(1, round((tg + adegan.durasi(shot, dl)) * fps) - round(tg * fps))
+    n = max(1, round((tg + adegan.durasi(shot, dl, genre=genre)) * fps) - round(tg * fps))
     with render.peramban() as pg:
         kerangka = folder / "kerangka.html"
         kerangka.write_text(dasar.html('<div id="k"></div>'), encoding="utf-8")
