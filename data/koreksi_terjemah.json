@@ -6,10 +6,11 @@
       "id": "muslim-2934b-sungai",
       "kitab": "muslim",
       "nomor": "2934b",
-      "teks_asli": "surga",
-      "teks_koreksi": "sungai",
-      "alasan": "Catatan pemilik Tahap C: lafaz Arab النهر berarti sungai, bukan surga. Ini usulan koreksi leksikal; konteks terjemahan lengkap tetap perlu ditinjau pemilik.",
-      "status": "menunggu_persetujuan_pemilik"
+      "teks_asli": "mendatangi surga yang ia lihat berupa api",
+      "teks_koreksi": "mendatangi sungai yang ia lihat berupa api",
+      "alasan": "Lafaz Arab فَلْيَأْتِ النَّهْرَ الَّذِي يَرَاهُ نَارًا: النهر berarti sungai, bukan surga (terjemah Inggris dataset juga 'river'; konteks hadis = dua sungai Dajjal). Frasa dipanjangkan agar penggantian tepat sasaran.",
+      "status": "disetujui_pemilik",
+      "disetujui_pada": "2026-11-22"
     }
   ]
 }
