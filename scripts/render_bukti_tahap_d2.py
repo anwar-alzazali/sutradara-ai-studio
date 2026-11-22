@@ -64,9 +64,16 @@ def main() -> None:
         ],
     }
     rencana, _ = rancang(naskah)
+    # Metadata benda berasal dari fixture B2; posisi, orientasi, dan gestur
+    # pemberi/penerima tetap ditentukan sutradara otomatis.
+    beat_serah = next(b for b in rencana["beat"] if b["narasi"].startswith("Pemberi"))
+    beat_serah["shot"][0]["barang"] = [{
+        "id": "surat_bukti_d2", "jenis": "surat", "pemilik": "pemberi",
+        "tangan": "ka", "aksi": "ulurkan", "penerima": "penerima",
+        "tangan_pasangan": "ki", "titik_serah": [600, 1270],
+    }]
     # Bukti D2 harus menguji posisi kelompok, pasangan interaksi, gestur,
     # tujuan benda, dan perjalanan ke kedalaman, bukan sekadar menghasilkan MP4.
-    beat_serah = next(b for b in rencana["beat"] if b["narasi"].startswith("Pemberi"))
     tokoh_serah = {t["peran"]: t for t in beat_serah["shot"][0]["tokoh"]}
     assert tokoh_serah["pemberi"]["arah"] == tokoh_serah["penerima"]["arah"] == "samping"
     assert tokoh_serah["pemberi"]["balik"] is False and tokoh_serah["penerima"]["balik"] is True
