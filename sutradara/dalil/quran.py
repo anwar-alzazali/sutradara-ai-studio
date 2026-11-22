@@ -187,6 +187,9 @@ class QuranFoundation:
         kata_api = v.get("words") or []
         pasangan = []
         for kata in kata_api:
+            # API dapat menyertakan penanda akhir ayat/non-kata; itu bukan unit terjemahan.
+            if kata.get("char_type_name") not in (None, "word"):
+                continue
             ar_kata = kata.get("text_uthmani", "").strip()
             terjemah_kata = kata.get("translation") or {}
             id_kata = bersihkan(terjemah_kata.get("text", "")) if isinstance(terjemah_kata, dict) else ""
