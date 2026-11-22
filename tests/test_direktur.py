@@ -165,6 +165,7 @@ def test_interaksi_otomatis_menghadapkan_pemberi_dan_penerima():
     assert (pemberi["x"], penerima["x"]) == (380, 820)
     assert pemberi["arah"] == penerima["arah"] == "samping"
     assert pemberi["balik"] is False and penerima["balik"] is True
+    assert pemberi["gerak"] == penerima["gerak"] == "ulurkan"
 
 
 def test_perjalanan_otomatis_mengenali_tujuan_benda_dan_kedalaman():
@@ -222,4 +223,5 @@ def test_menunjuk_visual_inti_menghadap_ke_benda():
     aktor = rancang(naskah)["beat"][0]["shot"][0]["tokoh"][0]
     assert aktor["arah"] == "samping"
     assert aktor["balik"] is False
+    assert aktor["gerak"] == "tunjuk"
     assert aktor["x"] < 650
