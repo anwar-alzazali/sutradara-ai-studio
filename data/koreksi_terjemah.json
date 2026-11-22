@@ -1,0 +1,15 @@
+{
+  "versi": 1,
+  "keterangan": "Teks sumber tetap disimpan apa adanya di data hadis. Usulan di bawah tidak tampil sampai status disetujui_pemilik.",
+  "koreksi": [
+    {
+      "id": "muslim-2934b-sungai",
+      "kitab": "muslim",
+      "nomor": "2934b",
+      "teks_asli": "surga",
+      "teks_koreksi": "sungai",
+      "alasan": "Catatan pemilik Tahap C: lafaz Arab النهر berarti sungai, bukan surga. Ini usulan koreksi leksikal; konteks terjemahan lengkap tetap perlu ditinjau pemilik.",
+      "status": "menunggu_persetujuan_pemilik"
+    }
+  ]
+}
