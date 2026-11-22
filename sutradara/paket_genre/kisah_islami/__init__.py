@@ -5,6 +5,7 @@ sementara sebagai sumber kompatibilitas; pemindahan fisiknya dilakukan bersama a
 """
 
 from sutradara.genre import PaketGenre
+from .penjaga import periksa_khusus
 
 
 def buat_paket() -> PaketGenre:
@@ -13,6 +14,7 @@ def buat_paket() -> PaketGenre:
 
     return PaketGenre(
         nama="kisah_islami",
+        validator=periksa_khusus,
         komponen={
             "nur.pilar": nur.pilar,
             "kartu_dalil.potongan": kartu.potongan,
