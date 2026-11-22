@@ -107,8 +107,9 @@ def main(argv=None) -> int:
             for i, bt in enumerate(r["beat"]):
                 for j, s in enumerate(bt["shot"] if arg.semua else bt["shot"][:1]):
                     dl = video.peta_dalil(r)
-                    tt = adegan.durasi(s, dl) * 0.5 if s.get("kartu_dalil") else 0.0
                     from .genre import nama_dari_rencana
+                    genre = nama_dari_rencana(r)
+                    tt = adegan.durasi(s, dl, genre=genre) * 0.5 if s.get("kartu_dalil") else 0.0
                     f = render.png(adegan.susun(s, tt, dalil=dl, genre=nama_dari_rencana(r)),
                                    out / f"b{i:02d}_s{j}.png", halaman=pg)
                     print("ditulis", f)
