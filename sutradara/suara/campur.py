@@ -4,7 +4,7 @@ Asal: mesin-video/papan_buat.campur_rekaman (sidechain, loudnorm, limiter) dan a
 Disempurnakan: rencana suara dibuat OTOMATIS dari garis waktu dan rencana sutradara, lalu bisa diatur per beat:
 - suasana (ambience) mengikuti preset waktu beat: senja/dhuha/malam/... (bisa diganti `beat.suasana` atau dimatikan: null);
 - `kamera.hentak` -> hentakan, `kamera.guncang` -> dentuman: efek muncul hanya di peristiwa yang memang dirancang;
-- kartu dalil muncul -> kilau lembut;
+- elemen khusus genre dapat mendaftarkan efek kemunculannya melalui hook paket;
 - whoosh di pergantian beat (bukan di tiap potongan; `suara.whoosh`: "beat" | "semua" | "tidak");
 - efek bebas per beat: `beat.efek: [{"berkas": "palu_kayu", "kata": "kapal", "vol": 0.6, "loop": true, "sampai": 2.0}]`
   (`kata` = saat kata itu diucapkan; atau `at` = detik sejak awal beat);
@@ -58,6 +58,8 @@ def berkas(nama: str) -> Path:
 
 def rancang(rencana: dict, g: Garis) -> list[dict]:
     """Daftar rekaman {berkas, at, vol, ulang?, sampai?, masuk, keluar, loop?} pada waktu video."""
+    from ..genre import dari_rencana
+    paket = dari_rencana(rencana)
     cfg = rencana.get("suara") or {}
     rek = []
     # suasana: gabungkan beat berurutan yang suasananya sama jadi satu hamparan
@@ -87,9 +89,11 @@ def rancang(rencana: dict, g: Garis) -> list[dict]:
             rek.append({"berkas": "hentak_serius", "at": t + at, "vol": min(1.0, 0.45 + kuat * 3), **_sisa(s, at)})
         for at, kuat in km.get("guncang", []):
             rek.append({"berkas": "dentum_jauh", "at": t + at, "vol": min(1.0, 0.35 + kuat / 60), **_sisa(s, at)})
-        if s.get("kartu_dalil"):
-            rek.append({"berkas": "kilau_cahaya", "at": t + s["kartu_dalil"].get("mulai", 0.0), "vol": 0.35,
-                        **_sisa(s, s["kartu_dalil"].get("mulai", 0.0))})
+        if paket.efek_kemunculan:
+            for evento in paket.efek_kemunculan(s):
+                at_lokal = float(evento.get("offset", 0.0))
+                rek.append({"berkas": evento["berkas"], "at": t + at_lokal,
+                            "vol": evento.get("vol", 0.35), **_sisa(s, at_lokal)})
         t += s["durasi"]
     # whoosh
     mode = cfg.get("whoosh", "beat")

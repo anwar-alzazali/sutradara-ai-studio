@@ -37,6 +37,24 @@ def test_manifest_kisah_islami_dimuat_melalui_registri():
     assert paket.bawaan["terjemah_kartu_utuh"] is True
 
 
+def test_paket_kisah_islami_mendaftarkan_hook_waktu_baca_dan_efek():
+    paket = dari_rencana({})
+    shot = {"kartu_dalil": {"mulai": 0.7}}
+    assert paket.sisipan_waktu_baca(shot)
+    assert paket.waktu_tetap(shot, "kartu_dalil")
+    assert paket.efek_kemunculan(shot) == [
+        {"berkas": "kilau_cahaya", "offset": 0.7, "vol": 0.35}
+    ]
+
+
+def test_inti_waktu_dan_suara_tidak_menyebut_elemen_kisah_islami():
+    akar = Path(__file__).resolve().parents[1] / "sutradara"
+    for rel in ("garis_waktu.py", "suara/campur.py"):
+        sumber = (akar / rel).read_text(encoding="utf-8")
+        assert "kartu_dalil" not in sumber
+        assert "kilau_cahaya" not in sumber
+
+
 def test_paket_genre_tiruan_dapat_didaftarkan_tanpa_mengubah_inti():
     def gambar_benda_tiruan(*args, **kwargs):
         return '<circle cx="10" cy="10" r="2"/>'
@@ -49,6 +67,18 @@ def test_paket_genre_tiruan_dapat_didaftarkan_tanpa_mengubah_inti():
         assert ambil(nama).komponen["benda:lingkaran"]() == '<circle cx="10" cy="10" r="2"/>'
     finally:
         from sutradara import genre
+        genre._PAKET.pop(nama, None)
+
+
+def test_paket_dapat_didaftarkan_hanya_dengan_hook_generik():
+    from sutradara import genre
+
+    nama = "genre_hook_saja_uji"
+    paket = PaketGenre(nama=nama, sisipan_waktu_baca=lambda shot: bool(shot.get("baca")))
+    daftarkan(paket)
+    try:
+        assert ambil(nama) is paket
+    finally:
         genre._PAKET.pop(nama, None)
 
 
@@ -92,35 +122,6 @@ def test_kontrak_paket_tidak_bisa_diubah_setelah_dibuat():
         paket.komponen["benda:baru"] = fungsi
     with pytest.raises(TypeError):
         paket.bawaan["mode"] = "berubah"
-
-
-def test_skema_tambahan_tidak_bisa_diubah_secara_tidak_langsung():
-    skema = {
-        "properties": {
-            "muatan": {
-                "type": "object",
-                "required": ["kode"],
-                "properties": {"kode": {"type": "string"}},
-            }
-        }
-    }
-    paket = PaketGenre(nama="genre_skema_terkunci_uji", skema_tambahan=skema)
-
-    # Perubahan ke manifest asal atau objek bersarang yang terlihat tidak boleh mengubah kontrak.
-    skema["properties"]["muatan"]["properties"]["kode"]["type"] = "integer"
-    with pytest.raises(TypeError):
-        paket.skema_tambahan["properties"]["muatan"]["properties"]["kode"]["type"] = "integer"
-    with pytest.raises(TypeError):
-        paket.skema_tambahan["properties"]["muatan"]["required"][0] = "lain"
-
-    skema_efektif = _skema_paket(paket)
-    assert skema_efektif["properties"]["muatan"]["properties"]["kode"]["type"] == "string"
-    validator = Draft202012Validator(skema_efektif)
-    rencana = _rencana_tanpa_dalil()
-    rencana["muatan"] = {"kode": "teks"}
-    assert validator.is_valid(rencana)
-    rencana["muatan"] = {"kode": 123}
-    assert not validator.is_valid(rencana)
 
 
 def test_skema_menerima_genre_opsional_dengan_nama_paket_generik():
@@ -252,3 +253,33 @@ def test_akar_bukan_objek_jadi_temuan_skema_bukan_crash():
         temuan = periksa(nilai)
         assert [t.kode for t in temuan] == ["SKEMA"], nilai
         assert temuan[0].tingkat == "GAGAL"
+
+
+
+def test_skema_tambahan_tidak_bisa_diubah_secara_tidak_langsung():
+    skema = {
+        "properties": {
+            "muatan": {
+                "type": "object",
+                "required": ["kode"],
+                "properties": {"kode": {"type": "string"}},
+            }
+        }
+    }
+    paket = PaketGenre(nama="genre_skema_terkunci_uji", skema_tambahan=skema)
+
+    # Perubahan ke manifest asal atau objek bersarang yang terlihat tidak boleh mengubah kontrak.
+    skema["properties"]["muatan"]["properties"]["kode"]["type"] = "integer"
+    with pytest.raises(TypeError):
+        paket.skema_tambahan["properties"]["muatan"]["properties"]["kode"]["type"] = "integer"
+    with pytest.raises(TypeError):
+        paket.skema_tambahan["properties"]["muatan"]["required"][0] = "lain"
+
+    skema_efektif = _skema_paket(paket)
+    assert skema_efektif["properties"]["muatan"]["properties"]["kode"]["type"] == "string"
+    validator = Draft202012Validator(skema_efektif)
+    rencana = _rencana_tanpa_dalil()
+    rencana["muatan"] = {"kode": "teks"}
+    assert validator.is_valid(rencana)
+    rencana["muatan"] = {"kode": 123}
+    assert not validator.is_valid(rencana)
