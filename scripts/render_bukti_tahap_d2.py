@@ -2,7 +2,12 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
+
+# Eksekusi `python scripts/...` menempatkan folder scripts di sys.path,
+# bukan root repositori; tambahkan root agar paket lokal dapat diimpor.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from sutradara import video
 from sutradara.paket_genre.kisah_islami.sutradara import rancang
