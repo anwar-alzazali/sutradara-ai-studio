@@ -249,7 +249,9 @@ def test_dialog_menyisipkan_reaksi_pendengar_bila_disebut_narasi():
     assert pendengar["gerak"] == "kaget"
     assert pendengar["wajah"] == "kaget"
     assert "bicara" not in pendengar
-    assert shot[2]["tokoh"][0]["peran"] == "pendengar"
+    reverse = {t["peran"]: t for t in shot[2]["tokoh"]}
+    assert reverse["pendengar"].get("bicara")
+    assert "bicara" not in reverse["penyeru"]
 
 
 
