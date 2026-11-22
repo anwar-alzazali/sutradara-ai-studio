@@ -158,3 +158,24 @@ def test_perjalanan_otomatis_menyimpan_lintasan_xy_eksplisit():
     assert aktor["lintasan"][0][1:] == [aktor["x"][0][1], aktor["y"]]
     assert aktor["lintasan"][1][1] == aktor["x"][-1][1]
     assert aktor["lintasan"][1][2] == aktor["y"]
+
+
+
+def test_perjalanan_kedalaman_depan_belakang_tidak_diberi_peringatan_mendatar():
+    from sutradara.rencana.pemeriksaan_umum import periksa_lintasan_dan_interaksi
+
+    rencana = {
+        "peran": [{"id": "pengelana", "nama": "Pengelana"}],
+        "beat": [{
+            "shot": [{
+                "tokoh": [{
+                    "peran": "pengelana", "gerak": "jalan", "tujuan": "kedalaman:belakang",
+                    "arah": "belakang", "x": [[0, 430], [3, 430]],
+                    "y": [[0, 1510], [3, 1300]],
+                    "lintasan": [[0, 430, 1510], [3, 430, 1300]],
+                }]
+            }]
+        }]
+    }
+    temuan = periksa_lintasan_dan_interaksi(rencana)
+    assert "ARAH_GERAK" not in {t.kode for t in temuan}
