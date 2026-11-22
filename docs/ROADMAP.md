@@ -40,13 +40,18 @@ Lapisan yang sudah ada di repo:
 
 | Paket | Isi |
 |---|---|
-| `sutradara/gaya/` | pustaka visual v0: tokoh berpakaian/siluet, pilar nur, kabut tanpa wujud, Dajjal desain B, latar preset, benda, teks |
-| `sutradara/adegan.py` | menyusun satu shot (JSON → SVG 1080×1920) dengan urutan lapis tetap |
-| `sutradara/rencana/` | skema rencana sutradara + penjaga keselamatan/resep |
+| `sutradara/genre.py` | kontrak `PaketGenre`, registri, fallback rencana lama, dan pemuatan paket secara dinamis |
+| `sutradara/paket_genre/kisah_islami/` | adapter, renderer adegan, komponen visual, validator, ekstensi skema, modul dalil, bawaan, panduan gaya, dan resep Kisah Islami |
+| `sutradara/gaya/` | primitif inti yang netral: rig tokoh, latar, teks; modul visual genre lama dipertahankan sebagai shim kompatibilitas |
+| `sutradara/adegan.py` | komposisi shot netral-genre; elemen adegan datang dari renderer dan registri komponen paket |
+| `sutradara/rencana/` | skema umum dan pemeriksaan kontinuitas/geometri; aturan domain dan ekstensi skema dimiliki paket |
+| `sutradara/dalil/` | shim impor lama; implementasi Quran Foundation, hadis, koreksi, dan verifikasi berada di paket Kisah Islami |
 | `sutradara/render.py` | SVG → PNG lewat Chromium headless |
 | `sutradara/waktu.py`, `kamera.py`, `video.py` | keyframe, kamera, render MP4 + lembar kontak |
-| `sutradara/dalil/` | dataset hadis (sunnah.com), Quran Foundation, verifikasi dalil |
-| `contoh/` | tiga rencana contoh: Nuh diejek, Dabbatul Ard, Dajjal dua sungai |
+| `contoh/` | rencana contoh untuk pengujian lintas renderer dan genre |
+
+
+Rencana lama tanpa kolom `genre` tetap memakai paket `kisah_islami` sebagai fallback kompatibilitas. Paket lain dapat memasok validator, ekstensi skema, renderer adegan, data render, durasi, dan komponen sendiri tanpa menambahkan cabang elemen genre ke inti. Nilai `kategori` dan `tampil` pada skema inti bersifat string; daftar yang sah ditetapkan oleh ekstensi skema paket.
 
 ---
 

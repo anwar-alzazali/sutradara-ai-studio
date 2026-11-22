@@ -1,4 +1,4 @@
-# Panduan gaya visual (dikunci pemilik, 21 Nov 2026)
+# Panduan gaya visual (dikunci pemilik, 21 Nov 2026)\n\n> **Lokasi kanonis genre:** aturan visual Kisah Islami dipelihara di `sutradara/paket_genre/kisah_islami/PANDUAN_GAYA.md`. File ini dipertahankan sebagai pintu masuk dokumentasi proyek dan rujukan kompatibilitas.\n
 
 Perubahan pada keputusan di bawah butuh persetujuan pemilik. Contoh visual: jalankan `python -m sutradara gambar contoh/<berkas>.json`.
 

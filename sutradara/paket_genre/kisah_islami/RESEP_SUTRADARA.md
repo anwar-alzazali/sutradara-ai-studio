@@ -1,6 +1,6 @@
 # Resep Sutradara — dibongkar dari video Nabi Nuh (nuh2) dan Ya'juj Ma'juj (yajuj2)
 
-> Dipindahkan dari sesi analisis 21 Nov 2026. Rujukan berkas `papan/...` menunjuk repo lama **mesin-video** (arsip). Pola penyutradaraan di sini berlaku; cara menggambar tokoh mengikuti `docs/PANDUAN_GAYA.md` (lebih baru).
+> Dipindahkan dari sesi analisis 21 Nov 2026. Rujukan berkas `papan/...` menunjuk repo lama **mesin-video** (arsip). Pola penyutradaraan di sini berlaku; cara menggambar tokoh mengikuti `sutradara/paket_genre/kisah_islami/PANDUAN_GAYA.md` (kanonis untuk paket ini).
 
 Sumber: `papan/kisah/nuh2_buat.py` (23 beat, ±128 dtk) dan `papan/kisah/yajuj2_buat.py` (13 beat, ±66 dtk), keduanya disutradarai manual oleh Claude di sesi chat dan dinilai bagus oleh pemilik. Resep ini adalah pola keputusan yang **berulang** di kedua video, supaya sutradara otomatis bisa menirunya. Ditulis 21 Nov 2026.
 
