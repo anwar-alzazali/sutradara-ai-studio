@@ -59,3 +59,19 @@ def test_nama_genre_tidak_boleh_mengandung_path_atau_spasi(nama):
 def test_genre_tidak_dikenal_ditolak_dengan_pesan_yang_jelas():
     with pytest.raises(ValueError, match="genre tidak dikenal"):
         ambil("genre_yang_tidak_ada")
+
+
+def test_kontrak_paket_tidak_bisa_diubah_setelah_dibuat():
+    fungsi = lambda: "<g/>"
+    komponen = {"benda:uji": fungsi}
+    bawaan = {"mode": "aman"}
+    paket = PaketGenre(nama="genre_terkunci_uji", komponen=komponen, bawaan=bawaan)
+    # Mutasi sumber setelah konstruksi tidak boleh mengubah manifest.
+    komponen["benda:baru"] = fungsi
+    bawaan["mode"] = "berubah"
+    assert set(paket.komponen) == {"benda:uji"}
+    assert paket.bawaan["mode"] == "aman"
+    with pytest.raises(TypeError):
+        paket.komponen["benda:baru"] = fungsi
+    with pytest.raises(TypeError):
+        paket.bawaan["mode"] = "berubah"
