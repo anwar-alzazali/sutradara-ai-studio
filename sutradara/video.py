@@ -17,45 +17,25 @@ from pathlib import Path
 
 from . import adegan, render
 from .gaya import dasar
+from .genre import dari_rencana, nama_dari_rencana
 
 
-def daftar_shot(rencana: dict) -> list[dict]:
-    """Salinan shot dengan metadata peran internal agar renderer memilih bentuk adab yang benar."""
-    peran = {p["id"]: p for p in rencana.get("peran", [])}
-    pemeran = {p["id"]: p for p in rencana.get("pemeran", [])}
-    hasil = []
+def daftar_shot(rencana):
+    paket=dari_rencana(rencana);hasil=[]
     for beat in rencana["beat"]:
         for asli in beat["shot"]:
-            shot = copy.deepcopy(asli)
-            for tokoh in shot.get("tokoh", []):
-                p = peran.get(tokoh.get("peran"))
-                if p:
-                    tokoh["_kategori_peran"] = p["kategori"]
-                    tokoh["_cara_tampil"] = p["tampil"]
-                    kartu = pemeran.get(tokoh.get("pemeran_id"))
-                    tokoh["_identitas"] = copy.deepcopy(
-                        kartu.get("identitas", {}) if kartu else p.get("identitas", {})
-                    )
-                    if kartu:
-                        tokoh["_id_pemeran"] = kartu["id"]
-            for cahaya in shot.get("nur", []):
-                p = peran.get(cahaya.get("peran"))
-                if p is None and cahaya.get("nama"):
-                    p = next((item for item in peran.values() if item.get("nama") == cahaya["nama"]), None)
-                if p:
-                    cahaya["_kategori_peran"] = p["kategori"]
-                    cahaya["_cara_tampil"] = p["tampil"]
+            shot=copy.deepcopy(asli)
+            if paket.adaptasi_shot:shot=paket.adaptasi_shot(rencana,shot)
             hasil.append(shot)
     return hasil
 
+def data_render(rencana):
+    paket=dari_rencana(rencana)
+    return paket.data_render(rencana) if paket.data_render else {}
 
-def peta_dalil(rencana: dict) -> dict:
-    return {d["id"]: d for d in rencana.get("dalil", [])}
-
-
-def total_durasi(rencana: dict) -> float:
-    dl = peta_dalil(rencana)
-    return sum(adegan.durasi(s, dl) for s in daftar_shot(rencana))
+def total_durasi(rencana):
+    data=data_render(rencana);genre=nama_dari_rencana(rencana)
+    return sum(adegan.durasi(s,data,genre=genre) for s in daftar_shot(rencana))
 
 
 def _ffmpeg() -> str:
@@ -69,10 +49,10 @@ def _ffmpeg() -> str:
 def _render_shot_berkas(args):
     """Render satu shot di Chromium milik worker sendiri; hasil disimpan per-shot."""
     from pathlib import Path
-    shot, indeks, tg, fps, dl, garis, folder = args
+    shot, indeks, tg, fps, data, garis, folder, genre = args
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
-    n = max(1, round((tg + adegan.durasi(shot, dl)) * fps) - round(tg * fps))
+    n = max(1, round((tg + adegan.durasi(shot, data, genre=genre)) * fps) - round(tg * fps))
     with render.peramban() as pg:
         kerangka = folder / "kerangka.html"
         kerangka.write_text(dasar.html('<div id="k"></div>'), encoding="utf-8")
@@ -81,7 +61,7 @@ def _render_shot_berkas(args):
             t = k / fps
             sub = garis.subtitle_pada(tg + t) if garis else None
             pg.evaluate("s => { document.getElementById('k').innerHTML = s; }",
-                        adegan.susun(shot, t, tg + t, dl, sub=sub))
+                        adegan.susun(shot, t, tg + t, data_render=data, sub=sub, genre=genre))
             if k == 0:
                 pg.evaluate("document.fonts.ready")
             (folder / f"frame_{k:08d}.jpg").write_bytes(pg.screenshot(type="jpeg", quality=92))
@@ -101,14 +81,16 @@ def buat(rencana: dict, keluar: Path, *, fps: int = 30, crf: int = 20, kabar=pri
           "-c:v", "libx264", "-preset", "veryfast", "-crf", str(crf), "-pix_fmt", "yuv420p",
           "-movflags", "+faststart", str(keluar)]
     awal = time.time()
-    dl = peta_dalil(rencana)
+    data = data_render(rencana)
+    from .genre import nama_dari_rencana
+    genre = nama_dari_rencana(rencana)
     shots = list(garis.shot if garis else daftar_shot(rencana))
     tugas, tg = [], 0.0
     with tempfile.TemporaryDirectory() as d:
         for i, shot in enumerate(shots):
             folder = Path(d) / f"shot_{i:05d}"
-            tugas.append((shot, i, tg, fps, dl, garis, folder))
-            tg = round((tg + adegan.durasi(shot, dl)) * fps) / fps
+            tugas.append((shot, i, tg, fps, data, garis, folder, genre))
+            tg = round((tg + adegan.durasi(shot, data, genre=genre)) * fps) / fps
         jumlah_worker = max(1, min(int(workers), len(tugas) or 1))
         with ThreadPoolExecutor(max_workers=jumlah_worker) as pool:
             hasil = list(pool.map(_render_shot_berkas, tugas))
@@ -161,3 +143,10 @@ def lembar(video: Path, keluar: Path, *, n: int = 16, kolom: int = 8) -> Path:
 if __name__ == "__main__":  # python -m sutradara.video rencana.json keluaran.mp4
     import sys
     buat(json.loads(Path(sys.argv[1]).read_text(encoding="utf-8")), Path(sys.argv[2]))
+
+
+def __getattr__(nama):
+    """Shim atribut lama; data domain tetap disediakan oleh paket genre aktif."""
+    if nama == "peta_dalil":
+        return data_render
+    raise AttributeError(f"module {__name__!r} has no attribute {nama!r}")

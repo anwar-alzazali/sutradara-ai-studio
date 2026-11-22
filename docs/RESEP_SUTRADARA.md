@@ -1,4 +1,4 @@
-# Resep Sutradara — dibongkar dari video Nabi Nuh (nuh2) dan Ya'juj Ma'juj (yajuj2)
+# Resep Sutradara — dibongkar dari video Nabi Nuh (nuh2) dan Ya'juj Ma'juj (yajuj2)\n\n> **Lokasi kanonis genre:** aturan visual Kisah Islami dipelihara di `sutradara/paket_genre/kisah_islami/PANDUAN_GAYA.md`. File ini dipertahankan sebagai pintu masuk dokumentasi proyek dan rujukan kompatibilitas.\n
 
 > Dipindahkan dari sesi analisis 21 Nov 2026. Rujukan berkas `papan/...` menunjuk repo lama **mesin-video** (arsip). Pola penyutradaraan di sini berlaku; cara menggambar tokoh mengikuti `docs/PANDUAN_GAYA.md` (lebih baru).
 

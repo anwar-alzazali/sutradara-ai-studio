@@ -106,9 +106,12 @@ def main(argv=None) -> int:
         with render.peramban() as pg:
             for i, bt in enumerate(r["beat"]):
                 for j, s in enumerate(bt["shot"] if arg.semua else bt["shot"][:1]):
-                    dl = video.peta_dalil(r)
-                    tt = adegan.durasi(s, dl) * 0.5 if s.get("kartu_dalil") else 0.0
-                    f = render.png(adegan.susun(s, tt, dalil=dl), out / f"b{i:02d}_s{j}.png", halaman=pg)
+                    data_render = video.data_render(r)
+                    from .genre import nama_dari_rencana
+                    genre = nama_dari_rencana(r)
+                    tt = adegan.durasi(s, data_render, genre=genre) * 0.5 if s.get("kartu_dalil") else 0.0
+                    f = render.png(adegan.susun(s, tt, data_render=data_render, genre=nama_dari_rencana(r)),
+                                   out / f"b{i:02d}_s{j}.png", halaman=pg)
                     print("ditulis", f)
     if arg.perintah == "video":
         if arg.suara:
