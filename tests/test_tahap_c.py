@@ -76,7 +76,7 @@ def test_bacaan_latin_tetap_mati_tanpa_permintaan_pemilik(monkeypatch):
     assert klien.transliterasi_latin(1, 1) is None
 
 
-def test_pemeriksa_scope_hadis_menguji_izin_endpoint_dengan_scope_tepat(monkeypatch):
+def test_pemeriksa_scope_hadis_menguji_tiga_route_resmi_content_api_v4(monkeypatch):
     from sutradara.dalil import akses_hadis
 
     monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_ID", "id-rahasia-uji")
@@ -87,15 +87,45 @@ def test_pemeriksa_scope_hadis_menguji_izin_endpoint_dengan_scope_tepat(monkeypa
         panggilan.append((url, data))
         if url.endswith("/oauth2/token"):
             return 200, {"access_token": "token-uji", "scope": "content.hadith.read"}
-        return 200, {"hadiths": []}
+        if "/hadith_references/by_ayah/1:1/hadiths?" in url:
+            return 200, {"hadiths": [], "page": 1, "limit": 1, "has_more": False}
+        if "/hadith_references/by_ayah/1:1?" in url:
+            return 200, {"hadith_references": []}
+        if "/hadith_references/count_within_range?" in url:
+            return 200, {"1:1": 0}
+        return 404, {}
 
     monkeypatch.setattr(akses_hadis, "_request", request)
     hasil = akses_hadis.periksa_lingkungan("production")
     assert hasil["status"] == "lulus"
     assert hasil["scope_diminta"] == "content.hadith.read"
     assert "content.hadith.read" in panggilan[0][1].decode()
-    assert panggilan[1][0].endswith("/hadiths/by_ayah/1:1?language=ar&page=1&limit=1")
+    assert panggilan[1][0].endswith("/content/api/v4/hadith_references/by_ayah/1:1?language=en")
+    assert panggilan[2][0].endswith("/content/api/v4/hadith_references/by_ayah/1:1/hadiths?language=ar&page=1&limit=1")
+    assert panggilan[3][0].endswith("/content/api/v4/hadith_references/count_within_range?from=1:1&to=1:1")
+    assert hasil["endpoint_http"] == {"referensi": 200, "isi_hadis": 200, "jumlah_rentang": 200}
     assert "secret-rahasia-uji" not in repr(hasil)
+
+
+def test_pemeriksa_scope_hadis_tidak_lulus_jika_salah_satu_route_403(monkeypatch):
+    from sutradara.dalil import akses_hadis
+
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_ID", "id-uji")
+    monkeypatch.setenv("QURAN_FOUNDATION_CLIENT_SECRET", "secret-uji")
+
+    def request(url, *, headers, data=None):
+        if url.endswith("/oauth2/token"):
+            return 200, {"access_token": "token-uji", "scope": "content.hadith.read"}
+        if "/hadith_references/by_ayah/1:1?" in url and "/hadiths?" not in url:
+            return 403, {"type": "insufficient_scope"}
+        if "/hadith_references/by_ayah/1:1/hadiths?" in url:
+            return 200, {"hadiths": []}
+        return 200, {"1:1": 0}
+
+    monkeypatch.setattr(akses_hadis, "_request", request)
+    hasil = akses_hadis.periksa_lingkungan("production")
+    assert hasil["status"] == "endpoint_tidak_terbukti"
+    assert hasil["endpoint_http"]["referensi"] == 403
 
 
 def test_pemeriksa_scope_hadis_tidak_membocorkan_dan_menghentikan_jika_secret_kosong(monkeypatch):
@@ -160,7 +190,13 @@ def test_pemeriksa_membedakan_akses_scope_legacy_dari_scope_granular(monkeypatch
             return 400, {"error": "invalid_scope"}
         if url.endswith("/oauth2/token"):
             return 200, {"access_token": "token-legacy", "scope": "content"}
-        return 200, {"hadiths": []}
+        if "/hadith_references/by_ayah/1:1/hadiths?" in url:
+            return 200, {"hadiths": []}
+        if "/hadith_references/by_ayah/1:1?" in url:
+            return 200, {"hadith_references": []}
+        if "/hadith_references/count_within_range?" in url:
+            return 200, {"1:1": 0}
+        return 404, {}
 
     monkeypatch.setattr(akses_hadis, "_request", request)
     hasil = akses_hadis.periksa_lingkungan("production")
