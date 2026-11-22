@@ -155,12 +155,18 @@ let modelGemini = null;  // disimpan selama isolate hidup
 async function daftarModelGemini(env) {
   if (env.GEMINI_MODEL) return [env.GEMINI_MODEL];
   if (modelGemini) return modelGemini;
+  // Isolate baru sering muncul: simpan daftar model sehari di Supabase supaya tidak bertanya ke Google tiap pesan.
+  try {
+    const s = JSON.parse((await ambilPengaturan(env, "gemini_model")) || "null");
+    if (s && Date.now() - s.waktu < 864e5 && s.daftar?.length) return (modelGemini = s.daftar);
+  } catch { /* abaikan, ambil ulang */ }
   const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": env.GEMINI_API_KEY } });
   if (!r.ok) throw new Error("Gemini models " + r.status);
   const j = await r.json();
   const nama = (j.models || []).filter((m) => (m.supportedGenerationMethods || []).includes("generateContent")).map((m) => String(m.name).replace(/^models\//, ""));
   modelGemini = pilihModelGemini(nama);
   if (!modelGemini.length) throw new Error("Tidak ada model Gemini flash");
+  await simpanPengaturan(env, "gemini_model", JSON.stringify({ waktu: Date.now(), daftar: modelGemini })).catch(() => {});
   return modelGemini;
 }
 async function gemini(env, body) {
@@ -187,6 +193,7 @@ async function gemini(env, body) {
 }
 // Coba Gemini (gratis); bila tak ada kunci atau gagal, pakai Claude.
 async function tanyaAI(env, body) {
+  TG(env, "sendChatAction", { chat_id: env.CHAT || env.TELEGRAM_CHAT_ID, action: "typing" }).catch(() => {});  // tanda "sedang mengetik"
   if (env.GEMINI_API_KEY && env.AI_UTAMA !== "claude") {
     try { return await gemini(env, body); } catch (e) { console.log("gemini gagal, pakai Claude:", e.message); }
   }
