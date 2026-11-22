@@ -139,7 +139,7 @@ def test_dialog_reverse_shot_mempertahankan_sisi_dan_mengganti_pembicara():
     assert kiri["tokoh"][0]["x"] == kanan["tokoh"][0]["x"]
     assert kiri["nur"][0]["bicara"]
     assert not kanan["nur"][0]["bicara"]
-    assert kanan["tokoh"][0]["bicara"]
-    assert not kiri["tokoh"][0]["bicara"]
+    assert kanan["tokoh"][0].get("bicara")
+    assert not kiri["tokoh"][0].get("bicara")
     assert kiri["tokoh"][0]["arah"] == "samping"
     assert kanan["tokoh"][0]["arah"] == "samping"
