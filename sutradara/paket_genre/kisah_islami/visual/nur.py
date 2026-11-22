@@ -10,7 +10,7 @@ import math
 import random
 
 
-def pilar(x: float, y: float, *, tinggi: float = 400, lebar: float = 92, pendar_rx: float = 100, pendar_ry: float = 145, nama: str | None = None,
+def pilar(x: float, y: float, *, tinggi: float = 400, lebar: float = 88, pendar_rx: float = 72, pendar_ry: float = 125, nama: str | None = None,
           sinar_ke: str | None = "kanan", seed: int = 7, t: float = 0.0) -> str:
     """Pilar cahaya dengan dasar di (x, y). `nama` tampil kecil di bawah (mis. 'Nabi Nuh a.s.').
     `t` = waktu global (detik): butiran melayang naik, sinar berdenyut pelan, pendar bernapas."""
