@@ -185,6 +185,7 @@ class QuranFoundation:
         t = next((bersihkan(x.get("text", "")) for x in v.get("translations", []) if x.get("resource_id") == tr["id"]), None) \
             or next((bersihkan(x.get("text", "")) for x in v.get("translations", [])), "")
         kata_api = v.get("words") or []
+        kata_valid = [kata for kata in kata_api if kata.get("char_type_name") in (None, "word")]
         pasangan = []
         for kata in kata_api:
             # API dapat menyertakan penanda akhir ayat/non-kata; itu bukan unit terjemahan.
@@ -196,7 +197,7 @@ class QuranFoundation:
             if ar_kata and id_kata:
                 pasangan.append({"ar": ar_kata, "id": id_kata})
         # Jangan membuat pasangan proporsional lalu menyebutnya word-by-word.
-        if len(pasangan) != len(kata_api):
+        if len(pasangan) != len(kata_valid):
             pasangan = []
         return Ayat(surah, ayat, self.nama_surah(surah), v["text_uthmani"], t, tr["nama"], pasangan)
 
