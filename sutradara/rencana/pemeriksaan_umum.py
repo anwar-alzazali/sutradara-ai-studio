@@ -292,3 +292,71 @@ def periksa_kontinuitas_barang(rencana: dict[str, Any]) -> list[Temuan]:
                                         f"{lokasi}: barang {iid} dari shot sebelumnya tidak dicantumkan; periksa kesinambungan"))
             sebelumnya = sekarang
     return hasil
+
+
+def periksa_kontinuitas_panggung(rencana: dict[str, Any]) -> list[Temuan]:
+    """Periksa tumpang-tindih tokoh dan kestabilan blocking antar-shot dalam satu beat.
+
+    Tokoh kolektif diringkas ke pusat kelompok (median x). Ambang bersifat
+    heuristik dan hanya menghasilkan PERIKSA agar tidak menghalangi variasi
+    komposisi yang memang disengaja.
+    """
+    hasil: list[Temuan] = []
+    for bi, beat in enumerate(rencana.get("beat", [])):
+        posisi_shot: list[dict[str, float]] = []
+        for si, shot in enumerate(beat.get("shot", [])):
+            tokoh = [t for t in shot.get("tokoh", []) if isinstance(t.get("peran"), str)]
+            pusat: dict[str, list[float]] = {}
+            for t in tokoh:
+                x = t.get("x")
+                if isinstance(x, list) and x:
+                    try:
+                        x = float(x[0][1])
+                    except (TypeError, ValueError, IndexError):
+                        continue
+                if isinstance(x, (int, float)):
+                    pusat.setdefault(t["peran"], []).append(float(x))
+            ringkas = {pid: sorted(xs)[len(xs)//2] for pid, xs in pusat.items() if xs}
+            posisi_shot.append(ringkas)
+
+            # Anggota dalam satu kelompok (peran sama) memang boleh berdekatan.
+            # Hanya bandingkan pemeran berbeda pada bidang kedalaman yang sama.
+            daftar = []
+            for t in tokoh:
+                x, y = t.get("x"), t.get("y")
+                if isinstance(x, list) and x:
+                    try:
+                        x = float(x[0][1])
+                    except (TypeError, ValueError, IndexError):
+                        continue
+                if isinstance(y, list) and y:
+                    try:
+                        y = float(y[0][1])
+                    except (TypeError, ValueError, IndexError):
+                        continue
+                if isinstance(x, (int, float)) and isinstance(y, (int, float)):
+                    daftar.append((t["peran"], float(x), float(y), float(t.get("s", .68))))
+            sudah: set[tuple[str, str]] = set()
+            for i, a in enumerate(daftar):
+                for b in daftar[i+1:]:
+                    if a[0] == b[0]:
+                        continue
+                    pasangan = tuple(sorted((a[0], b[0])))
+                    if pasangan in sudah:
+                        continue
+                    sudah.add(pasangan)
+                    ambang_x = 92.0 * (a[3] + b[3]) / 1.36
+                    if abs(a[1]-b[1]) < ambang_x and abs(a[2]-b[2]) < 105:
+                        hasil.append(Temuan(
+                            "PERIKSA", "TOKOH_BERTUMPUK",
+                            f"beat {bi} shot {si}: {a[0]} dan {b[0]} terlalu berdekatan; atur jarak atau kedalaman, kecuali memang disengaja",
+                        ))
+        for si in range(1, len(posisi_shot)):
+            sebelumnya, sekarang = posisi_shot[si-1], posisi_shot[si]
+            for pid in set(sebelumnya) & set(sekarang):
+                if abs(sebelumnya[pid] - sekarang[pid]) > 90:
+                    hasil.append(Temuan(
+                        "PERIKSA", "POSISI_BERUBAH_ANTAR_SHOT",
+                        f"beat {bi} shot {si}: posisi {pid} berubah {sebelumnya[pid]:.0f} -> {sekarang[pid]:.0f}; pertahankan blocking atau jelaskan perpindahan",
+                    ))
+    return hasil
