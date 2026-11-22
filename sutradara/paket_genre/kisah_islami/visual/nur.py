@@ -10,7 +10,7 @@ import math
 import random
 
 
-def pilar(x: float, y: float, *, tinggi: float = 400, lebar: float = 88, pendar_rx: float = 72, pendar_ry: float = 125, nama: str | None = None,
+def pilar(x: float, y: float, *, tinggi: float = 400, lebar: float = 92, pendar_rx: float = 100, pendar_ry: float = 145, nama: str | None = None,
           sinar_ke: str | None = "kanan", seed: int = 7, t: float = 0.0) -> str:
     """Pilar cahaya dengan dasar di (x, y). `nama` tampil kecil di bawah (mis. 'Nabi Nuh a.s.').
     `t` = waktu global (detik): butiran melayang naik, sinar berdenyut pelan, pendar bernapas."""
@@ -27,13 +27,13 @@ def pilar(x: float, y: float, *, tinggi: float = 400, lebar: float = 88, pendar_
                  f'stroke="#fff6dd" stroke-width="{rnd.uniform(3, 9):.1f}" stroke-linecap="round" '
                  f'opacity="{rnd.uniform(.06, .14) * (0.7 + 0.3 * math.sin(t * 1.7 + i)):.3f}" filter="url(#b10)"/>')
     if sinar_ke == "kanan":
-        s.append(f'<path d="M{x + 40} {y - 260} L1080 {y - 420} L1080 {y + 40} L{x + 40} {y - 60}Z" fill="url(#sinar)" opacity=".16" filter="url(#b28)"/>')
+        s.append(f'<path d="M{x + 40} {y - 260} L1080 {y - 420} L1080 {y + 40} L{x + 40} {y - 60}Z" fill="url(#sinar)" opacity=".12" filter="url(#b28)"/>')
     elif sinar_ke == "kiri":
-        s.append(f'<path d="M{x - 40} {y - 260} L0 {y - 420} L0 {y + 40} L{x - 40} {y - 60}Z" fill="url(#sinar)" opacity=".35" '
+        s.append(f'<path d="M{x - 40} {y - 260} L0 {y - 420} L0 {y + 40} L{x - 40} {y - 60}Z" fill="url(#sinar)" opacity=".22" '
                  f'filter="url(#b28)" transform="translate({2 * x},0) scale(-1,1)"/>')
     w = lebar
-    s += [f'<rect x="{x - w / 2 - 40}" y="{top - 40}" width="{w + 80}" height="{tinggi + 60}" rx="{(w + 80) / 2}" fill="#fff4dc" opacity=".30" filter="url(#b28)"/>',
-          f'<rect x="{x - w / 2 - 10}" y="{top - 10}" width="{w + 20}" height="{tinggi + 16}" rx="{(w + 20) / 2}" fill="#fffaf0" opacity=".78" filter="url(#b10)"/>',
+    s += [f'<rect x="{x - w / 2 - 40}" y="{top - 40}" width="{w + 80}" height="{tinggi + 60}" rx="{(w + 80) / 2}" fill="#fff4dc" opacity=".22" filter="url(#b28)"/>',
+          f'<rect x="{x - w / 2 - 10}" y="{top - 10}" width="{w + 20}" height="{tinggi + 16}" rx="{(w + 20) / 2}" fill="#fffaf0" opacity=".68" filter="url(#b10)"/>',
           f'<rect x="{x - w / 2 + 8}" y="{top + 10}" width="{w - 16}" height="{tinggi - 14}" rx="{(w - 16) / 2}" fill="#ffffff" filter="url(#b4)"/>']
     for i in range(70):  # butiran cahaya: melayang naik pelan, berputar ulang dari bawah
         bx, by = rnd.gauss(0, 150), rnd.gauss(0, 230)
