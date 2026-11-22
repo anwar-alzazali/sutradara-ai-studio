@@ -11,6 +11,7 @@ from typing import Any, Callable, Mapping
 
 NamaValidator = Callable[[dict[str, Any]], list[Any]]
 NamaRenderer = Callable[..., str]
+RendererAdegan = Callable[[dict[str, Any], dict[str, Any], float, float], list[tuple[float, str]]]
 
 @dataclass(frozen=True)
 class PaketGenre:
@@ -18,6 +19,7 @@ class PaketGenre:
 
     nama: str
     komponen: Mapping[str, NamaRenderer] = field(default_factory=dict)
+    renderer_adegan: RendererAdegan | None = None
     validator: NamaValidator | None = None
     skema_tambahan: Mapping[str, Any] = field(default_factory=dict)
     modul_dalil: str | None = None
@@ -42,7 +44,7 @@ def daftarkan(paket: PaketGenre, *, ganti: bool = False) -> None:
         raise TypeError("paket harus berupa PaketGenre")
     if not isinstance(paket.nama, str) or not _POLA_NAMA.fullmatch(paket.nama):
         raise ValueError(f"nama genre tidak sah: {paket.nama!r}")
-    if not (paket.komponen or paket.validator or paket.skema_tambahan or paket.modul_dalil
+    if not (paket.komponen or paket.renderer_adegan or paket.validator or paket.skema_tambahan or paket.modul_dalil
             or paket.panduan_gaya or paket.resep or paket.bawaan):
         raise ValueError("paket genre harus menyediakan minimal satu kemampuan")
     if any(not isinstance(k, str) or not k.strip() for k in paket.komponen):
