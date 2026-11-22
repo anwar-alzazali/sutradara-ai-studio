@@ -34,6 +34,39 @@ def _slug(teks: str) -> str:
     return hasil or "peran"
 
 
+_AKHIRAN_NAMA_SAKRAL = {"as", "ra", "saw", "pbuh", "radi", "anhu", "anha", "alaihi", "wasallam", "sallallahu"}
+_NABI_NAMA = {
+    "adam", "idris", "nuh", "noah", "hud", "saleh", "salih", "shaleh", "ibrahim", "lut", "luth",
+    "ismail", "ishmael", "ishaq", "ishak", "yaqub", "yusuf", "ayyub", "ayub", "syuaib", "shuaib",
+    "musa", "harun", "dzulkifli", "dhul kifl", "dawud", "daud", "sulaiman", "suleiman", "ilyas",
+    "alyasa", "al yasa", "yunus", "zakariya", "zakaria", "yahya", "isa", "muhammad",
+}
+_SAHABAT_NAMA = {
+    "aisyah", "aisha", "khadijah", "hafsah", "fatimah", "fatima", "umm salamah", "asma bint abu bakr",
+    "abu bakr", "umar", "uthman", "usman", "ali", "bilal", "hamzah", "hamza", "abu hurairah",
+    "zaid", "zayd", "salman al farisi", "khalid bin walid",
+}
+_SAHABIYAH_NAMA = {"aisyah", "aisha", "khadijah", "hafsah", "fatimah", "fatima", "umm salamah", "asma bint abu bakr"}
+
+
+def _nama_kunci(nama: str) -> str:
+    kata = re.sub(r"[^a-z0-9]+", " ", _polos(nama)).split()
+    return " ".join(k for k in kata if k not in _AKHIRAN_NAMA_SAKRAL)
+
+
+def _kategori_peran(nama: str) -> tuple[str, str]:
+    """Kenali gelar dan nama sakral umum agar tidak dirender sebagai manusia biasa."""
+    kunci = _nama_kunci(nama)
+    kata = set(kunci.split())
+    if "malaikat" in kata:
+        return "malaikat", "cahaya_malaikat"
+    if kata & {"nabi", "prophet", "rasul", "rasulullah"} or kunci in _NABI_NAMA:
+        return "nabi", "nur"
+    if kata & {"sahabat", "sahabiyah"} or kunci in _SAHABAT_NAMA:
+        return "sahabat", "wajah_cahaya"
+    return "manusia", "pakaian"
+
+
 def _inti(naskah: dict, semua: str) -> tuple[str, list[str], float]:
     if any(x in semua for x in ("nabi nuh", "bahtera", "kapal nuh")):
         return "bahtera", ["rangka", "dibangun", "badai", "selamat"], .96
@@ -58,20 +91,14 @@ def _peran(naskah: dict) -> tuple[list[dict], dict[str, str]]:
     hasil = []
     for nama, pid in nama_ke_id.items():
         polos = _polos(nama)
-        if "malaikat" in polos:
-            kategori, tampil = "malaikat", "cahaya_malaikat"
-        elif "nabi " in polos or polos.startswith("nabi"):
-            kategori, tampil = "nabi", "nur"
-        elif "sahabat" in polos:
-            kategori, tampil = "sahabat", "wajah_cahaya"
-        else:
-            kategori, tampil = "manusia", "pakaian"
+        kategori, tampil = _kategori_peran(nama)
         kolektif = any(k in polos for k in ("kaum", "rombongan", "pengikut", "orang-orang", "pemuka"))
         p = {"id": pid, "nama": nama, "kategori": kategori, "tampil": tampil}
         if kolektif:
             p["kolektif"] = True
-        if kategori == "manusia":
-            p["identitas"] = {"jenis": "pria", "usia": "dewasa", "zaman": "arab_kuno",
+        if kategori in {"manusia", "sahabat"}:
+            jenis = "wanita" if _nama_kunci(nama) in _SAHABIYAH_NAMA else "pria"
+            p["identitas"] = {"jenis": jenis, "usia": "dewasa", "zaman": "arab_kuno",
                               "indeks": len(hasil), "warna_baju": ["#76513a", "#405d66", "#786341"][len(hasil)%3]}
         hasil.append(p)
     return hasil, nama_ke_id
@@ -125,7 +152,7 @@ def _aktor(pid: str, peran: dict, x: float, *, y: float = 1510, fokus: bool = Fa
     p = peran[pid]
     a = {"peran": pid, "x": x, "y": y, "s": (1.0 if fokus else .68) * skala,
          "arah": arah, "balik": balik, "wajah": wajah, "gerak": gerak}
-    if p["kategori"] == "manusia":
+    if p["kategori"] in {"manusia", "sahabat"}:
         ident = p.get("identitas", {})
         a.update({k:v for k,v in ident.items() if k in {"jenis","usia","zaman","kepala","warna_baju","warna_kulit"}})
         a.setdefault("kepala", "imamah")

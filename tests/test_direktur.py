@@ -72,3 +72,23 @@ def test_resep_dapat_ditambah_dari_data_paket():
     ids = [r["id"] for r in data["resep"]]
     assert len(ids) == len(set(ids))
     assert {"kaum_mengejek", "azab_datang", "doa_sunyi"} <= set(ids)
+
+
+def test_nama_rasulullah_dan_aisyah_memakai_representasi_sakral():
+    from sutradara.paket_genre.kisah_islami.sutradara import _peran
+
+    hasil, _ = _peran({"beat": [{"peran": ["Rasulullah ﷺ", "Aisyah RA"]}]})
+    peta = {p["nama"]: p for p in hasil}
+    assert (peta["Rasulullah ﷺ"]["kategori"], peta["Rasulullah ﷺ"]["tampil"]) == ("nabi", "nur")
+    assert (peta["Aisyah RA"]["kategori"], peta["Aisyah RA"]["tampil"]) == ("sahabat", "wajah_cahaya")
+    assert peta["Aisyah RA"]["identitas"]["jenis"] == "wanita"
+
+
+@pytest.mark.parametrize("nama", ["Allah", "Allah SWT", "Tuhan"])
+def test_allah_tidak_dapat_dimasukkan_sebagai_peran_visual(nama):
+    from sutradara.antrean import validasi
+
+    naskah = {"judul": "Uji", "inti": "Renungan.", "dalil": [], "beat": [{
+        "narasi": "Renungkan makna kisah ini.", "kata_kunci": [], "dalil": [], "peran": [nama],
+    }]}
+    assert any("tidak boleh menjadi peran visual" in pesan for pesan in validasi(naskah))

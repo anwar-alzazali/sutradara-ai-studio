@@ -183,6 +183,10 @@ def validasi(n: dict) -> list[str]:
         peran = b.get("peran")
         if not isinstance(peran, list) or any(not isinstance(x, str) or not x.strip() for x in peran):
             g.append(f"beat {i}: peran harus berupa daftar nama tokoh/pihak yang hadir atau dibahas; gunakan [] bila tidak ada")
+        if isinstance(peran, list) and any(
+            isinstance(x, str) and _polos(x).split(" ", 1)[0] in {"allah", "tuhan"} for x in peran
+        ):
+            g.append(f"beat {i}: Allah/Tuhan tidak boleh menjadi peran visual; pindahkan ke narasi atau tampilkan firman sebagai teks dan cahaya tanpa sosok")
         dialog = b.get("dialog", [])
         if not isinstance(dialog, list):
             g.append(f"beat {i}: dialog harus berupa daftar giliran bicara; gunakan [] bila tidak ada")
@@ -236,6 +240,7 @@ ATURAN = f"""Aturan WAJIB (akun TikTok/FB "Alzazali | Kisah Islami"):
 - Narasi bahasa Indonesia, sapa penonton "kamu". Tidak ada huruf Arab di narasi.
 - Mutu cerita: fakta terkuat yang menyangkut nasib penonton di kalimat pertama; satu video = cerita utuh (janji hook dijawab di video ini); setiap kalimat menambah informasi atau ketegangan, buang yang mengulang; durasi mengikuti cerita.
 - Setiap beat berisi narasi, kata_kunci, dalil (id rujukan saja), suasana, dan peran (nama tokoh/pihak yang hadir atau dibahas; [] bila tidak ada).
+- Cantumkan nabi sebagai `Nabi <nama>` atau `Rasulullah`, sahabat sebagai `Sahabat <nama>`; Allah/Tuhan tidak boleh dicantumkan sebagai peran visual.
 - Bila ada ucapan langsung, tambahkan `dialog`: daftar `{{"pembicara": "nama peran", "ucapan": "...", "penjawab": "nama peran"}}`. Jangan membuat dialog baru yang tidak didukung sumber.
 - Setiap beat yang menyatakan fakta/peristiwa wajib merujuk dalil yang benar-benar mendukungnya. Tanpa dalil hanya untuk pembuka nonfaktual, renungan, atau ajakan; jangan mengubah dugaan menjadi fakta.
 - Jangan menebak nomor dalil. Jika ragu, jangan mencantumkannya dan beri catatan bahwa rujukan perlu diperiksa pemilik.
