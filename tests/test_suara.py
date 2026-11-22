@@ -93,6 +93,21 @@ def test_periksa_naskah_menangkap_kata_potong_salah():
     assert GW.periksa_naskah(r) and not GW.periksa_naskah(NUH)
 
 
+def test_garis_waktu_menggunakan_kait_generik_paket():
+    from sutradara.genre import PaketGenre
+
+    paket = PaketGenre(
+        nama="genre_waktu_uji",
+        sisipan_waktu_baca=lambda shot: bool(shot.get("sisipan_uji")),
+        waktu_tetap=lambda parent, key: key == "sisipan_uji",
+    )
+    shot = {"sisipan_uji": {"mulai": 1.0}, "kamera": {"hentak": [[2.0, 0.1]]}}
+    assert GW._sisipan_waktu_baca(shot, paket)
+    hasil = GW.skala_waktu(shot, 2.0, paket)
+    assert hasil["sisipan_uji"] == {"mulai": 1.0}
+    assert hasil["kamera"]["hentak"] == [[4.0, 0.1]]
+
+
 def test_rancang_efek(narasi_nuh):
     _, n = narasi_nuh
     g = GW.susun(NUH, n)
