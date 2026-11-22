@@ -293,3 +293,21 @@ def test_arah_tiga_perempat_dikenali_dan_dipakai_bila_disebut_narasi():
     assert aktor["arah"] == "tiga_perempat"
     assert _arah_derajat("tiga_perempat", 0) == 45.0
     assert _arah_derajat("tiga_perempat_belakang", 0) == 135.0
+
+
+def test_gerak_berbalik_menyimpan_jadwal_putaran_badan():
+    naskah = {
+        "judul": "Pengelana berbalik",
+        "inti": "Pengelana berbalik arah lalu kabur ke kiri.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berbalik arah lalu kabur ke kiri.",
+            "dalil": [], "kata_kunci": ["berlari"], "suasana": "senja",
+            "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(naskah)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["tujuan"] == "tepi:kiri"
+    assert isinstance(aktor["arah"], list)
+    assert aktor["arah"] == [[0.0, "samping"], [3.8 * .34, "depan"], [3.8 * .68, "samping"]]
+    assert aktor["balik"] == [[0.0, False], [3.8 * .68, True]]
