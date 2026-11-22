@@ -304,6 +304,7 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                         tujuan, arah_hadap = "kedalaman:belakang", "belakang"
                     else:
                         dy = 0
+                        membalik = any(k in teks_arah for k in ("kembali", "kabur", "melarikan diri", "berbalik arah"))
                         kata_tujuan = any(k in teks_arah for k in ("menuju", "mendekati", "menghampiri", "ke arah"))
                         target_peran = None
                         if kata_tujuan:
@@ -333,7 +334,7 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                             ujung = x + 280 * dx
                         else:
                             dx = arah_perjalanan if arah_perjalanan in {-1, 1} else (1 if x < 540 else -1)
-                            if any(k in teks_arah for k in ("kembali", "kabur", "melarikan diri", "berbalik arah")):
+                            if membalik:
                                 dx *= -1
                             tujuan = f"tepi:{'kanan' if dx > 0 else 'kiri'}"
                             ujung = x + 280 * dx
@@ -344,8 +345,15 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                     dasar = 120.0 if gerak == "lari" else 74.0
                     faktor = max(.45, min(2.5, kecepatan / dasar))
                     lintasan = [[0, x_awal, y_awal], [durasi, ujung_x, ujung_y]]
+                    arah_jadwal = arah_hadap
+                    balik_jadwal: bool | list = (dx < 0)
+                    if membalik and not dy:
+                        awal_dx = -dx
+                        arah_jadwal = [[0.0, "samping"], [durasi * .34, "depan"],
+                                       [durasi * .68, "samping"]]
+                        balik_jadwal = [[0.0, awal_dx < 0], [durasi * .68, dx < 0]]
                     a.update(x=[[0, x_awal], [durasi, ujung_x]], lintasan=lintasan,
-                             arah=arah_hadap, balik=(dx < 0), tujuan=tujuan,
+                             arah=arah_jadwal, balik=balik_jadwal, tujuan=tujuan,
                              gerak=gerak, faktor_gerak=round(faktor, 3))
                     if dy:
                         a["y"] = [[0, y_awal], [durasi, ujung_y]]
