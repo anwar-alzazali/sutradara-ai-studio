@@ -52,7 +52,8 @@ def test_quran_foundation_menyimpan_pasangan_kata_dari_api(tmp_path):
                 "translations": [{"resource_id": 33, "text": "Dan dia membuat kapal."}],
                 "words": [
                     {"text_uthmani": "وَيَصْنَعُ", "translation": {"text": "dan membuat"}},
-                    {"text_uthmani": "الْفُلْكَ", "translation": {"text": "kapal"}}
+                    {"text_uthmani": "الْفُلْكَ", "translation": {"text": "kapal"}},
+                    {"text_uthmani": "۝", "char_type_name": "end", "translation": {}}
                 ]
             }}
         return 404, {}
