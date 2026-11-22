@@ -298,3 +298,5 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - 22 Nov 2026 — Tahap D0 pemisahan renderer: komponen visual dan data dalil khusus Kisah Islami dipindahkan ke `sutradara/paket_genre/kisah_islami/`; jalur impor lama dipertahankan sebagai shim. Renderer inti menerima hasil lapisan netral melalui kontrak paket. Skema dalil menjadi ekstensi paket, bukan properti inti.
 
 - 22 Nov 2026 — Tahap D1 (bertumpuk di PR #44): format antrean diperluas dengan `peran` per beat dan validator menjelaskan kesalahan struktur dalam bahasa Indonesia. Templat ChatGPT/Gemini ditempatkan di paket Kisah Islami; rujukan dalil tetap berupa ID untuk diverifikasi mesin, bukan teks Arab/terjemahan buatan AI.
+
+- 22 Nov 2026 — Tahap D1, poin 0b: aturan sisipan waktu baca dan efek kemunculan dipindahkan ke hook `PaketGenre`. Garis waktu dan pencampur suara hanya memanggil kontrak generik; paket Kisah Islami mendaftarkan perilaku kartu dan kilau. Waktu konfigurasi genre yang bersifat absolut tetap dipertahankan saat skala shot berubah. Tes membuktikan hook paket tiruan bekerja dan inti tidak menyebut `kartu_dalil`/`kilau_cahaya`.
