@@ -290,7 +290,12 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         keadaan,_obj=_keadaan(inti,jalur,teks,i,len(naskah["beat"]))
         jdl=_JUDUL.get(keadaan, " ".join((cuts or b.get("kata_kunci",[]) or [keadaan])[:2]).upper())
         judul=[w for w in re.sub(r"[^A-Z0-9' ]"," ",jdl.upper()).split()[:3]]
-        pelaku = [pid for pid in hadir if peran_map[pid]["kategori"] in {"manusia","nabi"}] if any(v in tindakan for v in ("membangun","membuat","menggali")) else None
+        kata_lawan = ("penentang", "penolak", "pengejek", "musuh", "lawan")
+        pelaku = [
+            pid for pid in hadir
+            if peran_map[pid]["kategori"] in {"manusia", "nabi"}
+            and not any(k in _polos(peran_map[pid]["nama"]) for k in kata_lawan)
+        ] if any(v in tindakan for v in ("membangun", "membuat", "menggali")) else None
         shots=[]
         if dialog:
             for giliran in dialog:
