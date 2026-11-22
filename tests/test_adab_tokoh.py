@@ -328,6 +328,7 @@ def test_identitas_individu_di_dalam_kerumunan_tetap_dijaga_antar_shot():
 
 def test_tokoh_tunggal_tanpa_peran_kolektif_tetap_diperiksa_dari_kartu_peran():
     r = _rencana()
+    next(p for p in r["peran"] if p["id"] == "kaum").pop("kolektif", None)
     shot = r["beat"][0]["shot"][0]
     shot["tokoh"] = [{"x": 500, "y": 1500, "peran": "kaum", "kepala": "kain"}]
     temuan = periksa(r)
