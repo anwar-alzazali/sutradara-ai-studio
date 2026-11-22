@@ -161,6 +161,18 @@ class QuranFoundation:
             self._surah = {c["id"]: c.get("name_simple", "") for c in daftar}
         return self._surah.get(n, "")
 
+    def transliterasi_latin(self, surah: int, ayat: int) -> str | None:
+        """Fondasi transliterasi Quran Foundation; sengaja mati sampai pemilik meminta."""
+        if not FITUR_BACAAN_LATIN or not (1 <= surah <= 114 and ayat >= 1):
+            return None
+        body = self._get(f"/verses/by_key/{surah}:{ayat}?translations=57&fields=text_uthmani&words=false")
+        verse = (body or {}).get("verse") or {}
+        for item in verse.get("translations", []):
+            teks = bersihkan(item.get("text", ""))
+            if teks:
+                return teks
+        return None
+
     def ayat(self, surah: int, ayat: int) -> Ayat | None:
         if not (1 <= surah <= 114 and ayat >= 1):
             return None
