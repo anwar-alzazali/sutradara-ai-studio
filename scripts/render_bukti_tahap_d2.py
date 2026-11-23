@@ -28,7 +28,7 @@ def main() -> None:
                 "peran": ["pengikut beriman", "kaum penentang"],
             },
             {
-                "narasi": "Nabi Nuh menyeru seorang penentang, lalu penentang itu menjawab.",
+                "narasi": "Nabi Nuh menyeru seorang penentang; penentang itu terkejut lalu menjawab.",
                 "kata_kunci": [], "dalil": [], "suasana": "senja",
                 "peran": ["Nabi Nuh", "penentang"],
                 "dialog": [
@@ -76,9 +76,20 @@ def main() -> None:
                 "kata_kunci": ["berlari"], "dalil": [], "suasana": "senja",
                 "peran": ["penjaga", "pengelana"],
             },
+            {
+                "narasi": "Penjaga mengejar pengelana ke kiri.",
+                "kata_kunci": ["berlari"], "dalil": [], "suasana": "senja",
+                "peran": ["penjaga", "pengelana"],
+            },
         ],
     }
     rencana, _ = rancang(naskah)
+    # Dialog harus memiliki pembicara, reaksi pendengar, lalu jawaban.
+    beat_dialog = next(b for b in rencana["beat"] if b["narasi"].startswith("Nabi Nuh"))
+    assert len(beat_dialog["shot"]) == 3
+    reaksi = beat_dialog["shot"][1]
+    pendengar = next(a for a in reaksi["tokoh"] if a["peran"] == "penentang")
+    assert pendengar["wajah"] == "kaget" and pendengar["gerak"] == "kaget"
     # Metadata benda berasal dari fixture B2; posisi, orientasi, dan gestur
     # pemberi/penerima tetap ditentukan sutradara otomatis.
     beat_serah = next(b for b in rencana["beat"] if b["narasi"].startswith("Pemberi"))
@@ -116,6 +127,15 @@ def main() -> None:
         assert lintasan[-1][1] <= 880  # sisakan margin aman dari tepi frame
         assert aktor_kejar[pid]["tujuan"] == "tepi:kanan"
         assert aktor_kejar[pid]["gerak"] == "lari"
+    # Pengejaran ke kiri harus menjadi lintasan berlawanan, bukan mengulang arah kanan.
+    beat_kejar_kiri = next(b for b in rencana["beat"] if b["narasi"].startswith("Penjaga mengejar") and "kiri" in b["narasi"])
+    aktor_kiri = {a["peran"]: a for a in beat_kejar_kiri["shot"][0]["tokoh"]}
+    for pid in ("penjaga", "pengelana"):
+        lintasan = aktor_kiri[pid]["lintasan"]
+        assert lintasan[0][1] > lintasan[-1][1]
+        assert lintasan[-1][1] >= 200
+        assert aktor_kiri[pid]["tujuan"] == "tepi:kiri"
+        assert aktor_kiri[pid]["gerak"] == "lari"
     temuan = periksa(rencana)
     gagal = [str(x) for x in temuan if x.tingkat == "GAGAL"]
     if gagal:
