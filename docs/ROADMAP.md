@@ -312,3 +312,10 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - 22 Nov 2026 — Tahap D2 (implementasi parsial, bukti dasar lulus): blocking dari visual inti, shot–reverse shot, interaksi eksplisit, gestur menunjuk/ulurkan, tujuan perjalanan benda/tokoh/tepi, dan lintasan kedalaman x/y sudah memiliki tes. CI run 45036513464: 288 tes lulus; render contoh 34,5 detik/414 bingkai; lembar kontak diperiksa. D2 tetap belum dicentang karena pemeriksaan overlap/formasi umum, reaksi pendengar, tiga-perempat, konsistensi 180 derajat lintas-beat, pengejar, putar balik, dan pembalikan badan belum lengkap.
 
 - 23 Nov 2026 — Tahap D2: render bukti diperluas dengan sisipan reaksi pendengar dan pengejaran ke kiri; CI #501 lulus (tes, render, dan pemeriksaan contoh), artefak lembar kontak/MP4 tersedia. Audit visual mengonfirmasi tiga bagian dialog (seruan, reaksi, jawaban), tujuan perjalanan, putar balik, dan dua arah pengejaran. Tes tambahan kini mengunci perubahan arah ke tujuan yang sama (kaidah 180 derajat) dan perhitungan cadence dari kecepatan lintasan; hasil CI commit terbaru masih menunggu. D2 belum dinyatakan selesai sampai hasil tes terbaru dan audit sinkronisasi subtitle/narasi diperiksa.
+
+
+## Koreksi uji audio nyata D2 — ekor alignment (23 Nov 2026)
+- Log workflow #45184440991 menunjukkan render video, mux FFmpeg, dan unggah artefak berhasil; kegagalan terjadi pada pemeriksaan akhir karena a1 potongan terakhir mencakup ekor 0,35 detik setelah kata terakhir (13,95 dtk), sementara MP3 berdurasi 13,52 dtk.
+- Perbaikan membedakan akhir kata dari akhir potongan: akhir kata alignment wajib berada dalam toleransi 0,15 detik dari durasi MP3; ekor jeda di luar MP3 ditambahkan sebagai hening oleh FFmpeg (apad) sebelum potongan diambil. Pemeriksaan durasi stream audio-video, LUFS, dan true peak tetap dipertahankan.
+- Ditambahkan tes regresi untuk ekor hening, kata yang benar-benar melewati sumber, dan kasus tanpa padding. Tes menggunakan data tiruan; tidak memanggil API ElevenLabs.
+- Status: kode dan tes telah dikomit; hasil CI serta workflow dispatch uji_d2 masih harus diverifikasi. Belum ada panggilan API ElevenLabs baru.
