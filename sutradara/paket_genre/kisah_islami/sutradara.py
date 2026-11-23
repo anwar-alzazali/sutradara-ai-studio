@@ -268,6 +268,23 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                      1 if "ke kanan" in teks_arah_kelompok else
                      (1 if posisi.get(fokus, 540) < 540 else -1))
     gerak_kelompok = perjalanan_semua and any(k in teks_arah_kelompok for k in ("mengejar", "dikejar"))
+    # Pada kalimat aktif "A mengejar B ke kiri", pengejar harus berada
+    # di sisi kanan (belakang arah gerak), bukan mendahului yang dikejar.
+    # Kalimat pasif "A dikejar B" sudah menempatkan A di depan dan B di belakang.
+    if gerak_kelompok and arah_kelompok < 0 and "mengejar" in teks_arah_kelompok and "dikejar" not in teks_arah_kelompok:
+        kata_aksi = teks_arah_kelompok.find("mengejar")
+        pengejar = next((
+            pid for pid in hadir
+            if (nama := _polos(peta[pid].get("nama", "")))
+            and nama in teks_arah_kelompok
+            and teks_arah_kelompok.find(nama) < kata_aksi
+        ), None)
+        if pengejar is not None and len(hadir) > 1:
+            posisi_urut = sorted(posisi[pid] for pid in hadir)
+            posisi[pengejar] = posisi_urut[-1]
+            sisa = [pid for pid in hadir if pid != pengejar]
+            for pid, x_pos in zip(sisa, posisi_urut[:-1]):
+                posisi[pid] = x_pos
     for pid in hadir:
         p = peta[pid]
         x = posisi.get(pid, 740)
