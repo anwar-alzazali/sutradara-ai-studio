@@ -28,8 +28,7 @@ def subtitle(teks: str, *, sorot: str | None = None, y: float = 1720) -> str:
     if sorot and sorot in teks:
         a, b = teks.split(sorot, 1)
         isi = f'{escape(a)}<tspan fill="{KUNING}">{escape(sorot)}</tspan>{escape(b)}'
-    return (f'<text x="540" y="{y}" text-anchor="middle" font-size="60" font-weight="800" fill="#fff" stroke="#000" '
-            f'stroke-width="8" paint-order="stroke">{isi}</text>')
+    return subtitle_frasa(teks.split(), y=y, sorot=sorot)
 
 
 def _ukur_baris(kata: list[str], ukuran: float) -> float:
@@ -52,7 +51,7 @@ def _bungkus_subtitle(kata: list[str], ukuran: float, lebar: float) -> list[list
     return baris
 
 
-def subtitle_frasa(kata: list[str], aktif: int | None = None, *, y: float = 1720, uk: float = 60, lebar: float = 900) -> str:
+def subtitle_frasa(kata: list[str], aktif: int | None = None, *, y: float = 1720, uk: float = 60, lebar: float = 900, sorot: str | None = None) -> str:
     """Subtitle aman layar: bungkus otomatis sampai 3 baris, lalu kecilkan font bila perlu."""
     if not kata:
         return ""
@@ -66,7 +65,15 @@ def subtitle_frasa(kata: list[str], aktif: int | None = None, *, y: float = 1720
     y0 = y - (len(baris) - 1) * jarak / 2
     out = []
     for n, b in enumerate(baris):
-        isi = " ".join((f'<tspan fill="{KUNING}">{escape(kata[j])}</tspan>' if j == aktif else escape(kata[j])) for j in b)
+        def bentuk(j: int) -> str:
+            w = kata[j]
+            if j == aktif:
+                return f'<tspan fill="{KUNING}">{escape(w)}</tspan>'
+            if sorot and sorot in w:
+                a, z = w.split(sorot, 1)
+                return f'{escape(a)}<tspan fill="{KUNING}">{escape(sorot)}</tspan>{escape(z)}'
+            return escape(w)
+        isi = " ".join(bentuk(j) for j in b)
         out.append(f'<text x="540" y="{y0 + n * jarak:.1f}" text-anchor="middle" font-size="{u:.1f}" font-weight="800" fill="#fff" '
                    f'stroke="#000" stroke-width="{u * 0.13:.1f}" paint-order="stroke">{isi}</text>')
     return "".join(out)
