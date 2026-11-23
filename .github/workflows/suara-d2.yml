@@ -1,5 +1,6 @@
 name: suara-d2
-# API berbayar hanya dijalankan atas permintaan pemilik; tidak ada trigger push/PR.
+# Memakai audio ElevenLabs yang sudah dibuat dan disimpan pemilik di cabang suara.
+# Tidak memanggil API berbayar dan tidak membutuhkan secret.
 on:
   workflow_dispatch:
 permissions:
@@ -18,9 +19,13 @@ jobs:
           pip install -r requirements.txt
           python -m playwright install --with-deps chromium
           sudo apt-get install -y ffmpeg fonts-noto-core >/dev/null
-      - name: Buat narasi ElevenLabs, periksa alignment, dan render video
-        env:
-          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+      - name: Ambil cache audio ElevenLabs yang sudah ada
+        run: |
+          git fetch --no-tags --depth=1 origin suara
+          git checkout FETCH_HEAD -- data/suara
+          mkdir -p keluaran-bukti/tahap-d2/cache-suara-elevenlabs
+          cp -a data/suara/. keluaran-bukti/tahap-d2/cache-suara-elevenlabs/
+      - name: Verifikasi alignment nyata dan render video D2
         run: python scripts/uji_audio_nyata_d2.py
       - name: Unggah bukti audio dan video D2
         if: always()
