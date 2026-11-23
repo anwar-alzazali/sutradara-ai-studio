@@ -20,7 +20,7 @@ from sutradara.paket_genre.kisah_islami.sutradara import rancang
 from sutradara.suara import narasi
 
 BASE = "https://raw.githubusercontent.com/anwar-alzazali/mesin-video/dfc5a00b1c465c366a397d7cf9a9417ffc5753de/audio_manual/nuh2"
-BASE_AUDIO = "https://media.githubusercontent.com/media/anwar-alzazali/mesin-video/dfc5a00b1c465c366a397d7cf9a9417ffc5753de/audio_manual/nuh2"
+API_AUDIO = "https://api.github.com/repos/anwar-alzazali/mesin-video/contents/audio_manual/nuh2"
 BAGIAN = ("b06", "b07")
 JEDA = 0.22
 OUT = Path("keluaran-bukti/tahap-d2/audio-nyata")
@@ -28,9 +28,19 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 
 def unduh(nama: str, tujuan: Path) -> None:
-    dasar = BASE_AUDIO if nama.endswith(".mp3") else BASE
-    with urllib.request.urlopen(f"{dasar}/{nama}", timeout=45) as r:
-        tujuan.write_bytes(r.read())
+    if nama.endswith(".mp3"):
+        req = urllib.request.Request(
+            f"{API_AUDIO}/{nama}?ref=dfc5a00b1c465c366a397d7cf9a9417ffc5753de",
+            headers={"Accept": "application/vnd.github.raw", "User-Agent": "sutradara-ai-studio-ci"},
+        )
+        with urllib.request.urlopen(req, timeout=45) as r:
+            data = r.read()
+        if not data.startswith(b"ID3") and not data.startswith(b"\\xff\\xfb") and not data.startswith(b"\\xff\\xf3") and not data.startswith(b"\\xff\\xf2"):
+            raise RuntimeError(f"Respons audio bukan MP3 valid: {nama} ({len(data)} byte)")
+        tujuan.write_bytes(data)
+    else:
+        with urllib.request.urlopen(f"{BASE}/{nama}", timeout=45) as r:
+            tujuan.write_bytes(r.read())
 
 
 def durasi(berkas: Path) -> float:
