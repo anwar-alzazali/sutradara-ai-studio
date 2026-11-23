@@ -194,9 +194,15 @@ def main() -> None:
         raise AssertionError(
             f"durasi stream tidak sama: video {dur_video:.3f}s, audio {dur_audio:.3f}s"
         )
-    if abs(dur_video - dur_sumber) > 1.0:
+    # Video boleh lebih panjang daripada MP3 sumber karena garis waktu
+    # mempertahankan jeda visual setelah ucapan. Yang wajib: semua rentang
+    # audio yang dipotong benar-benar tersedia di MP3, dan stream hasil mux
+    # sudah diperiksa terpisah agar durasinya sama dengan video.
+    akhir_sumber_terpakai = max(float(p["a1"]) for p in garis.potongan_audio)
+    if akhir_sumber_terpakai > dur_sumber + 0.15:
         raise AssertionError(
-            f"durasi hasil dan narasi sumber berbeda: {dur_video:.2f}s vs {dur_sumber:.2f}s"
+            "alignment meminta audio melewati durasi sumber: "
+            f"{akhir_sumber_terpakai:.2f}s > {dur_sumber:.2f}s"
         )
     if not math.isfinite(ukur.get("lufs", float("nan"))) or not -17.0 <= ukur["lufs"] <= -13.0:
         raise AssertionError(f"kenyaringan di luar target sekitar -15 LUFS: {ukur}")
