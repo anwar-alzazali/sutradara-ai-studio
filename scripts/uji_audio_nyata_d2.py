@@ -46,8 +46,31 @@ def durasi(berkas: Path, jenis: str | None = None) -> float:
 
 
 
-def mux_narasi_cepat(video_bisu: Path, mp3: Path, garis, mp4: Path) -> None:
-    """Mux hanya potongan narasi yang sudah disejajarkan; tanpa graf efek/ducking."""
+def periksa_alignment_sumber(data: dict, dur_sumber: float, potongan: list[dict]) -> float:
+    """Pastikan kata tidak melewati MP3; kembalikan ekor hening yang perlu ditambahkan.
+
+    Alignment ElevenLabs dapat menyertakan ekor jeda setelah kata terakhir.
+    Ekor itu bukan audio yang harus sudah ada di MP3: mux menambahkan hening,
+    tetapi akhir kata tetap wajib berada dalam toleransi durasi sumber.
+    """
+    if dur_sumber <= 0:
+        raise AssertionError(f"durasi sumber audio tidak valid: {dur_sumber}")
+    akhir_kata = max(
+        (float(k[1]) for beat in data.get("beat", []) for k in beat),
+        default=0.0,
+    )
+    if akhir_kata > dur_sumber + 0.15:
+        raise AssertionError(
+            "alignment kata melewati durasi sumber audio: "
+            f"{akhir_kata:.2f}s > {dur_sumber:.2f}s"
+        )
+    akhir_potongan = max((float(p["a1"]) for p in potongan), default=0.0)
+    return max(0.0, akhir_potongan - dur_sumber)
+
+
+def mux_narasi_cepat(video_bisu: Path, mp3: Path, garis, mp4: Path,
+                     padding_ekor: float = 0.0) -> None:
+    """Mux potongan narasi; ekor alignment yang melampaui MP3 diisi hening."""
     dur = float(garis.total)
     potongan = garis.potongan_audio
     if not potongan:
@@ -58,8 +81,10 @@ def mux_narasi_cepat(video_bisu: Path, mp3: Path, garis, mp4: Path) -> None:
         awal, akhir, tujuan = float(p["a0"]), float(p["a1"]), float(p["di"])
         if akhir <= awal:
             raise AssertionError(f"potongan audio {i + 1} berdurasi tidak valid")
+        # apad hanya menambah hening di ujung sumber, bukan mengubah waktu kata.
+        pad = f"apad=pad_dur={padding_ekor + 0.02:.3f}," if padding_ekor > 0 else ""
         filter_bagian.append(
-            f"[1:a]atrim=start={awal:.3f}:end={akhir:.3f},"
+            f"[1:a]{pad}atrim=start={awal:.3f}:end={akhir:.3f},"
             f"asetpts=PTS-STARTPTS,aresample=44100,"
             f"adelay={max(0, round(tujuan * 1000))}:all=1[n{i}]"
         )
@@ -160,6 +185,8 @@ def main() -> None:
         raise AssertionError("voice/model cache tidak cocok dengan setelan rencana")
 
     garis = susun(rencana, data)
+    dur_sumber = durasi(mp3)
+    padding_ekor = periksa_alignment_sumber(data, dur_sumber, garis.potongan_audio)
     jumlah = 0
     for kata in garis.kata:
         t = (kata["t0"] + kata["t1"]) / 2
@@ -180,7 +207,7 @@ def main() -> None:
     bisu = OUT / "nuh-dialog-elevenlabs.bisu.mp4"
     mp4 = OUT / "nuh-dialog-elevenlabs.mp4"
     video.buat(rencana, bisu, fps=8, garis=garis, kabar=lambda pesan: print(pesan, flush=True))
-    mux_narasi_cepat(bisu, mp3, garis, mp4)
+    mux_narasi_cepat(bisu, mp3, garis, mp4, padding_ekor)
     bisu.unlink(missing_ok=True)
 
     print("RENDER_SELESAI, MEMBUAT LEMBAR KONTAK", flush=True)
@@ -188,22 +215,14 @@ def main() -> None:
     print("MENGUKUR HASIL AUDIO-VIDEO", flush=True)
     dur_video = durasi(mp4, "video")
     dur_audio = durasi(mp4, "audio")
-    dur_sumber = durasi(mp3)
     ukur = campur.ukur(mp4)
     if abs(dur_video - dur_audio) > 0.15:
         raise AssertionError(
             f"durasi stream tidak sama: video {dur_video:.3f}s, audio {dur_audio:.3f}s"
         )
-    # Video boleh lebih panjang daripada MP3 sumber karena garis waktu
-    # mempertahankan jeda visual setelah ucapan. Yang wajib: semua rentang
-    # audio yang dipotong benar-benar tersedia di MP3, dan stream hasil mux
-    # sudah diperiksa terpisah agar durasinya sama dengan video.
-    akhir_sumber_terpakai = max(float(p["a1"]) for p in garis.potongan_audio)
-    if akhir_sumber_terpakai > dur_sumber + 0.15:
-        raise AssertionError(
-            "alignment meminta audio melewati durasi sumber: "
-            f"{akhir_sumber_terpakai:.2f}s > {dur_sumber:.2f}s"
-        )
+    # Durasi potongan boleh melewati MP3 hanya pada ekor jeda yang sudah
+    # divalidasi terpisah; mux mengisinya dengan hening. Kata tetap dijaga
+    # agar tidak melewati durasi sumber lebih dari toleransi 0,15 detik.
     if not math.isfinite(ukur.get("lufs", float("nan"))) or not -17.0 <= ukur["lufs"] <= -13.0:
         raise AssertionError(f"kenyaringan di luar target sekitar -15 LUFS: {ukur}")
     if not math.isfinite(ukur.get("puncak_dbtp", float("nan"))) or ukur["puncak_dbtp"] > -1.0:
@@ -218,6 +237,7 @@ def main() -> None:
         "kata_terjajar": jumlah,
         "potongan_audio": garis.potongan_audio,
         "durasi_audio_sumber": round(dur_sumber, 2),
+        "padding_ekor_hening": round(padding_ekor, 3),
         "durasi_video": round(dur_video, 2),
         "durasi_audio_video": round(dur_audio, 2),
         "pengukuran_audio": ukur,
