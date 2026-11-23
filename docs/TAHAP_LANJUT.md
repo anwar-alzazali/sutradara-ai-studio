@@ -253,13 +253,15 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
 | 3c — arah hadap | Dialog, serah-terima, tunjuk, dan interaksi mengarahkan tokoh kepada lawan; mendekat/menjauh dan tiga-perempat didukung. | Tes arah hadap interaksi dan tiga-perempat. | Render memuat serah-terima, tunjuk, dan tiga-perempat. | Tidak semua kombinasi interaksi/komposisi ditinjau manusia. |
 | 3d — perjalanan | Tujuan benda/tokoh/tepi/kedalaman, lintasan x/y, cadence, arah 180 derajat, pengejaran searah kanan/kiri, dan putar balik sesuai cerita. | Tes tujuan/lintasan, cadence, 180 derajat, pengejaran dua arah, dan putar balik. | Render memuat perjalanan, menjauh ke kedalaman, putar balik, dan pengejaran kanan/kiri. | Contoh tidak mencakup semua lintasan kompleks; pemilik perlu menonton MP4. |
 
-**CI pada HEAD sebelum perbaikan audit:** run `45203195902`, commit `660ea9a`, sukses: **320 tes Python**, **10 tes bot**, render **14 shot / 644 bingkai / 53,7 detik**, enam contoh tanpa GAGAL. Lembar kontak memuat blocking, dialog/reaksi, serah-terima, tunjuk, tiga-perempat, perjalanan, putar balik, pengejaran kanan/kiri, dan label Nabi Nuh di lapisan depan.
+**CI #529 pada HEAD `76c068e` (run `45207029799`):** sukses. Tes bot Telegram dan tes lengkap lulus; `python -m pytest -q` menghasilkan **320 passed**. Render bukti D2 menghasilkan **14 shot / 644 bingkai / 53,7 detik video** (95 detik waktu render, 1 worker). Pemeriksaan final enam contoh (`b2_adab_barang`, `dabbah_dhuha`, `dajjal_dua_sungai`, `demo_gerak`, `nuh_mengejek`, `yajuj_majjuj`) sukses tanpa GAGAL. Artefak `bukti-visual-tahap-d2` diunggah. Langkah validasi lama untuk fase lain berstatus skipped karena tidak relevan pada job ini.
 
-**Audio terdahulu (bukan HEAD):** run `45201871123` pada `ad12d28` memakai cache ElevenLabs: 29 kata terjajar, selisih stream 0,01 detik, -16,89 LUFS, true peak -1,75 dBTP. Karena renderer berubah pada `660ea9a`, uji audio-cache harus diulang pada SHA terbaru.
+**Uji audio-cache pada HEAD `76c068e` (workflow run `45284285899`):** sukses. Menggunakan cache produksi ElevenLabs yang sudah ada; langkah cek naskah, pembuatan narasi, dan simpan ke cabang suara dilewati. Laporan: 29 kata terjajar; durasi MP3 13,52 dtk; padding ekor hening 0,43 dtk; durasi video 15,12 dtk; durasi stream audio-video 15,11 dtk (selisih 0,01 dtk); -16,89 LUFS; true peak -1,75 dBTP. Artefak `bukti-audio-elevenlabs-d2` berisi laporan JSON, lembar kontak, dan MP4. Ini bukan panggilan API berbayar baru.
+
+Perubahan pipefail dan pembaruan dokumentasi audit dibuat setelah run di atas; uji audio-cache wajib diulang pada HEAD hasil perubahan tersebut sebelum D2 dapat dinilai selesai.
 
 **Catatan PERIKSA dipertahankan:** hook kronologis dan kesinambungan `surat_amanah` pada contoh B2; derajat hadis Tirmidzi 3153 diperselisihkan; beberapa shot dialog/reaksi memiliki komposisi close-up mirip. Ini bukan GAGAL otomatis dan tidak boleh dihapus dari laporan.
 
-D2 belum dicentang. Penutupan menunggu uji audio-cache pada HEAD setelah perubahan audit, CI lengkap, pemeriksaan lembar kontak audio terbaru, serta keputusan pemilik atas kelancaran gerak/variasi komposisi. D3 tidak dikerjakan dalam PR ini.
+D2 belum dicentang. CI #529 dan uji audio-cache run `45284285899` lulus pada SHA `76c068e`, tetapi perubahan pipefail/dokumentasi sesudahnya memerlukan uji ulang audio-cache pada HEAD baru. Penutupan tetap menunggu bukti audio terbaru dan tinjauan pemilik atas kelancaran gerak kontinu/variasi komposisi video. D3 tidak dikerjakan dalam PR ini.
 
 4. **[D1] Keputusan tingkat shot:**
    - pecah enumerasi menjadi shot per kata dan eskalasi pada pengulangan;
@@ -361,4 +363,4 @@ Fase 7 (perluasan genre) **tidak dibuka** sebelum Fase 6 terbukti berjalan, pema
 konsisten dulu. Jangan memulai Fase 7 atas inisiatif sendiri.
 
 
-- 23 Nov 2026 — Audit ulang PR #48: status D2 dirinci per poin (implementasi/tes/render/tinjauan pemilik). D2 tetap belum dicentang; uji audio-cache pada HEAD dan penilaian gerak kontinu oleh pemilik tetap menjadi gerbang. Catatan PERIKSA contoh B2 dan Tirmidzi 3153 dipertahankan.
+- 24 Nov 2026 — CI #529 pada SHA `76c068e` sukses: 320 tes Python, tes bot, render D2 14 shot/644 bingkai/53,7 detik, dan pemeriksaan enam contoh. Uji audio-cache run `45284285899` pada SHA yang sama juga sukses: 29 kata, selisih stream 0,01 detik, -16,89 LUFS, -1,75 dBTP; memakai cache, tanpa panggilan API berbayar. Setelah itu workflow `suara.yml` diperketat dengan `set -euo pipefail` agar kegagalan perintah narasi tidak tertutup oleh `tee`; uji audio-cache harus diulang pada HEAD baru. D2 tetap belum dicentang sampai bukti audio pada HEAD terbaru dan tinjauan video kontinu oleh pemilik tersedia. Catatan PERIKSA B2/Tirmidzi 3153 dipertahankan.
