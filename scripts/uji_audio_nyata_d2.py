@@ -20,6 +20,7 @@ from sutradara.paket_genre.kisah_islami.sutradara import rancang
 from sutradara.suara import narasi
 
 BASE = "https://raw.githubusercontent.com/anwar-alzazali/mesin-video/dfc5a00b1c465c366a397d7cf9a9417ffc5753de/audio_manual/nuh2"
+BASE_AUDIO = "https://media.githubusercontent.com/media/anwar-alzazali/mesin-video/dfc5a00b1c465c366a397d7cf9a9417ffc5753de/audio_manual/nuh2"
 BAGIAN = ("b06", "b07")
 JEDA = 0.22
 OUT = Path("keluaran-bukti/tahap-d2/audio-nyata")
@@ -27,7 +28,8 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 
 def unduh(nama: str, tujuan: Path) -> None:
-    with urllib.request.urlopen(f"{BASE}/{nama}", timeout=45) as r:
+    dasar = BASE_AUDIO if nama.endswith(".mp3") else BASE
+    with urllib.request.urlopen(f"{dasar}/{nama}", timeout=45) as r:
         tujuan.write_bytes(r.read())
 
 
