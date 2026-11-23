@@ -74,7 +74,7 @@ def main() -> None:
             {
                 "narasi": "Penjaga mengejar pengelana ke kanan.",
                 "kata_kunci": ["berlari"], "dalil": [], "suasana": "senja",
-                "peran": ["Penjaga", "Pengelana"],
+                "peran": ["penjaga", "pengelana"],
             },
         ],
     }
