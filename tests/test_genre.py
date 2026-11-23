@@ -344,3 +344,51 @@ def test_pengejar_dan_yang_dikejar_bergerak_searah():
     }
     assert arah == {"penjaga": 1, "pengelana": 1}
     assert tujuan == {"penjaga": "tepi:kanan", "pengelana": "tepi:kanan"}
+
+
+
+def test_dialog_menyisipkan_reaksi_pendengar_yang_disebut_eksplisit():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang
+
+    naskah = {
+        "judul": "Seruan dan jawaban",
+        "beat": [{
+            "narasi": "Nabi Nuh menyeru seorang penentang; penentang itu terkejut lalu menjawab.",
+            "peran": ["Nabi Nuh", "penentang"],
+            "dialog": [{
+                "pembicara": "Nabi Nuh",
+                "penjawab": "penentang",
+                "ucapan": "Dengarkan seruanku.",
+            }],
+        }],
+    }
+    rencana, _ = rancang(naskah)
+    shots = rencana["beat"][0]["shot"]
+    # Pembicara -> reaksi pendengar -> giliran penjawab.
+    assert len(shots) == 3
+    reaksi = shots[1]
+    assert reaksi["kamera"]["x"] == 820
+    pendengar = next(a for a in reaksi["tokoh"] if a["peran"] == "penentang")
+    assert pendengar["wajah"] == "kaget"
+    assert pendengar["gerak"] == "kaget"
+    assert pendengar["bicara"] == []
+
+
+def test_pengejaran_ke_kiri_menggerakkan_kedua_tokoh_searah_dengan_margin():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang
+
+    naskah = {
+        "judul": "Pengejaran ke kiri",
+        "beat": [{
+            "narasi": "Penjaga mengejar pengelana ke kiri.",
+            "peran": ["penjaga", "pengelana"],
+        }],
+    }
+    rencana, _ = rancang(naskah)
+    tokoh = {a["peran"]: a for a in rencana["beat"][0]["shot"][0]["tokoh"]}
+    for pid in ("penjaga", "pengelana"):
+        lintasan = tokoh[pid]["lintasan"]
+        assert lintasan[0][1] > lintasan[-1][1]
+        assert lintasan[-1][1] >= 200
+        assert tokoh[pid]["tujuan"] == "tepi:kiri"
+        assert tokoh[pid]["gerak"] == "lari"
