@@ -298,7 +298,7 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                 arah = "tiga_perempat_belakang" if "dari belakang" in teks_hadap else "tiga_perempat"
             for xi in xs:
                 wajah_tokoh = resep.get("wajah", "datar")
-                gerak_tokoh = resep.get("gerak", "berdiri")
+                gerak_tokoh = resep.get("gerak", "berdiri") if not pelaku or pid in pelaku else "berdiri"
                 if reaksi and pid == subjek_dialog:
                     wajah_tokoh, gerak_tokoh = _reaksi_pendengar(narasi) or ("heran", "kaget")
                 a=_aktor(pid,peta,xi,fokus=(pid==fokus),wajah=wajah_tokoh,

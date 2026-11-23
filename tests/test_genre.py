@@ -283,3 +283,22 @@ def test_skema_tambahan_tidak_bisa_diubah_secara_tidak_langsung():
     assert validator.is_valid(rencana)
     rencana["muatan"] = {"kode": 123}
     assert not validator.is_valid(rencana)
+
+
+
+def test_gerak_aksi_hanya_diberikan_kepada_pelaku():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang
+
+    naskah = {
+        "judul": "Pembangunan bahtera",
+        "inti": "bahtera",
+        "beat": [{
+            "narasi": "Pengikut beriman membangun bahtera; kaum penentang berdiri di seberang.",
+            "peran": ["pengikut beriman", "kaum penentang"],
+        }],
+    }
+    rencana, _ = rancang(naskah)
+    aktor = rencana["beat"][0]["shot"][0]["tokoh"]
+    gerak = {a["peran"]: a["gerak"] for a in aktor}
+    assert gerak["pengikut_beriman"] == "palu"
+    assert gerak["kaum_penentang"] == "berdiri"
