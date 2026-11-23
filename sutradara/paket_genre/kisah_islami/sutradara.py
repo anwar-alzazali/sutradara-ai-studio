@@ -347,7 +347,7 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                             # jangan menghitung arah terpisah dari posisi masing-masing.
                             dx = arah_kelompok
                             tujuan = f"tepi:{'kanan' if dx > 0 else 'kiri'}"
-                            ujung = x + 280 * dx
+                            ujung = max(200.0, min(880.0, x + 280 * dx))
                         elif target_x is not None:
                             dx = (target_x > x) - (target_x < x)
                             ujung = target_x - dx * 100 if dx else x

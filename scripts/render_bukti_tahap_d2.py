@@ -113,6 +113,7 @@ def main() -> None:
     for pid in ("penjaga", "pengelana"):
         lintasan = aktor_kejar[pid]["lintasan"]
         assert lintasan[0][1] < lintasan[-1][1]
+        assert lintasan[-1][1] <= 880  # sisakan margin aman dari tepi frame
         assert aktor_kejar[pid]["tujuan"] == "tepi:kanan"
         assert aktor_kejar[pid]["gerak"] == "lari"
     temuan = periksa(rencana)
