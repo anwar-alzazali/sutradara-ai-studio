@@ -71,6 +71,11 @@ def main() -> None:
                 "kata_kunci": ["berlari"], "dalil": [], "suasana": "senja",
                 "peran": ["Pengelana"],
             },
+            {
+                "narasi": "Penjaga mengejar pengelana ke kanan.",
+                "kata_kunci": ["berlari"], "dalil": [], "suasana": "senja",
+                "peran": ["Penjaga", "Pengelana"],
+            },
         ],
     }
     rencana, _ = rancang(naskah)
@@ -101,6 +106,15 @@ def main() -> None:
     aktor_putar = beat_putar["shot"][0]["tokoh"][0]
     assert aktor_putar["berbalik_sesuai_cerita"] is True
     assert isinstance(aktor_putar["arah"], list) and isinstance(aktor_putar["balik"], list)
+    # Adegan pengejaran: kedua tokoh harus menempuh arah layar yang sama,
+    # bukan saling mendekat atau bergerak saling berlawanan.
+    beat_kejar = next(b for b in rencana["beat"] if b["narasi"].startswith("Penjaga mengejar"))
+    aktor_kejar = {a["peran"]: a for a in beat_kejar["shot"][0]["tokoh"]}
+    for pid in ("penjaga", "pengelana"):
+        lintasan = aktor_kejar[pid]["lintasan"]
+        assert lintasan[0][1] < lintasan[-1][1]
+        assert aktor_kejar[pid]["tujuan"] == "tepi:kanan"
+        assert aktor_kejar[pid]["gerak"] == "lari"
     temuan = periksa(rencana)
     gagal = [str(x) for x in temuan if x.tingkat == "GAGAL"]
     if gagal:

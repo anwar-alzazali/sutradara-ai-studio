@@ -159,7 +159,7 @@ hook, resep data, tata panggung, dialog, arah hadap, dan lintasan jalan/lari. Mo
   bawaan, menerima adapter yang diinjeksi lewat `--adapter modul:fungsi`, dan biaya agregat dicatat tanpa prompt atau rahasia. Bukti render Nuh/Hud
 dan batas cakupan D1 tercatat di deskripsi PR; penilaian layak tayang tetap keputusan pemilik.
 
-**Status Tahap D2:** belum selesai. Cabang `tahap-d2-blocking-dialog-gerak` memuat perbaikan awal pada blocking otomatis, shot–reverse shot, dan lintasan perjalanan x/y. Penjaga kedekatan pelaku dibuat keras untuk rencana otomatis. D2 tetap berstatus belum sampai seluruh tes lokal/CI dan bukti render + pemeriksaan lembar kontak untuk blocking, dialog/arah hadap, serta perjalanan tersedia. D3 dan Fase 4 tetap belum selesai.
+**Status Tahap D2:** belum selesai. Cabang `tahap-d2-blocking-dialog-gerak` memuat penguatan blocking otomatis, shot–reverse shot, arah hadap, dan lintasan perjalanan x/y. Penjaga kedekatan pelaku dibuat keras untuk rencana otomatis. Bukti render D2 mencakup blocking pembangunan bahtera, dialog, serah-terima, menunjuk, perjalanan menuju benda/tepi/kedalaman, berbalik arah, dan adegan pengejaran. Adegan pengejaran memeriksa bahwa pengejar dan yang dikejar sama-sama bergerak ke kanan menuju tepi yang sama. Audit artistik lintas variasi formasi, liputan reaksi pendengar, kaidah 180 derajat lintas-beat, serta sinkronisasi subtitle masih memerlukan pemeriksaan lanjutan. D3 dan Fase 4 tetap belum selesai.
 
 ### ○ Fase 5 — Periksa & kritikus
 1. Periksa teknis (salin `mesin-video/periksa.py`): resolusi, durasi, audio hilang, clipping, layar kosong, teks terpotong.
