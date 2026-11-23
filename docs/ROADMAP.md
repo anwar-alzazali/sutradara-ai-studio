@@ -159,7 +159,13 @@ hook, resep data, tata panggung, dialog, arah hadap, dan lintasan jalan/lari. Mo
   bawaan, menerima adapter yang diinjeksi lewat `--adapter modul:fungsi`, dan biaya agregat dicatat tanpa prompt atau rahasia. Bukti render Nuh/Hud
 dan batas cakupan D1 tercatat di deskripsi PR; penilaian layak tayang tetap keputusan pemilik.
 
-**Status Tahap D2:** belum selesai. Cabang `tahap-d2-blocking-dialog-gerak` memuat penguatan blocking otomatis, shot–reverse shot, arah hadap, dan lintasan perjalanan x/y. Penjaga kedekatan pelaku dibuat keras untuk rencana otomatis. Bukti render D2 mencakup blocking pembangunan bahtera, dialog, serah-terima, menunjuk, perjalanan menuju benda/tepi/kedalaman, berbalik arah, dan adegan pengejaran. Adegan pengejaran memeriksa bahwa pengejar dan yang dikejar sama-sama bergerak ke kanan menuju tepi yang sama. Audit artistik lintas variasi formasi, liputan reaksi pendengar, kaidah 180 derajat lintas-beat, serta sinkronisasi subtitle masih memerlukan pemeriksaan lanjutan. D3 dan Fase 4 tetap belum selesai.
+**Status Tahap D2 pada PR #48: belum dicentang / belum selesai.** Implementasi mencakup (3) blocking otomatis dari visual inti, penempatan pihak lawan, pemeriksaan kedekatan pelaku dan kontinuitas panggung; (3b) shot–reverse shot dengan sisipan reaksi pendengar; (3c) arah hadap interaksi dan tiga-perempat; (3d) tujuan serta lintasan x/y, cadence, konsistensi 180 derajat, pengejaran kanan/kiri dengan kedua tokoh searah, dan putar balik sesuai cerita.
+
+**Bukti otomatis dan render pada HEAD `660ea9a`:** CI #45203195902 sukses dengan 320 tes Python dan 10 tes bot; render D2 14 shot / 644 bingkai / 53,7 detik serta pemeriksaan enam contoh tanpa GAGAL. Tes mencakup blocking, overlap/posisi, reaksi pendengar, arah hadap, lintasan, cadence, 180 derajat, pengejaran dua arah, dan putar balik. Lembar kontak diperiksa; label Nabi Nuh dipisah ke lapisan depan. Bukti statis tidak menggantikan pemeriksaan gerak kontinu dan variasi artistik oleh pemilik.
+
+**Audio:** uji cache pada `ad12d28` lulus (29 kata, selisih stream 0,01 detik, -16,89 LUFS, -1,75 dBTP), tetapi bukan bukti renderer terbaru `660ea9a`. Uji ulang audio-cache pada HEAD diperlukan. Tidak boleh memanggil ElevenLabs berbayar dari CI.
+
+**Catatan PERIKSA yang tetap terbuka:** hook kronologis dan kesinambungan `surat_amanah` pada contoh B2; derajat hadis Tirmidzi 3153 diperselisihkan; beberapa shot dialog/reaksi memakai komposisi close-up mirip. Jangan ubah tingkat temuan tanpa alasan/bukti. D2 tetap belum selesai sampai uji audio HEAD dan penilaian gerak/komposisi oleh pemilik; D3 tidak termasuk PR ini.
 
 ### ○ Fase 5 — Periksa & kritikus
 1. Periksa teknis (salin `mesin-video/periksa.py`): resolusi, durasi, audio hilang, clipping, layar kosong, teks terpotong.
@@ -319,3 +325,6 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - Perbaikan membedakan akhir kata dari akhir potongan: akhir kata alignment wajib berada dalam toleransi 0,15 detik dari durasi MP3; ekor jeda di luar MP3 ditambahkan sebagai hening oleh FFmpeg (apad) sebelum potongan diambil. Pemeriksaan durasi stream audio-video, LUFS, dan true peak tetap dipertahankan.
 - Ditambahkan tes regresi untuk ekor hening, kata yang benar-benar melewati sumber, dan kasus tanpa padding. Tes menggunakan data tiruan; tidak memanggil API ElevenLabs.
 - Status: kode dan tes telah dikomit; hasil CI serta workflow dispatch uji_d2 masih harus diverifikasi. Belum ada panggilan API ElevenLabs baru.
+
+
+- 23 Nov 2026 — Audit ulang PR #48: status D2 dipisah antara implementasi, tes otomatis, render, dan tinjauan pemilik. 320 tes Python + 10 tes bot dan render 14 shot pada SHA 660ea9a tercatat; uji audio-cache pada HEAD masih wajib. Catatan PERIKSA B2/Tirmidzi 3153 dan kebutuhan tinjauan gerak kontinu dipertahankan.
