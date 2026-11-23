@@ -22,9 +22,11 @@ jobs:
         with:
           python-version: "3.12"
       - name: Pasang dependensi
+        env:
+          RENCANA: ${{ inputs.rencana }}
         run: |
           pip install -r requirements.txt
-          if [ "${{ inputs.rencana }}" = "uji_d2" ]; then
+          if [ "$RENCANA" = "uji_d2" ]; then
             python -m playwright install --with-deps chromium
             sudo apt-get install -y ffmpeg fonts-noto-core >/dev/null
           fi
@@ -53,13 +55,19 @@ jobs:
         if: ${{ inputs.rencana != 'uji_d2' }}
         env:
           RENCANA: ${{ inputs.rencana }}
-        run: for f in $RENCANA; do python -m sutradara naskah "$f"; done
+        run: |
+          read -r -a berkas_rencana <<< "$RENCANA"
+          if [ "${#berkas_rencana[@]}" -eq 0 ]; then echo "Input rencana kosong" >&2; exit 1; fi
+          for f in "${berkas_rencana[@]}"; do python -m sutradara naskah "$f"; done
       - name: Buat narasi
         if: ${{ inputs.rencana != 'uji_d2' }}
         env:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           RENCANA: ${{ inputs.rencana }}
-        run: python -m sutradara suara $RENCANA | tee -a "$GITHUB_STEP_SUMMARY"
+        run: |
+          read -r -a berkas_rencana <<< "$RENCANA"
+          if [ "${#berkas_rencana[@]}" -eq 0 ]; then echo "Input rencana kosong" >&2; exit 1; fi
+          python -m sutradara suara "${berkas_rencana[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Simpan ke cabang suara
         if: ${{ inputs.rencana != 'uji_d2' }}
         run: |
