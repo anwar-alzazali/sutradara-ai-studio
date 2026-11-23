@@ -8,7 +8,7 @@ def test_label_nama_diescape_dan_dijaga_di_dalam_batas_kanvas():
 
     assert "&lt;Nuh&gt;" in svg
     assert 'class="label-nur"' in svg
-    assert 'x="80.0"' in svg
+    assert 'x="132.0"' in svg
 
 
 def test_label_nabi_dipisah_dari_pilar_dan_masuk_lapisan_depan():
