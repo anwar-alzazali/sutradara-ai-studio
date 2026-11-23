@@ -173,7 +173,7 @@ Aturan wajibnya ada di `AGENTS.md` (tabel adab saluran). Kerjakan:
 |---|---|---|
 | D0 | Langkah 0: pisahkan inti dan paket genre | selesai (#44, #46) |
 | D1 | Poin 0b, 1, 2, 4: sisa kebocoran genre, templat naskah + validator, keputusan tingkat video dan shot | selesai (#45) |
-| D2 | Poin 3, 3b, 3c, 3d: penataan panggung, liputan dialog, arah hadap, berjalan dengan tujuan dan lintasan | belum (implementasi parsial; bukti tes dan render belum lengkap) |
+| D2 | Poin 3, 3b, 3c, 3d: penataan panggung, liputan dialog, arah hadap, berjalan dengan tujuan dan lintasan | implementasi + tes/render dasar lulus; audit ulang menunggu bukti audio pada HEAD dan pemeriksaan pemilik |
 | D3 | Poin 5, 6, 7: perpustakaan resep, model AI opsional, bukti video Nuh dan Hud otomatis | belum |
 
 **Langkah 0 — pisahkan inti dan genre, kerjakan SEBELUM poin lainnya** (keputusan pemilik 21 Nov 2026).
@@ -244,11 +244,22 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
    - Penjaga: GAGAL bila `jalan`/`lari` tidak punya lintasan atau tujuan, kecuali ditandai `di_tempat` dengan
      alasan (mis. kamera ikut bergerak). PERIKSA bila arah hadap berlawanan dengan arah gerak, atau arah layar
      berganti antar-shot menuju tujuan yang sama.
-**Status D2: BELUM SELESAI — implementasi parsial, bukti dasar lulus (22 Nov 2026).** Pada cabang `tahap-d2-blocking-dialog-gerak`, blocking pelaku dihitung dari visual inti dan pihak lawan ditempatkan di seberang dalam batas layar; pelaku menghadap area kerja. Shot–reverse shot menjaga sisi pasangan dan mengalihkan status bicara. Narasi interaksi eksplisit (mengulurkan/menyerahkan/menerima, menunjuk, mengejek) dapat mengarahkan pasangan saling berhadapan; gestur `tunjuk` dan `ulurkan` diturunkan dari kata kerja. Perjalanan mendukung tujuan tepi layar, benda, tokoh yang disebut, dan kedalaman depan/belakang dengan lintasan x/y serta cadence langkah. Penjaga kedekatan pelaku menjadi `GAGAL` untuk rencana otomatis; pemeriksaan arah gerak hanya memeriksa lintasan mendatar.
+**Status D2: implementasi utama tersedia; belum dinyatakan selesai.** Status dibedakan antara implementasi, tes otomatis, bukti render, dan tinjauan manusia.
 
-Bukti CI run `45036513464`: **288 tes lulus**, render contoh **34,5 detik / 414 bingkai**, unggah artefak berhasil, dan lembar kontak telah diperiksa. Contoh mencakup blocking bahtera, dialog, serah-terima surat, menunjuk visual inti, perjalanan ke bahtera, dan menjauh ke kedalaman layar.
+| Poin | Implementasi | Tes otomatis | Bukti render | Batas audit |
+|---|---|---|---|---|
+| 3 — blocking | Koordinat pelaku dihitung dari visual inti; pihak lawan ditempatkan berseberangan; penjaga kedekatan tegas untuk rencana otomatis; pemeriksa kontinuitas panggung mendeteksi tumpang tindih/pergeseran posisi. | Tes blocking, pelaku jauh, overlap, dan stabilitas posisi. | 14 shot / 644 bingkai / 53,7 detik memuat pembangunan bahtera dan kelompok. | Belum membuktikan seluruh variasi formasi dan jarak; perlu tinjauan pemilik. |
+| 3b — dialog | Shot–reverse shot bergantian pada pembicara/penjawab; sisipan reaksi pendengar bila reaksi penting disebut dalam narasi. | Tes dua-shot dan tiga-shot seruan–reaksi–jawaban. | Render menampilkan seruan, reaksi penentang, dan jawaban. | Variasi sudut/ukuran close-up dan gerak kontinu perlu ditinjau. |
+| 3c — arah hadap | Dialog, serah-terima, tunjuk, dan interaksi mengarahkan tokoh kepada lawan; mendekat/menjauh dan tiga-perempat didukung. | Tes arah hadap interaksi dan tiga-perempat. | Render memuat serah-terima, tunjuk, dan tiga-perempat. | Tidak semua kombinasi interaksi/komposisi ditinjau manusia. |
+| 3d — perjalanan | Tujuan benda/tokoh/tepi/kedalaman, lintasan x/y, cadence, arah 180 derajat, pengejaran searah kanan/kiri, dan putar balik sesuai cerita. | Tes tujuan/lintasan, cadence, 180 derajat, pengejaran dua arah, dan putar balik. | Render memuat perjalanan, menjauh ke kedalaman, putar balik, dan pengejaran kanan/kiri. | Contoh tidak mencakup semua lintasan kompleks; pemilik perlu menonton MP4. |
 
-Yang masih belum terbukti/selesai: pemeriksaan tumpang-tindih dan posisi konsisten untuk semua formasi; sisipan reaksi pendengar; interaksi tanpa nama pasangan eksplisit; arah tiga-perempat; arah layar 180 derajat lintas-beat untuk semua jalur; pengejar/yang dikejar bergerak searah; kembali/kabur mengikuti lintasan sebelumnya; dan putaran badan saat benar-benar berbalik. Karena itu D2 tetap belum dicentang. Jangan lanjut ke D3 sebelum seluruh celah ini ditutup dan contoh render tambahannya diaudit.
+**CI pada HEAD sebelum perbaikan audit:** run `45203195902`, commit `660ea9a`, sukses: **320 tes Python**, **10 tes bot**, render **14 shot / 644 bingkai / 53,7 detik**, enam contoh tanpa GAGAL. Lembar kontak memuat blocking, dialog/reaksi, serah-terima, tunjuk, tiga-perempat, perjalanan, putar balik, pengejaran kanan/kiri, dan label Nabi Nuh di lapisan depan.
+
+**Audio terdahulu (bukan HEAD):** run `45201871123` pada `ad12d28` memakai cache ElevenLabs: 29 kata terjajar, selisih stream 0,01 detik, -16,89 LUFS, true peak -1,75 dBTP. Karena renderer berubah pada `660ea9a`, uji audio-cache harus diulang pada SHA terbaru.
+
+**Catatan PERIKSA dipertahankan:** hook kronologis dan kesinambungan `surat_amanah` pada contoh B2; derajat hadis Tirmidzi 3153 diperselisihkan; beberapa shot dialog/reaksi memiliki komposisi close-up mirip. Ini bukan GAGAL otomatis dan tidak boleh dihapus dari laporan.
+
+D2 belum dicentang. Penutupan menunggu uji audio-cache pada HEAD setelah perubahan audit, CI lengkap, pemeriksaan lembar kontak audio terbaru, serta keputusan pemilik atas kelancaran gerak/variasi komposisi. D3 tidak dikerjakan dalam PR ini.
 
 4. **[D1] Keputusan tingkat shot:**
    - pecah enumerasi menjadi shot per kata dan eskalasi pada pengulangan;
@@ -348,3 +359,6 @@ Poin berikut **ditunda atas keputusan pemilik pada 22 Nov 2026**. Jangan mengerj
 
 Fase 7 (perluasan genre) **tidak dibuka** sebelum Fase 6 terbukti berjalan, pematangan (Tahap G) menunjukkan hasil dan pemilik menyetujuinya secara tertulis. Ini sesuai keputusan pemilik bahwa Kisah Islami harus
 konsisten dulu. Jangan memulai Fase 7 atas inisiatif sendiri.
+
+
+- 23 Nov 2026 — Audit ulang PR #48: status D2 dirinci per poin (implementasi/tes/render/tinjauan pemilik). D2 tetap belum dicentang; uji audio-cache pada HEAD dan penilaian gerak kontinu oleh pemilik tetap menjadi gerbang. Catatan PERIKSA contoh B2 dan Tirmidzi 3153 dipertahankan.
