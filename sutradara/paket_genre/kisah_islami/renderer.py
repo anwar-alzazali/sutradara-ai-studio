@@ -4,7 +4,7 @@ from .visual import akhir_zaman,benda,dajjal,kartu,malaikat,makhluk,nur
 
 def _cahaya(n,t):
     if n.get("_kategori_peran")=="malaikat":return malaikat.berkas(n["x"],n["y"],tinggi=n.get("tinggi",620),lebar=n.get("lebar",260),t=t,seed=n.get("seed",17))
-    return nur.pilar(n["x"],n["y"],nama=n.get("nama"),sinar_ke=n.get("sinar_ke","kanan"),tinggi=n.get("tinggi",400),lebar=n.get("lebar",92),pendar_rx=n.get("pendar_rx",100),pendar_ry=n.get("pendar_ry",145),t=t)
+    return nur.pilar(n["x"],n["y"],nama=None,sinar_ke=n.get("sinar_ke","kanan"),tinggi=n.get("tinggi",400),lebar=n.get("lebar",92),pendar_rx=n.get("pendar_rx",100),pendar_ry=n.get("pendar_ry",145),t=t)
 
 def render_adegan(shot,sp,t,tg,data):
     latar=[];tengah=[];overlay=[];barang_pemilik={};target_tangan={}
@@ -52,6 +52,9 @@ def render_adegan(shot,sp,t,tg,data):
         svg=(makhluk.retakan(m["x"],m["y"]) if m.get("retakan",True) else "")+makhluk.kabut_tanpa_wujud(m["x"],m["y"],tinggi=m.get("tinggi",820),keluar=m.get("keluar",1),t=tg);tengah.append((m["y"]-1,svg))
     for n in sp.get("nur",[]):
         if not n.get("di_belakang_benda"):tengah.append((n["y"],_cahaya(n,tg)))
+        if n.get("nama"):
+            # Label berada di atas lapisan tokoh agar tidak tertutup pemeran yang berdiri di depannya.
+            overlay.append(nur.label_nama(n["x"],n["y"],n["nama"]))
     for d in sp.get("dajjal",[]):
         svg=dajjal.belakang(d["x"],d["y"],d.get("s",1),t=tg,jalan=d.get("jalan",False),jubah_berkibar=d.get("jubah_berkibar",0),buka=d.get("buka",0)) if d.get("arah")=="belakang" else dajjal.sosok(d["x"],d["y"],d.get("s",1),lengan=d.get("lengan","terbuka"));tengah.append((d["y"],svg))
     ui=[];kd=sp.get("kartu_dalil");aktif=bool(kd) and t>=kd.get("mulai",0)
