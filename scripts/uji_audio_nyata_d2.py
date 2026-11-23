@@ -1,15 +1,15 @@
-"""Uji integrasi D2 memakai narasi dan alignment nyata dari mesin-video (Nabi Nuh)."""
+"""Render uji D2 dengan narasi ElevenLabs dan alignment kata produksi.
+
+Pemanggilan API berbayar hanya dilakukan oleh workflow manual suara-d2.yml.
+Teks contoh memakai dua beat Nuh yang sudah dipakai pada uji audio sebelumnya.
+"""
 from __future__ import annotations
 
 import json
-import sys
 import subprocess
-import tempfile
-import urllib.request
+import sys
 from pathlib import Path
 
-# Saat skrip dijalankan langsung, Python menambahkan scripts/ ke sys.path,
-# bukan root repo. Tambahkan root agar paket sutradara dapat diimpor.
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -19,28 +19,8 @@ from sutradara.garis_waktu import susun
 from sutradara.paket_genre.kisah_islami.sutradara import rancang
 from sutradara.suara import narasi
 
-BASE = "https://raw.githubusercontent.com/anwar-alzazali/mesin-video/dfc5a00b1c465c366a397d7cf9a9417ffc5753de/audio_manual/nuh2"
-API_AUDIO = "https://api.github.com/repos/anwar-alzazali/mesin-video/contents/audio_manual/nuh2"
-BAGIAN = ("b06", "b07")
-JEDA = 0.22
-OUT = Path("keluaran-bukti/tahap-d2/audio-nyata")
-OUT.mkdir(parents=True, exist_ok=True)
-
-
-def unduh(nama: str, tujuan: Path) -> None:
-    if nama.endswith(".mp3"):
-        req = urllib.request.Request(
-            f"{API_AUDIO}/{nama}?ref=dfc5a00b1c465c366a397d7cf9a9417ffc5753de",
-            headers={"Accept": "application/vnd.github.raw", "User-Agent": "sutradara-ai-studio-ci"},
-        )
-        with urllib.request.urlopen(req, timeout=45) as r:
-            data = r.read()
-        if not data.startswith(b"ID3") and not data.startswith(b"\\xff\\xfb") and not data.startswith(b"\\xff\\xf3") and not data.startswith(b"\\xff\\xf2"):
-            raise RuntimeError(f"Respons audio bukan MP3 valid: {nama} ({len(data)} byte)")
-        tujuan.write_bytes(data)
-    else:
-        with urllib.request.urlopen(f"{BASE}/{nama}", timeout=45) as r:
-            tujuan.write_bytes(r.read())
+OUT = ROOT / "keluaran-bukti/tahap-d2/audio-elevenlabs"
+CACHE = ROOT / "keluaran-bukti/tahap-d2/cache-suara-elevenlabs"
 
 
 def durasi(berkas: Path) -> float:
@@ -51,84 +31,71 @@ def durasi(berkas: Path) -> float:
 
 
 def main() -> None:
-    with tempfile.TemporaryDirectory() as td:
-        tmp = Path(td)
-        audio, alignment = [], []
-        for nama in BAGIAN:
-            mp3, js = tmp / f"{nama}.mp3", tmp / f"{nama}.json"
-            unduh(f"{nama}.mp3", mp3)
-            unduh(f"{nama}.json", js)
-            audio.append(mp3)
-            alignment.append(json.loads(js.read_text(encoding="utf-8")))
+    OUT.mkdir(parents=True, exist_ok=True)
+    CACHE.mkdir(parents=True, exist_ok=True)
+    naskah = {
+        "judul": "Nabi Nuh: kapal dan jawaban",
+        "inti": "Nabi Nuh membuat kapal dan menjawab ejekan kaumnya.",
+        "dalil": [],
+        "suara": {"whoosh": "tidak", "vol_suasana": 0},
+        "beat": [
+            {"narasi": "Lalu beliau mulai membuat kapal. Setiap kali pemuka kaumnya lewat, mereka mengejek.",
+             "kata_kunci": ["membuat", "mengejek"], "dalil": [], "suasana": None,
+             "peran": ["Nabi Nuh", "pemuka kaum Nuh"]},
+            {"narasi": "Nabi Nuh menjawab: kalau kalian mengejek kami, kami pun akan mengejek kalian, seperti kalian mengejek.",
+             "kata_kunci": ["menjawab"], "dalil": [], "suasana": None,
+             "peran": ["Nabi Nuh", "pemuka kaum Nuh"],
+             "dialog": [{"pembicara": "Nabi Nuh", "penjawab": "pemuka kaum Nuh",
+                         "ucapan": "Kalau kalian mengejek kami, kami pun akan mengejek kalian."}]},
+        ],
+    }
+    rencana, _ = rancang(naskah)
 
-        naskah = {
-            "judul": "Nabi Nuh: kapal dan jawaban",
-            "inti": "Nabi Nuh membuat kapal dan menjawab ejekan kaumnya.",
-            "dalil": [],
-            "suara": {"whoosh": "tidak", "vol_suasana": 0},
-            "beat": [
-                {"narasi": alignment[0]["teks"], "kata_kunci": ["membuat", "mengejek"],
-                 "dalil": [], "suasana": None, "peran": ["Nabi Nuh", "pemuka kaum Nuh"]},
-                {"narasi": alignment[1]["teks"], "kata_kunci": ["menjawab"],
-                 "dalil": [], "suasana": None, "peran": ["Nabi Nuh", "pemuka kaum Nuh"],
-                 "dialog": [{"pembicara": "Nabi Nuh", "penjawab": "pemuka kaum Nuh",
-                             "ucapan": "Kalau kalian mengejek kami, kami pun akan mengejek kalian."}]},
-            ],
-        }
-        rencana, _ = rancang(naskah)
-        offset = durasi(audio[0]) + JEDA
-        gabung = tmp / "narasi.mp3"
-        subprocess.run([
-            "ffmpeg", "-v", "error", "-y", "-i", str(audio[0]),
-            "-f", "lavfi", "-t", str(JEDA), "-i", "anullsrc=r=44100:cl=stereo",
-            "-i", str(audio[1]), "-filter_complex",
-            "[0:a][1:a][2:a]concat=n=3:v=0:a=1[out]", "-map", "[out]",
-            "-c:a", "libmp3lame", "-b:a", "128k", str(gabung)
-        ], check=True)
+    # Modul produksi mengurus penjaga Arab, cache, ElevenLabs timestamps, dan pembagian beat.
+    js = narasi.buat(rencana, folder=CACHE)
+    mp3, _ = narasi.jalur(rencana, CACHE)
+    data = json.loads(js.read_text(encoding="utf-8"))
+    if not mp3.is_file() or mp3.stat().st_size < 1024:
+        raise AssertionError("MP3 ElevenLabs tidak terbentuk atau terlalu kecil")
+    if len(data.get("beat", [])) != len(rencana["beat"]):
+        raise AssertionError("jumlah kelompok alignment tidak sama dengan jumlah beat")
 
-        kata = []
-        for i, data in enumerate(alignment):
-            geser = 0.0 if i == 0 else offset
-            kata.append([[round(t0 + geser, 3), round(t1 + geser, 3), teks]
-                         for t0, t1, teks in data["kata"]])
-        data_narasi = {"beat": kata}
-        g = susun(rencana, data_narasi)
+    garis = susun(rencana, data)
+    jumlah = 0
+    for kata in garis.kata:
+        t = (kata["t0"] + kata["t1"]) / 2
+        sub = garis.subtitle_pada(t)
+        if not sub or kata["teks"] not in sub[0]:
+            raise AssertionError(f"subtitle tidak sinkron: {kata['teks']} @ {t:.3f}s")
+        if sub[1] >= len(sub[0]) or sub[0][sub[1]] != kata["teks"]:
+            raise AssertionError(f"sorotan kata tidak sinkron: {kata['teks']} @ {t:.3f}s")
+        jumlah += 1
+    if jumlah < 20 or len(garis.potongan_audio) != len(rencana["beat"]):
+        raise AssertionError(f"alignment tidak lengkap: {jumlah} kata, {len(garis.potongan_audio)} potongan")
 
-        # Periksa setiap kata memakai waktu video hasil transformasi, bukan waktu sumber.
-        jumlah = 0
-        for k in g.kata:
-            t = (k["t0"] + k["t1"]) / 2
-            sub = g.subtitle_pada(t)
-            if not sub or k["teks"] not in sub[0]:
-                raise AssertionError(f"subtitle tidak sinkron: {k['teks']} @ video {t:.3f}")
-            if sub[1] >= len(sub[0]) or sub[0][sub[1]] != k["teks"]:
-                raise AssertionError(f"sorotan kata tidak sinkron: {k['teks']} @ video {t:.3f}")
-            jumlah += 1
-        if jumlah < 20 or len(g.potongan_audio) != 2:
-            raise AssertionError(f"alignment tidak lengkap: {jumlah} kata, {len(g.potongan_audio)} potongan")
-
-        folder = tmp / "cache-suara"
-        folder.mkdir()
-        mp3_cache, js_cache = narasi.jalur(rencana, folder)
-        mp3_cache.write_bytes(gabung.read_bytes())
-        js_cache.write_text(json.dumps(data_narasi, ensure_ascii=False), encoding="utf-8")
-
-        mp4 = OUT / "nuh-dialog-audio-nyata.mp4"
-        hasil, laporan = video.buat_bersuara(rencana, mp4, fps=8, folder_suara=folder)
-        lembar = video.lembar(hasil, OUT / "lembar-kontak-audio-nyata.jpg", n=12, kolom=4)
-        dur_video = durasi(hasil)
-        if dur_video < 8 or laporan.get("kata") != jumlah:
-            raise AssertionError(f"hasil audio/video tidak lengkap: {dur_video:.2f}s, {laporan}")
-        ringkas = {
-            "sumber": "mesin-video/audio_manual/nuh2",
-            "commit_sumber": "dfc5a00b1c465c366a397d7cf9a9417ffc5753de",
-            "bagian": list(BAGIAN), "kata_terjajar": jumlah,
-            "potongan_audio": g.potongan_audio, "durasi_video": round(dur_video, 2),
-            "laporan_audio": laporan, "mp4": str(hasil), "lembar_kontak": str(lembar),
-        }
-        (OUT / "laporan-audio-nyata.json").write_text(
-            json.dumps(ringkas, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print("D2_AUDIO_NYATA_LULUS", json.dumps(ringkas, ensure_ascii=False))
+    mp4 = OUT / "nuh-dialog-elevenlabs.mp4"
+    hasil, laporan = video.buat_bersuara(rencana, mp4, fps=8, folder_suara=CACHE)
+    lembar = video.lembar(hasil, OUT / "lembar-kontak-elevenlabs.jpg", n=12, kolom=4)
+    dur_video = durasi(hasil)
+    dur_audio = durasi(mp3)
+    if dur_video < 8 or laporan.get("kata") != jumlah:
+        raise AssertionError(f"hasil audio/video tidak lengkap: {dur_video:.2f}s, {laporan}")
+    ringkas = {
+        "penyedia": "ElevenLabs",
+        "model": data.get("model"),
+        "suara": data.get("suara"),
+        "voice_id": data.get("voice_id"),
+        "kata_terjajar": jumlah,
+        "potongan_audio": garis.potongan_audio,
+        "durasi_audio_sumber": round(dur_audio, 2),
+        "durasi_video": round(dur_video, 2),
+        "laporan_audio": laporan,
+        "mp4": str(hasil),
+        "lembar_kontak": str(lembar),
+    }
+    (OUT / "laporan-audio-elevenlabs.json").write_text(
+        json.dumps(ringkas, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print("D2_AUDIO_ELEVENLABS_LULUS", json.dumps(ringkas, ensure_ascii=False))
 
 
 if __name__ == "__main__":
