@@ -371,7 +371,7 @@ def test_dialog_menyisipkan_reaksi_pendengar_yang_disebut_eksplisit():
     pendengar = next(a for a in reaksi["tokoh"] if a["peran"] == "penentang")
     assert pendengar["wajah"] == "kaget"
     assert pendengar["gerak"] == "kaget"
-    assert pendengar["bicara"] == []
+    assert "bicara" not in pendengar
 
 
 def test_pengejaran_ke_kiri_menggerakkan_kedua_tokoh_searah_dengan_margin():
