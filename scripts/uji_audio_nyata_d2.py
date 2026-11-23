@@ -1,7 +1,8 @@
-"""Render uji D2 dengan narasi ElevenLabs dan alignment kata produksi.
+"""Render uji D2 memakai audio ElevenLabs produksi yang sudah tersimpan.
 
-Pemanggilan API berbayar hanya dilakukan oleh workflow manual suara-d2.yml.
-Teks contoh memakai dua beat Nuh yang sudah dipakai pada uji audio sebelumnya.
+Audio dibuat sekali melalui workflow \`suara\` dan disimpan di cabang \`suara\`.
+Uji ini memakai ulang MP3/alignment tersebut; tidak memanggil API berbayar.
+Teks tiga beat harus identik dengan naskah sumber agar cache dan timing sah.
 """
 from __future__ import annotations
 
@@ -33,32 +34,58 @@ def durasi(berkas: Path) -> float:
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     CACHE.mkdir(parents=True, exist_ok=True)
+    # Teks harus sama persis dengan contoh/nuh_mengejek.json yang sudah
+    # dibuat audionya pada workflow suara: sidik cache dan alignment per beat
+    # bergantung pada teks, suara, model, setelan, serta kamus lafal.
     naskah = {
         "judul": "Nabi Nuh: kapal dan jawaban",
         "inti": "Nabi Nuh membuat kapal dan menjawab ejekan kaumnya.",
         "dalil": [],
-        "suara": {"whoosh": "tidak", "vol_suasana": 0},
         "beat": [
-            {"narasi": "Lalu beliau mulai membuat kapal. Setiap kali pemuka kaumnya lewat, mereka mengejek.",
-             "kata_kunci": ["membuat", "mengejek"], "dalil": [], "suasana": None,
-             "peran": ["Nabi Nuh", "pemuka kaum Nuh"]},
-            {"narasi": "Nabi Nuh menjawab: kalau kalian mengejek kami, kami pun akan mengejek kalian, seperti kalian mengejek.",
-             "kata_kunci": ["menjawab"], "dalil": [], "suasana": None,
-             "peran": ["Nabi Nuh", "pemuka kaum Nuh"],
-             "dialog": [{"pembicara": "Nabi Nuh", "penjawab": "pemuka kaum Nuh",
-                         "ucapan": "Kalau kalian mengejek kami, kami pun akan mengejek kalian."}]},
+            {
+                "narasi": "Nabi Nuh mulai membuat kapal di tengah daratan, jauh dari laut.",
+                "kata_kunci": ["membuat"], "dalil": [], "suasana": "senja",
+                "peran": ["Nabi Nuh", "pengikut beriman"],
+            },
+            {
+                "narasi": "Setiap kali pemuka kaumnya lewat, mereka mengejeknya.",
+                "kata_kunci": ["mengejek"], "dalil": [], "suasana": "senja",
+                "peran": ["Nabi Nuh", "pemuka kaum Nuh"],
+            },
+            {
+                "narasi": "Nuh menjawab: jika kalian mengejek kami, kami pun akan mengejek kalian.",
+                "kata_kunci": ["menjawab"], "dalil": [], "suasana": "senja",
+                "peran": ["Nabi Nuh", "pemuka kaum Nuh"],
+                "dialog": [{
+                    "pembicara": "Nabi Nuh",
+                    "penjawab": "pemuka kaum Nuh",
+                    "ucapan": "Jika kalian mengejek kami, kami pun akan mengejek kalian.",
+                }],
+            },
         ],
     }
     rencana, _ = rancang(naskah)
 
-    # Modul produksi mengurus penjaga Arab, cache, ElevenLabs timestamps, dan pembagian beat.
-    js = narasi.buat(rencana, folder=CACHE)
-    mp3, _ = narasi.jalur(rencana, CACHE)
+    mp3, js = narasi.jalur(rencana, CACHE)
+    if not mp3.is_file() or not js.is_file():
+        raise FileNotFoundError(
+            f"Cache audio produksi tidak ditemukan: {mp3.name}. "
+            "Pastikan cabang suara berisi MP3 dan JSON dari naskah yang sama."
+        )
+    teks = narasi.teks_narasi(rencana)
+    if len(teks) != 191:
+        raise AssertionError(f"teks uji berubah: diharapkan 191 huruf, ditemukan {len(teks)}")
     data = json.loads(js.read_text(encoding="utf-8"))
-    if not mp3.is_file() or mp3.stat().st_size < 1024:
-        raise AssertionError("MP3 ElevenLabs tidak terbentuk atau terlalu kecil")
+    if data.get("huruf") != len(teks):
+        raise AssertionError("panjang teks cache tidak cocok dengan naskah D2")
     if len(data.get("beat", [])) != len(rencana["beat"]):
         raise AssertionError("jumlah kelompok alignment tidak sama dengan jumlah beat")
+    for i, (beat, kata) in enumerate(zip(rencana["beat"], data["beat"]), 1):
+        if len(kata) != len(narasi.kata_beat(beat["narasi"])):
+            raise AssertionError(f"jumlah kata alignment beat {i} tidak cocok")
+    setelan = narasi.setelan(rencana)
+    if data.get("voice_id") != setelan["voice_id"] or data.get("model") != setelan["model"]:
+        raise AssertionError("voice/model cache tidak cocok dengan setelan rencana")
 
     garis = susun(rencana, data)
     jumlah = 0
@@ -81,7 +108,8 @@ def main() -> None:
     if dur_video < 8 or laporan.get("kata") != jumlah:
         raise AssertionError(f"hasil audio/video tidak lengkap: {dur_video:.2f}s, {laporan}")
     ringkas = {
-        "penyedia": "ElevenLabs",
+        "penyedia": "ElevenLabs (cache produksi yang sudah ada)",
+        "sidik_cache": narasi.sidik(rencana),
         "model": data.get("model"),
         "suara": data.get("suara"),
         "voice_id": data.get("voice_id"),
