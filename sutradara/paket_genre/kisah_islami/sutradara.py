@@ -488,6 +488,16 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         skor=sum(1 for kata in ("badai","banjir","menolak","mengejek","hancur","angin") if kata in tindakan)
         hooks.append((skor,i,judul))
     hook=max(hooks,key=lambda h:(h[0],-h[1]))
+    # Judul hook adalah overlay pembuka, bukan label permanen setiap shot.
+    # Tampilkan sekali pada shot pertama beat hook agar tidak menutupi
+    # reverse shot, reaksi pendengar, dan perpindahan adegan berikutnya.
+    for indeks_beat, beat_jadi in enumerate(beat_hasil):
+        for indeks_shot, shot_jadi in enumerate(beat_jadi.get("shot", [])):
+            teks_shot = shot_jadi.get("teks") or {}
+            if indeks_beat == hook[1] and indeks_shot == 0:
+                teks_shot["judul"] = hook[2][:2]
+            else:
+                teks_shot.pop("judul", None)
     visual={"bahtera":"bahtera","kota_kuno":"kota_kuno","dinding_yajuj":"dinding_yajuj"}[inti]
     hasil={"judul":naskah["judul"],"catatan":"Disusun otomatis dari naskah antrean dengan resep aturan lokal; periksa makna dalil dan kelayakan artistik.",
            "genre":"kisah_islami","dibuat_otomatis":True,
