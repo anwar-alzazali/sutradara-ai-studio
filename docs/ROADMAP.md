@@ -163,9 +163,9 @@ dan batas cakupan D1 tercatat di deskripsi PR; penilaian layak tayang tetap kepu
 
 **Bukti CI #529 pada HEAD `76c068e` (run `45207029799`):** sukses dengan 320 tes Python, tes bot Telegram, render D2 14 shot / 644 bingkai / 53,7 detik (95 detik waktu render, 1 worker), dan pemeriksaan enam contoh tanpa GAGAL. Lembar kontak dan MP4 diunggah. Bukti statis tidak menggantikan pemeriksaan gerak kontinu dan variasi artistik oleh pemilik.
 
-**Uji audio-cache pada HEAD `76c068e` (run `45284285899`):** sukses dengan 29 kata terjajar, MP3 13,52 detik, padding hening 0,43 detik, video 15,12 detik, stream audio-video 15,11 detik (selisih 0,01 detik), -16,89 LUFS, dan -1,75 dBTP. Memakai cache produksi yang sudah ada; tidak membuat narasi baru dan tidak memanggil API berbayar. Perubahan pipefail/dokumentasi setelah SHA tersebut masih memerlukan uji audio-cache ulang pada HEAD terbaru.
+**Uji audio-cache pada HEAD `76c068e` (run `45284285899`):** sukses dengan 29 kata terjajar, MP3 13,52 detik, padding hening 0,43 detik, video 15,12 detik, stream audio-video 15,11 detik (selisih 0,01 detik), -16,89 LUFS, dan -1,75 dBTP. Memakai cache produksi yang sudah ada; tidak membuat narasi baru dan tidak memanggil API berbayar. Setelah pipefail diterapkan, uji audio-cache ulang pada HEAD `4a6d061` (run `45288876269`) juga sukses: 29 kata, selisih stream 0,01 detik, -16,89 LUFS, -1,75 dBTP; cache yang ada dipakai tanpa panggilan API berbayar.
 
-**Catatan PERIKSA yang tetap terbuka:** hook kronologis dan kesinambungan `surat_amanah` pada contoh B2; derajat hadis Tirmidzi 3153 diperselisihkan; beberapa shot dialog/reaksi memakai komposisi close-up mirip. Jangan ubah tingkat temuan tanpa alasan/bukti. D2 tetap belum selesai sampai uji audio HEAD dan penilaian gerak/komposisi oleh pemilik; D3 tidak termasuk PR ini.
+**Catatan PERIKSA yang tetap terbuka:** hook kronologis dan kesinambungan `surat_amanah` pada contoh B2; derajat hadis Tirmidzi 3153 diperselisihkan; beberapa shot dialog/reaksi memakai komposisi close-up mirip. Jangan ubah tingkat temuan tanpa alasan/bukti. D2 tetap belum selesai sampai pemilik meninjau gerak kontinu dan komposisi video; D3 tidak termasuk PR ini.
 
 ### ○ Fase 5 — Periksa & kritikus
 1. Periksa teknis (salin `mesin-video/periksa.py`): resolusi, durasi, audio hilang, clipping, layar kosong, teks terpotong.
