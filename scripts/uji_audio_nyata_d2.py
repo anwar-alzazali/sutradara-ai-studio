@@ -45,6 +45,62 @@ def durasi(berkas: Path, jenis: str | None = None) -> float:
     return float(data["format"]["duration"])
 
 
+
+def mux_narasi_cepat(video_bisu: Path, mp3: Path, garis, mp4: Path) -> None:
+    """Mux hanya potongan narasi yang sudah disejajarkan; tanpa graf efek/ducking."""
+    dur = float(garis.total)
+    potongan = garis.potongan_audio
+    if not potongan:
+        raise AssertionError("garis waktu tidak memiliki potongan audio")
+    filter_bagian = []
+    label = []
+    for i, p in enumerate(potongan):
+        awal, akhir, tujuan = float(p["a0"]), float(p["a1"]), float(p["di"])
+        if akhir <= awal:
+            raise AssertionError(f"potongan audio {i + 1} berdurasi tidak valid")
+        filter_bagian.append(
+            f"[1:a]atrim=start={awal:.3f}:end={akhir:.3f},"
+            f"asetpts=PTS-STARTPTS,aresample=44100,"
+            f"adelay={max(0, round(tujuan * 1000))}:all=1[n{i}]"
+        )
+        label.append(f"[n{i}]")
+    filter_bagian.append(
+        f"{''.join(label)}amix=inputs={len(label)}:normalize=0:duration=longest,"
+        f"apad,atrim=duration={dur:.3f},"
+        "loudnorm=I=-15:TP=-2:LRA=11:print_format=summary[a]"
+    )
+    mp4.unlink(missing_ok=True)
+    cmd = [
+        "ffmpeg", "-hide_banner", "-loglevel", "warning", "-y",
+        "-i", str(video_bisu), "-i", str(mp3),
+        "-filter_complex_threads", "1", "-filter_complex", ";".join(filter_bagian),
+        "-map", "0:v:0", "-map", "[a]", "-c:v", "copy",
+        "-c:a", "aac", "-b:a", "192k", "-t", f"{dur:.3f}",
+        "-movflags", "+faststart", "-progress", "pipe:1", "-nostats", str(mp4),
+    ]
+    print(f"MUX_AUDIO_MULAI potongan={len(potongan)} durasi={dur:.2f}s", flush=True)
+    proses = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                              text=True, bufsize=1)
+    try:
+        assert proses.stdout is not None
+        for baris in proses.stdout:
+            baris = baris.strip()
+            if baris.startswith(("out_time=", "speed=", "progress=")) or baris.startswith(("frame=", "size=")):
+                print("FFMPEG " + baris, flush=True)
+            elif baris:
+                print("FFMPEG " + baris[:500], flush=True)
+        kode = proses.wait(timeout=240)
+    except subprocess.TimeoutExpired:
+        proses.kill()
+        proses.wait()
+        raise TimeoutError("mux narasi melewati batas 240 detik")
+    if kode != 0:
+        raise RuntimeError(f"FFmpeg mux narasi gagal (kode {kode})")
+    if not mp4.is_file() or mp4.stat().st_size < 100_000:
+        raise AssertionError("MP4 hasil mux tidak terbentuk dengan ukuran wajar")
+    print(f"MUX_AUDIO_SELESAI ukuran={mp4.stat().st_size} byte", flush=True)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     CACHE.mkdir(parents=True, exist_ok=True)
@@ -123,11 +179,13 @@ def main() -> None:
     # tidak membebani FFmpeg dengan ratusan lapisan efek aksi yang bukan target D2.
     bisu = OUT / "nuh-dialog-elevenlabs.bisu.mp4"
     mp4 = OUT / "nuh-dialog-elevenlabs.mp4"
-    video.buat(rencana, bisu, fps=8, garis=garis)
-    campur.campur(bisu, mp3, garis, [], mp4)
+    video.buat(rencana, bisu, fps=8, garis=garis, kabar=lambda pesan: print(pesan, flush=True))
+    mux_narasi_cepat(bisu, mp3, garis, mp4)
     bisu.unlink(missing_ok=True)
 
+    print("RENDER_SELESAI, MEMBUAT LEMBAR KONTAK", flush=True)
     lembar = video.lembar(mp4, OUT / "lembar-kontak-elevenlabs.jpg", n=12, kolom=4)
+    print("MENGUKUR HASIL AUDIO-VIDEO", flush=True)
     dur_video = durasi(mp4, "video")
     dur_audio = durasi(mp4, "audio")
     dur_sumber = durasi(mp3)
