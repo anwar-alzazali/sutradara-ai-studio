@@ -321,3 +321,26 @@ def test_dialog_menggunakan_shot_reverse_shot_dekat_dengan_kamera_mengikuti_pemb
     assert [shot["kamera"]["x"] for shot in shots] == [380, 820]
     assert all(shot["kamera"]["zoom"] == 2.45 for shot in shots)
     assert all(shot["kamera"]["y"] == 1330 for shot in shots)
+
+
+def test_pengejar_dan_yang_dikejar_bergerak_searah():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang
+
+    naskah = {
+        "judul": "Pengejaran",
+        "beat": [{
+            "narasi": "Penjaga mengejar pengelana ke kanan.",
+            "peran": ["penjaga", "pengelana"],
+        }],
+    }
+    rencana, _ = rancang(naskah)
+    tokoh = rencana["beat"][0]["shot"][0]["tokoh"]
+    lintasan = {a["peran"]: a["lintasan"] for a in tokoh}
+    tujuan = {a["peran"]: a["tujuan"] for a in tokoh}
+    arah = {
+        pid: (lintasan[pid][-1][1] > lintasan[pid][0][1]) -
+             (lintasan[pid][-1][1] < lintasan[pid][0][1])
+        for pid in lintasan
+    }
+    assert arah == {"penjaga": 1, "pengelana": 1}
+    assert tujuan == {"penjaga": "tepi:kanan", "pengelana": "tepi:kanan"}

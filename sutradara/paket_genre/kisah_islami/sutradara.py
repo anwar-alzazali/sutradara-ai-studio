@@ -263,6 +263,11 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
     else:
         for i, pid in enumerate(hadir):
             posisi[pid] = 250 if peta[pid]["kategori"] == "nabi" else (775 + i*45 if i else 430)
+    teks_arah_kelompok = _polos(narasi)
+    arah_kelompok = (-1 if "ke kiri" in teks_arah_kelompok else
+                     1 if "ke kanan" in teks_arah_kelompok else
+                     (1 if posisi.get(fokus, 540) < 540 else -1))
+    gerak_kelompok = perjalanan_semua and any(k in teks_arah_kelompok for k in ("mengejar", "dikejar"))
     for pid in hadir:
         p = peta[pid]
         x = posisi.get(pid, 740)
@@ -337,7 +342,13 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                         elif kata_tujuan and inti == "dinding_yajuj" and "dinding" in teks_arah:
                             target_x = float(keadaan.get("x", x))
                             tujuan = "benda:dinding_yajuj"
-                        if target_x is not None:
+                        if gerak_kelompok:
+                            # Pengejar dan yang dikejar bergerak ke arah layar yang sama;
+                            # jangan menghitung arah terpisah dari posisi masing-masing.
+                            dx = arah_kelompok
+                            tujuan = f"tepi:{'kanan' if dx > 0 else 'kiri'}"
+                            ujung = x + 280 * dx
+                        elif target_x is not None:
                             dx = (target_x > x) - (target_x < x)
                             ujung = target_x - dx * 100 if dx else x
                         elif "tepi kiri" in teks_arah or "ke kiri" in teks_arah:
