@@ -1,12 +1,18 @@
 name: suara (narasi ElevenLabs)
-# Memakai rahasia ELEVENLABS_API_KEY -> HANYA workflow_dispatch (lihat AGENTS.md). Jangan tambah pemicu lain.
-# Hasil (data/suara/<sidik>.mp3 + .json) di-commit ke cabang `suara`; narasi yang sudah ada tidak dibayar ulang.
+# Mode narasi biasa memakai ELEVENLABS_API_KEY; mode uji_d2 hanya memakai cache yang sudah ada.
+# Rahasia tetap hanya pada workflow_dispatch; mode D2 tidak memanggil API berbayar.
 on:
   workflow_dispatch:
     inputs:
       rencana:
-        description: "Berkas rencana (pisahkan dengan spasi), mis. contoh/nuh_mengejek.json"
-        required: true
+        description: "Berkas rencana untuk mode narasi biasa"
+        required: false
+        default: "contoh/nuh_mengejek.json"
+      uji_d2:
+        description: "Uji sinkronisasi audio nyata D2 tanpa panggilan API baru"
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: write
 concurrency:
@@ -15,24 +21,53 @@ concurrency:
 jobs:
   narasi:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.12" }
-      - run: pip install -r requirements.txt
+        with:
+          python-version: "3.12"
+      - name: Pasang dependensi
+        run: |
+          pip install -r requirements.txt
+          if [ "${{ inputs.uji_d2 }}" = "true" ]; then
+            python -m playwright install --with-deps chromium
+            sudo apt-get install -y ffmpeg fonts-noto-core >/dev/null
+          fi
+      - name: Ambil cache audio untuk uji D2
+        if: inputs.uji_d2
+        run: |
+          git fetch --no-tags --depth=1 origin suara
+          git checkout FETCH_HEAD -- data/suara
+          mkdir -p keluaran-bukti/tahap-d2/cache-suara-elevenlabs
+          cp -a data/suara/. keluaran-bukti/tahap-d2/cache-suara-elevenlabs/
+      - name: Verifikasi alignment nyata dan render video D2
+        if: inputs.uji_d2
+        run: python scripts/uji_audio_nyata_d2.py
+      - name: Unggah bukti audio dan video D2
+        if: always() && inputs.uji_d2
+        uses: actions/upload-artifact@v4
+        with:
+          name: bukti-audio-elevenlabs-d2
+          path: keluaran-bukti/tahap-d2/audio-elevenlabs/
+          if-no-files-found: warn
       - name: Ambil narasi yang sudah ada (cache cabang suara)
+        if: ${{ !inputs.uji_d2 }}
         run: |
           if git fetch --depth=1 origin suara; then git checkout FETCH_HEAD -- data/suara || true; fi
       - name: Cek naskah (gratis, sebelum membayar)
-        env: { RENCANA: "${{ inputs.rencana }}" }
+        if: ${{ !inputs.uji_d2 }}
+        env:
+          RENCANA: ${{ inputs.rencana }}
         run: for f in $RENCANA; do python -m sutradara naskah "$f"; done
       - name: Buat narasi
+        if: ${{ !inputs.uji_d2 }}
         env:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           RENCANA: ${{ inputs.rencana }}
         run: python -m sutradara suara $RENCANA | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Simpan ke cabang suara
+        if: ${{ !inputs.uji_d2 }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
