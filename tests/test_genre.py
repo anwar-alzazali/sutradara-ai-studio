@@ -302,3 +302,22 @@ def test_gerak_aksi_hanya_diberikan_kepada_pelaku():
     gerak = {a["peran"]: a["gerak"] for a in aktor}
     assert gerak["pengikut_beriman"] == "palu"
     assert gerak["kaum_penentang"] == "berdiri"
+
+
+def test_dialog_menggunakan_shot_reverse_shot_dekat_dengan_kamera_mengikuti_pembicara():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang
+
+    naskah = {
+        "judul": "Seruan Nabi Nuh",
+        "beat": [{
+            "narasi": "Nabi Nuh menyeru seorang penentang, lalu penentang itu menjawab.",
+            "peran": ["Nabi Nuh", "penentang"],
+            "dialog": [{"pembicara": "Nabi Nuh", "penjawab": "penentang", "ucapan": "Dengarkan seruanku."}],
+        }],
+    }
+    rencana, _ = rancang(naskah)
+    shots = rencana["beat"][0]["shot"]
+    assert len(shots) == 2
+    assert [shot["kamera"]["x"] for shot in shots] == [380, 820]
+    assert all(shot["kamera"]["zoom"] == 2.45 for shot in shots)
+    assert all(shot["kamera"]["y"] == 1330 for shot in shots)

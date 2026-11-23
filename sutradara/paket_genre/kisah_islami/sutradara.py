@@ -373,6 +373,11 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                     if dy:
                         a["y"] = [[0, y_awal], [durasi, ujung_y]]
                 shot["tokoh"].append(a)
+    # Dialog memakai shot–reverse shot dekat: kamera mengikuti pembicara aktif,
+    # tetapi posisi kiri/kanan pasangan tetap ditetapkan oleh blocking di atas.
+    # Titik pandang di sekitar dada menjaga gestur dan arah tatap tetap terbaca.
+    if dialog and fokus in posisi:
+        shot["kamera"] = {"zoom": 2.45, "x": posisi[fokus], "y": 1330}
     return shot
 
 
