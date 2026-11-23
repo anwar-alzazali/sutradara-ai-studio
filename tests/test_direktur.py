@@ -361,6 +361,37 @@ def test_kembali_membalik_memori_dan_arah_eksplisit_tidak_dibalik_dua_kali():
     assert arah == [-1, 1, -1]
 
 
+def test_judul_hook_hanya_muncul_di_shot_pembuka_beat_hook():
+    naskah = {
+        "judul": "Bahtera dan seruan",
+        "inti": "Nabi Nuh membangun bahtera lalu menyeru kaumnya.",
+        "dalil": [],
+        "beat": [
+            {
+                "narasi": "Pengikut beriman membangun bahtera.",
+                "dalil": [], "kata_kunci": ["membangun"], "suasana": "senja",
+                "peran": ["Pengikut beriman"],
+            },
+            {
+                "narasi": "Nabi Nuh menyeru kaum penentang.",
+                "dalil": [], "kata_kunci": [], "suasana": "senja",
+                "peran": ["Nabi Nuh", "Kaum penentang"],
+                "dialog": [{"pembicara": "Nabi Nuh", "penjawab": "Kaum penentang",
+                            "ucapan": "Dengarkan seruanku."}],
+            },
+        ],
+    }
+    hasil = rancang(naskah)
+    lokasi_judul = [
+        (i, j)
+        for i, beat in enumerate(hasil["beat"])
+        for j, shot in enumerate(beat["shot"])
+        if shot.get("teks", {}).get("judul")
+    ]
+    assert lokasi_judul == [(0, 0)]
+    assert hasil["beat"][0]["shot"][0]["teks"]["judul"] == hasil["hook"]["teks"]
+
+
 def test_interaksi_menginferensikan_pasangan_tanpa_nama_lawan_eksplisit():
     naskah = {
         "judul": "Memberi air",
