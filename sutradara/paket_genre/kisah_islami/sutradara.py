@@ -269,7 +269,7 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
         bicara = bool(dialog and pid == subjek_dialog and not reaksi)
         if p["kategori"] == "nabi":
             shot["nur"].append({"peran":pid,"x":x,"y":1370,"sinar_ke":"kanan" if x<540 else "kiri",
-                                "nama":p["nama"],"di_belakang_benda":True,"bicara":[[.15,max(.25,durasi-.15)]] if bicara else []})
+                                "nama":p["nama"],"di_belakang_benda":True,"pendar_rx":60,"pendar_ry":90,"bicara":[[.15,max(.25,durasi-.15)]] if bicara else []})
         elif p["kategori"] == "malaikat":
             shot["nur"].append({"peran":pid,"x":x,"y":1300,"_kategori_peran":"malaikat"})
         else:
