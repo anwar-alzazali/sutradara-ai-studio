@@ -2,10 +2,17 @@
 from __future__ import annotations
 
 import json
+import sys
 import subprocess
 import tempfile
 import urllib.request
 from pathlib import Path
+
+# Saat skrip dijalankan langsung, Python menambahkan scripts/ ke sys.path,
+# bukan root repo. Tambahkan root agar paket sutradara dapat diimpor.
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from sutradara import video
 from sutradara.garis_waktu import susun
