@@ -410,5 +410,5 @@ def test_cadence_jalan_dihitung_dari_kecepatan_lintasan():
     jarak = ((lintasan[-1][1] - lintasan[0][1]) ** 2 +
              (lintasan[-1][2] - lintasan[0][2]) ** 2) ** 0.5
     durasi = lintasan[-1][0] - lintasan[0][0]
-    assert aktor["faktor_gerak"] == pytest.approx(max(.45, min(2.5, (jarak / durasi) / 74.0)))
+    assert aktor["faktor_gerak"] == pytest.approx(round(max(.45, min(2.5, (jarak / durasi) / 74.0)), 3))
     assert aktor["faktor_gerak"] > 0
