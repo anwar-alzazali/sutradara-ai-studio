@@ -8,7 +8,24 @@ from __future__ import annotations
 
 import math
 import random
+from html import escape
 
+
+
+def label_nama(x: float, y: float, nama: str) -> str:
+    """Label pengenal nabi di lapisan depan agar tidak tertutup pemeran lain."""
+    teks = escape(str(nama))
+    lebar = min(420.0, max(112.0, len(str(nama)) * 18.0 + 36.0))
+    pusat = max(lebar / 2 + 24.0, min(1080.0 - lebar / 2 - 24.0, float(x)))
+    atas = float(y) + 42.0
+    return (
+        f'<g class="label-nur">'
+        f'<rect x="{pusat - lebar / 2:.1f}" y="{atas - 34:.1f}" width="{lebar:.1f}" height="46" '
+        f'rx="18" fill="#21172a" opacity=".78"/>'
+        f'<text x="{pusat:.1f}" y="{atas:.1f}" text-anchor="middle" font-size="30" '
+        f'font-weight="700" fill="#fff6dd" stroke="#21172a" stroke-width="2" '
+        f'paint-order="stroke">{teks}</text></g>'
+    )
 
 def pilar(x: float, y: float, *, tinggi: float = 400, lebar: float = 88, pendar_rx: float = 72, pendar_ry: float = 125, nama: str | None = None,
           sinar_ke: str | None = "kanan", seed: int = 7, t: float = 0.0) -> str:
