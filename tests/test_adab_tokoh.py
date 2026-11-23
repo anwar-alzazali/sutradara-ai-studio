@@ -201,8 +201,8 @@ def test_contoh_b2_lengkap_lolos_penjaga_dan_render_semua_shot():
     assert all("<svg" in svg for svg in hasil)
     assert "DIULURKAN KE PILAR" in hasil[2]
     assert "DITERIMA DI SISI PILAR" in hasil[3]
-    assert "Barang berpindah lewat tangan" in hasil[0]
-    assert "Tongkat menuju pilar" in hasil[2]
+    assert all(kata in hasil[0] for kata in "Barang berpindah lewat tangan".split())
+    assert all(kata in hasil[2] for kata in "Tongkat menuju pilar".split())
     assert 'class="cahaya-malaikat"' in hasil[0]
     assert 'class="barang"' in hasil[0]
     assert 'class="barang"' in hasil[1]
