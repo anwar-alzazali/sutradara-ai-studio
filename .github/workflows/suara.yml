@@ -65,6 +65,7 @@ jobs:
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
           RENCANA: ${{ inputs.rencana }}
         run: |
+          set -euo pipefail
           read -r -a berkas_rencana <<< "$RENCANA"
           if [ "${#berkas_rencana[@]}" -eq 0 ]; then echo "Input rencana kosong" >&2; exit 1; fi
           python -m sutradara suara "${berkas_rencana[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
