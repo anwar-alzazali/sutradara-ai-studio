@@ -28,6 +28,9 @@ jobs:
       - name: Render bukti visual Tahap D2
         if: github.head_ref == 'tahap-d2-blocking-dialog-gerak'
         run: python scripts/render_bukti_tahap_d2.py
+      - name: Uji sinkronisasi subtitle dengan narasi nyata mesin-video
+        if: github.head_ref == 'tahap-d2-blocking-dialog-gerak'
+        run: python scripts/uji_audio_nyata_d2.py
       - name: Unggah bukti visual Tahap D2
         if: always() && github.head_ref == 'tahap-d2-blocking-dialog-gerak'
         uses: actions/upload-artifact@v4
