@@ -276,6 +276,27 @@ def test_pengejar_dan_yang_dikejar_bergerak_searah():
     assert pengelana["tujuan"] == pencuri["tujuan"] == "tepi:kanan"
 
 
+def test_pengejar_aktif_ke_kiri_berada_di_belakang_yang_dikejar():
+    naskah = {
+        "judul": "Pengejaran ke kiri",
+        "inti": "Penjaga mengejar pengelana ke kiri.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penjaga mengejar pengelana ke kiri.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga", "Pengelana"],
+        }],
+    }
+    tokoh = rancang(naskah)["beat"][0]["shot"][0]["tokoh"]
+    penjaga = next(t for t in tokoh if t["peran"] == "penjaga")
+    pengelana = next(t for t in tokoh if t["peran"] == "pengelana")
+    assert penjaga["gerak"] == pengelana["gerak"] == "lari"
+    assert penjaga["x"][0][1] > pengelana["x"][0][1]
+    assert penjaga["x"][-1][1] < penjaga["x"][0][1]
+    assert pengelana["x"][-1][1] < pengelana["x"][0][1]
+    assert penjaga["tujuan"] == pengelana["tujuan"] == "tepi:kiri"
+
+
 def test_arah_tiga_perempat_dikenali_dan_dipakai_bila_disebut_narasi():
     from sutradara.gaya.tokoh import _arah_derajat
 
