@@ -1,0 +1,98 @@
+{
+  "judul": "Gotong Royong Membangun Balai Warga",
+  "inti": "Sekelompok warga bekerja sama menyiapkan balai sederhana, saling membantu, lalu berkumpul setelah pekerjaan selesai.",
+  "dalil": [],
+  "beat": [
+    {
+      "narasi": "Pagi hari, halaman permukiman masih lengang. Beberapa warga datang ke tanah lapang di antara rumah-rumah untuk memulai gotong royong.",
+      "kata_kunci": ["pagi hari", "halaman permukiman", "tanah lapang", "rumah-rumah"],
+      "dalil": [],
+      "suasana": "dhuha",
+      "peran": ["Ketua warga", "Pekerja pertama", "Pekerja kedua"]
+    },
+    {
+      "narasi": "Ketua warga berjalan menyusuri tepi lahan, lalu menunjuk bagian tanah tempat balai akan didirikan.",
+      "kata_kunci": ["berjalan", "menunjuk", "tepi lahan"],
+      "dalil": [],
+      "suasana": "dhuha",
+      "peran": ["Ketua warga", "Pekerja pertama"]
+    },
+    {
+      "narasi": "Dua pekerja membawa papan kayu menuju lokasi. Mereka meletakkan papan di dekat tumpukan bahan bangunan.",
+      "kata_kunci": ["membawa papan kayu", "meletakkan papan", "tumpukan bahan bangunan"],
+      "dalil": [],
+      "suasana": "dhuha",
+      "peran": ["Pekerja pertama", "Pekerja kedua"]
+    },
+    {
+      "narasi": "Pekerja pertama mengulurkan sebatang kayu kepada pekerja kedua. Pekerja kedua menerima kayu itu dan membawanya ke sisi rangka.",
+      "kata_kunci": ["mengulurkan", "menerima", "kayu", "rangka"],
+      "dalil": [],
+      "suasana": "dhuha",
+      "peran": ["Pekerja pertama", "Pekerja kedua"]
+    },
+    {
+      "narasi": "Seorang pekerja memalu sambungan rangka, sementara pekerja lain menahan papan agar tetap pada tempatnya.",
+      "kata_kunci": ["memalu", "sambungan rangka", "menahan papan"],
+      "dalil": [],
+      "suasana": "dhuha",
+      "peran": ["Pekerja pertama", "Pekerja kedua"]
+    },
+    {
+      "narasi": "Ketua warga mendekati mereka dan berbicara. Ia mengingatkan agar rangka diperiksa sebelum bagian atap dipasang.",
+      "kata_kunci": ["mendekati", "berbicara", "rangka", "atap"],
+      "dalil": [],
+      "suasana": "dhuha",
+      "peran": ["Ketua warga", "Pekerja pertama", "Pekerja kedua"],
+      "dialog": [
+        {
+          "pembicara": "Ketua warga",
+          "ucapan": "Periksa sambungannya sebelum atap dipasang.",
+          "penjawab": "Pekerja pertama"
+        }
+      ]
+    },
+    {
+      "narasi": "Pekerja pertama mengangguk, lalu berjalan ke sisi lain rangka untuk memeriksa sambungan dari arah berbeda.",
+      "kata_kunci": ["mengangguk", "berjalan", "sisi lain rangka"],
+      "dalil": [],
+      "suasana": "dhuha",
+      "peran": ["Pekerja pertama"]
+    },
+    {
+      "narasi": "Warga lain datang dari jalan permukiman membawa perlengkapan. Mereka berkumpul di sekitar bangunan yang mulai terbentuk.",
+      "kata_kunci": ["jalan permukiman", "membawa perlengkapan", "berkumpul", "bangunan"],
+      "dalil": [],
+      "suasana": "senja",
+      "peran": ["Warga tambahan", "Ketua warga", "Pekerja pertama", "Pekerja kedua"]
+    },
+    {
+      "narasi": "Angin bertiup di halaman. Kain peneduh bergerak, dan para pekerja menahan bagian atap yang belum terpasang kuat.",
+      "kata_kunci": ["angin", "halaman", "kain peneduh", "atap"],
+      "dalil": [],
+      "suasana": "senja",
+      "peran": ["Pekerja pertama", "Pekerja kedua"]
+    },
+    {
+      "narasi": "Setelah rangka selesai diperiksa, para pekerja mundur beberapa langkah untuk melihat bentuk bangunan dari depan.",
+      "kata_kunci": ["mundur", "melihat", "bangunan", "depan"],
+      "dalil": [],
+      "suasana": "senja",
+      "peran": ["Ketua warga", "Pekerja pertama", "Pekerja kedua"]
+    },
+    {
+      "narasi": "Ketua warga berjalan mendekati para pekerja dan menyerahkan sebuah buku catatan kepada pekerja pertama. Pekerja pertama menerima buku itu.",
+      "kata_kunci": ["berjalan", "menyerahkan", "menerima", "buku catatan"],
+      "dalil": [],
+      "suasana": "senja",
+      "peran": ["Ketua warga", "Pekerja pertama"]
+    },
+    {
+      "narasi": "Menjelang sore, warga berkumpul di halaman balai yang telah selesai disiapkan. Mereka berdiri bersama di depan bangunan.",
+      "kata_kunci": ["sore", "berkumpul", "halaman balai", "bangunan"],
+      "dalil": [],
+      "suasana": "senja",
+      "peran": ["Ketua warga", "Pekerja pertama", "Pekerja kedua", "Warga tambahan"]
+    }
+  ]
+}
