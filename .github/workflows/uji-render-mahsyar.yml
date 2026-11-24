@@ -20,8 +20,20 @@ jobs:
           python -m playwright install --with-deps chromium
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-noto-core
+      - name: Cache dataset hadis
+        uses: actions/cache@v4
+        with:
+          path: data/hadis
+          key: hadis-${{ hashFiles('sutradara/dalil/unduh_hadis.py') }}
+      - name: Unduh dataset hadis
+        run: test -f data/hadis/bukhari.json.gz || python -m sutradara.dalil.unduh_hadis
+      - name: Verifikasi dalil dengan pemeriksa resmi
+        env:
+          QURAN_FOUNDATION_CLIENT_ID: ${{ vars.QURAN_FOUNDATION_CLIENT_ID }}
+          QURAN_FOUNDATION_CLIENT_SECRET: ${{ secrets.QURAN_FOUNDATION_CLIENT_SECRET }}
+        run: python -m sutradara verifikasi contoh/mahsyar1_uji_bangkit.json
       - name: Periksa rencana uji
-        run: python -m sutradara periksa contoh/mahsyar1_uji_bangkit.json
+        run: python -m sutradara periksa contoh/mahsyar1_uji_bangkit.json --final
       - name: Render adegan uji
         run: |
           mkdir -p keluaran/mahsyar1-uji
