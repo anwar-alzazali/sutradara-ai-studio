@@ -16,6 +16,7 @@ python -m sutradara.dalil.unduh_hadis               # dataset hadis lokal (±18 
 python -m sutradara verifikasi contoh/dajjal_dua_sungai.json
 python -m sutradara periksa contoh/nuh_mengejek.json
 python -m sutradara gambar contoh/dajjal_dua_sungai.json -o keluaran --semua
+python -m sutradara.pustaka_tokoh --keluar keluaran/pustaka_tokoh/pria_dewasa_01
 ```
 
 Font: Nunito & Amiri Quran (SIL Open Font License, lihat `aset/font/`).
