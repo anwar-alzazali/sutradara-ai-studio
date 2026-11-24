@@ -300,6 +300,28 @@ D2 belum dicentang. CI #529 dan uji audio-cache run `45284285899` lulus pada SHA
    - Untuk setiap contoh, catat pemetaan beat/peristiwa ke visual yang dihasilkan; bukti harus menunjukkan visual berubah karena peristiwa narasi, bukan karena urutan beat atau resep yang dikunci ke satu kisah.
    Kelayakan tayang diputuskan pemilik, bukan pengembang.
 
+### Catatan arah hasil akhir dan larangan duplikasi (keputusan pemilik, 24 Nov 2026)
+
+D2 **ditahan, tidak di-merge sekarang**. PR #48 tetap menjadi satu-satunya cabang implementasi D2; pekerjaan berikutnya
+tidak boleh menyalin atau membuat ulang fitur D2 di cabang lain.
+
+Sebelum menambah kode setelah D2:
+1. Buat peta fitur dari kode aktual: nama kemampuan, satu modul pemilik, antarmuka publik, semua pemanggil, dan tes.
+2. Periksa apakah kemampuan sudah ada di inti, paket Kisah Islami, PR #48, atau repo referensi. Jika ada, perbaiki/perluas
+   pemiliknya; jangan membuat parser, state manager, renderer, rig, kamera, timeline, atau pipeline suara kedua.
+3. Jaga batas inti vs paket genre dari D0. Peristiwa khusus Kisah Islami berada di paket genre; komposisi, kamera,
+   rig, gerak, waktu, dan audio generik tetap memakai modul inti yang sudah ada.
+4. Kerjakan jalur event-to-visual deterministik dari bukti narasi hingga shot. Keadaan benda/lingkungan harus berasal
+   dari peristiwa yang disebut dan bertahan lintas shot; jangan dihitung dari nomor/indeks beat.
+5. Gunakan Nuh dan Ya'juj sebagai sumber prinsip visual (cahaya, kedalaman, komposisi, skala, atmosfer), bukan cetakan
+   adegan. Buktikan transfer prinsip pada Hud dan Mahsyar 1 tanpa mengubah naskah/koordinat secara manual.
+6. Catat kebutuhan visual yang belum didukung sebagai PERIKSA; jangan mengarang aksi, objek, atau akibat.
+
+**Temuan visual pemilik:** hasil render yang dikirim pemilik memperlihatkan mata tokoh hanya satu. Ini menjadi temuan
+PERIKSA terbuka untuk audit rig/wajah dan renderer; belum ditetapkan akar masalahnya. Periksa geometri kedua mata,
+arah hadap, clipping, dan urutan lapisan. Tes wajib mencakup depan dan tiga-perempat agar perbaikan tidak hanya
+menutupi cacat pada satu sudut. Jangan membuat sistem mata alternatif.
+
 ## Tahap E — Periksa dan kritikus (Fase 5)
 1. **Periksa teknis.** Port `mesin-video/periksa.py` dengan baris `Asal:`. Yang diperiksa: resolusi, durasi, audio
    hilang, clipping, layar kosong, teks terpotong atau bertumpuk, dan teks di zona antarmuka TikTok.
