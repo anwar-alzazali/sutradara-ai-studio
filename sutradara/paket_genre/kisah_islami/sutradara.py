@@ -481,6 +481,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         and item.get("aksi") in {"menggali", "terbuka"}
     ) if inti == "dinding_yajuj" else 0
     peristiwa_dinding_selesai = 0
+    dinding_sudah_terbuka = False
     for i, b in enumerate(naskah["beat"]):
         teks = b["narasi"]
         resep = _resep_untuk(teks)
@@ -557,9 +558,11 @@ def rancang(naskah: dict) -> tuple[dict, float]:
                     if (peristiwa_i.get("sasaran") == "dinding"
                             and peristiwa_i.get("aksi") in {"menggali", "terbuka"}):
                         peristiwa_dinding_selesai += 1
+                    if (peristiwa_i.get("sasaran") == "dinding"
+                            and peristiwa_i.get("aksi") == "terbuka"):
+                        dinding_sudah_terbuka = True
                     progres_dinding = (
-                        1.0 if peristiwa_i.get("aksi") == "terbuka"
-                        and peristiwa_i.get("sasaran") == "dinding"
+                        1.0 if dinding_sudah_terbuka
                         else (.18 + .82 * (peristiwa_dinding_selesai - 1)
                               / max(1, peristiwa_dinding_total - 1)
                               if peristiwa_dinding_selesai else 0.0)
