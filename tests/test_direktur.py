@@ -552,3 +552,22 @@ def test_keadaan_benda_berkembang_per_peristiwa_dalam_satu_beat():
     assert keadaan_awal["jenis"] == keadaan_akhir["jenis"] == "bahtera"
     assert keadaan_awal["jadi"] < keadaan_akhir["jadi"]
     assert keadaan_akhir["jadi"] == 1.0
+
+
+def test_progres_keadaan_benda_tidak_melampaui_batas_pada_beat_terakhir():
+    naskah = {
+        "judul": "Pembangunan dan perjalanan",
+        "inti": "Nabi Nuh membangun bahtera.",
+        "dalil": [],
+        "beat": [
+            {"narasi": "Pengikut membangun bahtera.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengikut"]},
+            {"narasi": "Pengelana berjalan lalu Penjaga membangun bahtera.",
+             "dalil": [], "kata_kunci": [], "suasana": "senja",
+             "peran": ["Pengelana", "Penjaga"]},
+        ],
+    }
+    shot_akhir = rancang(naskah)["beat"][-1]["shot"]
+    nilai_jadi = [item["benda"][0]["jadi"] for item in shot_akhir]
+    assert nilai_jadi == [1.0, 1.0]
+    assert all(0.0 <= nilai <= 1.0 for nilai in nilai_jadi)
