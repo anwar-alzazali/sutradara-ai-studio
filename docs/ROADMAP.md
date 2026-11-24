@@ -372,3 +372,47 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 
 
 - 23 Nov 2026 — Audit ulang PR #48: status D2 dipisah antara implementasi, tes otomatis, render, dan tinjauan pemilik. 320 tes Python + 10 tes bot dan render 14 shot pada SHA 660ea9a tercatat; uji audio-cache pada HEAD masih wajib. Catatan PERIKSA B2/Tirmidzi 3153 dan kebutuhan tinjauan gerak kontinu dipertahankan.
+
+
+## Audit Fase 4 — 24 Nov 2026 (lanjutan pada rantai D2/D3)
+
+Audit ini diselaraskan dengan HEAD PR #52 (`tahap-d3-peristiwa-visual`), bukan hanya `main`.
+Cakupan: `antrean.py`, kontrak genre, `direktur.py`, sutradara Kisah Islami, parser peristiwa,
+selector resep, blocking, renderer peristiwa, validator, CLI, dan tes. Tidak membuat parser/skema/renderer
+alternatif; batas wajib `AGENTS.md` dan penjaga domain tetap tidak disentuh.
+
+**Baseline CI PR #52 sebelum perbaikan:** workflow #568 gagal pada `pytest` dengan 4 gagal dan 329 lulus:
+1. `test_interaksi_otomatis_menghadapkan_pemberi_dan_penerima`: penerima tidak melakukan gestur ulurkan.
+2. `test_perjalanan_otomatis_mengenali_tujuan_benda_dan_kedalaman`: posisi awal pelaku sudah di sisi yang salah sehingga lintasan menjauh dari bahtera.
+3. `test_menunjuk_visual_inti_menghadap_ke_benda`: posisi pelaku dan arah hadap tidak konsisten terhadap benda.
+4. `test_frasa_mahyar_menghasilkan_peristiwa_dan_visual_yang_relevan`: elipsis Unicode dinormalisasi menjadi titik-titik dan memutus relasi objek-verba untuk matahari.
+
+**Perbaikan terukur pada branch audit:**
+- Parser menetralkan elipsis sebelum normalisasi NFKD agar jeda retoris tidak menjadi batas klausa palsu.
+- Blocking membedakan perjalanan menuju benda (mulai dari sisi jauh dan bergerak mendekati sasaran) dari aksi kerja/menunjuk (mulai dekat visual inti).
+- Kedua pihak pada interaksi eksplisit menerima gestur interaksi, bukan hanya pelaku gramatikal.
+- Regression test yang sudah ada menjadi verifikasi atas empat kegagalan baseline; hasil CI ulang tetap menjadi gerbang sebelum merge.
+
+**Temuan arsitektur yang masih terbuka:**
+- `peristiwa.py` adalah pemilik parser yang benar, tetapi ekstraksi masih berbasis pola leksikal/regex dan satu relasi per frasa. Klausa kompleks, negasi lintas klausa, pronomina, pelaku implisit, dan frasa tujuan yang lebih kaya perlu diuji sebelum memperluas kamus.
+- `rancang()` sudah menyimpan `peristiwa` dan bukti frasa ke beat/shot, tetapi keadaan benda utama masih sebagian dihitung melalui indeks beat di `_keadaan()`. Belum ada reducer transisi tunggal yang menghubungkan `perubahan_keadaan` peristiwa dengan state awal, transisi, dan kontinuitas lintas-shot.
+- Renderer peristiwa hanya menghasilkan SVG untuk pasangan aksi–sasaran yang dikenali. Peristiwa yang berhasil diparse tetapi tidak memiliki renderer harus tetap terlihat dalam laporan/tinjauan, bukan diam-diam dianggap sudah divisualkan.
+- Hook saat ini memilih beat dramatis lalu menempatkan judul pada shot pertama beat tersebut; beat belum dipindahkan menjadi cold-open. Ini perlu diselaraskan secara eksplisit dengan resep A3 sebelum mengubah urutan, karena pengurutan ulang dapat memengaruhi kronologi dan jalur state.
+- Selector resep masih memakai hitungan substring dan tie-break ID; belum memberikan alasan pemilihan, konflik antar-resep, atau skor cakupan.
+- Blocking memakai posisi berbasis aturan dan beberapa nilai tetap. Tes koordinat lulus bukan bukti bahwa komposisi, overlap, ruang subtitle, kedalaman, dan gerak kontinu sudah layak tayang.
+- Jalur model tetap opsional, tetapi kontrak keluaran adapter, validasi metadata biaya, dan batas penggunaan perlu diuji sebagai satu antarmuka; hasil model tidak boleh melewati penjaga yang sama.
+
+**Urutan optimalisasi berikutnya (tetap satu rantai Fase 4):**
+1. Tutup empat kegagalan baseline di atas; jalankan seluruh `pytest` dan verifikasi contoh final.
+2. D4.1 — Perkuat parser yang sudah ada: tes tabel klausa, negasi, pelaku/pasien/tujuan, pronomina, elipsis, dan bukti frasa; jangan membuat parser kedua.
+3. D4.2 — Bangun reducer event-to-state di pemilik sutradara yang sama; satu sumber kebenaran untuk state benda/lingkungan dan kontinuitas lintas beat/shot.
+4. D4.3 — Pastikan setiap event memiliki pemetaan visual atau temuan eksplisit untuk tinjauan; jangan mengklaim event tervisualkan hanya karena data event menempel pada shot.
+5. D4.4 — Selesaikan blocking dan arah gerak dari relasi event, termasuk tujuan benda/tokoh, sisi pendekatan, interaksi dua pihak, overlap, dan kaidah 180 derajat.
+6. D4.5 — Selaraskan kebijakan hook A3 (cold-open vs judul overlay) dengan urutan state dan narasi; keputusan perubahan harus diuji pada Nuh/Hud.
+7. D4.6 — Tingkatkan selector resep dengan skor kecocokan, konflik, alasan, dan cakupan; resep tetap data paket genre.
+8. D4.7 — Validasi kontrak adapter model dan biaya; model tetap mati secara bawaan dan seluruh hasil tetap melewati penjaga.
+9. D4.8 — Render Nuh, Hud, dan Mahsyar 1; inspeksi MP4/lembar kontak serta penilaian layak tayang oleh pemilik. Tes unit/CI tidak menggantikan bukti visual.
+
+Jangan mengubah `sutradara/rencana/penjaga.py`, aturan adab, standar dalil, workflow ber-rahasia,
+atau membuka genre lain sebagai bagian audit ini. Fase 4 tetap belum selesai sampai bukti render lintas cerita
+dan persetujuan pemilik tersedia.
