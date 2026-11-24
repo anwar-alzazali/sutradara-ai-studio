@@ -180,7 +180,15 @@ def susun(rencana: dict, narasi: dict) -> Garis:
             if idx is None:
                 raise ValueError(f"beat {i + 1}: kata potong '{w}' tidak ada di narasi")
             titik.append(kata_v[idx]["t0"] - POTONG_SEBELUM); cari = idx + 1
-        if len(titik) != len(bicara) - 1:  # tanpa potong_di (atau jumlah tak cocok): bagi proporsional
+        if pd and len(titik) != len(bicara) - 1:
+            # Jangkar eksplisit adalah kontrak sutradara. Jangan diam-diam
+            # menggantinya dengan pembagian proporsional karena itu memutus
+            # hubungan verba peristiwa dengan shot yang direncanakan.
+            raise ValueError(
+                f"beat {i + 1}: {len(pd)} kata potong untuk {len(bicara)} shot berbicara "
+                f"(harus {len(bicara) - 1})"
+            )
+        if not pd:
             bobot = [_durasi_rancangan(s, dl) for s in bicara]
             tot, acc, titik = sum(bobot), 0.0, []
             for b_ in bobot[:-1]:
