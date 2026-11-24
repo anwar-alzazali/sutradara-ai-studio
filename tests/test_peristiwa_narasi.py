@@ -9,6 +9,13 @@ def test_peristiwa_mengikat_aksi_ke_objek_yang_disebut_naskah():
     assert hasil[0]["sasaran"] == "bumi"
     assert hasil[0]["perubahan_keadaan"] == {"objek": "bumi", "keadaan": "terbelah"}
     assert hasil[0]["bukti_narasi"] == "terbelah"
+    # "kamu" hanya muncul sebagai akhiran pada "di atasmu", bukan sebagai pelaku.
+    assert hasil[0]["aktor"] == []
+
+
+def test_aktor_hanya_diisi_bila_disebut_eksplisit():
+    hasil = analisis_peristiwa("Kamu berjalan menuju matahari.", ["kamu", "Nabi Nuh"])
+
     assert hasil[0]["aktor"] == ["kamu"]
 
 
