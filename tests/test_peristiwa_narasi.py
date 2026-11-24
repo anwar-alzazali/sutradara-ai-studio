@@ -75,3 +75,15 @@ def test_batas_lalu_memisahkan_tujuan_dan_aktor_peristiwa_berikutnya():
     assert hasil[0]["aktor"] == ["Pengelana"]
     assert hasil[1]["sasaran"] == "dinding"
     assert hasil[1]["aktor"] == ["Penjaga"]
+
+
+def test_saksi_yang_disebut_sebelum_perubahan_keadaan_bukan_pelaku():
+    hasil = analisis_peristiwa(
+        "Penjaga menyaksikan dinding runtuh.",
+        ["Penjaga"],
+    )
+    assert len(hasil) == 1
+    assert hasil[0]["aksi"] == "runtuh"
+    assert hasil[0]["sasaran"] == "dinding"
+    assert hasil[0]["perubahan_keadaan"] == {"objek": "dinding", "keadaan": "runtuh"}
+    assert hasil[0]["aktor"] == []
