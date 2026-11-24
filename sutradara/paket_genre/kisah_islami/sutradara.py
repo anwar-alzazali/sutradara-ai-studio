@@ -120,26 +120,73 @@ def _resep_untuk(teks: str) -> dict:
         "id": "adegan_umum", "suasana": "senja", "gerak": "berdiri", "wajah": "datar", "fokus": "visual_inti"}
 
 
-def _keadaan(inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int) -> tuple[str, dict]:
+def _reduksi_keadaan_benda(
+    status: dict[str, dict], inti: str, peristiwa: dict,
+) -> dict:
+    """Terapkan satu peristiwa eksplisit ke status benda; beat netral tidak mengubahnya."""
+    data = status.setdefault(inti, {})
+    aksi = peristiwa.get("aksi")
+    sasaran = peristiwa.get("sasaran")
+    perubahan = peristiwa.get("perubahan_keadaan") or {}
+    objek_perubahan = perubahan.get("objek")
+    keadaan_perubahan = perubahan.get("keadaan")
+
+    if inti == "bahtera":
+        data.setdefault("dibangun", False)
+        data.setdefault("selesai", False)
+        if sasaran == "bahtera" and aksi == "membangun":
+            data["dibangun"] = True
+        if ((objek_perubahan == "bahtera" and keadaan_perubahan in {"selesai", "rampung"})
+                or (sasaran == "bahtera" and aksi == "selesai")):
+            data["dibangun"] = True
+            data["selesai"] = True
+    elif inti == "dinding_yajuj":
+        data.setdefault("dilubangi", False)
+        data.setdefault("terbuka", False)
+        if sasaran == "dinding" and aksi == "menggali":
+            data["dilubangi"] = True
+        if ((objek_perubahan == "dinding" and keadaan_perubahan == "terbuka")
+                or (sasaran == "dinding" and aksi == "terbuka")):
+            data["dilubangi"] = True
+            data["terbuka"] = True
+    elif inti == "kota_kuno":
+        data.setdefault("runtuh", False)
+        if objek_perubahan in {"kota", "permukiman", "kota_kuno"} and keadaan_perubahan == "runtuh":
+            data["runtuh"] = True
+    return data
+
+
+def _keadaan(
+    inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int,
+    status_benda: dict[str, dict] | None = None,
+) -> tuple[str, dict]:
+    """Bentuk snapshot visual dari status peristiwa, bukan posisi beat."""
     polos = _polos(teks)
-    p = indeks / max(1, jumlah - 1)
+    status = (status_benda or {}).get(inti, {})
     if inti == "padang":
         return "lapang", {}
     if inti == "bahtera":
+        selesai = bool(status.get("selesai"))
+        dibangun = bool(status.get("dibangun"))
+        jadi = 1.0 if selesai else (.55 if dibangun else .18)
         if any(k in polos for k in ("banjir", "badai", "gelombang")):
-            return "badai", {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78, "jadi": 1.0,
+            return "badai", {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78, "jadi": jadi,
                               "goyang": .65, "cahaya": .15, "darat": False}
-        state = "rangka" if p < .34 else ("dibangun" if p < .72 else "selamat")
+        state = "jadi" if selesai else ("dibangun" if dibangun else "rangka")
         return state, {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78,
-                       "jadi": .18 + .82*p, "goyang": 0, "cahaya": .25 + .45*p, "darat": True}
+                       "jadi": jadi, "goyang": 0, "cahaya": .25 + .45*jadi, "darat": True}
     if inti == "dinding_yajuj":
-        lubang = min(1.0, p)
-        state = jalur[min(len(jalur)-1, round(p*(len(jalur)-1)))]
+        terbuka = bool(status.get("terbuka"))
+        dilubangi = bool(status.get("dilubangi"))
+        lubang = 1.0 if terbuka else (.25 if dilubangi else 0.0)
+        state = "terbuka" if terbuka else ("dilubangi" if dilubangi else "utuh")
         return state, {"jenis": "dinding_yajuj", "x": 540, "y": 1120, "s": 1.0, "lubang": lubang}
+    runtuh = bool(status.get("runtuh"))
     if any(k in polos for k in ("angin", "badai", "azab")):
-        return "angin", {"jenis": "kota_kuno", "x": 540, "y": 1300, "s": .72, "runtuh": min(.7, .18+p*.55)}
-    return jalur[min(len(jalur)-1, round(p*(len(jalur)-1)))], {
-        "jenis": "kota_kuno", "x": 540, "y": 1300, "s": .72, "runtuh": 0.0}
+        return "angin", {"jenis": "kota_kuno", "x": 540, "y": 1300, "s": .72,
+                          "runtuh": .7 if runtuh else 0.0}
+    return ("runtuh" if runtuh else jalur[0]), {
+        "jenis": "kota_kuno", "x": 540, "y": 1300, "s": .72, "runtuh": .7 if runtuh else 0.0}
 
 
 def _preset(beat: dict, resep: dict, teks: str) -> str:
@@ -308,10 +355,10 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
             )
             if pelaku and pid in pelaku:
                 # Pelaku aksi menghadap visual inti yang sedang dikerjakan.
-                arah = "samping"
+                arah = "tiga_perempat" if dialog else "samping"
                 balik = x > float(keadaan.get("x", 540))
             elif lawan:
-                arah = "samping"
+                arah = "tiga_perempat" if dialog else "samping"
                 balik = x > posisi.get(lawan, x)
             elif menunjuk_visual:
                 arah = "samping"
@@ -433,6 +480,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
     hooks=[]
     # Arah layar disimpan per identitas pemeran sepanjang urutan beat.
     arah_terakhir: dict[str, int] = {}
+    status_benda: dict[str, dict] = {}
     for i, b in enumerate(naskah["beat"]):
         teks = b["narasi"]
         resep = _resep_untuk(teks)
@@ -443,6 +491,8 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         refs = [did for did in b.get("dalil",[]) if did in label]
         tindakan = _polos(teks)
         peristiwa = analisis_peristiwa(teks, b.get("peran", []), i)
+        for item_peristiwa in peristiwa:
+            _reduksi_keadaan_benda(status_benda, inti, item_peristiwa)
         aksi = aksi_utama(peristiwa)
         gerak = ({
             "membangun": "palu", "menggali": "gali", "bangkit": "berdiri", "mengejek": "tertawa",
@@ -471,7 +521,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
             # Dialog membawa cerita lewat reverse shot; kata kunci tetap menjadi
             # label makna, tidak menambah potongan di luar cakupan percakapan.
             cuts=[]
-        keadaan,_obj=_keadaan(inti,jalur,teks,i,len(naskah["beat"]))
+        keadaan,_obj=_keadaan(inti,jalur,teks,i,len(naskah["beat"]),status_benda=status_benda)
         jdl=_JUDUL.get(keadaan, " ".join((cuts or b.get("kata_kunci",[]) or [keadaan])[:2]).upper())
         judul=[w for w in re.sub(r"[^A-Z0-9' ]"," ",jdl.upper()).split()[:3]]
         kata_lawan = ("penentang", "penolak", "pengejek", "musuh", "lawan")

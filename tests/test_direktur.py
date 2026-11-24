@@ -145,8 +145,8 @@ def test_dialog_reverse_shot_mempertahankan_sisi_dan_mengganti_pembicara():
     assert not kanan["nur"][0]["bicara"]
     assert kanan["tokoh"][0].get("bicara")
     assert not kiri["tokoh"][0].get("bicara")
-    assert kiri["tokoh"][0]["arah"] == "samping"
-    assert kanan["tokoh"][0]["arah"] == "samping"
+    assert kiri["tokoh"][0]["arah"] == "tiga_perempat"
+    assert kanan["tokoh"][0]["arah"] == "tiga_perempat"
 
 
 
@@ -443,3 +443,191 @@ def test_interaksi_tanpa_nama_tokoh_hanya_diinferensikan_jika_tepat_dua_peran():
     }
     assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b"], peta) == ("a", "b")
     assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b", "c"], peta) is None
+
+
+def test_status_bahtera_tidak_berubah_hanya_karena_indeks_beat():
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan
+
+    awal = _keadaan("bahtera", ["rangka", "dibangun", "badai"], "Tidak ada pembangunan.", 0, 2)
+    setelah_beat_netral = _keadaan("bahtera", ["rangka", "dibangun", "badai"], "Tidak ada pembangunan.", 9, 10)
+    assert awal == setelah_beat_netral
+    assert awal[0] == "rangka"
+    assert awal[1]["jadi"] == .18
+
+
+def test_reducer_bahtera_hanya_berubah_oleh_peristiwa_pembangunan():
+    from sutradara.paket_genre.kisah_islami.sutradara import (
+        _keadaan, _reduksi_keadaan_benda,
+    )
+
+    status = {}
+    netral = {"aksi": "jalan", "sasaran": None, "perubahan_keadaan": None}
+    _reduksi_keadaan_benda(status, "bahtera", netral)
+    assert _keadaan("bahtera", [], "Berjalan.", 5, 6, status)[1]["jadi"] == .18
+
+    bangun = {"aksi": "membangun", "sasaran": "bahtera", "perubahan_keadaan": None}
+    _reduksi_keadaan_benda(status, "bahtera", bangun)
+    snapshot = _keadaan("bahtera", [], "Beat netral sesudahnya.", 0, 1, status)
+    assert snapshot[0] == "dibangun"
+    assert snapshot[1]["jadi"] == .55
+
+    _reduksi_keadaan_benda(status, "bahtera", netral)
+    assert _keadaan("bahtera", [], "Masih beat netral.", 20, 21, status) == snapshot
+
+
+def test_reducer_dinding_tidak_menyamakan_penggalian_dengan_terbuka():
+    from sutradara.paket_genre.kisah_islami.sutradara import (
+        _keadaan, _reduksi_keadaan_benda,
+    )
+
+    status = {}
+    gali = {"aksi": "menggali", "sasaran": "dinding", "perubahan_keadaan": None}
+    _reduksi_keadaan_benda(status, "dinding_yajuj", gali)
+    keadaan = _keadaan("dinding_yajuj", ["utuh", "dilubangi", "terbuka"],
+                       "Beat tanpa aksi.", 8, 9, status)
+    assert keadaan[0] == "dilubangi"
+    assert keadaan[1]["lubang"] == .25
+
+    buka = {"aksi": "terbuka", "sasaran": "dinding",
+            "perubahan_keadaan": {"objek": "dinding", "keadaan": "terbuka"}}
+    _reduksi_keadaan_benda(status, "dinding_yajuj", buka)
+    terbuka = _keadaan("dinding_yajuj", [], "Beat netral.", 0, 1, status)
+    assert terbuka[0] == "terbuka"
+    assert terbuka[1]["lubang"] == 1.0
+
+
+def test_kota_tidak_runtuh_hanya_karena_angin_disebut():
+    from sutradara.paket_genre.kisah_islami.sutradara import (
+        _keadaan, _reduksi_keadaan_benda,
+    )
+
+    status = {}
+    sebelum = _keadaan("kota_kuno", ["awal", "peristiwa"], "Angin datang.", 7, 8, status)
+    assert sebelum[0] == "angin"
+    assert sebelum[1]["runtuh"] == 0.0
+
+    runtuh = {"aksi": "runtuh", "sasaran": "kota",
+              "perubahan_keadaan": {"objek": "kota", "keadaan": "runtuh"}}
+    _reduksi_keadaan_benda(status, "kota_kuno", runtuh)
+    sesudah = _keadaan("kota_kuno", ["awal", "peristiwa"], "Angin datang.", 0, 1, status)
+    assert sesudah[1]["runtuh"] == .7
+
+
+def test_parser_mengenali_pembangunan_dan_penyelesaian_bahtera():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan, _reduksi_keadaan_benda
+
+    status = {}
+    for narasi in ("Kaum membangun bahtera.", "Pembangunan bahtera selesai."):
+        peristiwa = analisis_peristiwa(narasi, ["kaum"])
+        assert peristiwa
+        _reduksi_keadaan_benda(status, "bahtera", peristiwa[0])
+
+    snapshot = _keadaan("bahtera", [], "Beat tanpa perubahan.", 0, 1, status)
+    assert snapshot[0] == "jadi"
+    assert snapshot[1]["jadi"] == 1.0
+
+
+def test_parser_mengenali_penggalian_dinding_tanpa_menganggapnya_terbuka():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan, _reduksi_keadaan_benda
+
+    peristiwa = analisis_peristiwa("Mereka menggali dinding.", ["mereka"])
+    assert peristiwa and peristiwa[0]["sasaran"] == "dinding"
+    status = {}
+    _reduksi_keadaan_benda(status, "dinding_yajuj", peristiwa[0])
+    snapshot = _keadaan("dinding_yajuj", [], "Tidak ada perubahan.", 0, 1, status)
+    assert snapshot[0] == "dilubangi"
+    assert snapshot[1]["lubang"] == .25
+
+
+def test_parser_mengenali_runtuhnya_kota_sebagai_perubahan_eksplisit():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan, _reduksi_keadaan_benda
+
+    peristiwa = analisis_peristiwa("Kota itu runtuh.", ["penduduk"])
+    assert peristiwa and peristiwa[0]["perubahan_keadaan"] == {
+        "objek": "kota", "keadaan": "runtuh"
+    }
+    status = {}
+    _reduksi_keadaan_benda(status, "kota_kuno", peristiwa[0])
+    snapshot = _keadaan("kota_kuno", [], "Angin datang.", 0, 1, status)
+    assert snapshot[1]["runtuh"] == .7
+
+
+def test_badai_tidak_menyelesaikan_bahtera_tanpa_peristiwa_pembangunan():
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan
+
+    keadaan, objek = _keadaan("bahtera", [], "Badai dan gelombang datang.", 0, 1, {})
+    assert keadaan == "badai"
+    assert objek["jadi"] == .18
+    assert objek["darat"] is False
+
+
+def test_naskah_nuh_menghasilkan_peristiwa_pembangunan_bahtera_dari_teks_asli():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan, _reduksi_keadaan_benda
+
+    naskah = json.loads((AKAR / "naskah" / "nuh.json").read_text(encoding="utf-8-sig"))
+    status = {}
+    peristiwa_terdeteksi = []
+    for indeks, beat in enumerate(naskah["beat"]):
+        peristiwa = analisis_peristiwa(beat["narasi"], beat.get("peran", []), indeks)
+        peristiwa_terdeteksi.extend(peristiwa)
+        for item in peristiwa:
+            _reduksi_keadaan_benda(status, "bahtera", item)
+
+    assert any(p["aksi"] == "membangun" and p["sasaran"] == "bahtera"
+               for p in peristiwa_terdeteksi)
+    keadaan, objek = _keadaan("bahtera", [], "Beat setelah pembangunan.", 0, 1, status)
+    assert keadaan == "dibangun"
+    assert objek["jadi"] == .55
+
+
+def test_naskah_hud_tidak_mengubah_angin_membinasakan_menjadi_runtuhnya_kota():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan, _reduksi_keadaan_benda
+
+    naskah = json.loads((AKAR / "naskah" / "hud.json").read_text(encoding="utf-8-sig"))
+    status = {}
+    for indeks, beat in enumerate(naskah["beat"]):
+        for item in analisis_peristiwa(beat["narasi"], beat.get("peran", []), indeks):
+            _reduksi_keadaan_benda(status, "kota_kuno", item)
+
+    keadaan, objek = _keadaan("kota_kuno", ["awal", "peristiwa"],
+                              "Angin dahsyat membinasakan kaum.", 0, 1, status)
+    assert keadaan == "angin"
+    assert objek["runtuh"] == 0.0
+
+
+def test_parser_mengabaikan_aksi_yang_dinegasikan_dengan_kata_bantu():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+
+    assert analisis_peristiwa("Kaum tidak akan membangun bahtera.") == []
+    assert analisis_peristiwa("Dinding belum juga terbuka.") == []
+    assert analisis_peristiwa("Mereka tidak berhasil meruntuhkan kota.") == []
+    assert analisis_peristiwa("Kaum membangun bahtera.")
+
+
+def test_alur_sutradara_nuh_mempertahankan_status_bahtera_dari_peristiwa():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang as rancang_kisah
+
+    naskah = json.loads((AKAR / "naskah" / "nuh.json").read_text(encoding="utf-8-sig"))
+    rencana, _ = rancang_kisah(naskah)
+    beat_pembangunan = rencana["beat"][1]
+    assert beat_pembangunan["keadaan"] == "dibangun"
+    assert any(p["aksi"] == "membangun" and p["sasaran"] == "bahtera"
+               for p in beat_pembangunan["peristiwa"])
+
+
+def test_alur_sutradara_hud_tidak_mengarang_status_runtuh_kota():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang as rancang_kisah
+
+    naskah = json.loads((AKAR / "naskah" / "hud.json").read_text(encoding="utf-8-sig"))
+    rencana, _ = rancang_kisah(naskah)
+    beat_azab = rencana["beat"][-1]
+    assert beat_azab["keadaan"] == "angin"
+    assert not any((p.get("perubahan_keadaan") or {}).get("objek") in {
+        "kota", "permukiman", "kota_kuno"
+    } and (p.get("perubahan_keadaan") or {}).get("keadaan") == "runtuh"
+                   for p in beat_azab["peristiwa"])

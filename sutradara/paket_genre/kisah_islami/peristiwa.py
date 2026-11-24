@@ -20,6 +20,7 @@ _AKSI = {
     "menjauh": "menjauh", "menjauhi": "menjauh", "mendekat": "mendekat",
     "mendekati": "mendekat", "menghampiri": "mendekat",
     "membangun": "membangun", "dibangun": "membangun", "membuat": "membangun",
+    "menyelesaikan": "selesai", "selesai": "selesai", "rampung": "selesai",
     "menggali": "menggali", "digali": "menggali",
     "mengejek": "mengejek", "mengolok": "mengejek", "tertawa": "tertawa",
     "berdoa": "berdoa", "memohon": "berdoa", "menyerahkan": "menyerahkan",
@@ -37,7 +38,8 @@ _AKSI = {
 }
 _OBJEK = {
     "bahtera": ("bahtera", "bahtera"), "kapal": ("bahtera", "bahtera"),
-    "dinding": ("dinding", "dinding"), "bumi": ("bumi", "bumi"),
+    "dinding": ("dinding", "dinding"), "kota": ("kota", "kota"),
+    "permukiman": ("permukiman", "permukiman"), "bumi": ("bumi", "bumi"),
     "tanah": ("bumi", "bumi"), "matahari": ("matahari", "matahari"),
     "manusia": ("kerumunan", "kerumunan"), "kerumunan": ("kerumunan", "kerumunan"),
     "keringat": ("keringat", "keringat"), "keringatnya": ("keringat", "keringat"), "danau": ("danau", "danau"),
@@ -45,7 +47,7 @@ _OBJEK = {
     "langit": ("langit", "langit"), "gunung": ("gunung", "gunung"),
     "air": ("air", "air"), "api": ("api", "api"),
 }
-_NEGASI = re.compile(r"\b(?:tidak|tak|belum|bukan|jangan)\s+$")
+_NEGASI = re.compile(r"\b(?:tidak|tak|belum|bukan|jangan)(?:\s+(?:akan|pernah|lagi|dapat|bisa|mau|berhasil|jadi|juga))?\s+$")
 
 
 def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int = 0) -> list[dict]:

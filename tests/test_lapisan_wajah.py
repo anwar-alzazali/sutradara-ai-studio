@@ -39,3 +39,15 @@ def test_model_rambut_botak_tidak_menggambar_lapisan_rambut():
     botak = tokoh.orang(500, 1500, kepala="tanpa", model_rambut="botak", arah="depan")
     pendek = tokoh.orang(500, 1500, kepala="tanpa", model_rambut="pendek", arah="depan")
     assert botak != pendek
+
+
+def test_sudut_tiga_perempat_memperlihatkan_kedua_mata():
+    svg = tokoh.orang(500, 1500, arah="tiga_perempat", wajah="datar", t=0.5)
+    assert 'cx="-11" cy="-6"' in svg
+    assert 'cx="11" cy="-6"' in svg
+
+
+def test_sudut_samping_tetap_memperlihatkan_satu_mata_secara_wajar():
+    svg = tokoh.orang(500, 1500, arah="samping", wajah="datar", t=0.5)
+    assert 'cx="-9" cy="-7"' in svg
+    assert 'cx="11" cy="-6"' not in svg
