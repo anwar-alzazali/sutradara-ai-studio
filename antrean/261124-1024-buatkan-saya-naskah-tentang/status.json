@@ -4,7 +4,7 @@
  "sumber": "ide",
  "chat": 7576750901,
  "tahap": {
-  "diterima": "selesai",
+  "diterima": "jalan",
   "dalil": "selesai",
   "tinjau": "jalan",
   "narasi": "belum",
@@ -14,7 +14,7 @@
   "kirim": "belum"
  },
  "ket": {
-  "diterima": "5 beat, 1 dalil · Gemini",
+  "diterima": "revisi mengantre…",
   "dalil": "1/1",
   "tinjau": "menunggu Anda membaca naskah"
  },
