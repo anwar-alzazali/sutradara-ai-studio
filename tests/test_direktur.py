@@ -532,3 +532,223 @@ def test_peristiwa_pasif_di_antara_aksi_aktif_tetap_menjadi_shot_netral():
     tokoh_terakhir = {tokoh["peran"]: tokoh for tokoh in terakhir["tokoh"]}
     assert tokoh_terakhir["penjaga"]["gerak"] == "palu"
     assert tokoh_terakhir["pengelana"]["gerak"] == "berdiri"
+
+
+def test_keadaan_benda_berkembang_per_peristiwa_dalam_satu_beat():
+    naskah = {
+        "judul": "Perjalanan dan pembangunan bahtera",
+        "inti": "Pengelana berjalan menuju bahtera lalu Penjaga membangun bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan menuju bahtera lalu Penjaga membangun bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Penjaga"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 2
+    keadaan_awal = shot[0]["benda"][0]
+    keadaan_akhir = shot[1]["benda"][0]
+    assert keadaan_awal["jenis"] == keadaan_akhir["jenis"] == "bahtera"
+    # Cut perjalanan tidak memajukan konstruksi; hanya ada satu peristiwa
+    # membangun, sehingga belum ada dasar untuk menyatakan bahtera selesai.
+    assert keadaan_awal["jadi"] == keadaan_akhir["jadi"] == 0.18
+
+
+
+def test_pembangunan_dinding_tidak_dihitung_sebagai_progres_bahtera():
+    naskah = {
+        "judul": "Dinding dan bahtera",
+        "inti": "Penjaga membangun dinding lalu Pengelana membangun bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penjaga membangun dinding lalu Pengelana membangun bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga", "Pengelana"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 2
+    assert [item["peristiwa_visual"][0]["sasaran"] for item in shot] == [
+        "dinding", "bahtera",
+    ]
+    # Pembangunan dinding bukan bukti progres bahtera. Satu peristiwa
+    # pembangunan bahtera juga belum cukup untuk menyatakan konstruksi selesai.
+    assert [item["benda"][0]["jadi"] for item in shot] == [0.18, 0.18]
+
+def test_dua_peristiwa_pembangunan_bahtera_memajukan_progres_bertahap():
+    naskah = {
+        "judul": "Pembangunan bahtera bertahap",
+        "inti": "Penjaga membangun bahtera lalu Pengelana membangun bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penjaga membangun bahtera lalu Pengelana membangun bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga", "Pengelana"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 2
+    assert [item["peristiwa_visual"][0]["sasaran"] for item in shot] == [
+        "bahtera", "bahtera",
+    ]
+    assert [item["benda"][0]["jadi"] for item in shot] == [0.18, 1.0]
+
+
+def test_progres_keadaan_benda_tidak_melampaui_batas_pada_beat_terakhir():
+    naskah = {
+        "judul": "Pembangunan dan perjalanan",
+        "inti": "Nabi Nuh membangun bahtera.",
+        "dalil": [],
+        "beat": [
+            {"narasi": "Pengikut membangun bahtera.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengikut"]},
+            {"narasi": "Pengelana berjalan lalu Penjaga membangun bahtera.",
+             "dalil": [], "kata_kunci": [], "suasana": "senja",
+             "peran": ["Pengelana", "Penjaga"]},
+        ],
+    }
+    shot_akhir = rancang(naskah)["beat"][-1]["shot"]
+    nilai_jadi = [item["benda"][0]["jadi"] for item in shot_akhir]
+    # Shot perjalanan tidak memajukan konstruksi; hanya event membangun
+    # kedua yang menyelesaikan bahtera.
+    assert nilai_jadi == [.18, 1.0]
+    assert all(0.0 <= nilai <= 1.0 for nilai in nilai_jadi)
+
+
+def test_cut_tambahan_tidak_memperbesar_lubang_dinding_tanpa_peristiwa_pembukaan():
+    naskah = {
+        "judul": "Dinding dan perjalanan",
+        "inti": "Dinding berdiri di hadapan pengelana.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan ke kiri lalu dinding runtuh.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 2
+    assert [item["benda"][0]["jenis"] for item in shot] == [
+        "dinding_yajuj", "dinding_yajuj",
+    ]
+    assert [item["benda"][0]["lubang"] for item in shot] == [0.0, 0.0]
+
+def test_penggalian_eksplisit_memajukan_lubang_dinding_bukan_cut():
+    naskah = {
+        "judul": "Penggalian dinding bertahap",
+        "inti": "Pengelana berjalan ke kiri lalu Penjaga menggali dinding.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan ke kiri lalu Penjaga menggali dinding.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Penjaga"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 2
+    assert [item["peristiwa_visual"][0]["aksi"] for item in shot] == [
+        "jalan", "menggali",
+    ]
+    assert [item["benda"][0]["lubang"] for item in shot] == [0.0, 0.18]
+    assert [item["benda"][0]["jenis"] for item in shot] == [
+        "dinding_yajuj", "dinding_yajuj",
+    ]
+
+
+def test_pembukaan_eksplisit_menyelesaikan_lubang_dinding():
+    naskah = {
+        "judul": "Dinding terbuka",
+        "inti": "Penjaga membuka dinding.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penjaga membuka dinding.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 1
+    assert shot[0]["peristiwa_visual"][0]["aksi"] == "terbuka"
+    assert shot[0]["benda"][0]["lubang"] == 1.0
+
+
+
+def test_progres_penggalian_dinding_berlanjut_antar_beat():
+    naskah = {
+        "judul": "Penggalian dinding berlanjut",
+        "inti": "Penjaga menggali dinding lalu Pengelana menggali dinding.",
+        "dalil": [],
+        "beat": [
+            {
+                "narasi": "Penjaga menggali dinding.",
+                "dalil": [], "kata_kunci": [], "suasana": "senja",
+                "peran": ["Penjaga"],
+            },
+            {
+                "narasi": "Pengelana menggali dinding.",
+                "dalil": [], "kata_kunci": [], "suasana": "senja",
+                "peran": ["Pengelana"],
+            },
+        ],
+    }
+    hasil = rancang(naskah)["beat"]
+    assert hasil[0]["shot"][0]["benda"][0]["lubang"] == 0.18
+    assert hasil[1]["shot"][0]["benda"][0]["lubang"] == 1.0
+    assert [beat["keadaan"] for beat in hasil] == ["dilubangi", "terbuka"]
+
+
+def test_dinding_tetap_terbuka_setelah_peristiwa_penggalian_berikutnya():
+    naskah = {
+        "judul": "Dinding terbuka dan penggalian lanjutan",
+        "inti": "Penjaga membuka dinding lalu Pengelana menggali dinding.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penjaga membuka dinding lalu Pengelana menggali dinding.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga", "Pengelana"],
+        }],
+    }
+    beat = rancang(naskah)["beat"][0]
+    assert [shot["benda"][0]["lubang"] for shot in beat["shot"]] == [1.0, 1.0]
+    assert beat["keadaan"] == "terbuka"
+
+
+def test_progres_bahtera_hanya_berubah_oleh_event_membangun_lintas_beat():
+    naskah = {
+        "judul": "Pembangunan bahtera lintas beat",
+        "inti": "Penjaga membangun bahtera lalu Pengelana berjalan lalu Musafir membangun bahtera.",
+        "dalil": [],
+        "beat": [
+            {"narasi": "Penjaga membangun bahtera.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Penjaga"]},
+            {"narasi": "Pengelana berjalan ke kiri.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+            {"narasi": "Musafir membangun bahtera.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Musafir"]},
+        ],
+    }
+    hasil = rancang(naskah)["beat"]
+    progres = [
+        beat["shot"][-1]["benda"][0]["jadi"]
+        for beat in hasil
+    ]
+    assert progres == [.18, .18, 1.0]
+    assert hasil[1]["keadaan"] == "rangka"
+
+
+def test_cut_tanpa_event_pembangunan_tidak_memajukan_bahtera():
+    naskah = {
+        "judul": "Bahtera dan perjalanan",
+        "inti": "Penjaga membangun bahtera lalu Pengelana berjalan.",
+        "dalil": [],
+        "beat": [
+            {"narasi": "Penjaga membangun bahtera.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Penjaga"]},
+            {"narasi": "Pengelana berjalan ke kiri.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+        ],
+    }
+    hasil = rancang(naskah)["beat"]
+    assert hasil[0]["shot"][0]["benda"][0]["jadi"] == .18
+    assert hasil[1]["shot"][0]["benda"][0]["jadi"] == .18
