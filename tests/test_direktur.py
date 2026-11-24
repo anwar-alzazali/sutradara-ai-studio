@@ -443,3 +443,22 @@ def test_interaksi_tanpa_nama_tokoh_hanya_diinferensikan_jika_tepat_dua_peran():
     }
     assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b"], peta) == ("a", "b")
     assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b", "c"], peta) is None
+
+def test_aksi_hanya_dilakukan_pelaku_bukan_semua_tokoh_dalam_shot():
+    naskah = {
+        "judul": "Pengejaran",
+        "inti": "Penjaga mengejar pengelana.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penjaga berlari mengejar pengelana.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga", "Pengelana"],
+        }],
+    }
+    tokoh = rancang(naskah)["beat"][0]["shot"][0]["tokoh"]
+    penjaga = next(t for t in tokoh if t["peran"] == "penjaga")
+    pengelana = next(t for t in tokoh if t["peran"] == "pengelana")
+
+    assert penjaga["gerak"] == "lari"
+    assert pengelana["gerak"] == "lari"
+    assert penjaga["lintasan"] and pengelana["lintasan"]
