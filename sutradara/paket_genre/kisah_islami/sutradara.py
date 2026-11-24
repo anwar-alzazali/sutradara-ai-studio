@@ -471,8 +471,16 @@ def rancang(naskah: dict) -> tuple[dict, float]:
     label = {d["id"]:d["label"] for d in dalil}
     beat_hasil=[]
     hooks=[]
-    # Arah layar disimpan per identitas pemeran sepanjang urutan beat.
+    # Arah layar dan progres benda disimpan sepanjang urutan beat.
     arah_terakhir: dict[str, int] = {}
+    peristiwa_dinding_total = sum(
+        1
+        for indeks, beat_data in enumerate(naskah["beat"])
+        for item in analisis_peristiwa(beat_data.get("narasi", ""), beat_data.get("peran", []), indeks)
+        if item.get("sasaran") == "dinding"
+        and item.get("aksi") in {"menggali", "terbuka"}
+    ) if inti == "dinding_yajuj" else 0
+    peristiwa_dinding_selesai = 0
     for i, b in enumerate(naskah["beat"]):
         teks = b["narasi"]
         resep = _resep_untuk(teks)
@@ -546,18 +554,15 @@ def rancang(naskah: dict) -> tuple[dict, float]:
                 # mengikuti beat narasi; jumlah cut bukan bukti perubahan fisik.
                 progres_dinding = None
                 if inti == "dinding_yajuj":
-                    indeks_gali = [
-                        j for j, item in enumerate(peristiwa)
-                        if item.get("sasaran") == "dinding"
-                        and item.get("aksi") in {"menggali", "terbuka"}
-                    ]
-                    jumlah_gali = len(indeks_gali)
-                    selesai_gali = sum(1 for j in indeks_gali if j <= urutan_peristiwa)
+                    if (peristiwa_i.get("sasaran") == "dinding"
+                            and peristiwa_i.get("aksi") in {"menggali", "terbuka"}):
+                        peristiwa_dinding_selesai += 1
                     progres_dinding = (
                         1.0 if peristiwa_i.get("aksi") == "terbuka"
                         and peristiwa_i.get("sasaran") == "dinding"
-                        else (.18 + .82 * (selesai_gali - 1) / max(1, jumlah_gali - 1)
-                              if selesai_gali else 0.0)
+                        else (.18 + .82 * (peristiwa_dinding_selesai - 1)
+                              / max(1, peristiwa_dinding_total - 1)
+                              if peristiwa_dinding_selesai else 0.0)
                     )
                 if inti == "bahtera":
                     # Hanya peristiwa yang benar-benar membangun bahtera
