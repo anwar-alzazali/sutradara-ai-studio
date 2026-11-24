@@ -253,13 +253,25 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                 posisi[pid] = 250.0 if peta[pid]["kategori"] == "nabi" else 540.0
     elif pelaku:
         visual_x = float(keadaan.get("x", 540))
-        # Tempatkan pelaku di dekat sisi kerja visual inti, bukan di luar
-        # batas benda. Pihak lawan tetap di sisi seberang dengan ruang aman
-        # untuk formasi kelompok (tiga figur berjarak 86 px).
+        teks_blocking = _polos(narasi)
+        menuju_visual = (
+            perjalanan
+            and any(k in teks_blocking for k in ("menuju", "mendekati", "menghampiri", "ke arah"))
+            and any(k in teks_blocking for k in ("bahtera", "kapal", "dinding", "bumi", "matahari"))
+        )
+        # Pelaku aksi kerja/menunjuk berada di sisi dekat visual inti. Untuk
+        # perjalanan menuju benda, mulai dari sisi jauh agar lintasannya benar-benar
+        # mendekati sasaran, bukan berangkat dari samping benda lalu menjauh.
         dekat = {"bahtera": 45.0, "dinding_yajuj": 55.0, "kota_kuno": 50.0}.get(inti, 45.0)
         seberang = {"bahtera": -300.0, "dinding_yajuj": -250.0, "kota_kuno": -240.0}.get(inti, -240.0)
-        sisi_pelaku = max(300.0, min(780.0, visual_x + dekat))
-        sisi_lawan = max(260.0, min(440.0, visual_x + seberang))
+        sisi_pelaku = (
+            max(160.0, min(420.0, visual_x - 300.0))
+            if menuju_visual else max(300.0, min(780.0, visual_x - dekat))
+        )
+        sisi_lawan = (
+            max(700.0, min(920.0, visual_x + 250.0))
+            if menuju_visual else max(260.0, min(440.0, visual_x + seberang))
+        )
         for pid in hadir:
             dasar = sisi_pelaku if pid in pelaku else sisi_lawan
             kelompok_ids = pelaku if pid in pelaku else [x for x in hadir if x not in pelaku]
@@ -325,7 +337,11 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                 arah = "tiga_perempat_belakang" if "dari belakang" in teks_hadap else "tiga_perempat"
             for xi in xs:
                 wajah_tokoh = resep.get("wajah", "datar")
-                gerak_tokoh = resep.get("gerak", "berdiri") if not pelaku or pid in pelaku else "berdiri"
+                gerak_tokoh = (
+                    resep.get("gerak", "berdiri")
+                    if not pelaku or pid in pelaku or (interaksi and pid in interaksi)
+                    else "berdiri"
+                )
                 if reaksi and pid == subjek_dialog:
                     wajah_tokoh, gerak_tokoh = _reaksi_pendengar(narasi) or ("heran", "kaget")
                 a=_aktor(pid,peta,xi,fokus=(pid==fokus),wajah=wajah_tokoh,
