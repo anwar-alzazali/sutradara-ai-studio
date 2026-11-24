@@ -256,7 +256,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     proyeksi = 0.55 + 0.45 * abs(math.cos(math.radians(sudut)))
     tampak_wajah = max(0.0, min(1.0, (105.0 - abs(sudut)) / 40.0))
     membelakangi = abs(sudut) > 135.0
-    profil = 45.0 <= abs(sudut) <= 135.0
+    profil = 60.0 < abs(sudut) <= 135.0
     if usia not in ("anak", "dewasa", "lansia"):
         raise ValueError("usia harus anak, dewasa, atau lansia")
     if zaman not in ("arab_kuno", "mesir_kuno", "umum"):
