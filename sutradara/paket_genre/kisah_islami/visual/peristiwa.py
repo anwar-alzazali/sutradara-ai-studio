@@ -37,7 +37,7 @@ def render(peristiwa: dict) -> str:
                 for x in xs
             ) + '</g>'
         )
-    if aksi == "berkeringat" and sasaran in {"kerumunan", "keringat"}:
+    if aksi in {"berkeringat", "tenggelam"} and sasaran in {"kerumunan", "keringat"}:
         return (
             '<g class="peristiwa-keringat" fill="none" stroke="#9ed8ee" stroke-width="7" opacity=".8">'
             + "".join(f'<path d="M{x} {y} q -13 20 0 28 q 13 -8 0 -28Z" fill="#9ed8ee"/>'
