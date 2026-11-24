@@ -43,3 +43,20 @@ def test_rencana_menyertakan_peristiwa_yang_menjadi_dasar_visual():
     assert hasil["beat"][0]["shot"][0]["peristiwa_visual"]
     assert hasil["beat"][1]["peristiwa"][0]["aksi"] == "bangkit"
     assert hasil["beat"][2]["peristiwa"][0]["sasaran"] == "matahari"
+
+
+
+def test_frasa_mahyar_menghasilkan_peristiwa_dan_visual_yang_relevan():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+
+    tanah = analisis_peristiwa("Tanah di atasmu terbelah.", ["kamu"])
+    matahari = analisis_peristiwa("Matahari… didekatkan.", ["kamu"])
+    manusia = analisis_peristiwa("Seluruh manusia, dari yang pertama sampai yang terakhir.", ["manusia"])
+    keringat = analisis_peristiwa("Manusia tenggelam dalam keringatnya.", ["manusia"])
+    pelarian = analisis_peristiwa("Seseorang lari dari saudaranya.", ["seseorang"])
+
+    assert render(tanah[0])
+    assert render(matahari[0])
+    assert render(manusia[0])
+    assert render(keringat[0])
+    assert render(pelarian[0])
