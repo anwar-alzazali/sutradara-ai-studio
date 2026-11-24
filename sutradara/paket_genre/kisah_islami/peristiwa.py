@@ -78,6 +78,14 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
         target = next((o for o in objek if o[0] >= akhir), None)
         if target is None and objek:
             target = min(objek, key=lambda o: abs(o[0] - awal))
+        # Tujuan perpindahan bukan sasaran aksi/transitif. Pisahkan relasi
+        # "berjalan menuju X" dari aksi yang mengubah X.
+        tujuan = None
+        if aksi in {"jalan", "lari", "mendekat", "menjauh"} and target:
+            penghubung = teks[akhir:target[0]]
+            if re.search(r"\b(?:menuju|ke arah|ke)\b", penghubung):
+                tujuan = target[2]
+                target = None
         perubahan = None
         if aksi in {"terbelah", "retak", "runtuh", "terbuka", "surut", "terangkat", "muncul", "jatuh"} and target:
             perubahan = {"objek": target[2], "keadaan": aksi}
@@ -85,7 +93,7 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
             "id": f"beat-{indeks + 1}-peristiwa-{urutan + 1}",
             "aktor": list(aktor_eksplisit),
             "aksi": aksi,
-            "sasaran": target[2] if target else None,
+            "sasaran": target[2] if target else None,\n            "tujuan": tujuan,
             "perubahan_keadaan": perubahan,
             "bukti_narasi": narasi[awal:akhir],
             "keyakinan": "pola_eksplisit",
