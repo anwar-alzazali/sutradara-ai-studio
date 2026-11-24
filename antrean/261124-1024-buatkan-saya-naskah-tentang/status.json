@@ -1,12 +1,12 @@
 {
  "id": "261124-1024-buatkan-saya-naskah-tentang",
- "judul": "Buatkan saya naskah tentang nabi musa di kejar firaun",
+ "judul": "Detik-Detik Penyelamatan Nabi Musa di Tepi Laut Merah",
  "sumber": "ide",
  "chat": 7576750901,
  "tahap": {
-  "diterima": "jalan",
-  "dalil": "belum",
-  "tinjau": "belum",
+  "diterima": "selesai",
+  "dalil": "selesai",
+  "tinjau": "jalan",
   "narasi": "belum",
   "sutradara": "belum",
   "render": "belum",
@@ -14,8 +14,16 @@
   "kirim": "belum"
  },
  "ket": {
-  "diterima": "mengantre di GitHub Actions…"
+  "diterima": "5 beat, 1 dalil · Gemini",
+  "dalil": "1/1",
+  "tinjau": "menunggu Anda membaca naskah"
  },
  "dibuat": "2026-11-24T03:24:35.896Z",
- "pesan_kartu": 406
+ "diperbarui": "2026-11-24T03:29:09+00:00",
+ "token_ai": 1711,
+ "penyedia_ai": "Gemini gemini-3.5-flash-lite (gratis)",
+ "laporan_dalil": [
+  "✓ QS. Asy-Syu'ara: 61-63 (label disarankan: QS ASH-SHU'ARA 61-63)"
+ ],
+ "pesan_kartu": 408
 }
