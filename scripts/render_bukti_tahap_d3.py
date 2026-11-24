@@ -104,13 +104,13 @@ def buat_bukti_dinding() -> None:
     temuan = periksa(rencana)
     gagal = [str(x) for x in temuan if x.tingkat == "GAGAL"]
     if gagal:
-        raise SystemExit("Fixture dinding gagal pemeriksaan:\\n" + "\\n".join(gagal))
+        raise SystemExit("Fixture dinding gagal pemeriksaan:\n" + "\n".join(gagal))
 
     berkas = OUT / "rencana-dinding-yajuj-fixture.json"
     mp4 = OUT / "d3-dinding-yajuj-fixture.mp4"
     lembar = OUT / "lembar-kontak-dinding-yajuj-fixture.jpg"
     berkas.write_text(
-        json.dumps(rencana, ensure_ascii=False, indent=2) + "\\n",
+        json.dumps(rencana, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     video.buat(rencana, mp4, fps=12, workers=1)
