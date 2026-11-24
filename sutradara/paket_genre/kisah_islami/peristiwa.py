@@ -82,8 +82,8 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
         return [{
             "id": f"beat-{indeks + 1}-peristiwa-1", "aktor": [],
             "aksi": "hadir", "sasaran": "kerumunan", "tujuan": None,
-            "perubahan_keadaan": None, "bukti_narasi": narasi,
-            "keyakinan": "pola_eksplisit",
+            "perubahan_keadaan": None, "kata_aksi": None,
+            "bukti_narasi": narasi, "keyakinan": "pola_eksplisit",
         }]
     for urutan, (awal, akhir, aksi, frasa, kiri, kanan) in enumerate(sorted(temuan)):
         lokal = _cocok_objek(teks, kiri, kanan)
@@ -121,6 +121,9 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
             "sasaran": pasien[2] if pasien else None,
             "tujuan": tujuan,
             "perubahan_keadaan": perubahan,
+            # Token verba hasil pencocokan; dipakai sutradara sebagai jangkar
+            # potongan shot, bukan ditebak ulang dari kata_kunci naskah.
+            "kata_aksi": frasa,
             "bukti_narasi": narasi[awal:akhir],
             "keyakinan": "pola_eksplisit",
         })
