@@ -7,6 +7,7 @@ import unicodedata
 from pathlib import Path
 
 from sutradara.gaya.latar import PRESET
+from .peristiwa import analisis_peristiwa, aksi_utama
 
 _RESEP = json.loads(Path(__file__).with_name("resep_adegan.json").read_text(encoding="utf-8"))["resep"]
 _KATA_EMOSI = {
@@ -437,7 +438,16 @@ def rancang(naskah: dict) -> tuple[dict, float]:
             hadir = [peran[0]["id"]]
         refs = [did for did in b.get("dalil",[]) if did in label]
         tindakan = _polos(teks)
-        gerak = next((v for k,v in _GERAK.items() if k in tindakan),resep.get("gerak","berdiri"))
+        peristiwa = analisis_peristiwa(teks, b.get("peran", []), i)
+        aksi = aksi_utama(peristiwa)
+        gerak = ({
+            "membangun": "palu", "menggali": "gali", "mengejek": "tertawa",
+            "tertawa": "tertawa", "jalan": "jalan", "lari": "lari",
+            "menunjuk": "tunjuk", "menyerahkan": "ulurkan", "menerima": "ulurkan",
+            "berdoa": "berdoa", "mendekat": "jalan", "menjauh": "jalan",
+        }.get(aksi) if aksi else None) or next(
+            (v for k, v in _GERAK.items() if k in tindakan), resep.get("gerak", "berdiri")
+        )
         resep = dict(resep); resep["gerak"] = gerak
         cuts=[]
         for kata in b.get("kata_kunci",[]):
@@ -514,7 +524,8 @@ def rancang(naskah: dict) -> tuple[dict, float]:
                 s["pelaku"] = pelaku
         beat_rencana={"narasi":teks,"preset":preset,"keadaan":keadaan,"potong_di":cuts,
                       "dalil":refs,"peran_tampil":hadir,"shot":shots,
-                      "resep":resep["id"],"dialog":dialog}
+                      "resep":resep["id"],"dialog":dialog,
+                      "peristiwa":peristiwa}
         if pelaku:
             beat_rencana["pelaku"] = pelaku
         beat_hasil.append(beat_rencana)
