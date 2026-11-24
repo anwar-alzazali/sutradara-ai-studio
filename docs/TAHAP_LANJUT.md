@@ -460,3 +460,14 @@ konsisten dulu. Jangan memulai Fase 7 atas inisiatif sendiri.
 ### Pembaruan penutupan D2 — 24 Nov 2026
 
 Pemilik mengonfirmasi audit visual dan suara lulus. Perbaikan wajah dari PR #50 telah dipindahkan ke cabang D2/PR #48, disertai tes urutan SVG dan model rambut. Koreksi parser: aktor hanya diisi bila nama/peran disebut eksplisit; tujuan perpindahan dipisahkan dari sasaran aksi melalui field `tujuan` pada skema. Visual `tenggelam` tidak lagi memakai visual keringat. Perubahan-perubahan ini belum boleh dianggap lulus CI: run yang sempat berjalan pada revisi antara gagal pada dua assertion urutan lapisan wajah, lalu urutan SVG diperbaiki. Revisi paling akhir belum memiliki hasil CI karena workflow tidak terpicu oleh pembaruan API. Jalankan `python -m pytest -q`, render D2, dan workflow audio-cache pada HEAD final sebelum status D2 diubah menjadi selesai.
+
+## Bukti verifikasi D2 pada HEAD 0322740 — 24 Nov 2026
+
+- Commit terverifikasi: `032274075becc09d21084c2cc02e15e4db6d3f17`.
+- GitHub Actions CI #628: **Success**; `python -m pytest -q` menghasilkan **338 passed in 10.74s**; tes bot Telegram lulus.
+- Render D2 berhasil: **14 shot, 644 bingkai, durasi 53,7 detik, waktu render 98 detik pada 1 worker**. Artefak: [run CI #628](https://github.com/anwar-alzazali/sutradara-ai-studio/actions/runs/45388739587) · [bukti visual](https://github.com/anwar-alzazali/sutradara-ai-studio/actions/runs/45388739587/artifacts/14916434304).
+- Pemeriksaan final enam contoh menghasilkan **0 GAGAL**. Catatan non-blocking yang perlu keputusan editorial: `b2_adab_barang.json` (hook kronologis dan kesinambungan `surat_amanah`), serta `yajuj_majjuj.json` (derajat HR. Tirmidzi 3153 diperselisihkan). Empat contoh lainnya lulus tanpa catatan.
+- Audit visual dan suara telah dinyatakan lulus oleh pemilik; CI ini menambah bukti tes otomatis dan render pada HEAD terbaru. CI #628 tidak menjalankan ulang workflow audio-cache.
+- PR #48 tetap terbuka dan tidak di-merge. Cabang masih 145 commit di depan dan 6 commit di belakang `main`; enam commit di `main` hanya menambahkan empat berkas antrean. Integrasi harus mempertahankan seluruh berkas tersebut dan menunggu keputusan pemilik sebelum merge.
+
+**Status:** verifikasi otomatis dan render D2 pada HEAD ini lulus. Penutupan integrasi masih menunggu rekonsiliasi enam commit `main` serta keputusan editorial atas catatan `PERIKSA`. Tidak ada perubahan pada batas adab tokoh suci atau aturan dalil.
