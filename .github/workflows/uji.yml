@@ -35,6 +35,16 @@ jobs:
           name: bukti-visual-tahap-d2
           path: keluaran-bukti/tahap-d2/
           if-no-files-found: warn
+      - name: Render bukti visual Tahap D3
+        if: github.head_ref == 'tahap-d3-baru-event-state'
+        run: python scripts/render_bukti_tahap_d3.py
+      - name: Unggah bukti visual Tahap D3
+        if: always() && github.head_ref == 'tahap-d3-baru-event-state'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bukti-visual-tahap-d3
+          path: keluaran-bukti/tahap-d3/
+          if-no-files-found: error
       - name: Periksa final semua contoh
         run: |
           set -e
@@ -102,7 +112,7 @@ jobs:
           python -m sutradara periksa contoh/yajuj_majjuj.json --final
           mkdir -p keluaran-bukti/verifikasi
           cp contoh/yajuj_majjuj.json keluaran-bukti/verifikasi/yajuj_majjuj.json
-          git checkout -- contoh/yajuj_majjuj.json  # hasil verifikasi CI hanya bukti, jangan kotori pohon kerja
+          git checkout -- contoh/yajuj_majjuj.json
       - name: Unggah hasil verifikasi dalil
         if: always() && (github.head_ref == 'tahap-c-penguatan-dalil' || github.head_ref == 'tahap-d0-pemisahan-genre')
         uses: actions/upload-artifact@v4
@@ -159,8 +169,6 @@ jobs:
           cp keluaran-bukti/tahap-c/kartu-pasangan-kata.jpg /tmp/tahap-c-bukti/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Branch bukti sudah ada; Git tidak mengizinkan ref bukti dan bukti/tahap-c bersamaan.
-          # Pertahankan branch lama agar tautan bukti Tahap B/B2 tidak putus.
           if git ls-remote --exit-code --heads origin 'bukti-tahap-c' >/dev/null 2>&1; then
             git fetch origin 'refs/heads/bukti-tahap-c:refs/remotes/origin/bukti-tahap-c'
             git checkout -B bukti-tahap-c origin/bukti-tahap-c
