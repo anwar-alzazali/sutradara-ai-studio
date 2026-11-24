@@ -52,7 +52,7 @@
     {
       "narasi": "Bayangkan… kamu membuka mata. Gelap. Tanah di atasmu terbelah. Kamu bangkit, tanpa alas kaki.",
       "preset": "malam",
-      "keadaan": "manusia_bangkit",
+      "keadaan": "manusia bangkit",
       "peran_tampil": ["manusia_bangkit"],
       "pelaku": "manusia_bangkit",
       "shot": [
