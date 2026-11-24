@@ -44,9 +44,22 @@ KEPALA = ("imamah", "kain", "kopiah", "kerudung", "tanpa")
 POSE = G.SEMUA  # nama gerak yang sah (termasuk pose lama: tunjuk, tertawa, silang, angkat, kaget, mundur, tutup, berdiri)
 
 
+def _balik_pada(balik, t: float) -> bool:
+    """Nilai orientasi kiri/kanan dari bool tetap atau jadwal keyframe."""
+    if isinstance(balik, bool):
+        return balik
+    jadwal = sorted((float(a), bool(v)) for a, v in balik)
+    aktif = False
+    for waktu, nilai in jadwal:
+        if t < waktu:
+            break
+        aktif = nilai
+    return aktif
+
+
 def _arah_derajat(arah, t: float) -> float:
     """Sudut depan/samping/belakang dengan interpolasi smoothstep."""
-    sudut = {"depan": 0.0, "samping": 90.0, "belakang": 180.0}
+    sudut = {"depan": 0.0, "tiga_perempat": 45.0, "samping": 90.0, "tiga_perempat_belakang": 135.0, "belakang": 180.0}
     if isinstance(arah, str):
         if arah not in sudut:
             raise ValueError("arah harus depan, samping, atau belakang")
@@ -186,13 +199,39 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
     return g
 
 
+def _lapisan_rambut(model: str, warna: str, *, profil: bool, membelakangi: bool) -> str:
+    """Rambut kepala prosedural; geometri mengikuti sudut kamera, bukan warna saja."""
+    if model == "botak":
+        return ""
+    if membelakangi:
+        bentuk = {
+            "pendek": "M-34 -5 Q-43 -48 0 -50 Q43 -48 34 -5 Q22 9 0 8 Q-22 9 -34 -5Z",
+            "ikal": "M-37 -8 Q-48 -50 -27 -43 Q-20 -58 -7 -48 Q8 -59 17 -47 Q38 -55 43 -31 Q47 -5 34 3 Q0 17 -34 3Z",
+            "panjang": "M-35 -8 Q-44 -50 0 -51 Q44 -50 35 -8 L42 55 Q20 68 14 48 L0 58 L-14 48 Q-20 68 -42 55Z",
+        }[model]
+    elif profil:
+        bentuk = {
+            "pendek": "M-31 -10 Q-38 -45 0 -49 Q25 -47 32 -20 L22 -17 Q8 -30 -8 -26 L-20 -7Z",
+            "ikal": "M-34 -10 Q-43 -38 -27 -43 Q-22 -56 -8 -46 Q5 -58 15 -45 Q35 -46 34 -20 L22 -15 Q8 -31 -8 -25 L-21 -5Z",
+            "panjang": "M-32 -9 Q-42 -45 0 -50 Q30 -46 33 -16 L25 45 Q14 52 12 28 L-18 34 L-25 6Z",
+        }[model]
+    else:
+        bentuk = {
+            "pendek": "M-34 -8 Q-42 -48 0 -51 Q42 -48 34 -8 L23 -16 Q0 -27 -23 -16Z",
+            "ikal": "M-36 -7 Q-47 -38 -31 -43 Q-25 -59 -10 -47 Q2 -61 15 -47 Q36 -55 40 -31 L34 -6 L23 -17 Q0 -28 -23 -17Z",
+            "panjang": "M-35 -8 Q-44 -48 0 -51 Q44 -48 35 -8 L39 50 Q24 59 20 38 L-20 38 Q-24 59 -39 50Z",
+        }[model]
+    return f'<path d="{bentuk}" fill="{warna}"/>'
+
+
+
 def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = None, t: float = 0.0, indeks: int = 0,
           mode: str = "pakaian", kepala: str | None = None, jenis: str = "pria", wajah="datar", bicara=None,
           rinci: bool = True, balik: bool = False, alat: str | None = None, arah='depan', usia='dewasa', zaman='arab_kuno',
           wajah_cahaya: bool = False, barang: list[dict] | None = None,
           target_tangan: dict | None = None, detail_wajah: dict | None = None, warna_kulit: str | None = None,
           warna_baju: str | None = None, warna_aksen: str | None = None,
-          rambut: str | None = None, janggut: str = "pendek",
+          rambut: str | None = None, model_rambut: str = "pendek", janggut: str = "pendek",
           warna_janggut: str | None = None, gambar_item: Callable[..., str] | None = None) -> str:
     """Satu tokoh, kaki di (x, y), tinggi ±360 px pada s=1. `gerak`/`wajah` boleh jadwal [[detik, nama], ...];
     `bicara` = daftar [mulai, akhir] (detik) saat mulut bergerak. `pose` = nama lama untuk `gerak`.
@@ -213,6 +252,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     wanita = jenis == "wanita"
     kepala = kepala or ("kerudung" if wanita else "imamah")
     sudut = _arah_derajat(arah, t)
+    balik_aktif = _balik_pada(balik, t)
     proyeksi = 0.55 + 0.45 * abs(math.cos(math.radians(sudut)))
     tampak_wajah = max(0.0, min(1.0, (105.0 - abs(sudut)) / 40.0))
     membelakangi = abs(sudut) > 135.0
@@ -247,7 +287,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         bx, by = _putar(sisi * 40, 12, J["tubuh"]); bahu[sisi] = (leher[0] + bx, leher[1] + by)
     # Target serah-terima memakai koordinat dunia; sudut sendi dihitung ulang dengan IK yang sama.
     if target_tangan:
-        skala_x = (-1 if balik else 1) * s * proyeksi * skala_usia
+        skala_x = (-1 if balik_aktif else 1) * s * proyeksi * skala_usia
         skala_y = s * skala_usia
         for sisi, k in ((+1, "ka"), (-1, "ki")):
             if k in target_tangan:
@@ -262,7 +302,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         tangan[sisi] = _ruas(*siku[sisi], J[f"sa_{k}"] - J["tubuh"] * sisi, LENGAN_B, sisi)
     kx, ky = _putar(0, -38, J["tubuh"] + J["kepala"]); pk = (leher[0] + kx, leher[1] + ky)
 
-    g = [f'<g transform="translate({x:.1f},{y:.1f}) scale({(-1 if balik else 1) * s * proyeksi * skala_usia:.4f},{s * skala_usia:.4f})">',
+    g = [f'<g transform="translate({x:.1f},{y:.1f}) scale({(-1 if balik_aktif else 1) * s * proyeksi * skala_usia:.4f},{s * skala_usia:.4f})">',
          f'<ellipse cx="{px:.1f}" cy="4" rx="{70 * (1 - min(.5, max(0, -J["naik"]) / 240)):.1f}" ry="12" fill="#000" opacity=".35"/>']
     if J["bangku"] > 0.5:
         g.append(f'<rect x="{px - 72:.1f}" y="{py + 8:.1f}" width="144" height="{-py - 8:.1f}" rx="8" fill="#6b4630"/>'
@@ -287,13 +327,27 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     sudut_k = J["tubuh"] + J["kepala"]
     g.append(f'<g transform="translate({pk[0]:.1f},{pk[1]:.1f}) rotate({sudut_k:.2f}) scale({1.18 if usia == "anak" else 1.0:.2f})">')
     g.append(f'<rect x="-11" y="20" width="22" height="22" fill="{kulit}"/><circle r="{R_KEPALA}" fill="{kulit}"/>')
-    if membelakangi and not siluet and kepala != "kerudung":
-        g.append(f'<path d="M-33 -7 Q-42 -43 0 -47 Q42 -43 33 -7 Q20 4 0 0 Q-20 4 -33 -7Z" fill="{rambut or RAMBUT}"/>')
+    # Rambut menjadi lapisan dasar kepala: terlihat pada kepala terbuka, dan
+    # tidak menembus penutup kepala. Fitur wajah tetap dirender paling akhir.
+    if not siluet and kepala == "tanpa":
+        g.append(_lapisan_rambut(model_rambut, rambut or RAMBUT,
+                                 profil=profil, membelakangi=membelakangi))
     if kepala == "kerudung" and not siluet:
         warna_k = KERUDUNG[indeks % len(KERUDUNG)]
         g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{warna_k}"/>')
         if not membelakangi:
             g.append(f'<ellipse cx="0" cy="2" rx="28" ry="31" fill="{kulit}"/>')
+    tutup = GELAP if siluet else aksen
+    if kepala == "imamah":
+        g += [f'<path d="M-37 -8 Q -40 -48 0 -52 Q 40 -48 37 -8 Q 0 -20 -37 -8Z" fill="{tutup}"/>',
+              f'<path d="M30 -14 Q 46 18 40 52" stroke="{tutup}" stroke-width="12" fill="none" stroke-linecap="round"/>']
+    elif kepala == "kain":
+        g += [f'<path d="M-40 2 Q -44 -52 0 -54 Q 44 -52 40 2 L 48 60 L 30 48 L 34 -2 Q 0 -22 -34 -2 L -30 48 L -48 60Z" fill="{tutup}"/>',
+              f'<path d="M-38 -24 Q 0 -38 38 -24" stroke="{rambut or RAMBUT}" stroke-width="6" fill="none"/>']
+    elif kepala == "kopiah":
+        g.append(f'<path d="M-30 -20 Q -30 -44 0 -44 Q 30 -44 30 -20Z" fill="{tutup}"/>')
+    elif kepala == "kerudung" and siluet:
+        g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{GELAP}"/>')
     if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
         if wajah_cahaya:
             # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
@@ -311,17 +365,23 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
             kedip = (t + indeks * 0.9) % 3.7 < 0.12
             g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
                         profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
-    tutup = GELAP if siluet else aksen
-    if kepala == "imamah":
-        g += [f'<path d="M-37 -8 Q -40 -48 0 -52 Q 40 -48 37 -8 Q 0 -20 -37 -8Z" fill="{tutup}"/>',
-              f'<path d="M30 -14 Q 46 18 40 52" stroke="{tutup}" stroke-width="12" fill="none" stroke-linecap="round"/>']
-    elif kepala == "kain":
-        g += [f'<path d="M-40 2 Q -44 -52 0 -54 Q 44 -52 40 2 L 48 60 L 30 48 L 34 -2 Q 0 -22 -34 -2 L -30 48 L -48 60Z" fill="{tutup}"/>',
-              f'<path d="M-38 -24 Q 0 -38 38 -24" stroke="{rambut or RAMBUT}" stroke-width="6" fill="none"/>']
-    elif kepala == "kopiah":
-        g.append(f'<path d="M-30 -20 Q -30 -44 0 -44 Q 30 -44 30 -20Z" fill="{tutup}"/>')
-    elif kepala == "kerudung" and siluet:
-        g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{GELAP}"/>')
+    if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
+        if wajah_cahaya:
+            # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
+            lebar_wajah = 22 if profil else 32
+            g.append(f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah}" ry="34" fill="#fff8df" opacity=".96"/>'
+                     f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah + 7}" ry="39" fill="#fff0bd" opacity=".36" filter="url(#b10)"/>')
+        else:
+            jw = G.nilai_jadwal(wajah, t, "datar")
+            if jw not in WAJAH:
+                raise ValueError(f"wajah tak dikenal: {jw} (pilihan: {', '.join(WAJAH)})")
+            bc = 0.0
+            for a, b in (bicara or []):
+                if a <= t <= b:
+                    bc = 0.5 + 0.5 * math.sin(t * 15)
+            kedip = (t + indeks * 0.9) % 3.7 < 0.12
+            g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
+                        profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
     g.append("</g>")
     # lengan (digambar SETELAH kepala supaya tangan bisa menutup wajah/mulut/telinga)
     if barang and (siluet or alat):

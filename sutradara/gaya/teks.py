@@ -28,24 +28,52 @@ def subtitle(teks: str, *, sorot: str | None = None, y: float = 1720) -> str:
     if sorot and sorot in teks:
         a, b = teks.split(sorot, 1)
         isi = f'{escape(a)}<tspan fill="{KUNING}">{escape(sorot)}</tspan>{escape(b)}'
-    return (f'<text x="540" y="{y}" text-anchor="middle" font-size="60" font-weight="800" fill="#fff" stroke="#000" '
-            f'stroke-width="8" paint-order="stroke">{isi}</text>')
+    return subtitle_frasa(teks.split(), y=y, sorot=sorot)
 
 
-def subtitle_frasa(kata: list[str], aktif: int | None = None, *, y: float = 1720, uk: float = 60, lebar: float = 940) -> str:
-    """Subtitle dari waktu kata: kata yang sedang diucapkan kuning. Frasa panjang dipecah jadi 2 baris / huruf mengecil."""
-    lebar_kata = lambda ws, u: sum(len(w) for w in ws) * u * 0.56 + (len(ws) - 1) * u * 0.28
-    baris = [list(range(len(kata)))]
-    if lebar_kata(kata, uk) > lebar and len(kata) > 1:
-        terbaik = min(range(1, len(kata)), key=lambda c: max(lebar_kata(kata[:c], uk), lebar_kata(kata[c:], uk)))
-        baris = [list(range(terbaik)), list(range(terbaik, len(kata)))]
-    u = uk
-    while u > 40 and max(lebar_kata([kata[j] for j in b], u) for b in baris) > lebar:
+def _ukur_baris(kata: list[str], ukuran: float) -> float:
+    return sum(len(w) for w in kata) * ukuran * 0.56 + max(0, len(kata) - 1) * ukuran * 0.28
+
+
+def _bungkus_subtitle(kata: list[str], ukuran: float, lebar: float) -> list[list[int]]:
+    """Bungkus kata secara greedy tanpa memotong kata; hasil maksimal tiga baris."""
+    baris: list[list[int]] = []
+    aktif: list[int] = []
+    for i, kata_i in enumerate(kata):
+        calon = aktif + [i]
+        if aktif and _ukur_baris([kata[j] for j in calon], ukuran) > lebar:
+            baris.append(aktif)
+            aktif = [i]
+        else:
+            aktif = calon
+    if aktif:
+        baris.append(aktif)
+    return baris
+
+
+def subtitle_frasa(kata: list[str], aktif: int | None = None, *, y: float = 1720, uk: float = 60, lebar: float = 900, sorot: str | None = None) -> str:
+    """Subtitle aman layar: bungkus otomatis sampai 3 baris, lalu kecilkan font bila perlu."""
+    if not kata:
+        return ""
+    u = float(uk)
+    baris = _bungkus_subtitle(kata, u, lebar)
+    while (len(baris) > 3 or max(_ukur_baris([kata[j] for j in b], u) for b in baris) > lebar) and u > 24:
         u -= 2
-    y0 = y - (len(baris) - 1) * u * 1.15
+        baris = _bungkus_subtitle(kata, u, lebar)
+    # Pusatkan blok teks terhadap baseline acuan agar jarak aman atas/bawah konsisten.
+    jarak = u * 1.12
+    y0 = y - (len(baris) - 1) * jarak / 2
     out = []
     for n, b in enumerate(baris):
-        isi = " ".join((f'<tspan fill="{KUNING}">{escape(kata[j])}</tspan>' if j == aktif else escape(kata[j])) for j in b)
-        out.append(f'<text x="540" y="{y0 + n * u * 1.15:.0f}" text-anchor="middle" font-size="{u}" font-weight="800" fill="#fff" '
+        def bentuk(j: int) -> str:
+            w = kata[j]
+            if j == aktif:
+                return f'<tspan fill="{KUNING}">{escape(w)}</tspan>'
+            if sorot and sorot in w:
+                a, z = w.split(sorot, 1)
+                return f'{escape(a)}<tspan fill="{KUNING}">{escape(sorot)}</tspan>{escape(z)}'
+            return escape(w)
+        isi = " ".join(bentuk(j) for j in b)
+        out.append(f'<text x="540" y="{y0 + n * jarak:.1f}" text-anchor="middle" font-size="{u:.1f}" font-weight="800" fill="#fff" '
                    f'stroke="#000" stroke-width="{u * 0.13:.1f}" paint-order="stroke">{isi}</text>')
     return "".join(out)

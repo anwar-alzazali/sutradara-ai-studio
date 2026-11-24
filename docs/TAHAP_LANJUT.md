@@ -173,7 +173,7 @@ Aturan wajibnya ada di `AGENTS.md` (tabel adab saluran). Kerjakan:
 |---|---|---|
 | D0 | Langkah 0: pisahkan inti dan paket genre | selesai (#44, #46) |
 | D1 | Poin 0b, 1, 2, 4: sisa kebocoran genre, templat naskah + validator, keputusan tingkat video dan shot | selesai (#45) |
-| D2 | Poin 3, 3b, 3c, 3d: penataan panggung, liputan dialog, arah hadap, berjalan dengan tujuan dan lintasan | belum |
+| D2 | Poin 3, 3b, 3c, 3d: penataan panggung, liputan dialog, arah hadap, berjalan dengan tujuan dan lintasan | implementasi + tes/render dasar lulus; audit ulang menunggu bukti audio pada HEAD dan pemeriksaan pemilik |
 | D3 | Poin 5, 6, 7: perpustakaan resep, model AI opsional, bukti video Nuh dan Hud otomatis | belum |
 
 **Langkah 0 — pisahkan inti dan genre, kerjakan SEBELUM poin lainnya** (keputusan pemilik 21 Nov 2026).
@@ -244,6 +244,40 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
    - Penjaga: GAGAL bila `jalan`/`lari` tidak punya lintasan atau tujuan, kecuali ditandai `di_tempat` dengan
      alasan (mis. kamera ikut bergerak). PERIKSA bila arah hadap berlawanan dengan arah gerak, atau arah layar
      berganti antar-shot menuju tujuan yang sama.
+**3e. [D2 — tambahan atas keputusan pemilik, 24 Nov 2026] Pemahaman peristiwa dan keputusan visual dari naskah.**
+- Sutradara tidak boleh hanya memilih resep berdasarkan kata kunci atau menyalin komposisi contoh Nuh. Setiap beat harus diurai menjadi peristiwa terstruktur: pelaku, aksi, sasaran/objek, lokasi atau arah, perubahan keadaan yang benar-benar disebut, serta hubungan urutan/sebab-akibat bila dinyatakan naskah.
+- Dari peristiwa itu, sutradara memilih apa yang harus terlihat: siapa yang tampil, apa yang dilakukan, benda/lingkungan mana yang berubah, pose/ekspresi, blocking, arah hadap, ukuran shot, kamera, dan gerak. Keputusan harus merujuk bagian narasi pemicunya; jangan menambah aksi, benda, atau akibat yang tidak didukung naskah/dalil.
+- Keadaan visual harus digerakkan oleh peristiwa, bukan persentase indeks beat. Contoh: benda baru berubah menjadi rusak setelah beat menyebut kerusakan; perjalanan baru berakhir saat tujuan naratif tercapai. Keadaan harus berlanjut konsisten ke shot/beat berikutnya.
+- Jalur dasar wajib deterministik dan berjalan tanpa model AI, tanpa koordinat/shot yang ditulis tangan, serta tidak boleh bergantung pada frasa khusus cerita Nuh/Ya'juj. Model opsional D3 tidak boleh menjadi syarat untuk menghasilkan rencana.
+- Jika pelaku, sasaran, atau perubahan keadaan tidak dapat dipastikan dari naskah terstruktur dan aturan, jangan mengarang. Pertahankan visual aman yang tidak menyatakan fakta baru dan tandai PERIKSA dengan alasan yang jelas.
+- Bukti D2 tambahan: uji naskah dari kisah yang berbeda dengan Nuh/Ya'juj dan periksa bahwa perubahan visual mengikuti peristiwa per beat. Mahsyar 1 dipakai sebagai salah satu naskah uji lintas cerita pada D3, bukan pengganti bukti wajib Nuh dan Hud.
+ 
+**Implementasi awal pemetaan peristiwa ke visual (24 Nov 2026, masih perlu audit):**
+- `peristiwa.py` mengekstrak aksi eksplisit, peran beat, sasaran yang disebut, dan perubahan keadaan eksplisit beserta bukti frasa.
+- `sutradara.py` menyertakan peristiwa pada beat dan shot; aksi eksplisit dapat mengarahkan pose/gerak. Tidak ada perubahan keadaan berdasarkan persentase indeks beat pada jalur visual padang.
+- Latar padang dipilih dari deskripsi ruang (padang/tanah rata/bumi putih), bukan nama Nabi atau judul kisah.
+- `visual/peristiwa.py` dan renderer menyediakan komponen SVG untuk tanah terbelah, matahari didekatkan, kerumunan, keringat, dan jejak pelarian. Peristiwa lain belum memiliki komponen visual khusus dan tidak boleh dipaksakan menjadi objek yang tidak didukung.
+- Tes baru mencakup frasa nyata Mahsyar 1. Ini baru uji unit/pemetaan, belum render MP4 Mahsyar 1 dan belum membuktikan seluruh naskah bisa divisualkan. Pengenalan bahasa masih berbasis pola eksplisit, bukan pemahaman bahasa bebas.
+
+**Status D2: implementasi utama tersedia; belum dinyatakan selesai.** Status dibedakan antara implementasi, tes otomatis, bukti render, dan tinjauan manusia.
+
+| Poin | Implementasi | Tes otomatis | Bukti render | Batas audit |
+|---|---|---|---|---|
+| 3 — blocking | Koordinat pelaku dihitung dari visual inti; pihak lawan ditempatkan berseberangan; penjaga kedekatan tegas untuk rencana otomatis; pemeriksa kontinuitas panggung mendeteksi tumpang tindih/pergeseran posisi. | Tes blocking, pelaku jauh, overlap, dan stabilitas posisi. | 14 shot / 644 bingkai / 53,7 detik memuat pembangunan bahtera dan kelompok. | Belum membuktikan seluruh variasi formasi dan jarak; perlu tinjauan pemilik. |
+| 3b — dialog | Shot–reverse shot bergantian pada pembicara/penjawab; sisipan reaksi pendengar bila reaksi penting disebut dalam narasi. | Tes dua-shot dan tiga-shot seruan–reaksi–jawaban. | Render menampilkan seruan, reaksi penentang, dan jawaban. | Variasi sudut/ukuran close-up dan gerak kontinu perlu ditinjau. |
+| 3c — arah hadap | Dialog, serah-terima, tunjuk, dan interaksi mengarahkan tokoh kepada lawan; mendekat/menjauh dan tiga-perempat didukung. | Tes arah hadap interaksi dan tiga-perempat. | Render memuat serah-terima, tunjuk, dan tiga-perempat. | Tidak semua kombinasi interaksi/komposisi ditinjau manusia. |
+| 3d — perjalanan | Tujuan benda/tokoh/tepi/kedalaman, lintasan x/y, cadence, arah 180 derajat, pengejaran searah kanan/kiri, dan putar balik sesuai cerita. | Tes tujuan/lintasan, cadence, 180 derajat, pengejaran dua arah, dan putar balik. | Render memuat perjalanan, menjauh ke kedalaman, putar balik, dan pengejaran kanan/kiri. | Contoh tidak mencakup semua lintasan kompleks; pemilik perlu menonton MP4. |
+
+**CI #529 pada HEAD `76c068e` (run `45207029799`):** sukses. Tes bot Telegram dan tes lengkap lulus; `python -m pytest -q` menghasilkan **320 passed**. Render bukti D2 menghasilkan **14 shot / 644 bingkai / 53,7 detik video** (95 detik waktu render, 1 worker). Pemeriksaan final enam contoh (`b2_adab_barang`, `dabbah_dhuha`, `dajjal_dua_sungai`, `demo_gerak`, `nuh_mengejek`, `yajuj_majjuj`) sukses tanpa GAGAL. Artefak `bukti-visual-tahap-d2` diunggah. Langkah validasi lama untuk fase lain berstatus skipped karena tidak relevan pada job ini.
+
+**Uji audio-cache pada HEAD `76c068e` (workflow run `45284285899`):** sukses. Menggunakan cache produksi ElevenLabs yang sudah ada; langkah cek naskah, pembuatan narasi, dan simpan ke cabang suara dilewati. Laporan: 29 kata terjajar; durasi MP3 13,52 dtk; padding ekor hening 0,43 dtk; durasi video 15,12 dtk; durasi stream audio-video 15,11 dtk (selisih 0,01 dtk); -16,89 LUFS; true peak -1,75 dBTP. Artefak `bukti-audio-elevenlabs-d2` berisi laporan JSON, lembar kontak, dan MP4. Ini bukan panggilan API berbayar baru.
+
+Uji audio-cache sudah diulang setelah perubahan pipefail pada HEAD `4a6d061` (run `45288876269`) dan sukses; detail bukti terbaru tercatat pada log 24 Nov 2026 di bawah. D2 tetap menunggu tinjauan video kontinu/komposisi oleh pemilik.
+
+**Catatan PERIKSA dipertahankan:** hook kronologis dan kesinambungan `surat_amanah` pada contoh B2; derajat hadis Tirmidzi 3153 diperselisihkan; beberapa shot dialog/reaksi memiliki komposisi close-up mirip. Ini bukan GAGAL otomatis dan tidak boleh dihapus dari laporan.
+
+D2 belum dicentang. CI #529 dan uji audio-cache run `45284285899` lulus pada SHA `76c068e`, tetapi perubahan pipefail/dokumentasi sesudahnya memerlukan uji ulang audio-cache pada HEAD baru. Penutupan tetap menunggu bukti audio terbaru dan tinjauan pemilik atas kelancaran gerak kontinu/variasi komposisi video. D3 tidak dikerjakan dalam PR ini.
+
 4. **[D1] Keputusan tingkat shot:**
    - pecah enumerasi menjadi shot per kata dan eskalasi pada pengulangan;
    - kamera mengikuti posisi beat;
@@ -262,7 +296,81 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
    - naskah kisah Nabi Nuh dijadikan rencana dan video otomatis penuh;
    - satu kisah baru (misalnya Nabi Hud) juga dibuat tanpa menyunting kode atau rencana dengan tangan;
    - lampirkan lembar kontak keduanya dan perbandingan dengan versi manual.
+   - Tambahkan naskah Mahsyar 1 dari repo `mesin-video` sebagai uji lintas cerita: gunakan `naskah/mahsyar1.txt` dan alignment `audio_manual/mahsyar1_ozhy/narasi.waktu.json` sebagai sumber uji; jangan mengubah naskah atau menganggap MP3 sebagai bukti visual.
+   - Untuk setiap contoh, catat pemetaan beat/peristiwa ke visual yang dihasilkan; bukti harus menunjukkan visual berubah karena peristiwa narasi, bukan karena urutan beat atau resep yang dikunci ke satu kisah.
    Kelayakan tayang diputuskan pemilik, bukan pengembang.
+
+### Catatan arah hasil akhir dan larangan duplikasi (keputusan pemilik, 24 Nov 2026)
+
+D2 **ditahan, tidak di-merge sekarang**. PR #48 tetap menjadi satu-satunya cabang implementasi D2; pekerjaan berikutnya
+tidak boleh menyalin atau membuat ulang fitur D2 di cabang lain.
+
+Sebelum menambah kode setelah D2:
+1. Buat peta fitur dari kode aktual: nama kemampuan, satu modul pemilik, antarmuka publik, semua pemanggil, dan tes.
+2. Periksa apakah kemampuan sudah ada di inti, paket Kisah Islami, PR #48, atau repo referensi. Jika ada, perbaiki/perluas
+   pemiliknya; jangan membuat parser, state manager, renderer, rig, kamera, timeline, atau pipeline suara kedua.
+3. Jaga batas inti vs paket genre dari D0. Peristiwa khusus Kisah Islami berada di paket genre; komposisi, kamera,
+   rig, gerak, waktu, dan audio generik tetap memakai modul inti yang sudah ada.
+4. Kerjakan jalur event-to-visual deterministik dari bukti narasi hingga shot. Keadaan benda/lingkungan harus berasal
+   dari peristiwa yang disebut dan bertahan lintas shot; jangan dihitung dari nomor/indeks beat.
+5. Gunakan Nuh dan Ya'juj sebagai sumber prinsip visual (cahaya, kedalaman, komposisi, skala, atmosfer), bukan cetakan
+   adegan. Buktikan transfer prinsip pada Hud dan Mahsyar 1 tanpa mengubah naskah/koordinat secara manual.
+6. Catat kebutuhan visual yang belum didukung sebagai PERIKSA; jangan mengarang aksi, objek, atau akibat.
+
+**Temuan visual pemilik:** hasil render yang dikirim pemilik memperlihatkan mata tokoh hanya satu. Ini menjadi temuan
+PERIKSA terbuka untuk audit rig/wajah dan renderer; belum ditetapkan akar masalahnya. Periksa geometri kedua mata,
+arah hadap, clipping, dan urutan lapisan. Tes wajib mencakup depan dan tiga-perempat agar perbaikan tidak hanya
+menutupi cacat pada satu sudut. Jangan membuat sistem mata alternatif.
+
+### Hasil audit kepemilikan fitur dan jalur peristiwa (24 Nov 2026)
+
+Audit dilakukan pada kode `main` dan cabang PR #48. Ini audit statis alur data/kepemilikan, bukan klaim bahwa render MP4 baru sudah diuji.
+
+**Peta pemilik yang terkonfirmasi dari kode:**
+
+| Kemampuan | Pemilik aktual | Temuan audit |
+|---|---|---|
+| Kontrak/pemuatan genre | `sutradara/genre.py` | Satu kontrak `PaketGenre`; pertahankan |
+| Masukan dan validasi naskah | `sutradara/antrean.py` + paket genre | Jangan membuat format antrean kedua |
+| Orkestrasi netral | `sutradara/direktur.py` | Memanggil satu sutradara milik paket |
+| Keputusan Kisah Islami | `paket_genre/kisah_islami/sutradara.py` | Satu pemilik perencanaan; perluas di sini |
+| Ekstraksi peristiwa | `paket_genre/kisah_islami/peristiwa.py` pada PR #48 | Fondasi ada, tetapi akurasi relasi aktor/aksi/sasaran belum memadai |
+| Skema peristiwa | `sutradara/rencana/rencana.schema.json` | Definisi bersama sudah tersedia; perluas definisi ini, jangan buat skema kedua |
+| Komposisi adegan | `sutradara/adegan.py` | Pemilik komposisi dan pemanggil renderer paket |
+| Komponen visual genre | `paket_genre/kisah_islami/visual/` | Satu pustaka visual genre; jangan menggambar ulang di parser/sutradara |
+| Render genre | `paket_genre/kisah_islami/renderer.py` | Sudah memanggil `visual.peristiwa.render_semua` |
+| Rig/wajah tokoh | `sutradara/gaya/tokoh.py` | Satu pemilik geometri tubuh dan wajah |
+| Gerak tokoh | `sutradara/gerak.py` | Satu pustaka gerak |
+| Kamera | `sutradara/kamera.py` | Satu transform kamera |
+| Keyframe/waktu shot | `sutradara/waktu.py`, `sutradara/garis_waktu.py` | Jangan menambah sistem waktu kedua |
+| Audio | `sutradara/suara/` | Satu jalur narasi, sinkronisasi, dan campur |
+
+**Temuan teknis yang harus dituntaskan sebelum memperluas katalog visual:**
+
+1. `peristiwa.py::analisis_peristiwa` saat ini mengisi `aktor` dengan seluruh daftar peran pada beat. Ia belum mengidentifikasi pelaku spesifik dari struktur kalimat.
+2. Pemilihan `sasaran` mengambil objek berikutnya atau objek terdekat dalam seluruh kalimat. Pada kalimat dengan beberapa aksi/objek, relasi dapat salah; setiap aksi perlu dihubungkan hanya ke sasaran yang didukung frasa sumber.
+3. Perubahan keadaan baru dikenali untuk sebagian aksi dan sebagian objek. Belum ada relasi urutan/sebab-akibat eksplisit yang dapat ditelusuri.
+4. `sutradara.py::_keadaan` masih menggunakan indeks/persentase beat untuk progres bahtera dan dinding Ya'juj. Ini tidak memenuhi aturan bahwa keadaan hanya berubah saat peristiwa menyatakannya.
+5. `peristiwa_visual` ditempelkan ke setiap shot dari beat yang sama. Belum ada pemilik state lintas beat yang mengatur kapan visual mulai berubah, tetap terlihat, berubah lagi, atau selesai.
+6. Renderer peristiwa saat ini baru memiliki visual khusus untuk beberapa aksi/objek (tanah terbelah, matahari didekatkan, kerumunan, keringat, jejak lari). Aksi lain tidak boleh dipaksa menjadi visual yang tidak didukung.
+
+**Keputusan implementasi agar tidak ada duplikasi:**
+- Tetap gunakan `analisis_peristiwa` sebagai satu pintu ekstraksi; tingkatkan hasilnya agar aktor, aksi, sasaran, bukti frasa, dan perubahan keadaan terhubung secara eksplisit.
+- Tetap gunakan definisi `$defs.peristiwa` di skema rencana sebagai kontrak data resmi. Ubah hanya bila kebutuhan baru terbukti dan tambahkan tes skema.
+- Tambahkan pengelolaan transisi/riwayat keadaan pada pemilik perencana Kisah Islami yang sudah ada, bukan membuat state manager terpisah. Renderer menerima keadaan hasil keputusan itu dan hanya menggambar.
+- Pertahankan `visual/peristiwa.py` sebagai pemilik komponen SVG peristiwa. Komponen baru harus dapat dipakai ulang dan didaftarkan melalui jalur renderer yang sama.
+- Pertahankan kamera, gerak, rig, timeline, dan audio yang sudah ada. Perencana hanya menyuplai keputusan ke antarmuka mereka.
+- Untuk kalimat ambigu, simpan bukti dan tandai PERIKSA; jangan mengarang aktor, sasaran, atau perubahan keadaan.
+
+**Urutan pekerjaan teknis yang disarankan:**
+A. Tes relasi aktor–aksi–sasaran untuk kalimat sederhana, pasif, banyak aktor, banyak objek, negasi, dan dua peristiwa dalam satu kalimat.
+B. Perbaiki ekstraksi pada pemilik `peristiwa.py` dan kontrak skema yang sama.
+C. Ganti progres berbasis indeks beat dengan transisi keadaan eksplisit pada pemilik sutradara yang sama.
+D. Pastikan keadaan dan visualnya konsisten antar-shot dan antar-beat.
+E. Baru perluas komponen visual yang terbukti dibutuhkan naskah.
+F. Render lintas cerita Nuh, Hud, dan Mahsyar 1; periksa apakah setiap perubahan layar punya bukti narasi.
+
+Tidak ada fitur baru atau modul paralel yang dibuat dalam audit ini. PR #48 tetap tidak di-merge.
 
 ## Tahap E — Periksa dan kritikus (Fase 5)
 1. **Periksa teknis.** Port `mesin-video/periksa.py` dengan baris `Asal:`. Yang diperiksa: resolusi, durasi, audio
@@ -342,3 +450,24 @@ Poin berikut **ditunda atas keputusan pemilik pada 22 Nov 2026**. Jangan mengerj
 
 Fase 7 (perluasan genre) **tidak dibuka** sebelum Fase 6 terbukti berjalan, pematangan (Tahap G) menunjukkan hasil dan pemilik menyetujuinya secara tertulis. Ini sesuai keputusan pemilik bahwa Kisah Islami harus
 konsisten dulu. Jangan memulai Fase 7 atas inisiatif sendiri.
+
+
+- 24 Nov 2026 — CI #529 pada SHA `76c068e` sukses: 320 tes Python, tes bot, render D2 14 shot/644 bingkai/53,7 detik, dan pemeriksaan enam contoh. Uji audio-cache run `45284285899` pada SHA yang sama sukses: 29 kata, selisih stream 0,01 detik, -16,89 LUFS, -1,75 dBTP; memakai cache, tanpa panggilan API berbayar. Workflow `suara.yml` kemudian diperketat dengan `set -euo pipefail` agar kegagalan narasi tidak tertutup oleh `tee`.
+- 24 Nov 2026 — Verifikasi ulang setelah pipefail: CI PR run `45288621235` sukses pada SHA `4a6d061`. Uji audio-cache `uji_d2` run `45288876269` juga sukses pada SHA yang sama. Cache produksi ElevenLabs digunakan (29 kata terjajar); durasi MP3 13,52 detik, padding hening 0,43 detik, video 15,12 detik, stream audio-video 15,11 detik (selisih 0,01 detik), loudness -16,89 LUFS, true peak -1,75 dBTP. Tahap pembuatan narasi baru dan penyimpanan cabang suara dilewati; tidak ada panggilan API berbayar baru. Artefak `bukti-audio-elevenlabs-d2` tersedia. D2 tetap belum dicentang sampai pemilik meninjau MP4 untuk kelancaran gerak kontinu dan variasi komposisi. Catatan PERIKSA B2/Tirmidzi 3153 dipertahankan.
+
+
+
+### Pembaruan penutupan D2 — 24 Nov 2026
+
+Pemilik mengonfirmasi audit visual dan suara lulus. Perbaikan wajah dari PR #50 telah dipindahkan ke cabang D2/PR #48, disertai tes urutan SVG dan model rambut. Koreksi parser: aktor hanya diisi bila nama/peran disebut eksplisit; tujuan perpindahan dipisahkan dari sasaran aksi melalui field `tujuan` pada skema. Visual `tenggelam` tidak lagi memakai visual keringat. Perubahan-perubahan ini belum boleh dianggap lulus CI: run yang sempat berjalan pada revisi antara gagal pada dua assertion urutan lapisan wajah, lalu urutan SVG diperbaiki. Revisi paling akhir belum memiliki hasil CI karena workflow tidak terpicu oleh pembaruan API. Jalankan `python -m pytest -q`, render D2, dan workflow audio-cache pada HEAD final sebelum status D2 diubah menjadi selesai.
+
+## Bukti verifikasi D2 pada HEAD 0322740 — 24 Nov 2026
+
+- Commit terverifikasi: `032274075becc09d21084c2cc02e15e4db6d3f17`.
+- GitHub Actions CI #628: **Success**; `python -m pytest -q` menghasilkan **338 passed in 10.74s**; tes bot Telegram lulus.
+- Render D2 berhasil: **14 shot, 644 bingkai, durasi 53,7 detik, waktu render 98 detik pada 1 worker**. Artefak: [run CI #628](https://github.com/anwar-alzazali/sutradara-ai-studio/actions/runs/45388739587) · [bukti visual](https://github.com/anwar-alzazali/sutradara-ai-studio/actions/runs/45388739587/artifacts/14916434304).
+- Pemeriksaan final enam contoh menghasilkan **0 GAGAL**. Catatan non-blocking yang perlu keputusan editorial: `b2_adab_barang.json` (hook kronologis dan kesinambungan `surat_amanah`), serta `yajuj_majjuj.json` (derajat HR. Tirmidzi 3153 diperselisihkan). Empat contoh lainnya lulus tanpa catatan.
+- Audit visual dan suara telah dinyatakan lulus oleh pemilik; CI ini menambah bukti tes otomatis dan render pada HEAD terbaru. CI #628 tidak menjalankan ulang workflow audio-cache.
+- PR #48 tetap terbuka dan tidak di-merge. Cabang masih 145 commit di depan dan 6 commit di belakang `main`; enam commit di `main` hanya menambahkan empat berkas antrean. Integrasi harus mempertahankan seluruh berkas tersebut dan menunggu keputusan pemilik sebelum merge.
+
+**Status:** verifikasi otomatis dan render D2 pada HEAD ini lulus. Penutupan integrasi masih menunggu rekonsiliasi enam commit `main` serta keputusan editorial atas catatan `PERIKSA`. Tidak ada perubahan pada batas adab tokoh suci atau aturan dalil.

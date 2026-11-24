@@ -1,5 +1,7 @@
 import copy
+import html
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -190,6 +192,12 @@ def test_perubahan_pemilik_barang_tanpa_serah_terima_ditolak():
     assert any(x.kode == "PEMILIK_BARANG_BERUBAH" for x in periksa(r))
 
 
+
+def _teks_svg(svg: str) -> str:
+    """Ambil teks yang benar-benar dirender, tanpa tag, lalu normalkan spasi."""
+    return " ".join(html.unescape(re.sub(r"<[^>]*>", " ", svg)).split())
+
+
 def test_contoh_b2_lengkap_lolos_penjaga_dan_render_semua_shot():
     r = json.loads((CONTOH / "b2_adab_barang.json").read_text(encoding="utf-8"))
     temuan = periksa(r)
@@ -199,10 +207,12 @@ def test_contoh_b2_lengkap_lolos_penjaga_dan_render_semua_shot():
     hasil = [adegan.susun(s) for s in shots]
     assert len(hasil) == 4
     assert all("<svg" in svg for svg in hasil)
-    assert "DIULURKAN KE PILAR" in hasil[2]
-    assert "DITERIMA DI SISI PILAR" in hasil[3]
-    assert "Barang berpindah lewat tangan" in hasil[0]
-    assert "Tongkat menuju pilar" in hasil[2]
+    teks_shot_0 = _teks_svg(hasil[0])
+    teks_shot_2 = _teks_svg(hasil[2])
+    assert "DIULURKAN KE PILAR" in teks_shot_2
+    assert "DITERIMA DI SISI PILAR" in _teks_svg(hasil[3])
+    assert "Barang berpindah lewat tangan" in teks_shot_0
+    assert "Tongkat menuju pilar" in teks_shot_2
     assert 'class="cahaya-malaikat"' in hasil[0]
     assert 'class="barang"' in hasil[0]
     assert 'class="barang"' in hasil[1]

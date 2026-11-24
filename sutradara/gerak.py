@@ -144,6 +144,7 @@ def tertawa(t: float) -> dict:
 POSE = {
     "berdiri": _p(),
     "tunjuk": _p(la_ka=95, sa_ka=95, kepala=3),
+    "ulurkan": _p(ka=(82, 24), kepala=1),
     "angkat": _p(la_ka=165, sa_ka=178),
     "silang": _p(ka=(-62, 46), ki=(-58, 40)),
     "kaget": _p(ka=(14, -72), ki=(14, -72), naik=-4),

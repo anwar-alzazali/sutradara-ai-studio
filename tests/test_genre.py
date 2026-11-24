@@ -283,3 +283,132 @@ def test_skema_tambahan_tidak_bisa_diubah_secara_tidak_langsung():
     assert validator.is_valid(rencana)
     rencana["muatan"] = {"kode": 123}
     assert not validator.is_valid(rencana)
+
+
+
+def test_gerak_aksi_hanya_diberikan_kepada_pelaku():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang
+
+    naskah = {
+        "judul": "Pembangunan bahtera",
+        "inti": "bahtera",
+        "beat": [{
+            "narasi": "Pengikut beriman membangun bahtera; kaum penentang berdiri di seberang.",
+            "peran": ["pengikut beriman", "kaum penentang"],
+        }],
+    }
+    rencana, _ = rancang(naskah)
+    aktor = rencana["beat"][0]["shot"][0]["tokoh"]
+    gerak = {a["peran"]: a["gerak"] for a in aktor}
+    assert gerak["pengikut_beriman"] == "palu"
+    assert gerak["kaum_penentang"] == "berdiri"
+
+
+def test_dialog_menggunakan_shot_reverse_shot_dekat_dengan_kamera_mengikuti_pembicara():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang
+
+    naskah = {
+        "judul": "Seruan Nabi Nuh",
+        "beat": [{
+            "narasi": "Nabi Nuh menyeru seorang penentang, lalu penentang itu menjawab.",
+            "peran": ["Nabi Nuh", "penentang"],
+            "dialog": [{"pembicara": "Nabi Nuh", "penjawab": "penentang", "ucapan": "Dengarkan seruanku."}],
+        }],
+    }
+    rencana, _ = rancang(naskah)
+    shots = rencana["beat"][0]["shot"]
+    assert len(shots) == 2
+    assert [shot["kamera"]["x"] for shot in shots] == [380, 820]
+    assert all(shot["kamera"]["zoom"] == 2.45 for shot in shots)
+    assert all(shot["kamera"]["y"] == 1330 for shot in shots)
+
+
+def test_pengejar_dan_yang_dikejar_bergerak_searah():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang
+
+    naskah = {
+        "judul": "Pengejaran",
+        "beat": [{
+            "narasi": "Penjaga mengejar pengelana ke kanan.",
+            "peran": ["penjaga", "pengelana"],
+        }],
+    }
+    rencana, _ = rancang(naskah)
+    tokoh = rencana["beat"][0]["shot"][0]["tokoh"]
+    lintasan = {a["peran"]: a["lintasan"] for a in tokoh}
+    tujuan = {a["peran"]: a["tujuan"] for a in tokoh}
+    arah = {
+        pid: (lintasan[pid][-1][1] > lintasan[pid][0][1]) -
+             (lintasan[pid][-1][1] < lintasan[pid][0][1])
+        for pid in lintasan
+    }
+    assert arah == {"penjaga": 1, "pengelana": 1}
+    assert tujuan == {"penjaga": "tepi:kanan", "pengelana": "tepi:kanan"}
+
+
+
+def test_dialog_menyisipkan_reaksi_pendengar_yang_disebut_eksplisit():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang
+
+    naskah = {
+        "judul": "Seruan dan jawaban",
+        "beat": [{
+            "narasi": "Nabi Nuh menyeru seorang penentang; penentang itu terkejut lalu menjawab.",
+            "peran": ["Nabi Nuh", "penentang"],
+            "dialog": [{
+                "pembicara": "Nabi Nuh",
+                "penjawab": "penentang",
+                "ucapan": "Dengarkan seruanku.",
+            }],
+        }],
+    }
+    rencana, _ = rancang(naskah)
+    shots = rencana["beat"][0]["shot"]
+    # Pembicara -> reaksi pendengar -> giliran penjawab.
+    assert len(shots) == 3
+    reaksi = shots[1]
+    assert reaksi["kamera"]["x"] == 820
+    pendengar = next(a for a in reaksi["tokoh"] if a["peran"] == "penentang")
+    assert pendengar["wajah"] == "kaget"
+    assert pendengar["gerak"] == "kaget"
+    assert "bicara" not in pendengar
+
+
+def test_pengejaran_ke_kiri_menggerakkan_kedua_tokoh_searah_dengan_margin():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang
+
+    naskah = {
+        "judul": "Pengejaran ke kiri",
+        "beat": [{
+            "narasi": "Penjaga mengejar pengelana ke kiri.",
+            "peran": ["penjaga", "pengelana"],
+        }],
+    }
+    rencana, _ = rancang(naskah)
+    tokoh = {a["peran"]: a for a in rencana["beat"][0]["shot"][0]["tokoh"]}
+    for pid in ("penjaga", "pengelana"):
+        lintasan = tokoh[pid]["lintasan"]
+        assert lintasan[0][1] > lintasan[-1][1]
+        assert lintasan[-1][1] >= 200
+        assert tokoh[pid]["tujuan"] == "tepi:kiri"
+        assert tokoh[pid]["gerak"] == "lari"
+
+
+def test_cadence_jalan_dihitung_dari_kecepatan_lintasan():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang
+
+    naskah = {
+        "judul": "Perjalanan",
+        "beat": [{
+            "narasi": "Pengelana berjalan menuju tepi kanan.",
+            "peran": ["Pengelana"],
+        }],
+    }
+    rencana, _ = rancang(naskah)
+    aktor = rencana["beat"][0]["shot"][0]["tokoh"][0]
+    lintasan = aktor["lintasan"]
+    jarak = ((lintasan[-1][1] - lintasan[0][1]) ** 2 +
+             (lintasan[-1][2] - lintasan[0][2]) ** 2) ** 0.5
+    durasi = lintasan[-1][0] - lintasan[0][0]
+    assert aktor["faktor_gerak"] == pytest.approx(round(max(.45, min(2.5, (jarak / durasi) / 74.0)), 3))
+    assert aktor["faktor_gerak"] > 0

@@ -129,19 +129,22 @@ def periksa_lintasan_dan_interaksi(rencana: dict[str, Any]) -> list[Temuan]:
                     continue
                 arah = aktor.get("arah", "samping")
                 arah_awal = arah[0][1] if isinstance(arah, list) and arah else arah
-                if arah_awal in {"depan", "belakang"}:
+                dx = bergerak_mendatar(aktor)
+                if dx and arah_awal in {"depan", "belakang"}:
                     hasil.append(Temuan("PERIKSA", "ARAH_GERAK", f"{lokasi}: {nama_peran.get(pid, pid)} bergerak mendatar tetapi arah hadapnya {arah_awal}; pastikan lintasan dan orientasi cocok"))
-                elif arah_awal == "samping":
-                    dx = bergerak_mendatar(aktor)
-                    if dx and bool(aktor.get("balik", False)) == (dx > 0):
+                elif dx and arah_awal in {"samping", "tiga_perempat", "tiga_perempat_belakang"}:
+                    balik = aktor.get("balik", False)
+                    balik_awal = bool(balik[0][1]) if isinstance(balik, list) and balik else bool(balik)
+                    # Saat narasi memerintahkan putar balik, lintasan dapat mulai bergerak
+                    # sebelum orientasi tubuh selesai berputar. Jangan nilai snapshot awal.
+                    if balik_awal == (dx > 0) and not aktor.get("berbalik_sesuai_cerita"):
                         hasil.append(Temuan("PERIKSA", "ARAH_GERAK", f"{lokasi}: arah hadap {nama_peran.get(pid, pid)} mungkin berlawanan dengan lintasan; periksa balik/arah"))
-                    if dx:
-                        kunci = (str(pid), tujuan)
-                        lama = arah_tujuan.get(kunci)
-                        if lama is not None and lama != dx and not aktor.get("berbalik_sesuai_cerita"):
-                            hasil.append(Temuan("PERIKSA", "ARAH_LAYAR_BERUBAH",
-                                                f"{lokasi}: arah menuju {tujuan!r} berubah untuk {nama_peran.get(pid, pid)}; jaga kaidah 180 derajat atau tandai putar balik yang diceritakan"))
-                        arah_tujuan[kunci] = dx
+                    kunci = (str(pid), tujuan)
+                    lama = arah_tujuan.get(kunci)
+                    if lama is not None and lama != dx and not aktor.get("berbalik_sesuai_cerita"):
+                        hasil.append(Temuan("PERIKSA", "ARAH_LAYAR_BERUBAH",
+                                            f"{lokasi}: arah menuju {tujuan!r} berubah untuk {nama_peran.get(pid, pid)}; jaga kaidah 180 derajat atau tandai putar balik yang diceritakan"))
+                    arah_tujuan[kunci] = dx
 
             # Dialog yang terstruktur harus memperoleh potongan pada pihak yang bicara.
             dialog = beat.get("dialog") or []
@@ -291,4 +294,72 @@ def periksa_kontinuitas_barang(rencana: dict[str, Any]) -> list[Temuan]:
                     hasil.append(Temuan("PERIKSA", "BARANG_TIDAK_DIBAWA",
                                         f"{lokasi}: barang {iid} dari shot sebelumnya tidak dicantumkan; periksa kesinambungan"))
             sebelumnya = sekarang
+    return hasil
+
+
+def periksa_kontinuitas_panggung(rencana: dict[str, Any]) -> list[Temuan]:
+    """Periksa tumpang-tindih tokoh dan kestabilan blocking antar-shot dalam satu beat.
+
+    Tokoh kolektif diringkas ke pusat kelompok (median x). Ambang bersifat
+    heuristik dan hanya menghasilkan PERIKSA agar tidak menghalangi variasi
+    komposisi yang memang disengaja.
+    """
+    hasil: list[Temuan] = []
+    for bi, beat in enumerate(rencana.get("beat", [])):
+        posisi_shot: list[dict[str, float]] = []
+        for si, shot in enumerate(beat.get("shot", [])):
+            tokoh = [t for t in shot.get("tokoh", []) if isinstance(t.get("peran"), str)]
+            pusat: dict[str, list[float]] = {}
+            for t in tokoh:
+                x = t.get("x")
+                if isinstance(x, list) and x:
+                    try:
+                        x = float(x[0][1])
+                    except (TypeError, ValueError, IndexError):
+                        continue
+                if isinstance(x, (int, float)):
+                    pusat.setdefault(t["peran"], []).append(float(x))
+            ringkas = {pid: sorted(xs)[len(xs)//2] for pid, xs in pusat.items() if xs}
+            posisi_shot.append(ringkas)
+
+            # Anggota dalam satu kelompok (peran sama) memang boleh berdekatan.
+            # Hanya bandingkan pemeran berbeda pada bidang kedalaman yang sama.
+            daftar = []
+            for t in tokoh:
+                x, y = t.get("x"), t.get("y")
+                if isinstance(x, list) and x:
+                    try:
+                        x = float(x[0][1])
+                    except (TypeError, ValueError, IndexError):
+                        continue
+                if isinstance(y, list) and y:
+                    try:
+                        y = float(y[0][1])
+                    except (TypeError, ValueError, IndexError):
+                        continue
+                if isinstance(x, (int, float)) and isinstance(y, (int, float)):
+                    daftar.append((t["peran"], float(x), float(y), float(t.get("s", .68))))
+            sudah: set[tuple[str, str]] = set()
+            for i, a in enumerate(daftar):
+                for b in daftar[i+1:]:
+                    if a[0] == b[0]:
+                        continue
+                    pasangan = tuple(sorted((a[0], b[0])))
+                    if pasangan in sudah:
+                        continue
+                    sudah.add(pasangan)
+                    ambang_x = 92.0 * (a[3] + b[3]) / 1.36
+                    if abs(a[1]-b[1]) < ambang_x and abs(a[2]-b[2]) < 105:
+                        hasil.append(Temuan(
+                            "PERIKSA", "TOKOH_BERTUMPUK",
+                            f"beat {bi} shot {si}: {a[0]} dan {b[0]} terlalu berdekatan; atur jarak atau kedalaman, kecuali memang disengaja",
+                        ))
+        for si in range(1, len(posisi_shot)):
+            sebelumnya, sekarang = posisi_shot[si-1], posisi_shot[si]
+            for pid in set(sebelumnya) & set(sekarang):
+                if abs(sebelumnya[pid] - sekarang[pid]) > 90:
+                    hasil.append(Temuan(
+                        "PERIKSA", "POSISI_BERUBAH_ANTAR_SHOT",
+                        f"beat {bi} shot {si}: posisi {pid} berubah {sebelumnya[pid]:.0f} -> {sekarang[pid]:.0f}; pertahankan blocking atau jelaskan perpindahan",
+                    ))
     return hasil

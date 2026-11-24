@@ -25,6 +25,16 @@ jobs:
         run: node --test bot/worker.test.mjs
       - name: Tes lengkap (tanpa render bukti)
         run: python -m pytest -q
+      - name: Render bukti visual Tahap D2
+        if: github.head_ref == 'tahap-d2-blocking-dialog-gerak'
+        run: python scripts/render_bukti_tahap_d2.py
+      - name: Unggah bukti visual Tahap D2
+        if: always() && github.head_ref == 'tahap-d2-blocking-dialog-gerak'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bukti-visual-tahap-d2
+          path: keluaran-bukti/tahap-d2/
+          if-no-files-found: warn
       - name: Periksa final semua contoh
         run: |
           set -e

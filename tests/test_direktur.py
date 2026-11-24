@@ -42,6 +42,7 @@ def test_jalan_mengisi_tujuan_lintasan_arah_dan_frekuensi_langkah():
     hasil = rancang(naskah)
     tokoh = hasil["beat"][0]["shot"][0]["tokoh"][0]
     assert tokoh["gerak"] == "jalan" and tokoh["arah"] == "samping"
+    assert len(hasil["beat"][0]["shot"]) == 1
     assert tokoh["tujuan"] == "tepi:kanan" and len(tokoh["x"]) == 2
     assert tokoh["faktor_gerak"] > 0
     assert not [t for t in periksa(hasil) if t.tingkat == "GAGAL"]
@@ -92,3 +93,353 @@ def test_allah_tidak_dapat_dimasukkan_sebagai_peran_visual(nama):
         "narasi": "Renungkan makna kisah ini.", "kata_kunci": [], "dalil": [], "peran": [nama],
     }]}
     assert any("tidak boleh menjadi peran visual" in pesan for pesan in validasi(naskah))
+
+
+
+def test_blocking_otomatis_mengikuti_visual_inti_dan_memisahkan_pihak():
+    naskah = {
+        "judul": "Pembangunan bahtera",
+        "inti": "Nabi Nuh dan pengikut beriman membangun bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengikut beriman membangun bahtera.",
+            "dalil": [], "kata_kunci": ["membangun"], "suasana": "senja",
+            "peran": ["pengikut beriman", "kaum penentang"],
+        }],
+    }
+    hasil = rancang(naskah)
+    beat = hasil["beat"][0]
+    shot = beat["shot"][0]
+    kapal = next(b for b in shot["benda"] if b["jenis"] == "bahtera")
+    pengikut = next(t for t in shot["tokoh"] if t["peran"] == "pengikut_beriman")
+    penentang = next(t for t in shot["tokoh"] if t["peran"] == "kaum_penentang")
+    assert abs(pengikut["x"] - kapal["x"]) < 150
+    assert pengikut["arah"] == "samping" and pengikut["balik"] is True
+    assert abs(penentang["x"] - kapal["x"]) > 180
+    assert all(120 <= tokoh["x"] <= 960 for tokoh in shot["tokoh"])
+    assert beat["pelaku"] == ["pengikut_beriman"]
+    temuan = periksa(hasil)
+    assert not [t for t in temuan if t.kode in {"PELAKU_JAUH", "BUKAN_PELAKU_DEKAT"}]
+
+
+def test_dialog_reverse_shot_mempertahankan_sisi_dan_mengganti_pembicara():
+    naskah = {
+        "judul": "Percakapan",
+        "inti": "Nabi Nuh berbicara kepada seorang penentang.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Nabi Nuh berkata kepada penentang itu.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Nabi Nuh", "penentang"],
+            "dialog": [{"pembicara": "Nabi Nuh", "penjawab": "penentang",
+                        "ucapan": "Dengarkan seruanku."}],
+        }],
+    }
+    hasil = rancang(naskah)
+    shots = hasil["beat"][0]["shot"]
+    assert len(shots) == 2
+    kiri, kanan = shots
+    assert kiri["nur"][0]["x"] == kanan["nur"][0]["x"]
+    assert kiri["tokoh"][0]["x"] == kanan["tokoh"][0]["x"]
+    assert kiri["nur"][0]["bicara"]
+    assert not kanan["nur"][0]["bicara"]
+    assert kanan["tokoh"][0].get("bicara")
+    assert not kiri["tokoh"][0].get("bicara")
+    assert kiri["tokoh"][0]["arah"] == "samping"
+    assert kanan["tokoh"][0]["arah"] == "samping"
+
+
+
+def test_interaksi_otomatis_menghadapkan_pemberi_dan_penerima():
+    naskah = {
+        "judul": "Serah terima",
+        "inti": "Pemberi mengulurkan surat kepada penerima.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pemberi mengulurkan surat kepada penerima.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pemberi", "Penerima"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"][0]
+    pemberi = next(t for t in shot["tokoh"] if t["peran"] == "pemberi")
+    penerima = next(t for t in shot["tokoh"] if t["peran"] == "penerima")
+    assert (pemberi["x"], penerima["x"]) == (380, 820)
+    assert pemberi["arah"] == penerima["arah"] == "samping"
+    assert pemberi["balik"] is False and penerima["balik"] is True
+    assert pemberi["gerak"] == penerima["gerak"] == "ulurkan"
+
+
+def test_perjalanan_otomatis_mengenali_tujuan_benda_dan_kedalaman():
+    menuju = {
+        "judul": "Menuju bahtera", "inti": "Pengelana berjalan menuju bahtera.", "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan menuju bahtera.", "dalil": [],
+            "kata_kunci": ["berjalan"], "suasana": "senja", "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(menuju)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["tujuan"] == "benda:bahtera"
+    assert aktor["x"][-1][1] < 650 and aktor["x"][-1][1] > aktor["x"][0][1]
+
+    menjauh = {
+        "judul": "Menjauh", "inti": "Pengelana berjalan menjauh dari kamera.", "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan menjauh dari kamera.", "dalil": [],
+            "kata_kunci": ["berjalan"], "suasana": "senja", "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(menjauh)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["tujuan"] == "kedalaman:belakang"
+    assert aktor["arah"] == "belakang"
+    assert aktor["lintasan"][-1][2] < aktor["lintasan"][0][2]
+    assert aktor["y"][-1][1] < aktor["y"][0][1]
+
+
+def test_kabur_otomatis_bergerak_berlawanan_dengan_arah_perjalanan_bawaan():
+    naskah = {
+        "judul": "Kabur", "inti": "Pengelana kabur.", "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana kabur.", "dalil": [],
+            "kata_kunci": [], "suasana": "senja", "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(naskah)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["gerak"] == "lari"
+    assert aktor["tujuan"] == "tepi:kiri"
+    assert aktor["x"][-1][1] < aktor["x"][0][1]
+
+
+
+def test_menunjuk_visual_inti_menghadap_ke_benda():
+    naskah = {
+        "judul": "Menunjuk bahtera",
+        "inti": "Pengelana menunjuk bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana menunjuk bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(naskah)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["arah"] == "samping"
+    assert aktor["balik"] is False
+    assert aktor["gerak"] == "tunjuk"
+    assert aktor["x"] < 650
+
+
+
+def test_dialog_menyisipkan_reaksi_pendengar_bila_disebut_narasi():
+    naskah = {
+        "judul": "Seruan",
+        "inti": "Seorang penyeru menyampaikan peringatan kepada pendengar.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penyeru berbicara. Pendengar terkejut dan tersentak.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penyeru", "Pendengar"],
+            "dialog": [{"pembicara": "Penyeru", "penjawab": "Pendengar", "ucapan": "Dengarkan peringatan ini."}],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 3
+    reaksi = shot[1]["tokoh"]
+    pendengar = next(t for t in reaksi if t["peran"] == "pendengar")
+    assert pendengar["gerak"] == "kaget"
+    assert pendengar["wajah"] == "kaget"
+    assert "bicara" not in pendengar
+    reverse = {t["peran"]: t for t in shot[2]["tokoh"]}
+    assert reverse["pendengar"].get("bicara")
+    assert "bicara" not in reverse["penyeru"]
+
+
+
+def test_pengejar_dan_yang_dikejar_bergerak_searah():
+    naskah = {
+        "judul": "Pengejaran",
+        "inti": "Pengelana mengejar pencuri ke tepi kanan.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana mengejar pencuri ke tepi kanan.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Pencuri"],
+        }],
+    }
+    tokoh = rancang(naskah)["beat"][0]["shot"][0]["tokoh"]
+    pengelana = next(t for t in tokoh if t["peran"] == "pengelana")
+    pencuri = next(t for t in tokoh if t["peran"] == "pencuri")
+    assert pengelana["gerak"] == pencuri["gerak"] == "lari"
+    dx_a = pengelana["x"][-1][1] - pengelana["x"][0][1]
+    dx_b = pencuri["x"][-1][1] - pencuri["x"][0][1]
+    assert dx_a > 0 and dx_b > 0
+    assert pengelana["tujuan"] == pencuri["tujuan"] == "tepi:kanan"
+
+
+def test_pengejar_aktif_ke_kiri_berada_di_belakang_yang_dikejar():
+    naskah = {
+        "judul": "Pengejaran ke kiri",
+        "inti": "Penjaga mengejar pengelana ke kiri.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penjaga mengejar pengelana ke kiri.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga", "Pengelana"],
+        }],
+    }
+    tokoh = rancang(naskah)["beat"][0]["shot"][0]["tokoh"]
+    penjaga = next(t for t in tokoh if t["peran"] == "penjaga")
+    pengelana = next(t for t in tokoh if t["peran"] == "pengelana")
+    assert penjaga["gerak"] == pengelana["gerak"] == "lari"
+    assert penjaga["x"][0][1] > pengelana["x"][0][1]
+    assert penjaga["x"][-1][1] < penjaga["x"][0][1]
+    assert pengelana["x"][-1][1] < pengelana["x"][0][1]
+    assert penjaga["tujuan"] == pengelana["tujuan"] == "tepi:kiri"
+
+
+def test_arah_tiga_perempat_dikenali_dan_dipakai_bila_disebut_narasi():
+    from sutradara.gaya.tokoh import _arah_derajat
+
+    naskah = {
+        "judul": "Menghadap serong",
+        "inti": "Pengelana menghadap serong tiga perempat ke bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana menghadap serong tiga perempat ke bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(naskah)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["arah"] == "tiga_perempat"
+    assert _arah_derajat("tiga_perempat", 0) == 45.0
+    assert _arah_derajat("tiga_perempat_belakang", 0) == 135.0
+
+
+def test_gerak_berbalik_menyimpan_jadwal_putaran_badan():
+    naskah = {
+        "judul": "Pengelana berbalik",
+        "inti": "Pengelana berbalik arah lalu kabur ke kiri.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berbalik arah lalu kabur ke kiri.",
+            "dalil": [], "kata_kunci": ["berlari"], "suasana": "senja",
+            "peran": ["Pengelana"],
+        }],
+    }
+    aktor = rancang(naskah)["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["tujuan"] == "tepi:kiri"
+    assert isinstance(aktor["arah"], list)
+    assert aktor["arah"] == [[0.0, "samping"], [3.8 * .34, "depan"], [3.8 * .68, "samping"]]
+    assert aktor["balik"] == [[0.0, False], [3.8 * .68, True]]
+
+
+def test_jadwal_mirror_tubuh_diinterpolasi_halus():
+    from sutradara.gaya.tokoh import _balik_pada
+
+    jadwal = [[0.0, False], [2.5, True]]
+    assert _balik_pada(jadwal, 0.0) is False
+    assert _balik_pada(jadwal, 2.49) is False
+    assert _balik_pada(jadwal, 2.5) is True
+    assert _balik_pada(jadwal, 3.8) is True
+
+
+def test_memori_arah_perjalanan_dipertahankan_antar_beat():
+    naskah = {
+        "judul": "Perjalanan berlanjut", "inti": "Pengelana melintasi jalan.", "dalil": [],
+        "beat": [
+            {"narasi": "Pengelana berjalan ke kiri.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+            {"narasi": "Pengelana terus berjalan menyusuri jalan.", "dalil": [],
+             "kata_kunci": [], "suasana": "senja", "peran": ["Pengelana"]},
+        ],
+    }
+    hasil = rancang(naskah)
+    pertama = hasil["beat"][0]["shot"][0]["tokoh"][0]
+    kedua = hasil["beat"][1]["shot"][0]["tokoh"][0]
+    assert pertama["lintasan"][-1][1] < pertama["lintasan"][0][1]
+    assert kedua["lintasan"][-1][1] < kedua["lintasan"][0][1]
+
+
+def test_kembali_membalik_memori_dan_arah_eksplisit_tidak_dibalik_dua_kali():
+    naskah = {
+        "judul": "Kembali", "inti": "Pengelana melakukan perjalanan.", "dalil": [],
+        "beat": [
+            {"narasi": "Pengelana berjalan ke kiri.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+            {"narasi": "Pengelana berjalan kembali.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+            {"narasi": "Pengelana berjalan kembali ke kiri.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+        ],
+    }
+    hasil = rancang(naskah)
+    arah = []
+    for beat in hasil["beat"]:
+        aktor = beat["shot"][0]["tokoh"][0]
+        arah.append((aktor["lintasan"][-1][1] > aktor["lintasan"][0][1]) -
+                    (aktor["lintasan"][-1][1] < aktor["lintasan"][0][1]))
+    assert arah == [-1, 1, -1]
+
+
+def test_judul_hook_hanya_muncul_di_shot_pembuka_beat_hook():
+    naskah = {
+        "judul": "Bahtera dan seruan",
+        "inti": "Nabi Nuh membangun bahtera lalu menyeru kaumnya.",
+        "dalil": [],
+        "beat": [
+            {
+                "narasi": "Pengikut beriman membangun bahtera.",
+                "dalil": [], "kata_kunci": ["membangun"], "suasana": "senja",
+                "peran": ["Pengikut beriman"],
+            },
+            {
+                "narasi": "Nabi Nuh menyeru kaum penentang.",
+                "dalil": [], "kata_kunci": [], "suasana": "senja",
+                "peran": ["Nabi Nuh", "Kaum penentang"],
+                "dialog": [{"pembicara": "Nabi Nuh", "penjawab": "Kaum penentang",
+                            "ucapan": "Dengarkan seruanku."}],
+            },
+        ],
+    }
+    hasil = rancang(naskah)
+    lokasi_judul = [
+        (i, j)
+        for i, beat in enumerate(hasil["beat"])
+        for j, shot in enumerate(beat["shot"])
+        if shot.get("teks", {}).get("judul")
+    ]
+    assert lokasi_judul == [(0, 0)]
+    assert hasil["beat"][0]["shot"][0]["teks"]["judul"] == hasil["hook"]["teks"]
+
+
+def test_interaksi_menginferensikan_pasangan_tanpa_nama_lawan_eksplisit():
+    naskah = {
+        "judul": "Memberi air",
+        "inti": "Pengelana memberikan air kepada musafir.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana memberikan air kepada orang di depannya.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Musafir", "Pedagang"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"][0]
+    pengelana = next(t for t in shot["tokoh"] if t["peran"] == "pengelana")
+    musafir = next(t for t in shot["tokoh"] if t["peran"] == "musafir")
+    pedagang = next(t for t in shot["tokoh"] if t["peran"] == "pedagang")
+    assert (pengelana["x"], musafir["x"]) == (380, 820)
+    assert pengelana["arah"] == musafir["arah"] == "samping"
+    assert pedagang["x"] not in {pengelana["x"], musafir["x"]}
+
+
+def test_interaksi_tanpa_nama_tokoh_hanya_diinferensikan_jika_tepat_dua_peran():
+    from sutradara.paket_genre.kisah_islami.sutradara import _pasangan_interaksi
+
+    peta = {
+        "a": {"nama": "Tokoh A"},
+        "b": {"nama": "Tokoh B"},
+        "c": {"nama": "Tokoh C"},
+    }
+    assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b"], peta) == ("a", "b")
+    assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b", "c"], peta) is None

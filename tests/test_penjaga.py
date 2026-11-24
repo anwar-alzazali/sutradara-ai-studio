@@ -126,3 +126,119 @@ def test_pembangun_nuh_dan_kaum_pengejek_memiliki_peran_berbeda():
                for t in shot["tokoh"])
     assert r["peran"][1]["id"] == "kaum"
     assert r["peran"][2]["id"] == "pengikut_beriman"
+
+
+
+def test_blocking_otomatis_mengubah_pelanggaran_kedekatan_menjadi_gagal():
+    r = muat("nuh_mengejek.json")
+    r["dibuat_otomatis"] = True
+    r["beat"] = [r["beat"][0]]
+    r["beat"][0]["shot"] = [r["beat"][0]["shot"][0]]
+    r["hook"]["dari_beat"] = 0
+    r["beat"][0]["shot"][0]["nur"][0]["x"] = -300
+    temuan = periksa(r)
+    assert "PELAKU_JAUH" in kode(temuan, "GAGAL")
+
+
+def test_perjalanan_otomatis_menyimpan_lintasan_xy_eksplisit():
+    naskah = {
+        "judul": "Perjalanan",
+        "inti": "Pengelana berjalan menuju tepi kanan.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan menuju tepi kanan.",
+            "dalil": [], "kata_kunci": ["berjalan"], "suasana": "senja",
+            "peran": ["pengelana"],
+        }],
+    }
+    from sutradara.direktur import rancang
+    hasil = rancang(naskah)
+    aktor = hasil["beat"][0]["shot"][0]["tokoh"][0]
+    assert aktor["tujuan"] == "tepi:kanan"
+    assert aktor["lintasan"][0][1:] == [aktor["x"][0][1], aktor["y"]]
+    assert aktor["lintasan"][1][1] == aktor["x"][-1][1]
+    assert aktor["lintasan"][1][2] == aktor["y"]
+
+
+
+def test_perjalanan_kedalaman_depan_belakang_tidak_diberi_peringatan_mendatar():
+    from sutradara.rencana.pemeriksaan_umum import periksa_lintasan_dan_interaksi
+
+    rencana = {
+        "peran": [{"id": "pengelana", "nama": "Pengelana"}],
+        "beat": [{
+            "shot": [{
+                "tokoh": [{
+                    "peran": "pengelana", "gerak": "jalan", "tujuan": "kedalaman:belakang",
+                    "arah": "belakang", "x": [[0, 430], [3, 430]],
+                    "y": [[0, 1510], [3, 1300]],
+                    "lintasan": [[0, 430, 1510], [3, 430, 1300]],
+                }]
+            }]
+        }]
+    }
+    temuan = periksa_lintasan_dan_interaksi(rencana)
+    assert "ARAH_GERAK" not in {t.kode for t in temuan}
+
+
+
+def test_penjaga_mendeteksi_tokoh_bertumpuk_dan_posisi_berubah_antar_shot():
+    from sutradara.rencana.pemeriksaan_umum import periksa_kontinuitas_panggung
+
+    rencana = {
+        "beat": [{
+            "shot": [
+                {"tokoh": [
+                    {"peran": "pemberi", "x": 400, "y": 1500, "s": .68},
+                    {"peran": "penerima", "x": 420, "y": 1500, "s": .68},
+                ]},
+                {"tokoh": [
+                    {"peran": "pemberi", "x": 650, "y": 1500, "s": .68},
+                    {"peran": "penerima", "x": 820, "y": 1500, "s": .68},
+                ]},
+            ]
+        }]
+    }
+    temuan = periksa_kontinuitas_panggung(rencana)
+    kode_temuan = {t.kode for t in temuan}
+    assert "TOKOH_BERTUMPUK" in kode_temuan
+    assert "POSISI_BERUBAH_ANTAR_SHOT" in kode_temuan
+
+
+def test_penjaga_tidak_menganggap_anggota_kelompok_satu_peran_bertumpuk():
+    from sutradara.rencana.pemeriksaan_umum import periksa_kontinuitas_panggung
+
+    rencana = {"beat": [{"shot": [{"tokoh": [
+        {"peran": "kaum", "x": 400, "y": 1500},
+        {"peran": "kaum", "x": 430, "y": 1500},
+        {"peran": "kaum", "x": 460, "y": 1500},
+    ]}]}]}
+    assert not periksa_kontinuitas_panggung(rencana)
+
+
+def test_penjaga_memahami_jadwal_putar_balik_dan_tetap_memeriksa_kaidah_180():
+    from sutradara.rencana.pemeriksaan_umum import periksa_lintasan_dan_interaksi
+
+    dasar = {
+        "peran": [{"id": "pengelana", "nama": "Pengelana"}],
+        "beat": [
+            {"shot": [{"tokoh": [{
+                "peran": "pengelana", "gerak": "lari", "tujuan": "tepi:kanan",
+                "arah": "samping", "balik": False,
+                "lintasan": [[0, 430, 1510], [3.8, 710, 1510]],
+            }]}]},
+            {"shot": [{"tokoh": [{
+                "peran": "pengelana", "gerak": "lari", "tujuan": "tepi:kanan",
+                "arah": [[0, "samping"], [1.2, "depan"], [2.5, "samping"]],
+                "balik": [[0, False], [2.5, True]], "berbalik_sesuai_cerita": True,
+                "lintasan": [[0, 710, 1510], [3.8, 430, 1510]],
+            }]}]},
+        ],
+    }
+    temuan = periksa_lintasan_dan_interaksi(dasar)
+    assert "ARAH_GERAK" not in {x.kode for x in temuan}
+    assert "ARAH_LAYAR_BERUBAH" not in {x.kode for x in temuan}
+
+    dasar["beat"][1]["shot"][0]["tokoh"][0].pop("berbalik_sesuai_cerita")
+    temuan = periksa_lintasan_dan_interaksi(dasar)
+    assert "ARAH_LAYAR_BERUBAH" in {x.kode for x in temuan}

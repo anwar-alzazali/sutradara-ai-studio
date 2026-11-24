@@ -209,11 +209,25 @@
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["pembicara", "ucapan"],
+              "required": [
+                "pembicara",
+                "ucapan"
+              ],
               "properties": {
-                "pembicara": {"type": "string", "minLength": 1},
-                "ucapan": {"type": "string", "minLength": 1},
-                "penjawab": {"type": ["string", "null"]}
+                "pembicara": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ucapan": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "penjawab": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
               }
             }
           },
@@ -340,21 +354,69 @@
                       },
                       "x": {},
                       "y": {},
-                      "s": {"type": "number", "exclusiveMinimum": 0},
+                      "s": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
                       "gerak": {},
-                      "pose": {"type": "string"},
+                      "pose": {
+                        "type": "string"
+                      },
                       "wajah": {},
                       "arah": {},
-                      "balik": {"type": "boolean"},
+                      "balik": {
+                        "description": "Orientasi kiri/kanan tetap atau jadwal keyframe saat tubuh berputar.",
+                        "oneOf": [
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "boolean"
+                                }
+                              ],
+                              "minItems": 2,
+                              "maxItems": 2
+                            }
+                          }
+                        ]
+                      },
                       "bicara": {
                         "type": "array",
-                        "items": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "minItems": 2,
+                          "maxItems": 2
+                        }
                       },
-                      "tujuan": {"type": "string", "minLength": 1},
-                      "di_tempat": {"type": "boolean"},
-                      "alasan_di_tempat": {"type": "string"},
-                      "berbalik_sesuai_cerita": {"type": "boolean"},
-                      "faktor_gerak": {"type": "number", "exclusiveMinimum": 0},
+                      "tujuan": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "di_tempat": {
+                        "type": "boolean"
+                      },
+                      "alasan_di_tempat": {
+                        "type": "string"
+                      },
+                      "berbalik_sesuai_cerita": {
+                        "type": "boolean"
+                      },
+                      "faktor_gerak": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                      },
                       "pemeran_id": {
                         "type": "string",
                         "description": "id kartu pemeran individual; stabil antar-shot"
@@ -477,6 +539,12 @@
                       }
                     }
                   }
+                },
+                "peristiwa_visual": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/peristiwa"
+                  }
                 }
               }
             }
@@ -496,6 +564,12 @@
               }
             ],
             "description": "id peran atau daftar id peran yang bersama-sama melakukan aksi pada visual inti di beat ini. Penjaga memeriksa semua pelaku dan tetap membandingkannya dengan tokoh non-pelaku."
+          },
+          "peristiwa": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/peristiwa"
+            }
           }
         }
       }
@@ -606,6 +680,74 @@
     "dibuat_otomatis": {
       "type": "boolean",
       "description": "Rencana dihasilkan oleh sutradara otomatis; penjaga menerapkan pemeriksaan tambahan lintasan dan interaksi."
+    }
+  },
+  "$defs": {
+    "peristiwa": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "aktor",
+        "aksi",
+        "sasaran",
+        "tujuan",
+        "perubahan_keadaan",
+        "bukti_narasi",
+        "keyakinan"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "aktor": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "aksi": {
+          "type": "string"
+        },
+        "sasaran": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tujuan": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Objek/lokasi yang menjadi tujuan perpindahan; berbeda dari sasaran yang dikenai aksi."
+        },
+        "perubahan_keadaan": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "objek",
+            "keadaan"
+          ],
+          "properties": {
+            "objek": {
+              "type": "string"
+            },
+            "keadaan": {
+              "type": "string"
+            }
+          }
+        },
+        "bukti_narasi": {
+          "type": "string"
+        },
+        "keyakinan": {
+          "type": "string"
+        }
+      }
     }
   }
 }

@@ -93,8 +93,9 @@ def periksa(rencana: dict, *, final: bool = False) -> list[Temuan]:
             raise TypeError(f"validator genre {paket.nama!r} harus mengembalikan list[Temuan]")
         hasil.extend(khusus)
     if rencana.get("dibuat_otomatis") is True:
-        from .pemeriksaan_umum import periksa_lintasan_dan_interaksi
+        from .pemeriksaan_umum import periksa_lintasan_dan_interaksi, periksa_kontinuitas_panggung
         hasil.extend(periksa_lintasan_dan_interaksi(rencana))
+        hasil.extend(periksa_kontinuitas_panggung(rencana))
     return hasil
 
 

@@ -75,3 +75,43 @@ def test_dialog_terstruktur_yang_tidak_memiliki_cakupan_diberi_periksa():
         "dialog": [{"pembicara": "a", "ucapan": "Jawab."}], "shot": [{"tokoh": []}]
     }]}
     assert "DIALOG_TANPA_LIPUTAN" in {t.kode for t in periksa_lintasan_dan_interaksi(rencana)}
+
+
+def test_perubahan_arah_menuju_tujuan_yang_sama_genera_periksa_180():
+    rencana = {
+        "peran": [{"id": "pelari", "nama": "Pelari"}],
+        "beat": [
+            {"shot": [{"tokoh": [{
+                "peran": "pelari", "gerak": "lari", "tujuan": "tepi:kanan",
+                "lintasan": [[0, 300, 1300], [2, 700, 1300]],
+                "arah": "samping", "balik": False,
+            }]}]},
+            {"shot": [{"tokoh": [{
+                "peran": "pelari", "gerak": "lari", "tujuan": "tepi:kanan",
+                "lintasan": [[0, 700, 1300], [2, 300, 1300]],
+                "arah": "samping", "balik": True,
+            }]}]},
+        ],
+    }
+    temuan = periksa_lintasan_dan_interaksi(rencana)
+    assert "ARAH_LAYAR_BERUBAH" in {t.kode for t in temuan}
+
+
+def test_putar_balik_yang_dinyatakan_narasi_dikecualikan_dari_periksa_180():
+    rencana = {
+        "peran": [{"id": "pelari", "nama": "Pelari"}],
+        "beat": [
+            {"shot": [{"tokoh": [{
+                "peran": "pelari", "gerak": "lari", "tujuan": "tepi:kanan",
+                "lintasan": [[0, 300, 1300], [2, 700, 1300]],
+                "arah": "samping", "balik": False,
+            }]}]},
+            {"shot": [{"tokoh": [{
+                "peran": "pelari", "gerak": "lari", "tujuan": "tepi:kanan",
+                "lintasan": [[0, 700, 1300], [2, 300, 1300]],
+                "arah": "samping", "balik": True, "berbalik_sesuai_cerita": True,
+            }]}]},
+        ],
+    }
+    temuan = periksa_lintasan_dan_interaksi(rencana)
+    assert "ARAH_LAYAR_BERUBAH" not in {t.kode for t in temuan}
