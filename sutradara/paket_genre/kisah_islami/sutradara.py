@@ -445,7 +445,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         peristiwa = analisis_peristiwa(teks, b.get("peran", []), i)
         aksi = aksi_utama(peristiwa)
         gerak = ({
-            "membangun": "palu", "menggali": "gali", "mengejek": "tertawa",
+            "membangun": "palu", "menggali": "gali", "bangkit": "berdiri", "mengejek": "tertawa",
             "tertawa": "tertawa", "jalan": "jalan", "lari": "lari",
             "menunjuk": "tunjuk", "menyerahkan": "ulurkan", "menerima": "ulurkan",
             "berdoa": "berdoa", "mendekat": "jalan", "menjauh": "jalan",
