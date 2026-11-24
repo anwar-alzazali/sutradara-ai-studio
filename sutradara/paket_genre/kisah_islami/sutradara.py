@@ -537,10 +537,26 @@ def rancang(naskah: dict) -> tuple[dict, float]:
                 # Perkembangan konstruksi bahtera dapat berlangsung di antara
                 # peristiwa dalam satu beat. Tahap dinding dan kota tetap
                 # mengikuti beat narasi; jumlah cut bukan bukti perubahan fisik.
-                progres_shot = (
-                    i + urutan_peristiwa / max(1, len(peristiwa) - 1)
-                    if inti == "bahtera" else i
-                )
+                if inti == "bahtera":
+                    # Hanya peristiwa yang benar-benar membangun bahtera
+                    # boleh memajukan konstruksi. Cut perjalanan/reaksi tidak
+                    # menjadi bukti bahwa benda telah selesai dibangun.
+                    indeks_bangun = [
+                        j for j, item in enumerate(peristiwa)
+                        if item.get("aksi") == "membangun"
+                        and item.get("sasaran") == "bahtera"
+                    ]
+                    jumlah_bangun = len(indeks_bangun)
+                    selesai_bangun = sum(
+                        1 for j in indeks_bangun if j <= urutan_peristiwa
+                    )
+                    progres_lokal = (
+                        (selesai_bangun - 1) / max(1, jumlah_bangun - 1)
+                        if selesai_bangun else 0.0
+                    )
+                    progres_shot = i + progres_lokal
+                else:
+                    progres_shot = i
                 _keadaan_shot, objek_shot = _keadaan(
                     inti, jalur, teks, progres_shot, len(naskah["beat"])
                 )
