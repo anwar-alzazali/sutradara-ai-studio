@@ -308,6 +308,18 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{warna_k}"/>')
         if not membelakangi:
             g.append(f'<ellipse cx="0" cy="2" rx="28" ry="31" fill="{kulit}"/>')
+    tutup = GELAP if siluet else aksen
+    if kepala == "imamah":
+        g += [f'<path d="M-37 -8 Q -40 -48 0 -52 Q 40 -48 37 -8 Q 0 -20 -37 -8Z" fill="{tutup}"/>',
+              f'<path d="M30 -14 Q 46 18 40 52" stroke="{tutup}" stroke-width="12" fill="none" stroke-linecap="round"/>']
+    elif kepala == "kain":
+        g += [f'<path d="M-40 2 Q -44 -52 0 -54 Q 44 -52 40 2 L 48 60 L 30 48 L 34 -2 Q 0 -22 -34 -2 L -30 48 L -48 60Z" fill="{tutup}"/>',
+              f'<path d="M-38 -24 Q 0 -38 38 -24" stroke="{rambut or RAMBUT}" stroke-width="6" fill="none"/>']
+    elif kepala == "kopiah":
+        g.append(f'<path d="M-30 -20 Q -30 -44 0 -44 Q 30 -44 30 -20Z" fill="{tutup}"/>')
+    elif kepala == "kerudung" and siluet:
+        g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{GELAP}"/>')
+
     if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
         if wajah_cahaya:
             # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
@@ -325,17 +337,6 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
             kedip = (t + indeks * 0.9) % 3.7 < 0.12
             g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
                         profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
-    tutup = GELAP if siluet else aksen
-    if kepala == "imamah":
-        g += [f'<path d="M-37 -8 Q -40 -48 0 -52 Q 40 -48 37 -8 Q 0 -20 -37 -8Z" fill="{tutup}"/>',
-              f'<path d="M30 -14 Q 46 18 40 52" stroke="{tutup}" stroke-width="12" fill="none" stroke-linecap="round"/>']
-    elif kepala == "kain":
-        g += [f'<path d="M-40 2 Q -44 -52 0 -54 Q 44 -52 40 2 L 48 60 L 30 48 L 34 -2 Q 0 -22 -34 -2 L -30 48 L -48 60Z" fill="{tutup}"/>',
-              f'<path d="M-38 -24 Q 0 -38 38 -24" stroke="{rambut or RAMBUT}" stroke-width="6" fill="none"/>']
-    elif kepala == "kopiah":
-        g.append(f'<path d="M-30 -20 Q -30 -44 0 -44 Q 30 -44 30 -20Z" fill="{tutup}"/>')
-    elif kepala == "kerudung" and siluet:
-        g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{GELAP}"/>')
     g.append("</g>")
     # lengan (digambar SETELAH kepala supaya tangan bisa menutup wajah/mulut/telinga)
     if barang and (siluet or alat):
