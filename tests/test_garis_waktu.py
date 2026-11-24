@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from sutradara import garis_waktu
+from sutradara import garis_waktu, genre
 
 
 def _paket_tiruan():
@@ -39,7 +39,7 @@ def _narasi():
 def _siapkan(monkeypatch):
     monkeypatch.setattr(garis_waktu, "_durasi_rancangan", lambda shot, dl: shot["durasi"])
     monkeypatch.setattr(garis_waktu, "_sisipan_waktu_baca", lambda shot, paket: False)
-    monkeypatch.setattr(garis_waktu, "dari_rencana", lambda rencana: _paket_tiruan(), raising=False)
+    monkeypatch.setattr(genre, "dari_rencana", lambda rencana: _paket_tiruan())
 
 
 def test_susun_menolak_jumlah_jangkar_eksplisit_yang_tidak_cocok(monkeypatch):
