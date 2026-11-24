@@ -16,7 +16,7 @@ def _normal(teks: str) -> str:
 
 # Urutan terpanjang lebih dulu agar "melarikan diri" tidak dipotong menjadi "lari".
 _AKSI = {
-    "melarikan diri": "lari", "berjalan": "jalan", "berlari": "lari", "lari": "lari",
+    "melarikan diri": "lari", "berjalan": "jalan", "berlari": "lari", "lari": "lari", "bangkit": "bangkit",
     "menjauh": "menjauh", "menjauhi": "menjauh", "mendekat": "mendekat",
     "mendekati": "mendekat", "menghampiri": "mendekat",
     "membangun": "membangun", "dibangun": "membangun", "membuat": "membangun",
@@ -24,7 +24,7 @@ _AKSI = {
     "mengejek": "mengejek", "mengolok": "mengejek", "tertawa": "tertawa",
     "berdoa": "berdoa", "memohon": "berdoa", "menyerahkan": "menyerahkan",
     "memberikan": "menyerahkan", "mengulurkan": "menyerahkan", "menerima": "menerima",
-    "berkumpul": "berkumpul", "berhimpun": "berkumpul", "terkumpul": "berkumpul", "berkeringat": "berkeringat", "tenggelam": "tenggelam",
+    "berkumpul": "berkumpul", "berhimpun": "berkumpul", "terkumpul": "berkumpul", "berkeringat": "berkeringat", "tenggelam": "tenggelam", "seluruh manusia": "berkumpul",
     "terbelah": "terbelah", "membelah": "terbelah", "retak": "retak", "terpecah": "retak",
     "runtuh": "runtuh", "roboh": "runtuh", "hancur": "runtuh",
     "terbuka": "terbuka", "membuka": "terbuka", "terangkat": "terangkat",
@@ -40,7 +40,7 @@ _OBJEK = {
     "dinding": ("dinding", "dinding"), "bumi": ("bumi", "bumi"),
     "tanah": ("bumi", "bumi"), "matahari": ("matahari", "matahari"),
     "manusia": ("kerumunan", "kerumunan"), "kerumunan": ("kerumunan", "kerumunan"),
-    "keringat": ("keringat", "keringat"), "danau": ("danau", "danau"),
+    "keringat": ("keringat", "keringat"), "keringatnya": ("keringat", "keringat"), "danau": ("danau", "danau"),
     "sungai": ("sungai", "sungai"), "pintu": ("pintu", "pintu"),
     "langit": ("langit", "langit"), "gunung": ("gunung", "gunung"),
     "air": ("air", "air"), "api": ("api", "api"),
