@@ -337,40 +337,6 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{warna_k}"/>')
         if not membelakangi:
             g.append(f'<ellipse cx="0" cy="2" rx="28" ry="31" fill="{kulit}"/>')
-    if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
-        if wajah_cahaya:
-            # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
-            lebar_wajah = 22 if profil else 32
-            g.append(f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah}" ry="34" fill="#fff8df" opacity=".96"/>'
-                     f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah + 7}" ry="39" fill="#fff0bd" opacity=".36" filter="url(#b10)"/>')
-        else:
-            jw = G.nilai_jadwal(wajah, t, "datar")
-            if jw not in WAJAH:
-                raise ValueError(f"wajah tak dikenal: {jw} (pilihan: {', '.join(WAJAH)})")
-            bc = 0.0
-            for a, b in (bicara or []):
-                if a <= t <= b:
-                    bc = 0.5 + 0.5 * math.sin(t * 15)
-            kedip = (t + indeks * 0.9) % 3.7 < 0.12
-            g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
-                        profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
-    if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
-        if wajah_cahaya:
-            # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
-            lebar_wajah = 22 if profil else 32
-            g.append(f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah}" ry="34" fill="#fff8df" opacity=".96"/>'
-                     f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah + 7}" ry="39" fill="#fff0bd" opacity=".36" filter="url(#b10)"/>')
-        else:
-            jw = G.nilai_jadwal(wajah, t, "datar")
-            if jw not in WAJAH:
-                raise ValueError(f"wajah tak dikenal: {jw} (pilihan: {', '.join(WAJAH)})")
-            bc = 0.0
-            for a, b in (bicara or []):
-                if a <= t <= b:
-                    bc = 0.5 + 0.5 * math.sin(t * 15)
-            kedip = (t + indeks * 0.9) % 3.7 < 0.12
-            g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
-                        profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
     tutup = GELAP if siluet else aksen
     if kepala == "imamah":
         g += [f'<path d="M-37 -8 Q -40 -48 0 -52 Q 40 -48 37 -8 Q 0 -20 -37 -8Z" fill="{tutup}"/>',
@@ -382,6 +348,40 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         g.append(f'<path d="M-30 -20 Q -30 -44 0 -44 Q 30 -44 30 -20Z" fill="{tutup}"/>')
     elif kepala == "kerudung" and siluet:
         g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{GELAP}"/>')
+    if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
+        if wajah_cahaya:
+            # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
+            lebar_wajah = 22 if profil else 32
+            g.append(f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah}" ry="34" fill="#fff8df" opacity=".96"/>'
+                     f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah + 7}" ry="39" fill="#fff0bd" opacity=".36" filter="url(#b10)"/>')
+        else:
+            jw = G.nilai_jadwal(wajah, t, "datar")
+            if jw not in WAJAH:
+                raise ValueError(f"wajah tak dikenal: {jw} (pilihan: {', '.join(WAJAH)})")
+            bc = 0.0
+            for a, b in (bicara or []):
+                if a <= t <= b:
+                    bc = 0.5 + 0.5 * math.sin(t * 15)
+            kedip = (t + indeks * 0.9) % 3.7 < 0.12
+            g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
+                        profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
+    if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
+        if wajah_cahaya:
+            # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
+            lebar_wajah = 22 if profil else 32
+            g.append(f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah}" ry="34" fill="#fff8df" opacity=".96"/>'
+                     f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah + 7}" ry="39" fill="#fff0bd" opacity=".36" filter="url(#b10)"/>')
+        else:
+            jw = G.nilai_jadwal(wajah, t, "datar")
+            if jw not in WAJAH:
+                raise ValueError(f"wajah tak dikenal: {jw} (pilihan: {', '.join(WAJAH)})")
+            bc = 0.0
+            for a, b in (bicara or []):
+                if a <= t <= b:
+                    bc = 0.5 + 0.5 * math.sin(t * 15)
+            kedip = (t + indeks * 0.9) % 3.7 < 0.12
+            g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
+                        profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
     g.append("</g>")
     # lengan (digambar SETELAH kepala supaya tangan bisa menutup wajah/mulut/telinga)
     if barang and (siluet or alat):
