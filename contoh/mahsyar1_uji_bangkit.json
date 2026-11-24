@@ -1,21 +1,29 @@
 {
   "judul": "Mahsyar 1 — Uji adegan kebangkitan",
-  "catatan": "DRAF UJI VISUAL. Adegan kebangkitan merujuk QS Yasin 36:51 dan HR. Muslim 2859a. Retakan tanah adalah visualisasi sinematik keluarnya manusia dari kubur, bukan rincian tekstual tambahan dari dalil. Tidak memakai avatar penonton; tokoh manusia generik ditampilkan dari belakang/sudut yang tidak memperlihatkan wajah jelas. Pertahankan gaya ilustrasi 2D sinematik video referensi. Audio dan timing TTS akan dipasangkan setelah aset audio dipindahkan dan jalur render diuji.",
+  "catatan": "DRAF UJI VISUAL. Adegan kebangkitan merujuk QS Yasin 36:51 dan HR. Muslim 2859a. Retakan tanah adalah visualisasi sinematik keluarnya manusia dari kubur, bukan rincian tekstual tambahan dari dalil. Tidak memakai avatar penonton; tokoh manusia generik ditampilkan dari belakang/sudut yang tidak memperlihatkan wajah jelas. Pertahankan gaya ilustrasi 2D sinematik video referensi. Audio dan timing TTS akan dipasangkan setelah aset audio dipindahkan dan jalur render diuji. Untuk adegan kebangkitan, figur ditampilkan sebagai siluet jauh agar tidak menggambarkan pakaian atau detail tubuh; beberapa tokoh pada adegan lain tetap boleh mengikuti desain karakter 2D video referensi.",
   "visual_inti": {
     "benda": "permukaan tanah Padang Mahsyar yang terbelah",
-    "jalur_keadaan": ["gelap dan utuh", "retak terbuka", "manusia bangkit"]
+    "jalur_keadaan": [
+      "gelap dan utuh",
+      "retak terbuka",
+      "manusia bangkit"
+    ]
   },
   "peran": [
     {
       "id": "manusia_bangkit",
       "nama": "Manusia yang dibangkitkan",
       "kategori": "manusia",
-      "tampil": "pakaian"
+      "tampil": "siluet",
+      "alasan_siluet": "wajah_disembunyikan"
     }
   ],
   "hook": {
     "dari_beat": 0,
-    "teks": ["TANAH TERBELAH", "MANUSIA BANGKIT"]
+    "teks": [
+      "TANAH TERBELAH",
+      "MANUSIA BANGKIT"
+    ]
   },
   "dalil": [
     {
@@ -53,7 +61,9 @@
       "narasi": "Bayangkan… kamu membuka mata. Gelap. Tanah di atasmu terbelah. Kamu bangkit, tanpa alas kaki.",
       "preset": "malam",
       "keadaan": "manusia bangkit",
-      "peran_tampil": ["manusia_bangkit"],
+      "peran_tampil": [
+        "manusia_bangkit"
+      ],
       "pelaku": "manusia_bangkit",
       "shot": [
         {
@@ -72,14 +82,26 @@
               "zaman": "umum",
               "mode": "pakaian",
               "arah": "belakang",
-              "gerak": [[0, "duduk"], [2.8, "berdiri"]],
+              "gerak": [
+                [
+                  0,
+                  "duduk"
+                ],
+                [
+                  2.8,
+                  "berdiri"
+                ]
+              ],
               "wajah": "datar",
               "warna_baju": "#5a5048",
               "kepala": "tanpa"
             }
           ],
           "teks": {
-            "judul": ["TANAH", "TERBELAH"],
+            "judul": [
+              "TANAH",
+              "TERBELAH"
+            ],
             "warna": "putih",
             "subtitle": "Bayangkan… kamu membuka mata. Gelap.",
             "sorot": "Gelap",
@@ -88,10 +110,33 @@
           },
           "durasi": 6.5,
           "kamera": {
-            "zoom": [[0, 1.12], [6.5, 1.38]],
+            "zoom": [
+              [
+                0,
+                1.12
+              ],
+              [
+                6.5,
+                1.38
+              ]
+            ],
             "x": 540,
-            "y": [[0, 1370], [6.5, 1510]],
-            "guncang": [[2.1, 7]]
+            "y": [
+              [
+                0,
+                1370
+              ],
+              [
+                6.5,
+                1510
+              ]
+            ],
+            "guncang": [
+              [
+                2.1,
+                7
+              ]
+            ]
           }
         }
       ]
