@@ -524,7 +524,7 @@ def test_parser_mengenali_pembangunan_dan_penyelesaian_bahtera():
         _reduksi_keadaan_benda(status, "bahtera", peristiwa[0])
 
     snapshot = _keadaan("bahtera", [], "Beat tanpa perubahan.", 0, 1, status)
-    assert snapshot[0] == "selamat"
+    assert snapshot[0] == "jadi"
     assert snapshot[1]["jadi"] == 1.0
 
 
@@ -553,3 +553,12 @@ def test_parser_mengenali_runtuhnya_kota_sebagai_perubahan_eksplisit():
     _reduksi_keadaan_benda(status, "kota_kuno", peristiwa[0])
     snapshot = _keadaan("kota_kuno", [], "Angin datang.", 0, 1, status)
     assert snapshot[1]["runtuh"] == .7
+
+
+def test_badai_tidak_menyelesaikan_bahtera_tanpa_peristiwa_pembangunan():
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan
+
+    keadaan, objek = _keadaan("bahtera", [], "Badai dan gelombang datang.", 0, 1, {})
+    assert keadaan == "badai"
+    assert objek["jadi"] == .18
+    assert objek["darat"] is False
