@@ -556,7 +556,7 @@ def test_keadaan_benda_berkembang_per_peristiwa_dalam_satu_beat():
 
 
 
-def test_hanya_pembangunan_bahtera_yang_memajukan_progres_bahtera():
+def test_pembangunan_dinding_tidak_dihitung_sebagai_progres_bahtera():
     naskah = {
         "judul": "Dinding dan bahtera",
         "inti": "Penjaga membangun dinding lalu Pengelana membangun bahtera.",
@@ -572,7 +572,9 @@ def test_hanya_pembangunan_bahtera_yang_memajukan_progres_bahtera():
     assert [item["peristiwa_visual"][0]["sasaran"] for item in shot] == [
         "dinding", "bahtera",
     ]
-    assert [item["benda"][0]["jadi"] for item in shot] == [0.18, 1.0]
+    # Pembangunan dinding bukan bukti progres bahtera. Satu peristiwa
+    # pembangunan bahtera juga belum cukup untuk menyatakan konstruksi selesai.
+    assert [item["benda"][0]["jadi"] for item in shot] == [0.18, 0.18]
 
 def test_progres_keadaan_benda_tidak_melampaui_batas_pada_beat_terakhir():
     naskah = {
