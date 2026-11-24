@@ -10,7 +10,9 @@ import unicodedata
 
 
 def _normal(teks: str) -> str:
-    teks = unicodedata.normalize("NFKD", str(teks).lower())
+    # Ellipsis sering menjadi jeda retoris, bukan batas klausa; NFKD dapat
+    # mengubahnya menjadi tiga titik yang keliru memisahkan objek dari verba.
+    teks = unicodedata.normalize("NFKD", str(teks).replace("…", " ").lower())
     return "".join(c for c in teks if not unicodedata.combining(c))
 
 
