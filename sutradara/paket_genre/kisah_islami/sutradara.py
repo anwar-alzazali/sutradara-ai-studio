@@ -129,26 +129,68 @@ def _resep_untuk(teks: str) -> dict:
         "id": "adegan_umum", "suasana": "senja", "gerak": "berdiri", "wajah": "datar", "fokus": "visual_inti"}
 
 
-def _keadaan(inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int) -> tuple[str, dict]:
+def _keadaan(inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int,
+             progres_dinding: float | None = None,
+             progres_bahtera: float | None = None) -> tuple[str, dict]:
     polos = _polos(teks)
-    p = indeks / max(1, jumlah - 1)
+    # Progres lokal boleh pecahan untuk beberapa peristiwa dalam satu beat,
+    # tetapi tidak boleh melampaui rentang keadaan 0..1 pada beat terakhir.
+    p = max(0.0, min(1.0, indeks / max(1, jumlah - 1)))
     if inti == "padang":
         return "lapang", {}
     if inti == "bahtera":
         if any(k in polos for k in ("banjir", "badai", "gelombang")):
             return "badai", {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78, "jadi": 1.0,
                               "goyang": .65, "cahaya": .15, "darat": False}
-        state = "rangka" if p < .34 else ("dibangun" if p < .72 else "selamat")
+        jadi = max(.18, min(1.0, progres_bahtera if progres_bahtera is not None else .18 + .82*p))
+        state = "rangka" if jadi < .34 else ("dibangun" if jadi < .72 else "selamat")
         return state, {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78,
-                       "jadi": .18 + .82*p, "goyang": 0, "cahaya": .25 + .45*p, "darat": True}
+                       "jadi": jadi, "goyang": 0, "cahaya": .25 + .45*jadi, "darat": True}
     if inti == "dinding_yajuj":
-        lubang = min(1.0, p)
-        state = jalur[min(len(jalur)-1, round(p*(len(jalur)-1)))]
+        # Jumlah cut atau beat tidak membuktikan dinding terkikis. Keadaan
+        # fisik hanya berubah dari peristiwa penggalian/pembukaan yang eksplisit.
+        lubang = max(0.0, min(1.0, progres_dinding or 0.0))
+        state = "terbuka" if lubang >= 1.0 else (
+            "hampir_terbuka" if lubang >= .72 else (
+                "dilubangi" if lubang > 0.0 else "utuh"
+            )
+        )
         return state, {"jenis": "dinding_yajuj", "x": 540, "y": 1120, "s": 1.0, "lubang": lubang}
     if any(k in polos for k in ("angin", "badai", "azab")):
         return "angin", {"jenis": "kota_kuno", "x": 540, "y": 1300, "s": .72, "runtuh": min(.7, .18+p*.55)}
     return jalur[min(len(jalur)-1, round(p*(len(jalur)-1)))], {
         "jenis": "kota_kuno", "x": 540, "y": 1300, "s": .72, "runtuh": 0.0}
+
+
+def _reduksi_progres_benda(
+    status: dict[str, dict], jenis: str, peristiwa: dict, jumlah_total: int,
+) -> float:
+    """Reducer progres benda berbasis peristiwa; hasilnya menetap lintas beat/shot."""
+    aksi = peristiwa.get("aksi")
+    sasaran = peristiwa.get("sasaran")
+    if jenis == "bahtera":
+        data = status.setdefault(jenis, {"selesai": 0})
+        if sasaran == "bahtera" and aksi == "membangun":
+            data["selesai"] += 1
+        selesai = data["selesai"]
+        if selesai <= 0 or jumlah_total <= 1:
+            return .18
+        return max(.18, min(1.0, .18 + .82 * (selesai - 1) / (jumlah_total - 1)))
+    if jenis == "dinding":
+        data = status.setdefault(jenis, {"selesai": 0, "terbuka": False})
+        if sasaran == "dinding" and aksi in {"menggali", "terbuka"}:
+            data["selesai"] += 1
+        if sasaran == "dinding" and aksi == "terbuka":
+            data["terbuka"] = True
+        if data["terbuka"]:
+            return 1.0
+        selesai = data["selesai"]
+        if selesai <= 0:
+            return 0.0
+        if jumlah_total <= 1:
+            return .18
+        return max(.18, min(1.0, .18 + .82 * (selesai - 1) / (jumlah_total - 1)))
+    raise ValueError(f"jenis reducer benda tidak dikenal: {jenis}")
 
 
 def _preset(beat: dict, resep: dict, teks: str) -> str:
@@ -462,8 +504,20 @@ def rancang(naskah: dict) -> tuple[dict, float]:
     label = {d["id"]:d["label"] for d in dalil}
     beat_hasil=[]
     hooks=[]
-    # Arah layar disimpan per identitas pemeran sepanjang urutan beat.
+    # Arah layar dan progres benda disimpan sepanjang urutan beat.
     arah_terakhir: dict[str, int] = {}
+    jumlah_peristiwa_benda = {"bahtera": 0, "dinding": 0}
+    if inti in {"bahtera", "dinding_yajuj"}:
+        for indeks, beat_data in enumerate(naskah["beat"]):
+            for item in analisis_peristiwa(
+                beat_data.get("narasi", ""), beat_data.get("peran", []), indeks
+            ):
+                if item.get("sasaran") == "bahtera" and item.get("aksi") == "membangun":
+                    jumlah_peristiwa_benda["bahtera"] += 1
+                if item.get("sasaran") == "dinding" and item.get("aksi") in {"menggali", "terbuka"}:
+                    jumlah_peristiwa_benda["dinding"] += 1
+    status_benda: dict[str, dict] = {}
+    dinding_sudah_terbuka = False
     for i, b in enumerate(naskah["beat"]):
         teks = b["narasi"]
         resep = _resep_untuk(teks)
@@ -499,7 +553,17 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         if dialog:
             # Dialog tetap memakai reverse-shot yang sudah ada.
             cuts=[]
-        keadaan,_obj=_keadaan(inti,jalur,teks,i,len(naskah["beat"]))
+        keadaan,_obj=_keadaan(
+            inti, jalur, teks, i, len(naskah["beat"]),
+            progres_dinding=(
+                _reduksi_progres_benda(status_benda, "dinding", {}, jumlah_peristiwa_benda["dinding"])
+                if inti == "dinding_yajuj" else None
+            ),
+            progres_bahtera=(
+                _reduksi_progres_benda(status_benda, "bahtera", {}, jumlah_peristiwa_benda["bahtera"])
+                if inti == "bahtera" else None
+            ),
+        )
         jdl=_JUDUL.get(keadaan, " ".join((cuts or b.get("kata_kunci",[]) or [keadaan])[:2]).upper())
         judul=[w for w in re.sub(r"[^A-Z0-9' ]"," ",jdl.upper()).split()[:3]]
         nama_pelaku = {
@@ -529,7 +593,31 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         elif peristiwa:
             # Setiap peristiwa menjadi unit keputusan shot. Peristiwa tanpa
             # aktor eksplisit tidak menggerakkan tokoh yang sekadar hadir.
-            for peristiwa_i in peristiwa:
+            for urutan_peristiwa, peristiwa_i in enumerate(peristiwa):
+                # Keadaan benda mengikuti urutan shot dalam beat, bukan satu
+                # snapshot yang sama untuk seluruh peristiwa pada beat tersebut.
+                # Perkembangan konstruksi bahtera dapat berlangsung di antara
+                # peristiwa dalam satu beat. Tahap dinding dan kota tetap
+                # mengikuti beat narasi; jumlah cut bukan bukti perubahan fisik.
+                progres_dinding = None
+                progres_bahtera = None
+                if inti == "dinding_yajuj":
+                    progres_dinding = _reduksi_progres_benda(
+                        status_benda, "dinding", peristiwa_i,
+                        jumlah_peristiwa_benda["dinding"],
+                    )
+                if inti == "bahtera":
+                    # Cut perjalanan/reaksi tidak memajukan konstruksi;
+                    # hanya event membangun bahtera yang mengubah snapshot.
+                    progres_bahtera = _reduksi_progres_benda(
+                        status_benda, "bahtera", peristiwa_i,
+                        jumlah_peristiwa_benda["bahtera"],
+                    )
+                _keadaan_shot, objek_shot = _keadaan(
+                    inti, jalur, teks, i, len(naskah["beat"]),
+                    progres_dinding=progres_dinding,
+                    progres_bahtera=progres_bahtera,
+                )
                 aktor_i = [
                     nama_ke_id[nama] for nama in peristiwa_i.get("aktor", [])
                     if nama in nama_ke_id
@@ -542,7 +630,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
                 eksplisit = -1 if "ke kiri" in tindakan else 1 if "ke kanan" in tindakan else None
                 arah_memori = eksplisit if eksplisit is not None else arah_terakhir.get(fokus_i)
                 shot_baru = _shot(
-                    inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep_i,
+                    inti,objek_shot,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep_i,
                     fokus=fokus_i,pelaku=aktor_i or None,
                     interaksi=interaksi if len(peristiwa) == 1 else None,
                     perjalanan=perjalanan_i,
@@ -587,6 +675,30 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         # Setiap shot hanya membawa peristiwa yang mendasari keputusan visualnya.
         for shot_jadi, peristiwa_shot in zip(shots, peristiwa_per_shot):
             shot_jadi["peristiwa_visual"] = peristiwa_shot
+        if inti in {"dinding_yajuj", "bahtera"} and shots:
+            # Ringkasan keadaan beat harus mencerminkan snapshot akhir shot,
+            # bukan keadaan awal sebelum peristiwa beat ini direduksi.
+            benda_akhir = shots[-1].get("benda", [])
+            jenis_akhir = "dinding_yajuj" if inti == "dinding_yajuj" else "bahtera"
+            benda_utama = next(
+                (item for item in benda_akhir if item.get("jenis") == jenis_akhir),
+                None,
+            )
+            if benda_utama is not None:
+                if inti == "dinding_yajuj":
+                    lubang_akhir = float(benda_utama.get("lubang", 0.0))
+                    keadaan = "terbuka" if lubang_akhir >= 1.0 else (
+                        "hampir_terbuka" if lubang_akhir >= .72 else (
+                            "dilubangi" if lubang_akhir > 0.0 else "utuh"
+                        )
+                    )
+                elif not benda_utama.get("darat", True):
+                    keadaan = "badai"
+                else:
+                    jadi_akhir = float(benda_utama.get("jadi", .18))
+                    keadaan = "rangka" if jadi_akhir < .34 else (
+                        "dibangun" if jadi_akhir < .72 else "selamat"
+                    )
         beat_rencana={"narasi":teks,"preset":preset,"keadaan":keadaan,"potong_di":cuts,
                       "dalil":refs,"peran_tampil":hadir,"shot":shots,
                       "resep":resep["id"],"dialog":dialog,
