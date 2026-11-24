@@ -534,7 +534,13 @@ def rancang(naskah: dict) -> tuple[dict, float]:
             for urutan_peristiwa, peristiwa_i in enumerate(peristiwa):
                 # Keadaan benda mengikuti urutan shot dalam beat, bukan satu
                 # snapshot yang sama untuk seluruh peristiwa pada beat tersebut.
-                progres_shot = i + urutan_peristiwa / max(1, len(peristiwa) - 1)
+                # Perkembangan konstruksi bahtera dapat berlangsung di antara
+                # peristiwa dalam satu beat. Tahap dinding dan kota tetap
+                # mengikuti beat narasi; jumlah cut bukan bukti perubahan fisik.
+                progres_shot = (
+                    i + urutan_peristiwa / max(1, len(peristiwa) - 1)
+                    if inti == "bahtera" else i
+                )
                 _keadaan_shot, objek_shot = _keadaan(
                     inti, jalur, teks, progres_shot, len(naskah["beat"])
                 )
