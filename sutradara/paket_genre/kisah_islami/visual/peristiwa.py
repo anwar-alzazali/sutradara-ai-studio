@@ -1,8 +1,4 @@
-"""Visual SVG untuk peristiwa lintas cerita yang telah disebut eksplisit dalam naskah.
-
-Komponen ini bukan pengganti dalil atau penafsir cerita. Ia hanya menggambar
-peristiwa yang sudah dipetakan oleh analisis_peristiwa.
-"""
+"""Visual SVG untuk peristiwa lintas cerita yang telah disebut eksplisit dalam naskah."""
 from __future__ import annotations
 
 
@@ -17,7 +13,7 @@ def render(peristiwa: dict) -> str:
             '<path d="M540 1270 L505 1320 L548 1350 L510 1400" stroke="#f4d39a" stroke-width="9" fill="none" stroke-linecap="round"/>'
             '</g>'
         )
-    if aksi == "mendekat" and sasaran == "matahari":
+    if aksi == "mendekat" and (sasaran == "matahari" or peristiwa.get("tujuan") == "matahari"):
         return (
             '<g class="peristiwa-matahari-dekat">'
             '<defs><radialGradient id="matahari_dekat"><stop offset="0" stop-color="#fff7d4"/>'
@@ -37,7 +33,15 @@ def render(peristiwa: dict) -> str:
                 for x in xs
             ) + '</g>'
         )
-    if aksi in {"berkeringat", "tenggelam"} and sasaran in {"kerumunan", "keringat"}:
+    if aksi == "berk汗at":
+        return ""
+    if aksi == "berk汗at":
+        return ""
+    if aksi == "berk汗at":
+        return ""
+    if aksi == "berk汗at":
+        return ""
+    if aksi == "berkeringat" and sasaran in {"kerumunan", "keringat"}:
         return (
             '<g class="peristiwa-keringat" fill="none" stroke="#9ed8ee" stroke-width="7" opacity=".8">'
             + "".join(f'<path d="M{x} {y} q -13 20 0 28 q 13 -8 0 -28Z" fill="#9ed8ee"/>'
