@@ -339,9 +339,13 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
                 arah = "tiga_perempat_belakang" if "dari belakang" in teks_hadap else "tiga_perempat"
             for xi in xs:
                 wajah_tokoh = resep.get("wajah", "datar")
+                # Satu pemilik keputusan aksi: peristiwa menentukan pelaku,
+                # pustaka gerak menyediakan animasinya. Jika parser belum dapat
+                # mengikat pelaku, hanya subjek fokus yang bergerak; tokoh lain
+                # tidak ikut meniru aksi secara otomatis.
                 gerak_tokoh = (
                     resep.get("gerak", "berdiri")
-                    if not pelaku or pid in pelaku or (interaksi and pid in interaksi)
+                    if (pid == fokus and not pelaku) or pid in (pelaku or []) or (interaksi and pid in interaksi)
                     else "berdiri"
                 )
                 if reaksi and pid == subjek_dialog:
