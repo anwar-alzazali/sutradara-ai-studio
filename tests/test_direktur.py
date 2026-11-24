@@ -693,3 +693,4 @@ def test_progres_penggalian_dinding_berlanjut_antar_beat():
     hasil = rancang(naskah)["beat"]
     assert hasil[0]["shot"][0]["benda"][0]["lubang"] == 0.18
     assert hasil[1]["shot"][0]["benda"][0]["lubang"] == 1.0
+    assert [beat["keadaan"] for beat in hasil] == ["dilubangi", "terbuka"]
