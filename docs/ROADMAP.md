@@ -171,6 +171,46 @@ dan batas cakupan D1 tercatat di deskripsi PR; penilaian layak tayang tetap kepu
 
 **Catatan PERIKSA yang tetap terbuka:** hook kronologis dan kesinambungan `surat_amanah` pada contoh B2; derajat hadis Tirmidzi 3153 diperselisihkan; beberapa shot dialog/reaksi memakai komposisi close-up mirip. Jangan ubah tingkat temuan tanpa alasan/bukti. D2 tetap belum selesai sampai pemilik meninjau gerak kontinu dan komposisi video; D3 tidak termasuk PR ini.
 
+### Arah hasil akhir dan urutan kerja berikutnya (keputusan pemilik, 24 Nov 2026)
+
+Target bukan sekadar membuat beberapa adegan contoh terlihat bagus. Targetnya adalah satu alur otomatis yang dapat
+menerjemahkan naskah berbeda menjadi peristiwa, keputusan visual, kesinambungan adegan, lalu MP4 yang layak ditinjau.
+
+**Urutan kerja setelah D2, tanpa membuat sistem paralel:**
+1. Audit peta kepemilikan fitur pada kode dan cabang kerja: kemampuan, modul pemilik, antarmuka, pemanggil, dan tes pembukti.
+   Cocokkan juga dengan implementasi yang sudah ada di `mesin-video`; ambil konsep yang terbukti, bukan arsitektur kedua.
+2. Selesaikan satu jalur event-to-visual deterministik: bukti frasa naskah → peristiwa terstruktur → keputusan visual → shot.
+   Perluas parser/perencana peristiwa yang sudah ada; jangan membuat parser atau skema peristiwa kedua.
+3. Lengkapi state benda dan lingkungan yang berubah hanya ketika peristiwa menyatakannya. Satu pemilik state harus
+   mengendalikan nilai awal, transisi, dan kesinambungan lintas shot; jangan menambah state manager kedua.
+4. Hubungkan peristiwa ke komponen SVG yang sudah dimiliki renderer. Jika belum ada komponen yang cocok, catat
+   kebutuhan dan buat komponen yang dapat dipakai ulang di registri/pemilik visual yang sama; jangan menaruh SVG
+   duplikat di parser, sutradara, dan renderer.
+5. Uji dengan Nuh, Hud, dan Mahsyar 1 tanpa koordinat/shot manual. Bandingkan keputusan visual dengan narasi sumber,
+   lalu nilai kualitas pencahayaan, kedalaman, komposisi, skala, dan gerak. Ambil teknik visual yang berhasil dari
+   contoh Nuh/Ya'juj sebagai prinsip yang dapat dipakai lintas cerita, bukan menyalin resep lengkapnya.
+6. Setelah jalur otomatis lintas cerita terbukti, lanjutkan pustaka resep (D3), lalu pemeriksa/kritikus (E), dan
+   otomatisasi MP4 end-to-end (F). Model AI tetap opsional dan tidak menjadi syarat jalur utama.
+
+**Peta pemilik fitur yang harus dipertahankan (perlu diverifikasi terhadap HEAD sebelum mengubah kode):**
+
+| Kemampuan | Pemilik yang sudah ada | Aturan perubahan |
+|---|---|---|
+| Format masukan antrean | `sutradara/antrean.py` | Perluas format ini; jangan membuat format naskah kedua |
+| Kontrak genre | `sutradara/genre.py` | Semua mekanisme lintas genre tetap di inti |
+| Perencanaan Kisah Islami | `sutradara/paket_genre/kisah_islami/sutradara.py` | Satu pengarah genre; jangan membuat sutradara alternatif |
+| Ekstraksi peristiwa | `paket_genre/kisah_islami/peristiwa.py` (PR #48, belum di main) | Perluas pemilik ini; jangan membuat parser kedua |
+| Skema dan penjaga rencana | `sutradara/rencana/` + ekstensi paket | Tambah field melalui skema resmi dan tes penjaga |
+| Komposisi shot | `sutradara/adegan.py` | Mekanisme komposisi generik tetap di sini |
+| Rig tokoh dan gerak | `sutradara/gaya/tokoh.py`, `sutradara/gerak.py` | Jangan gambar ulang rangka/gerak di paket genre |
+| Kamera dan waktu | `sutradara/kamera.py`, `sutradara/waktu.py`, `sutradara/garis_waktu.py` | Perluas API yang ada; hindari sistem keyframe/timeline kedua |
+| Renderer dan komponen visual | `paket_genre/kisah_islami/renderer.py`, `visual/` | SVG berada pada pemilik renderer/komponen, bukan parser |
+| Audio | `sutradara/suara/` | Gunakan satu jalur narasi, sinkronisasi, dan pencampuran |
+
+PR #48 tetap terbuka dan tidak di-merge sampai keputusan pemilik berikutnya. Temuan render satu mata yang terlihat
+pada tokoh dicatat sebagai cacat visual yang perlu ditelusuri di pemilik rig/wajah dan diuji pada tampak depan,
+tiga-perempat, serta samping; jangan membuat modul mata baru sebelum penyebab di renderer wajah ditemukan.
+
 ### ○ Fase 5 — Periksa & kritikus
 1. Periksa teknis (salin `mesin-video/periksa.py`): resolusi, durasi, audio hilang, clipping, layar kosong, teks terpotong.
 2. Lembar kontak otomatis (16 bingkai) + kritik terhadap resep: visual inti tidak berubah, shot terlalu mirip berturut-turut,
