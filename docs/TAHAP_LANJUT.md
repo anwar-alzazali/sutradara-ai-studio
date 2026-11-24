@@ -244,6 +244,14 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
    - Penjaga: GAGAL bila `jalan`/`lari` tidak punya lintasan atau tujuan, kecuali ditandai `di_tempat` dengan
      alasan (mis. kamera ikut bergerak). PERIKSA bila arah hadap berlawanan dengan arah gerak, atau arah layar
      berganti antar-shot menuju tujuan yang sama.
+**3e. [D2 — tambahan atas keputusan pemilik, 24 Nov 2026] Pemahaman peristiwa dan keputusan visual dari naskah.**
+- Sutradara tidak boleh hanya memilih resep berdasarkan kata kunci atau menyalin komposisi contoh Nuh. Setiap beat harus diurai menjadi peristiwa terstruktur: pelaku, aksi, sasaran/objek, lokasi atau arah, perubahan keadaan yang benar-benar disebut, serta hubungan urutan/sebab-akibat bila dinyatakan naskah.
+- Dari peristiwa itu, sutradara memilih apa yang harus terlihat: siapa yang tampil, apa yang dilakukan, benda/lingkungan mana yang berubah, pose/ekspresi, blocking, arah hadap, ukuran shot, kamera, dan gerak. Keputusan harus merujuk bagian narasi pemicunya; jangan menambah aksi, benda, atau akibat yang tidak didukung naskah/dalil.
+- Keadaan visual harus digerakkan oleh peristiwa, bukan persentase indeks beat. Contoh: benda baru berubah menjadi rusak setelah beat menyebut kerusakan; perjalanan baru berakhir saat tujuan naratif tercapai. Keadaan harus berlanjut konsisten ke shot/beat berikutnya.
+- Jalur dasar wajib deterministik dan berjalan tanpa model AI, tanpa koordinat/shot yang ditulis tangan, serta tidak boleh bergantung pada frasa khusus cerita Nuh/Ya'juj. Model opsional D3 tidak boleh menjadi syarat untuk menghasilkan rencana.
+- Jika pelaku, sasaran, atau perubahan keadaan tidak dapat dipastikan dari naskah terstruktur dan aturan, jangan mengarang. Pertahankan visual aman yang tidak menyatakan fakta baru dan tandai PERIKSA dengan alasan yang jelas.
+- Bukti D2 tambahan: uji naskah dari kisah yang berbeda dengan Nuh/Ya'juj dan periksa bahwa perubahan visual mengikuti peristiwa per beat. Mahsyar 1 dipakai sebagai salah satu naskah uji lintas cerita pada D3, bukan pengganti bukti wajib Nuh dan Hud.
+ 
 **Status D2: implementasi utama tersedia; belum dinyatakan selesai.** Status dibedakan antara implementasi, tes otomatis, bukti render, dan tinjauan manusia.
 
 | Poin | Implementasi | Tes otomatis | Bukti render | Batas audit |
@@ -281,6 +289,8 @@ D2 belum dicentang. CI #529 dan uji audio-cache run `45284285899` lulus pada SHA
    - naskah kisah Nabi Nuh dijadikan rencana dan video otomatis penuh;
    - satu kisah baru (misalnya Nabi Hud) juga dibuat tanpa menyunting kode atau rencana dengan tangan;
    - lampirkan lembar kontak keduanya dan perbandingan dengan versi manual.
+   - Tambahkan naskah Mahsyar 1 dari repo `mesin-video` sebagai uji lintas cerita: gunakan `naskah/mahsyar1.txt` dan alignment `audio_manual/mahsyar1_ozhy/narasi.waktu.json` sebagai sumber uji; jangan mengubah naskah atau menganggap MP3 sebagai bukti visual.
+   - Untuk setiap contoh, catat pemetaan beat/peristiwa ke visual yang dihasilkan; bukti harus menunjukkan visual berubah karena peristiwa narasi, bukan karena urutan beat atau resep yang dikunci ke satu kisah.
    Kelayakan tayang diputuskan pemilik, bukan pengembang.
 
 ## Tahap E — Periksa dan kritikus (Fase 5)
