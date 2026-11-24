@@ -480,6 +480,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
     hooks=[]
     # Arah layar disimpan per identitas pemeran sepanjang urutan beat.
     arah_terakhir: dict[str, int] = {}
+    status_benda: dict[str, dict] = {}
     for i, b in enumerate(naskah["beat"]):
         teks = b["narasi"]
         resep = _resep_untuk(teks)
