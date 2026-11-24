@@ -607,3 +607,27 @@ def test_parser_mengabaikan_aksi_yang_dinegasikan_dengan_kata_bantu():
     assert analisis_peristiwa("Dinding belum juga terbuka.") == []
     assert analisis_peristiwa("Mereka tidak berhasil meruntuhkan kota.") == []
     assert analisis_peristiwa("Kaum membangun bahtera.")
+
+
+def test_alur_sutradara_nuh_mempertahankan_status_bahtera_dari_peristiwa():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang as rancang_kisah
+
+    naskah = json.loads((AKAR / "naskah" / "nuh.json").read_text(encoding="utf-8-sig"))
+    rencana, _ = rancang_kisah(naskah)
+    beat_pembangunan = rencana["beat"][1]
+    assert beat_pembangunan["keadaan"] == "dibangun"
+    assert any(p["aksi"] == "membangun" and p["sasaran"] == "bahtera"
+               for p in beat_pembangunan["peristiwa"])
+
+
+def test_alur_sutradara_hud_tidak_mengarang_status_runtuh_kota():
+    from sutradara.paket_genre.kisah_islami.sutradara import rancang as rancang_kisah
+
+    naskah = json.loads((AKAR / "naskah" / "hud.json").read_text(encoding="utf-8-sig"))
+    rencana, _ = rancang_kisah(naskah)
+    beat_azab = rencana["beat"][-1]
+    assert beat_azab["keadaan"] == "angin"
+    assert not any((p.get("perubahan_keadaan") or {}).get("objek") in {
+        "kota", "permukiman", "kota_kuno"
+    } and (p.get("perubahan_keadaan") or {}).get("keadaan") == "runtuh"
+                   for p in beat_azab["peristiwa"])
