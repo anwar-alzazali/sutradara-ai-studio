@@ -443,3 +443,71 @@ def test_interaksi_tanpa_nama_tokoh_hanya_diinferensikan_jika_tepat_dua_peran():
     }
     assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b"], peta) == ("a", "b")
     assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b", "c"], peta) is None
+
+
+def test_status_bahtera_tidak_berubah_hanya_karena_indeks_beat():
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan
+
+    awal = _keadaan("bahtera", ["rangka", "dibangun", "badai"], "Tidak ada pembangunan.", 0, 2)
+    setelah_beat_netral = _keadaan("bahtera", ["rangka", "dibangun", "badai"], "Tidak ada pembangunan.", 9, 10)
+    assert awal == setelah_beat_netral
+    assert awal[0] == "rangka"
+    assert awal[1]["jadi"] == .18
+
+
+def test_reducer_bahtera_hanya_berubah_oleh_peristiwa_pembangunan():
+    from sutradara.paket_genre.kisah_islami.sutradara import (
+        _keadaan, _reduksi_keadaan_benda,
+    )
+
+    status = {}
+    netral = {"aksi": "jalan", "sasaran": None, "perubahan_keadaan": None}
+    _reduksi_keadaan_benda(status, "bahtera", netral)
+    assert _keadaan("bahtera", [], "Berjalan.", 5, 6, status)[1]["jadi"] == .18
+
+    bangun = {"aksi": "membangun", "sasaran": "bahtera", "perubahan_keadaan": None}
+    _reduksi_keadaan_benda(status, "bahtera", bangun)
+    snapshot = _keadaan("bahtera", [], "Beat netral sesudahnya.", 0, 1, status)
+    assert snapshot[0] == "dibangun"
+    assert snapshot[1]["jadi"] == .55
+
+    _reduksi_keadaan_benda(status, "bahtera", netral)
+    assert _keadaan("bahtera", [], "Masih beat netral.", 20, 21, status) == snapshot
+
+
+def test_reducer_dinding_tidak_menyamakan_penggalian_dengan_terbuka():
+    from sutradara.paket_genre.kisah_islami.sutradara import (
+        _keadaan, _reduksi_keadaan_benda,
+    )
+
+    status = {}
+    gali = {"aksi": "menggali", "sasaran": "dinding", "perubahan_keadaan": None}
+    _reduksi_keadaan_benda(status, "dinding_yajuj", gali)
+    keadaan = _keadaan("dinding_yajuj", ["utuh", "dilubangi", "terbuka"],
+                       "Beat tanpa aksi.", 8, 9, status)
+    assert keadaan[0] == "dilubangi"
+    assert keadaan[1]["lubang"] == .25
+
+    buka = {"aksi": "terbuka", "sasaran": "dinding",
+            "perubahan_keadaan": {"objek": "dinding", "keadaan": "terbuka"}}
+    _reduksi_keadaan_benda(status, "dinding_yajuj", buka)
+    terbuka = _keadaan("dinding_yajuj", [], "Beat netral.", 0, 1, status)
+    assert terbuka[0] == "terbuka"
+    assert terbuka[1]["lubang"] == 1.0
+
+
+def test_kota_tidak_runtuh_hanya_karena_angin_disebut():
+    from sutradara.paket_genre.kisah_islami.sutradara import (
+        _keadaan, _reduksi_keadaan_benda,
+    )
+
+    status = {}
+    sebelum = _keadaan("kota_kuno", ["awal", "peristiwa"], "Angin datang.", 7, 8, status)
+    assert sebelum[0] == "angin"
+    assert sebelum[1]["runtuh"] == 0.0
+
+    runtuh = {"aksi": "runtuh", "sasaran": "kota",
+              "perubahan_keadaan": {"objek": "kota", "keadaan": "runtuh"}}
+    _reduksi_keadaan_benda(status, "kota_kuno", runtuh)
+    sesudah = _keadaan("kota_kuno", ["awal", "peristiwa"], "Angin datang.", 0, 1, status)
+    assert sesudah[1]["runtuh"] == .7
