@@ -46,6 +46,14 @@ _OBJEK = {
 _NEGASI = re.compile(r"\b(?:tidak|tak|belum|bukan|jangan)\b")
 _TUJUAN = re.compile(r"\b(?:menuju|ke arah|menghampiri|mendekati)\s+(?:ke\s+)?([a-z ]+?)(?=[,.!?;]|$)")
 _PERUBAHAN = {"terbelah", "retak", "runtuh", "terbuka", "surut", "terangkat", "muncul", "jatuh"}
+# Bentuk keadaan/pasif ini menyatakan perubahan pada pasien, bukan aksi
+# yang dilakukan oleh peran yang kebetulan disebut sebelumnya.
+_AKSI_KEADAAN_PASIEN = {
+    "terbelah", "retak", "terpecah", "runtuh", "roboh", "hancur",
+    "terbuka", "terangkat", "surut", "mengering", "terbit", "muncul",
+    "jatuh", "terjatuh", "tenggelam", "terkumpul", "dibangun", "digali",
+    "didekatkan",
+}
 
 
 def _batas_klausa(teks: str, posisi: int) -> tuple[int, int]:
@@ -106,7 +114,7 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
         elif pasien is None and tujuan is None:
             pasien = next((o for o in lokal if o[0] >= akhir), None)
         pelaku = []
-        if peran:
+        if peran and frasa not in _AKSI_KEADAAN_PASIEN:
             sebelum = teks[kiri:awal]
             for nama in peran:
                 kunci = _normal(nama).strip()
