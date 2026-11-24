@@ -1,0 +1,69 @@
+{
+  "judul": "Mahsyar 1 — Uji adegan kebangkitan",
+  "catatan": "DRAF UJI VISUAL, belum diverifikasi dan belum dirender. Diadaptasi dari bagian naskah: 'Bayangkan… kamu membuka mata. Gelap. Tanah di atasmu terbelah. Kamu bangkit, tanpa alas kaki.' Tidak memakai avatar penonton; tokoh manusia generik ditampilkan dari belakang/sudut yang tidak memperlihatkan wajah jelas. Pertahankan gaya ilustrasi 2D sinematik video referensi. Audio dan timing TTS akan dipasangkan setelah aset audio dipindahkan dan jalur render diuji.",
+  "visual_inti": {
+    "benda": "permukaan tanah Padang Mahsyar yang terbelah",
+    "jalur_keadaan": ["gelap dan utuh", "retak terbuka", "manusia bangkit"]
+  },
+  "peran": [
+    {
+      "id": "manusia_bangkit",
+      "nama": "Manusia yang dibangkitkan",
+      "kategori": "manusia",
+      "tampil": "pakaian"
+    }
+  ],
+  "hook": {
+    "dari_beat": 0,
+    "teks": ["TANAH TERBELAH", "MANUSIA BANGKIT"]
+  },
+  "beat": [
+    {
+      "narasi": "Bayangkan… kamu membuka mata. Gelap. Tanah di atasmu terbelah. Kamu bangkit, tanpa alas kaki.",
+      "preset": "malam",
+      "keadaan": "manusia_bangkit",
+      "peran_tampil": ["manusia_bangkit"],
+      "pelaku": "manusia_bangkit",
+      "shot": [
+        {
+          "preset": "malam",
+          "belakang": [],
+          "tanah_y": 1490,
+          "permukaan_tanah": "tanah",
+          "tokoh": [
+            {
+              "x": 540,
+              "y": 1600,
+              "s": 1.18,
+              "peran": "manusia_bangkit",
+              "jenis": "pria",
+              "usia": "dewasa",
+              "zaman": "umum",
+              "mode": "siluet",
+              "arah": "belakang",
+              "gerak": [[0, "duduk"], [2.8, "berdiri"]],
+              "wajah": "datar",
+              "warna_baju": "#5a5048",
+              "kepala": "tanpa"
+            }
+          ],
+          "teks": {
+            "judul": ["TANAH", "TERBELAH"],
+            "warna": "putih",
+            "subtitle": "Bayangkan… kamu membuka mata. Gelap.",
+            "sorot": "Gelap",
+            "judul_mulai": 0.35,
+            "subtitle_mulai": 0.2
+          },
+          "durasi": 6.5,
+          "kamera": {
+            "zoom": [[0, 1.12], [6.5, 1.38]],
+            "x": 540,
+            "y": [[0, 1370], [6.5, 1510]],
+            "guncang": [[2.1, 7]]
+          }
+        }
+      ]
+    }
+  ]
+}
