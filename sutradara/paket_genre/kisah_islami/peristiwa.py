@@ -67,7 +67,7 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
     temuan = []
     for frasa, aksi in sorted(_AKSI.items(), key=lambda item: len(item[0]), reverse=True):
         for m in re.finditer(r"(?<![a-z])" + re.escape(frasa) + r"(?![a-z])", teks):
-            if any(not (m.end() <= a or m.start() >= b) for a, b, _, _ in temuan):
+            if any(not (m.end() <= a or m.start() >= b) for item in temuan for a, b in [(item[0], item[1])]):
                 continue
             kiri, kanan = _batas_klausa(teks, m.start())
             if _NEGASI.search(teks[kiri:m.start()]):
