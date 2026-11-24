@@ -130,7 +130,8 @@ def _resep_untuk(teks: str) -> dict:
 
 
 def _keadaan(inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int,
-             progres_dinding: float | None = None) -> tuple[str, dict]:
+             progres_dinding: float | None = None,
+             progres_bahtera: float | None = None) -> tuple[str, dict]:
     polos = _polos(teks)
     # Progres lokal boleh pecahan untuk beberapa peristiwa dalam satu beat,
     # tetapi tidak boleh melampaui rentang keadaan 0..1 pada beat terakhir.
@@ -141,9 +142,10 @@ def _keadaan(inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int,
         if any(k in polos for k in ("banjir", "badai", "gelombang")):
             return "badai", {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78, "jadi": 1.0,
                               "goyang": .65, "cahaya": .15, "darat": False}
-        state = "rangka" if p < .34 else ("dibangun" if p < .72 else "selamat")
+        jadi = max(.18, min(1.0, progres_bahtera if progres_bahtera is not None else .18 + .82*p))
+        state = "rangka" if jadi < .34 else ("dibangun" if jadi < .72 else "selamat")
         return state, {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78,
-                       "jadi": .18 + .82*p, "goyang": 0, "cahaya": .25 + .45*p, "darat": True}
+                       "jadi": jadi, "goyang": 0, "cahaya": .25 + .45*jadi, "darat": True}
     if inti == "dinding_yajuj":
         # Jumlah cut atau beat tidak membuktikan dinding terkikis. Keadaan
         # fisik hanya berubah dari peristiwa penggalian/pembukaan yang eksplisit.
@@ -158,6 +160,37 @@ def _keadaan(inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int,
         return "angin", {"jenis": "kota_kuno", "x": 540, "y": 1300, "s": .72, "runtuh": min(.7, .18+p*.55)}
     return jalur[min(len(jalur)-1, round(p*(len(jalur)-1)))], {
         "jenis": "kota_kuno", "x": 540, "y": 1300, "s": .72, "runtuh": 0.0}
+
+
+def _reduksi_progres_benda(
+    status: dict[str, dict], jenis: str, peristiwa: dict, jumlah_total: int,
+) -> float:
+    """Reducer progres benda berbasis peristiwa; hasilnya menetap lintas beat/shot."""
+    aksi = peristiwa.get("aksi")
+    sasaran = peristiwa.get("sasaran")
+    if jenis == "bahtera":
+        data = status.setdefault(jenis, {"selesai": 0})
+        if sasaran == "bahtera" and aksi == "membangun":
+            data["selesai"] += 1
+        selesai = data["selesai"]
+        if selesai <= 0 or jumlah_total <= 1:
+            return .18
+        return max(.18, min(1.0, .18 + .82 * (selesai - 1) / (jumlah_total - 1)))
+    if jenis == "dinding":
+        data = status.setdefault(jenis, {"selesai": 0, "terbuka": False})
+        if sasaran == "dinding" and aksi in {"menggali", "terbuka"}:
+            data["selesai"] += 1
+        if sasaran == "dinding" and aksi == "terbuka":
+            data["terbuka"] = True
+        if data["terbuka"]:
+            return 1.0
+        selesai = data["selesai"]
+        if selesai <= 0:
+            return 0.0
+        if jumlah_total <= 1:
+            return .18
+        return max(.18, min(1.0, .18 + .82 * (selesai - 1) / (jumlah_total - 1)))
+    raise ValueError(f"jenis reducer benda tidak dikenal: {jenis}")
 
 
 def _preset(beat: dict, resep: dict, teks: str) -> str:
@@ -473,14 +506,17 @@ def rancang(naskah: dict) -> tuple[dict, float]:
     hooks=[]
     # Arah layar dan progres benda disimpan sepanjang urutan beat.
     arah_terakhir: dict[str, int] = {}
-    peristiwa_dinding_total = sum(
-        1
-        for indeks, beat_data in enumerate(naskah["beat"])
-        for item in analisis_peristiwa(beat_data.get("narasi", ""), beat_data.get("peran", []), indeks)
-        if item.get("sasaran") == "dinding"
-        and item.get("aksi") in {"menggali", "terbuka"}
-    ) if inti == "dinding_yajuj" else 0
-    peristiwa_dinding_selesai = 0
+    jumlah_peristiwa_benda = {"bahtera": 0, "dinding": 0}
+    if inti in {"bahtera", "dinding_yajuj"}:
+        for indeks, beat_data in enumerate(naskah["beat"]):
+            for item in analisis_peristiwa(
+                beat_data.get("narasi", ""), beat_data.get("peran", []), indeks
+            ):
+                if item.get("sasaran") == "bahtera" and item.get("aksi") == "membangun":
+                    jumlah_peristiwa_benda["bahtera"] += 1
+                if item.get("sasaran") == "dinding" and item.get("aksi") in {"menggali", "terbuka"}:
+                    jumlah_peristiwa_benda["dinding"] += 1
+    status_benda: dict[str, dict] = {}
     dinding_sudah_terbuka = False
     for i, b in enumerate(naskah["beat"]):
         teks = b["narasi"]
@@ -517,7 +553,17 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         if dialog:
             # Dialog tetap memakai reverse-shot yang sudah ada.
             cuts=[]
-        keadaan,_obj=_keadaan(inti,jalur,teks,i,len(naskah["beat"]))
+        keadaan,_obj=_keadaan(
+            inti, jalur, teks, i, len(naskah["beat"]),
+            progres_dinding=(
+                _reduksi_progres_benda(status_benda, "dinding", {}, jumlah_peristiwa_benda["dinding"])
+                if inti == "dinding_yajuj" else None
+            ),
+            progres_bahtera=(
+                _reduksi_progres_benda(status_benda, "bahtera", {}, jumlah_peristiwa_benda["bahtera"])
+                if inti == "bahtera" else None
+            ),
+        )
         jdl=_JUDUL.get(keadaan, " ".join((cuts or b.get("kata_kunci",[]) or [keadaan])[:2]).upper())
         judul=[w for w in re.sub(r"[^A-Z0-9' ]"," ",jdl.upper()).split()[:3]]
         nama_pelaku = {
@@ -554,42 +600,23 @@ def rancang(naskah: dict) -> tuple[dict, float]:
                 # peristiwa dalam satu beat. Tahap dinding dan kota tetap
                 # mengikuti beat narasi; jumlah cut bukan bukti perubahan fisik.
                 progres_dinding = None
+                progres_bahtera = None
                 if inti == "dinding_yajuj":
-                    if (peristiwa_i.get("sasaran") == "dinding"
-                            and peristiwa_i.get("aksi") in {"menggali", "terbuka"}):
-                        peristiwa_dinding_selesai += 1
-                    if (peristiwa_i.get("sasaran") == "dinding"
-                            and peristiwa_i.get("aksi") == "terbuka"):
-                        dinding_sudah_terbuka = True
-                    progres_dinding = (
-                        1.0 if dinding_sudah_terbuka
-                        else (.18 + .82 * (peristiwa_dinding_selesai - 1)
-                              / max(1, peristiwa_dinding_total - 1)
-                              if peristiwa_dinding_selesai else 0.0)
+                    progres_dinding = _reduksi_progres_benda(
+                        status_benda, "dinding", peristiwa_i,
+                        jumlah_peristiwa_benda["dinding"],
                     )
                 if inti == "bahtera":
-                    # Hanya peristiwa yang benar-benar membangun bahtera
-                    # boleh memajukan konstruksi. Cut perjalanan/reaksi tidak
-                    # menjadi bukti bahwa benda telah selesai dibangun.
-                    indeks_bangun = [
-                        j for j, item in enumerate(peristiwa)
-                        if item.get("aksi") == "membangun"
-                        and item.get("sasaran") == "bahtera"
-                    ]
-                    jumlah_bangun = len(indeks_bangun)
-                    selesai_bangun = sum(
-                        1 for j in indeks_bangun if j <= urutan_peristiwa
+                    # Cut perjalanan/reaksi tidak memajukan konstruksi;
+                    # hanya event membangun bahtera yang mengubah snapshot.
+                    progres_bahtera = _reduksi_progres_benda(
+                        status_benda, "bahtera", peristiwa_i,
+                        jumlah_peristiwa_benda["bahtera"],
                     )
-                    progres_lokal = (
-                        (selesai_bangun - 1) / max(1, jumlah_bangun - 1)
-                        if selesai_bangun else 0.0
-                    )
-                    progres_shot = i + progres_lokal
-                else:
-                    progres_shot = i
                 _keadaan_shot, objek_shot = _keadaan(
-                    inti, jalur, teks, progres_shot, len(naskah["beat"]),
+                    inti, jalur, teks, i, len(naskah["beat"]),
                     progres_dinding=progres_dinding,
+                    progres_bahtera=progres_bahtera,
                 )
                 aktor_i = [
                     nama_ke_id[nama] for nama in peristiwa_i.get("aktor", [])
