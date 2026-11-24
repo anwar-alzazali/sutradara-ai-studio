@@ -694,3 +694,19 @@ def test_progres_penggalian_dinding_berlanjut_antar_beat():
     assert hasil[0]["shot"][0]["benda"][0]["lubang"] == 0.18
     assert hasil[1]["shot"][0]["benda"][0]["lubang"] == 1.0
     assert [beat["keadaan"] for beat in hasil] == ["dilubangi", "terbuka"]
+
+
+def test_dinding_tetap_terbuka_setelah_peristiwa_penggalian_berikutnya():
+    naskah = {
+        "judul": "Dinding terbuka dan penggalian lanjutan",
+        "inti": "Penjaga membuka dinding lalu Pengelana menggali dinding.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penjaga membuka dinding lalu Pengelana menggali dinding.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga", "Pengelana"],
+        }],
+    }
+    beat = rancang(naskah)["beat"][0]
+    assert [shot["benda"][0]["lubang"] for shot in beat["shot"]] == [1.0, 1.0]
+    assert beat["keadaan"] == "terbuka"
