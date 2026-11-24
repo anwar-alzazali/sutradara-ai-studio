@@ -571,3 +571,22 @@ def test_progres_keadaan_benda_tidak_melampaui_batas_pada_beat_terakhir():
     nilai_jadi = [item["benda"][0]["jadi"] for item in shot_akhir]
     assert nilai_jadi == [1.0, 1.0]
     assert all(0.0 <= nilai <= 1.0 for nilai in nilai_jadi)
+
+
+def test_cut_tambahan_tidak_memperbesar_lubang_dinding_tanpa_peristiwa_pembukaan():
+    naskah = {
+        "judul": "Dinding dan perjalanan",
+        "inti": "Dinding berdiri di hadapan pengelana.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan ke kiri lalu dinding runtuh.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 2
+    assert [item["benda"][0]["jenis"] for item in shot] == [
+        "dinding_yajuj", "dinding_yajuj",
+    ]
+    assert [item["benda"][0]["lubang"] for item in shot] == [0.0, 0.0]
