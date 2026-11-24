@@ -1,0 +1,10 @@
+Perbaiki naskah tanpa mengubah inti cerita:Revisi naskah dengan ketentuan berikut:1. Beat 1: tambahkan rujukan QS Asy-Syu'ara 60–61 untuk konteks pengejaran Firaun. Jangan menambahkan fakta yang tidak didukung dalil.2. Beat 2–4: pertahankan makna sesuai QS Asy-Syu'ara 61–63.3. Beat 5: ubah penutup menjadi renungan, bukan klaim umum bahwa pertolongan selalu datang tepat waktu bagi orang yang bertawakal.4. Ubah judul agar tidak menyebut Laut Merah karena nama tersebut tidak disebut dalam ayat yang digunakan.5. Samakan suasana waktu pada beat yang menggambarkan satu rangkaian kejadian.6. Hapus nilai penjawab kosong pada dialog.7. Jangan mengarang detail peristiwa atau dialog baru.Pertahankan format JSON yang sudah digunakan sistem.
+
+Beat 1: tambahkan rujukan QS Asy-Syu'ara 60–61 untuk konteks pengejaran Firaun. Jangan menjadikan gambaran yang sebenarnya merupakan peristiwa sebagai fakta tanpa dalil.
+Beat 2–4: pertahankan makna sesuai QS Asy-Syu'ara 61–63.
+Beat 5: ubah penutup agar menjadi renungan, bukan klaim umum bahwa pertolongan selalu datang tepat waktu bagi orang yang bertawakal.
+Ubah judul agar tidak menyebut Laut Merah karena nama tersebut tidak disebut dalam ayat yang digunakan.
+Samakan suasana waktu pada beat yang menggambarkan satu rangkaian kejadian.
+Hapus nilai penjawab kosong pada dialog.
+Jangan mengarang detail peristiwa atau dialog baru.
+Pertahankan format JSON yang sudah digunakan sistem.
