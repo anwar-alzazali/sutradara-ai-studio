@@ -555,6 +555,25 @@ def test_keadaan_benda_berkembang_per_peristiwa_dalam_satu_beat():
     assert keadaan_awal["jadi"] == keadaan_akhir["jadi"] == 0.18
 
 
+
+def test_hanya_pembangunan_bahtera_yang_memajukan_progres_bahtera():
+    naskah = {
+        "judul": "Dinding dan bahtera",
+        "inti": "Penjaga membangun dinding lalu Pengelana membangun bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penjaga membangun dinding lalu Pengelana membangun bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga", "Pengelana"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 2
+    assert [item["peristiwa_visual"][0]["sasaran"] for item in shot] == [
+        "dinding", "bahtera",
+    ]
+    assert [item["benda"][0]["jadi"] for item in shot] == [0.18, 1.0]
+
 def test_progres_keadaan_benda_tidak_melampaui_batas_pada_beat_terakhir():
     naskah = {
         "judul": "Pembangunan dan perjalanan",
