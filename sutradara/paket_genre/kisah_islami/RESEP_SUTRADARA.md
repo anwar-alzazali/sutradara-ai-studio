@@ -167,3 +167,26 @@ Diuji 21 Nov dengan naskah `tests/naskah_direktur/banjir_nuh_uji.json`:
 ```
 
 Bentuk resmi rencana kini ada di `sutradara/rencana/rencana.schema.json`; contoh lengkap di `contoh/`. Nama fungsi `shot`, `K`, `T`, `R`, `Bd` di atas merujuk kode repo lama `mesin-video` (rujukan konsep, tidak disalin).
+
+
+## Visual yang diturunkan dari peristiwa naskah (pengembangan awal)
+
+Paket Kisah Islami memiliki parser peristiwa deterministik di
+`sutradara/paket_genre/kisah_islami/peristiwa.py`. Setiap hasil menyimpan aksi,
+peran yang tercantum pada beat, sasaran objek yang disebut, perubahan keadaan
+yang eksplisit, dan frasa bukti. Rencana menyertakan peristiwa pada tingkat beat
+dan shot agar alasan pemilihan visual dapat diaudit.
+
+Komponen SVG lintas cerita berada di
+`sutradara/paket_genre/kisah_islami/visual/peristiwa.py`: tanah terbelah,
+matahari didekatkan, kerumunan, keringat, dan jejak pelarian. Panggung lapang
+dipilih dari deskripsi ruang seperti padang, tanah rata, atau bumi putih; bukan
+dari nama tokoh/kisah.
+
+Batas yang disengaja: parser saat ini mengenali pola bahasa yang eksplisit,
+bukan memahami semua variasi bahasa Indonesia. Renderer hanya menggambar
+peristiwa yang memiliki komponen terdaftar. Jika aksi/objek tidak dikenali,
+sistem tidak boleh mengarang visual faktual; beat masih dapat memakai tokoh,
+pose, dan panggung umum. Perubahan keadaan objek Nuh/Ya'juj yang lama belum
+seluruhnya diganti oleh mesin keadaan berbasis peristiwa. Uji Mahsyar 1 saat ini
+baru tes unit pada frasa sumber, bukan bukti render video penuh.
