@@ -691,6 +691,7 @@
         "aktor",
         "aksi",
         "sasaran",
+        "tujuan",
         "perubahan_keadaan",
         "bukti_narasi",
         "keyakinan"
@@ -713,6 +714,13 @@
             "string",
             "null"
           ]
+        },
+        "tujuan": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Objek/lokasi yang menjadi tujuan perpindahan; berbeda dari sasaran yang dikenai aksi."
         },
         "perubahan_keadaan": {
           "type": [
