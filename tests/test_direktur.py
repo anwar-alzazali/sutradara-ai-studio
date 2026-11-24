@@ -598,3 +598,12 @@ def test_naskah_hud_tidak_mengubah_angin_membinasakan_menjadi_runtuhnya_kota():
                               "Angin dahsyat membinasakan kaum.", 0, 1, status)
     assert keadaan == "angin"
     assert objek["runtuh"] == 0.0
+
+
+def test_parser_mengabaikan_aksi_yang_dinegasikan_dengan_kata_bantu():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+
+    assert analisis_peristiwa("Kaum tidak akan membangun bahtera.") == []
+    assert analisis_peristiwa("Dinding belum juga terbuka.") == []
+    assert analisis_peristiwa("Mereka tidak berhasil meruntuhkan kota.") == []
+    assert analisis_peristiwa("Kaum membangun bahtera.")
