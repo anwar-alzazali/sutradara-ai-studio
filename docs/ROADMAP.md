@@ -161,6 +161,8 @@ hook, resep data, tata panggung, dialog, arah hadap, dan lintasan jalan/lari. Mo
   bawaan, menerima adapter yang diinjeksi lewat `--adapter modul:fungsi`, dan biaya agregat dicatat tanpa prompt atau rahasia. Bukti render Nuh/Hud
 dan batas cakupan D1 tercatat di deskripsi PR; penilaian layak tayang tetap keputusan pemilik.
 
+**Tambahan implementasi visual dari peristiwa naskah pada HEAD PR #48 (24 Nov 2026):** parser peristiwa menyertakan aksi, peran, sasaran, perubahan keadaan eksplisit, dan bukti frasa. Panggung padang dipilih dari deskripsi ruang, dan komponen SVG berbasis peristiwa tersedia untuk tanah terbelah, matahari dekat, kerumunan, keringat, serta jejak pelarian. Tes unit memakai frasa Mahsyar 1. Ini belum merupakan render MP4, belum membuktikan keseluruhan naskah, dan belum mengganti seluruh resep/keadaan khusus Nuh/Ya'juj. Status D2 tetap belum selesai sampai cakupan visual generik, tes regresi, render, dan tinjauan manusia terbukti.
+
 **Status Tahap D2 pada PR #48: belum dicentang / belum selesai.** Implementasi mencakup (3) blocking otomatis dari visual inti, penempatan pihak lawan, pemeriksaan kedekatan pelaku dan kontinuitas panggung; (3b) shot–reverse shot dengan sisipan reaksi pendengar; (3c) arah hadap interaksi dan tiga-perempat; (3d) tujuan serta lintasan x/y, cadence, konsistensi 180 derajat, pengejaran kanan/kiri dengan kedua tokoh searah, dan putar balik sesuai cerita.
 
 **Bukti CI #529 pada HEAD `76c068e` (run `45207029799`):** sukses dengan 320 tes Python, tes bot Telegram, render D2 14 shot / 644 bingkai / 53,7 detik (95 detik waktu render, 1 worker), dan pemeriksaan enam contoh tanpa GAGAL. Lembar kontak dan MP4 diunggah. Bukti statis tidak menggantikan pemeriksaan gerak kontinu dan variasi artistik oleh pemilik.
