@@ -131,7 +131,9 @@ def _resep_untuk(teks: str) -> dict:
 
 def _keadaan(inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int) -> tuple[str, dict]:
     polos = _polos(teks)
-    p = indeks / max(1, jumlah - 1)
+    # Progres lokal boleh pecahan untuk beberapa peristiwa dalam satu beat,
+    # tetapi tidak boleh melampaui rentang keadaan 0..1 pada beat terakhir.
+    p = max(0.0, min(1.0, indeks / max(1, jumlah - 1)))
     if inti == "padang":
         return "lapang", {}
     if inti == "bahtera":
