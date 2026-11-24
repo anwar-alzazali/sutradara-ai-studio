@@ -25,6 +25,10 @@ def daftar_shot(rencana):
     for beat in rencana["beat"]:
         for asli in beat["shot"]:
             shot=copy.deepcopy(asli)
+            # Simpan narasi beat sebagai konteks visual agar adapter genre dapat
+            # menurunkan peristiwa yang eksplisit ke komponen renderer.
+            shot["_narasi_visual"]=beat.get("narasi","")
+            shot["_peran_visual"]=[p.get("nama",p.get("id","")) for p in rencana.get("peran",[])]
             if paket.adaptasi_shot:shot=paket.adaptasi_shot(rencana,shot)
             hasil.append(shot)
     return hasil
