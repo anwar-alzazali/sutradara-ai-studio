@@ -49,8 +49,9 @@ _PERUBAHAN = {"terbelah", "retak", "runtuh", "terbuka", "surut", "terangkat", "m
 
 
 def _batas_klausa(teks: str, posisi: int) -> tuple[int, int]:
-    kiri = max(teks.rfind(x, 0, posisi) for x in (".", ",", ";", ":", " lalu "))
-    kanan = min((p for x in (".", ",", ";", ":") if (p := teks.find(x, posisi)) >= 0), default=len(teks))
+    pemisah = (".", ",", ";", ":", " lalu ")
+    kiri = max(teks.rfind(x, 0, posisi) for x in pemisah)
+    kanan = min((p for x in pemisah if (p := teks.find(x, posisi)) >= 0), default=len(teks))
     return kiri + 1, kanan
 
 
