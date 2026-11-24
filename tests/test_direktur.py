@@ -562,3 +562,39 @@ def test_badai_tidak_menyelesaikan_bahtera_tanpa_peristiwa_pembangunan():
     assert keadaan == "badai"
     assert objek["jadi"] == .18
     assert objek["darat"] is False
+
+
+def test_naskah_nuh_menghasilkan_peristiwa_pembangunan_bahtera_dari_teks_asli():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan, _reduksi_keadaan_benda
+
+    naskah = json.loads((AKAR / "naskah" / "nuh.json").read_text(encoding="utf-8-sig"))
+    status = {}
+    peristiwa_terdeteksi = []
+    for indeks, beat in enumerate(naskah["beat"]):
+        peristiwa = analisis_peristiwa(beat["narasi"], beat.get("peran", []), indeks)
+        peristiwa_terdeteksi.extend(peristiwa)
+        for item in peristiwa:
+            _reduksi_keadaan_benda(status, "bahtera", item)
+
+    assert any(p["aksi"] == "membangun" and p["sasaran"] == "bahtera"
+               for p in peristiwa_terdeteksi)
+    keadaan, objek = _keadaan("bahtera", [], "Beat setelah pembangunan.", 0, 1, status)
+    assert keadaan == "dibangun"
+    assert objek["jadi"] == .55
+
+
+def test_naskah_hud_tidak_mengubah_angin_membinasakan_menjadi_runtuhnya_kota():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan, _reduksi_keadaan_benda
+
+    naskah = json.loads((AKAR / "naskah" / "hud.json").read_text(encoding="utf-8-sig"))
+    status = {}
+    for indeks, beat in enumerate(naskah["beat"]):
+        for item in analisis_peristiwa(beat["narasi"], beat.get("peran", []), indeks):
+            _reduksi_keadaan_benda(status, "kota_kuno", item)
+
+    keadaan, objek = _keadaan("kota_kuno", ["awal", "peristiwa"],
+                              "Angin dahsyat membinasakan kaum.", 0, 1, status)
+    assert keadaan == "angin"
+    assert objek["runtuh"] == 0.0
