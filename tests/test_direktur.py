@@ -506,3 +506,29 @@ def test_peristiwa_pasif_tanpa_aktor_tidak_menggerakkan_tokoh_hadir():
     assert "pelaku" not in shot
     assert all(tokoh["gerak"] == "berdiri" for tokoh in shot["tokoh"])
 
+
+
+def test_peristiwa_pasif_di_antara_aksi_aktif_tetap_menjadi_shot_netral():
+    naskah = {
+        "judul": "Perjalanan, dinding runtuh, pembangunan",
+        "inti": "Pengelana berjalan menuju bahtera lalu dinding runtuh lalu Penjaga membangun bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan menuju bahtera lalu dinding runtuh lalu Penjaga membangun bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Penjaga"],
+        }],
+    }
+    beat = rancang(naskah)["beat"][0]
+    assert [shot["peristiwa_visual"][0]["aksi"] for shot in beat["shot"]] == [
+        "jalan", "runtuh", "membangun",
+    ]
+    pertama, pasif, terakhir = beat["shot"]
+    assert pertama["pelaku"] == ["pengelana"]
+    assert "pelaku" not in pasif
+    assert pasif["peristiwa_visual"][0]["aktor"] == []
+    assert all(tokoh["gerak"] == "berdiri" for tokoh in pasif["tokoh"])
+    assert terakhir["pelaku"] == ["penjaga"]
+    tokoh_terakhir = {tokoh["peran"]: tokoh for tokoh in terakhir["tokoh"]}
+    assert tokoh_terakhir["penjaga"]["gerak"] == "palu"
+    assert tokoh_terakhir["pengelana"]["gerak"] == "berdiri"
