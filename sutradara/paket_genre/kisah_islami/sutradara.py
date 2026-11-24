@@ -529,7 +529,13 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         elif peristiwa:
             # Setiap peristiwa menjadi unit keputusan shot. Peristiwa tanpa
             # aktor eksplisit tidak menggerakkan tokoh yang sekadar hadir.
-            for peristiwa_i in peristiwa:
+            for urutan_peristiwa, peristiwa_i in enumerate(peristiwa):
+                # Keadaan benda mengikuti urutan shot dalam beat, bukan satu
+                # snapshot yang sama untuk seluruh peristiwa pada beat tersebut.
+                progres_shot = i + urutan_peristiwa / max(1, len(peristiwa) - 1)
+                _keadaan_shot, objek_shot = _keadaan(
+                    inti, jalur, teks, progres_shot, len(naskah["beat"])
+                )
                 aktor_i = [
                     nama_ke_id[nama] for nama in peristiwa_i.get("aktor", [])
                     if nama in nama_ke_id
@@ -542,7 +548,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
                 eksplisit = -1 if "ke kiri" in tindakan else 1 if "ke kanan" in tindakan else None
                 arah_memori = eksplisit if eksplisit is not None else arah_terakhir.get(fokus_i)
                 shot_baru = _shot(
-                    inti,_obj,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep_i,
+                    inti,objek_shot,preset,judul,teks,refs,label,peran,nama_ke_id,list(hadir),resep_i,
                     fokus=fokus_i,pelaku=aktor_i or None,
                     interaksi=interaksi if len(peristiwa) == 1 else None,
                     perjalanan=perjalanan_i,
