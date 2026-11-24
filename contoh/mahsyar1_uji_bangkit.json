@@ -1,6 +1,6 @@
 {
   "judul": "Mahsyar 1 — Uji adegan kebangkitan",
-  "catatan": "DRAF UJI VISUAL, belum diverifikasi dan belum dirender. Diadaptasi dari bagian naskah: 'Bayangkan… kamu membuka mata. Gelap. Tanah di atasmu terbelah. Kamu bangkit, tanpa alas kaki.' Tidak memakai avatar penonton; tokoh manusia generik ditampilkan dari belakang/sudut yang tidak memperlihatkan wajah jelas. Pertahankan gaya ilustrasi 2D sinematik video referensi. Audio dan timing TTS akan dipasangkan setelah aset audio dipindahkan dan jalur render diuji.",
+  "catatan": "DRAF UJI VISUAL. Adegan kebangkitan merujuk QS Yasin 36:51 dan HR. Muslim 2859a. Retakan tanah adalah visualisasi sinematik keluarnya manusia dari kubur, bukan rincian tekstual tambahan dari dalil. Tidak memakai avatar penonton; tokoh manusia generik ditampilkan dari belakang/sudut yang tidak memperlihatkan wajah jelas. Pertahankan gaya ilustrasi 2D sinematik video referensi. Audio dan timing TTS akan dipasangkan setelah aset audio dipindahkan dan jalur render diuji.",
   "visual_inti": {
     "benda": "permukaan tanah Padang Mahsyar yang terbelah",
     "jalur_keadaan": ["gelap dan utuh", "retak terbuka", "manusia bangkit"]
@@ -17,6 +17,37 @@
     "dari_beat": 0,
     "teks": ["TANAH TERBELAH", "MANUSIA BANGKIT"]
   },
+  "dalil": [
+    {
+      "id": "yasin_36_51",
+      "jenis": "quran",
+      "label": "QS YASIN 36:51",
+      "status": "terverifikasi",
+      "rujukan": "https://quran.com/id/yas-sin/51",
+      "surah": 36,
+      "ayat": "51",
+      "teks_ar": "وَنُفِخَ فِى ٱلصُّورِ فَإِذَا هُم مِّنَ ٱلْأَجْدَاثِ إِلَىٰ رَبِّهِمْ يَنسِلُونَ",
+      "terjemah": "Lalu ditiuplah sangkakala, maka seketika itu mereka keluar dari kuburnya (dalam keadaan hidup), menuju kepada Tuhannya.",
+      "sumber_teks": "Quran.com · terjemahan Kementerian Agama RI",
+      "diverifikasi_oleh": "rujukan_diperiksa_2026-11-24",
+      "makna": "disetujui_pemilik"
+    },
+    {
+      "id": "muslim_2859a",
+      "jenis": "hadis",
+      "label": "HR. MUSLIM 2859a",
+      "status": "terverifikasi",
+      "rujukan": "https://sunnah.com/muslim:2859a",
+      "kitab": "muslim",
+      "nomor": "2859a",
+      "derajat": "sahih",
+      "teks_ar": "يُحْشَرُ النَّاسُ يَوْمَ الْقِيَامَةِ حُفَاةً عُرَاةً غُرْلًا",
+      "terjemah": "Manusia akan dikumpulkan pada hari kiamat dalam keadaan tidak beralas kaki, tidak berpakaian, dan belum dikhitan. Aisyah bertanya apakah laki-laki dan perempuan akan saling melihat. Nabi ﷺ menjawab bahwa urusan pada hari itu terlalu dahsyat untuk membuat mereka saling memperhatikan.",
+      "sumber_teks": "Sahih Muslim · Kitab tentang Surga · Bab berkumpul pada hari kiamat",
+      "diverifikasi_oleh": "rujukan_diperiksa_2026-11-24",
+      "makna": "disetujui_pemilik"
+    }
+  ],
   "beat": [
     {
       "narasi": "Bayangkan… kamu membuka mata. Gelap. Tanah di atasmu terbelah. Kamu bangkit, tanpa alas kaki.",
