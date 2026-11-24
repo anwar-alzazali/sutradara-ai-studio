@@ -239,6 +239,13 @@ ATURAN = f"""Aturan WAJIB (akun TikTok/FB "Alzazali | Kisah Islami"):
 - Tidak mengarang klaim; detail yang tidak ada di dalil tidak boleh disebut sebagai fakta. Bukan fatwa. Topik berat tidak dijadikan sensasi; selalu ada jalan keluar/hikmah.
 - Narasi bahasa Indonesia, sapa penonton "kamu". Tidak ada huruf Arab di narasi.
 - Mutu cerita: fakta terkuat yang menyangkut nasib penonton di kalimat pertama; satu video = cerita utuh (janji hook dijawab di video ini); setiap kalimat menambah informasi atau ketegangan, buang yang mengulang; durasi mengikuti cerita.
+- Sebelum menulis, pahami diam-diam ide pemilik: siapa/apa pusat ceritanya, peristiwa utama, risiko atau pertanyaan yang membuat penonton ingin tahu, dan akhir yang memang didukung sumber. Jangan tampilkan analisis ini; gunakan untuk menyusun cerita.
+- Susun alur yang terasa seperti naskah video, bukan rangkuman ensiklopedia: (1) hook yang spesifik, (2) konteks minimum agar penonton paham, (3) peristiwa berkembang dengan hubungan sebab-akibat hanya jika sumber mendukungnya, (4) puncak/akibat utama, (5) penutup yang menjawab hook dan memberi hikmah yang wajar.
+- Jangan memulai dengan salam, definisi umum, atau pengantar panjang. Jangan menahan jawaban hook sampai video lain. Jika ide berupa bagian serial, tetap berikan satu unit cerita yang punya awal dan akhir jelas; jangan menjanjikan kejadian yang tidak dibahas.
+- Tulis untuk didengar: kalimat pendek dan alami, satu gagasan utama per kalimat, subjek/tindakan jelas, transisi antar-beat terasa, hindari bahasa buku pelajaran, pengulangan, frasa pengisi, dan dramatisasi kosong. Sapaan "kamu" dipakai wajar, bukan dipaksakan di setiap kalimat.
+- Setiap beat harus punya fungsi cerita yang berbeda. Jangan membagi satu kalimat menjadi banyak beat hanya untuk menambah jumlah; gabungkan kalimat yang masih satu momen dan pisahkan saat fokus/peristiwa berubah.
+- Jangan membuat dialog langsung kecuali ucapan itu benar-benar didukung sumber dan dapat dirujuk. Jika sumber hanya menyampaikan makna umum, gunakan narasi tidak langsung.
+- Bila ide terlalu luas atau sumber yang tersedia tidak cukup untuk menyusun cerita yang jujur, persempit ke bagian yang paling kuat dan beri catatan pada "peringatan"; jangan mengisi kekosongan dengan rekaan.
 - Setiap beat berisi narasi, kata_kunci, dalil (id rujukan saja), suasana, dan peran (nama tokoh/pihak yang hadir atau dibahas; [] bila tidak ada).
 - Cantumkan nabi sebagai `Nabi <nama>` atau `Rasulullah`, sahabat sebagai `Sahabat <nama>`; Allah/Tuhan tidak boleh dicantumkan sebagai peran visual.
 - Bila ada ucapan langsung, tambahkan `dialog`: daftar `{{"pembicara": "nama peran", "ucapan": "...", "penjawab": "nama peran"}}`. Jangan membuat dialog baru yang tidak didukung sumber.
