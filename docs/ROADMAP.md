@@ -451,3 +451,15 @@ Tinjauan terhadap tiga video yang diberikan pemilik (Ya'juj–Majuj, Nuh, Mahsya
 - Bandingkan Nuh dan Ya'juj sebagai referensi kedalaman/aksi; Mahsyar 1 sebagai uji apakah prinsip yang sama dapat diterapkan pada cerita dan komposisi berbeda tanpa membuat semua video seragam.
 - Kriteria layak tinjau: tidak ada tokoh pelaku yang tetap menjadi pose statis sepanjang aksi yang dinarasikan; hubungan aksi–reaksi terbaca; ruang tidak datar tanpa alasan artistik; semua batas AGENTS.md dan penjaga domain tetap dipatuhi.
 - Kriteria selesai Fase 4 tetap memerlukan render lintas cerita dan persetujuan pemilik. Standar ini tidak mengubah aturan penggambaran nabi, malaikat, sahabat, atau ketentuan dalil.
+
+**Implementasi awal kontrol aksi tokoh (24 Nov 2026):** audit menemukan bahwa pemilihan gerak sudah berada di sutradara/paket_genre/kisah_islami/sutradara.py, sedangkan animasi sendi sudah menjadi tanggung jawab sutradara/gerak.py dan renderer tokoh. Tidak ditambahkan pustaka gerak, parser, atau pengendali animasi baru. Perbaikan awal membatasi gerak resep pada pelaku peristiwa (atau subjek fokus bila pelaku belum dapat diikat); tokoh lain tidak otomatis meniru aksi. Tes regresi ditambahkan di tests/test_direktur.py. Ini baru menutup kebocoran tanggung jawab aksi dalam satu shot; belum menyelesaikan koreografi aksi–reaksi multi-beat, gerak kelompok yang lebih kaya, atau penilaian kedalaman render. CI dan render visual pada HEAD terbaru masih wajib diverifikasi.
+
+**Peta tanggung jawab implementasi visual (penegasan anti-duplikasi):**
+- peristiwa.py: satu-satunya pemilik ekstraksi relasi narasi (aktor/aksi/sasaran/tujuan/perubahan); tidak memilih pose, koordinat, atau SVG.
+- sutradara.py: satu-satunya pemilik keputusan kreatif paket Kisah Islami (siapa beraksi, blocking, shot, jadwal aksi, kamera, dan keputusan komposisi); tidak menghitung sudut sendi atau menggambar SVG.
+- gerak.py: satu-satunya pemilik kosakata gerak dan fungsi animasi sendi; tidak membaca naskah atau memilih pelaku.
+- gaya/tokoh.py: satu-satunya pemilik rig, anatomi, ekspresi, dan penerjemahan sudut sendi menjadi visual tokoh; tidak memutuskan aksi cerita.
+- adegan.py dan paket_genre/kisah_islami/renderer.py + visual/: pemilik komposisi/rendering; tidak menafsirkan ulang peristiwa atau memilih aksi.
+- kamera.py/waktu.py/garis_waktu.py: pemilik interpolasi kamera/keyframe/timing; tidak menjadi sutradara aksi tokoh.
+
+Perubahan berikutnya harus memperluas kontrak dan pemilik yang sudah tercantum di atas. Bila kebutuhan tidak memiliki pemilik jelas, audit pemilik terlebih dahulu; jangan membuat modul atau field paralel hanya untuk menghindari memperbaiki kontrak yang ada.
