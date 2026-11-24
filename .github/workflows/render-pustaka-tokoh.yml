@@ -1,0 +1,42 @@
+name: render-pustaka-tokoh
+
+on:
+  workflow_dispatch:
+    inputs:
+      png_individu:
+        description: "Buat juga PNG penuh untuk setiap pose dan sudut"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Pasang dependensi
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Render pustaka pemeran
+        run: |
+          if [ "${{ inputs.png_individu }}" = "true" ]; then
+            python -m sutradara.pustaka_tokoh --keluar keluaran/pustaka_tokoh/pria_dewasa_01 --png-individu
+          else
+            python -m sutradara.pustaka_tokoh --keluar keluaran/pustaka_tokoh/pria_dewasa_01
+          fi
+      - name: Unggah SVG dan lembar kontak
+        uses: actions/upload-artifact@v4
+        with:
+          name: pustaka-tokoh-pria-dewasa-01
+          path: keluaran/pustaka_tokoh/pria_dewasa_01/
+          if-no-files-found: error
+          retention-days: 30
