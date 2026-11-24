@@ -532,3 +532,23 @@ def test_peristiwa_pasif_di_antara_aksi_aktif_tetap_menjadi_shot_netral():
     tokoh_terakhir = {tokoh["peran"]: tokoh for tokoh in terakhir["tokoh"]}
     assert tokoh_terakhir["penjaga"]["gerak"] == "palu"
     assert tokoh_terakhir["pengelana"]["gerak"] == "berdiri"
+
+
+def test_keadaan_benda_berkembang_per_peristiwa_dalam_satu_beat():
+    naskah = {
+        "judul": "Perjalanan dan pembangunan bahtera",
+        "inti": "Pengelana berjalan menuju bahtera lalu Penjaga membangun bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan menuju bahtera lalu Penjaga membangun bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Penjaga"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 2
+    keadaan_awal = shot[0]["benda"][0]
+    keadaan_akhir = shot[1]["benda"][0]
+    assert keadaan_awal["jenis"] == keadaan_akhir["jenis"] == "bahtera"
+    assert keadaan_awal["jadi"] < keadaan_akhir["jadi"]
+    assert keadaan_akhir["jadi"] == 1.0
