@@ -47,7 +47,7 @@ _OBJEK = {
     "langit": ("langit", "langit"), "gunung": ("gunung", "gunung"),
     "air": ("air", "air"), "api": ("api", "api"),
 }
-_NEGASI = re.compile(r"\b(?:tidak|tak|belum|bukan|jangan)\s+$")
+_NEGASI = re.compile(r"\b(?:tidak|tak|belum|bukan|jangan)(?:\s+(?:akan|pernah|lagi|dapat|bisa|mau|berhasil|jadi|juga))?\s+$")
 
 
 def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int = 0) -> list[dict]:
