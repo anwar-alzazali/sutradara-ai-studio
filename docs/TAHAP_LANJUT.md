@@ -322,6 +322,56 @@ PERIKSA terbuka untuk audit rig/wajah dan renderer; belum ditetapkan akar masala
 arah hadap, clipping, dan urutan lapisan. Tes wajib mencakup depan dan tiga-perempat agar perbaikan tidak hanya
 menutupi cacat pada satu sudut. Jangan membuat sistem mata alternatif.
 
+### Hasil audit kepemilikan fitur dan jalur peristiwa (24 Nov 2026)
+
+Audit dilakukan pada kode `main` dan cabang PR #48. Ini audit statis alur data/kepemilikan, bukan klaim bahwa render MP4 baru sudah diuji.
+
+**Peta pemilik yang terkonfirmasi dari kode:**
+
+| Kemampuan | Pemilik aktual | Temuan audit |
+|---|---|---|
+| Kontrak/pemuatan genre | `sutradara/genre.py` | Satu kontrak `PaketGenre`; pertahankan |
+| Masukan dan validasi naskah | `sutradara/antrean.py` + paket genre | Jangan membuat format antrean kedua |
+| Orkestrasi netral | `sutradara/direktur.py` | Memanggil satu sutradara milik paket |
+| Keputusan Kisah Islami | `paket_genre/kisah_islami/sutradara.py` | Satu pemilik perencanaan; perluas di sini |
+| Ekstraksi peristiwa | `paket_genre/kisah_islami/peristiwa.py` pada PR #48 | Fondasi ada, tetapi akurasi relasi aktor/aksi/sasaran belum memadai |
+| Skema peristiwa | `sutradara/rencana/rencana.schema.json` | Definisi bersama sudah tersedia; perluas definisi ini, jangan buat skema kedua |
+| Komposisi adegan | `sutradara/adegan.py` | Pemilik komposisi dan pemanggil renderer paket |
+| Komponen visual genre | `paket_genre/kisah_islami/visual/` | Satu pustaka visual genre; jangan menggambar ulang di parser/sutradara |
+| Render genre | `paket_genre/kisah_islami/renderer.py` | Sudah memanggil `visual.peristiwa.render_semua` |
+| Rig/wajah tokoh | `sutradara/gaya/tokoh.py` | Satu pemilik geometri tubuh dan wajah |
+| Gerak tokoh | `sutradara/gerak.py` | Satu pustaka gerak |
+| Kamera | `sutradara/kamera.py` | Satu transform kamera |
+| Keyframe/waktu shot | `sutradara/waktu.py`, `sutradara/garis_waktu.py` | Jangan menambah sistem waktu kedua |
+| Audio | `sutradara/suara/` | Satu jalur narasi, sinkronisasi, dan campur |
+
+**Temuan teknis yang harus dituntaskan sebelum memperluas katalog visual:**
+
+1. `peristiwa.py::analisis_peristiwa` saat ini mengisi `aktor` dengan seluruh daftar peran pada beat. Ia belum mengidentifikasi pelaku spesifik dari struktur kalimat.
+2. Pemilihan `sasaran` mengambil objek berikutnya atau objek terdekat dalam seluruh kalimat. Pada kalimat dengan beberapa aksi/objek, relasi dapat salah; setiap aksi perlu dihubungkan hanya ke sasaran yang didukung frasa sumber.
+3. Perubahan keadaan baru dikenali untuk sebagian aksi dan sebagian objek. Belum ada relasi urutan/sebab-akibat eksplisit yang dapat ditelusuri.
+4. `sutradara.py::_keadaan` masih menggunakan indeks/persentase beat untuk progres bahtera dan dinding Ya'juj. Ini tidak memenuhi aturan bahwa keadaan hanya berubah saat peristiwa menyatakannya.
+5. `peristiwa_visual` ditempelkan ke setiap shot dari beat yang sama. Belum ada pemilik state lintas beat yang mengatur kapan visual mulai berubah, tetap terlihat, berubah lagi, atau selesai.
+6. Renderer peristiwa saat ini baru memiliki visual khusus untuk beberapa aksi/objek (tanah terbelah, matahari didekatkan, kerumunan, keringat, jejak lari). Aksi lain tidak boleh dipaksa menjadi visual yang tidak didukung.
+
+**Keputusan implementasi agar tidak ada duplikasi:**
+- Tetap gunakan `analisis_peristiwa` sebagai satu pintu ekstraksi; tingkatkan hasilnya agar aktor, aksi, sasaran, bukti frasa, dan perubahan keadaan terhubung secara eksplisit.
+- Tetap gunakan definisi `$defs.peristiwa` di skema rencana sebagai kontrak data resmi. Ubah hanya bila kebutuhan baru terbukti dan tambahkan tes skema.
+- Tambahkan pengelolaan transisi/riwayat keadaan pada pemilik perencana Kisah Islami yang sudah ada, bukan membuat state manager terpisah. Renderer menerima keadaan hasil keputusan itu dan hanya menggambar.
+- Pertahankan `visual/peristiwa.py` sebagai pemilik komponen SVG peristiwa. Komponen baru harus dapat dipakai ulang dan didaftarkan melalui jalur renderer yang sama.
+- Pertahankan kamera, gerak, rig, timeline, dan audio yang sudah ada. Perencana hanya menyuplai keputusan ke antarmuka mereka.
+- Untuk kalimat ambigu, simpan bukti dan tandai PERIKSA; jangan mengarang aktor, sasaran, atau perubahan keadaan.
+
+**Urutan pekerjaan teknis yang disarankan:**
+A. Tes relasi aktor–aksi–sasaran untuk kalimat sederhana, pasif, banyak aktor, banyak objek, negasi, dan dua peristiwa dalam satu kalimat.
+B. Perbaiki ekstraksi pada pemilik `peristiwa.py` dan kontrak skema yang sama.
+C. Ganti progres berbasis indeks beat dengan transisi keadaan eksplisit pada pemilik sutradara yang sama.
+D. Pastikan keadaan dan visualnya konsisten antar-shot dan antar-beat.
+E. Baru perluas komponen visual yang terbukti dibutuhkan naskah.
+F. Render lintas cerita Nuh, Hud, dan Mahsyar 1; periksa apakah setiap perubahan layar punya bukti narasi.
+
+Tidak ada fitur baru atau modul paralel yang dibuat dalam audit ini. PR #48 tetap tidak di-merge.
+
 ## Tahap E — Periksa dan kritikus (Fase 5)
 1. **Periksa teknis.** Port `mesin-video/periksa.py` dengan baris `Asal:`. Yang diperiksa: resolusi, durasi, audio
    hilang, clipping, layar kosong, teks terpotong atau bertumpuk, dan teks di zona antarmuka TikTok.
