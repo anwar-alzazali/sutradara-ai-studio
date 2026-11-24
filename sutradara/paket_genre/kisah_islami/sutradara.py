@@ -526,6 +526,9 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         if pelaku:
             for s in shots:
                 s["pelaku"] = pelaku
+        # Visual objek/lingkungan hanya dirender bila aksi dan sasaran eksplisit cocok.
+        for shot_jadi in shots:
+            shot_jadi["peristiwa_visual"] = list(peristiwa)
         beat_rencana={"narasi":teks,"preset":preset,"keadaan":keadaan,"potong_di":cuts,
                       "dalil":refs,"peran_tampil":hadir,"shot":shots,
                       "resep":resep["id"],"dialog":dialog,
