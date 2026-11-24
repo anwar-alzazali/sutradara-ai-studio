@@ -16,11 +16,20 @@ _KATA_EMOSI = {
     "doa": ("malam", "sedih", "berdoa"), "memohon": ("malam", "sedih", "berdoa"),
     "selamat": ("fajar", "senyum", "berdiri"), "beriman": ("fajar", "senyum", "berdiri"),
 }
-_GERAK = {"membangun": "palu", "membuat": "palu", "menggali": "gali", "mengejek": "tertawa",
-          "tertawa": "tertawa", "berjalan": "jalan", "melintas": "jalan", "berlari": "lari",
-          "lari": "lari", "kabur": "lari", "melarikan diri": "lari", "menunjuk": "tunjuk", "menuding": "tunjuk", "mengejar": "lari", "dikejar": "lari",
-          "mengulurkan": "ulurkan", "menyerahkan": "ulurkan", "memberikan": "ulurkan", "menerima": "ulurkan",
-          "berdoa": "berdoa", "memohon": "berdoa", "mundur": "jalan"}
+# Satu adapter aksi -> kosakata gerak. Kunci mencakup bentuk kanonis
+# dari parser peristiwa dan bentuk leksikal untuk fallback narasi.
+_GERAK = {
+    "membangun": "palu", "membuat": "palu", "menggali": "gali",
+    "bangkit": "berdiri", "mengejek": "tertawa", "tertawa": "tertawa",
+    "berjalan": "jalan", "jalan": "jalan", "melintas": "jalan",
+    "berlari": "lari", "lari": "lari", "kabur": "lari",
+    "melarikan diri": "lari", "mengejar": "lari", "dikejar": "lari",
+    "menunjuk": "tunjuk", "menuding": "tunjuk",
+    "menyerahkan": "ulurkan", "mengulurkan": "ulurkan",
+    "memberikan": "ulurkan", "menerima": "ulurkan",
+    "berdoa": "berdoa", "memohon": "berdoa",
+    "mendekat": "jalan", "menjauh": "jalan", "mundur": "jalan",
+}
 _JUDUL = {
     "rangka": "MULAI MEMBANGUN", "jadi": "KAPAL SELESAI", "badai": "BANJIR DATANG", "tenang": "SELAMAT",
     "seruan": "MENYERU", "menolak": "MEREKA MENOLAK", "angin": "ANGIN DATANG", "selamat": "DISELAMATKAN",
@@ -466,12 +475,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         tindakan = _polos(teks)
         peristiwa = analisis_peristiwa(teks, b.get("peran", []), i)
         aksi = aksi_utama(peristiwa)
-        gerak = ({
-            "membangun": "palu", "menggali": "gali", "bangkit": "berdiri", "mengejek": "tertawa",
-            "tertawa": "tertawa", "jalan": "jalan", "lari": "lari",
-            "menunjuk": "tunjuk", "menyerahkan": "ulurkan", "menerima": "ulurkan",
-            "berdoa": "berdoa", "mendekat": "jalan", "menjauh": "jalan",
-        }.get(aksi) if aksi else None) or next(
+        gerak = (_GERAK.get(aksi) if aksi else None) or next(
             (v for k, v in _GERAK.items() if k in tindakan), resep.get("gerak", "berdiri")
         )
         resep = dict(resep); resep["gerak"] = gerak
