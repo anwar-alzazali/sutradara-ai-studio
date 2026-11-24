@@ -37,13 +37,16 @@ def render(peristiwa: dict) -> str:
                 for x in xs
             ) + '</g>'
         )
-    if aksi in {"berkeringat", "tenggelam"} and sasaran in {"kerumunan", "keringat"}:
+    if aksi == "berkeringat" and sasaran in {"kerumunan", "keringat"}:
         return (
             '<g class="peristiwa-keringat" fill="none" stroke="#9ed8ee" stroke-width="7" opacity=".8">'
             + "".join(f'<path d="M{x} {y} q -13 20 0 28 q 13 -8 0 -28Z" fill="#9ed8ee"/>'
                       for x, y in ((170, 1410), (330, 1460), (540, 1390), (760, 1450), (920, 1400)))
             + '</g>'
         )
+    # "Tenggelam" tidak boleh divisualkan sebagai tetesan keringat.
+    # Sampai tersedia komponen yang menyatakan peristiwa itu secara tepat,
+    # lebih aman tidak menambahkan overlay yang salah makna.
     if aksi == "lari":
         return (
             '<g class="peristiwa-pelarian" fill="none" stroke="#d8b58a" stroke-width="8" opacity=".75">'
