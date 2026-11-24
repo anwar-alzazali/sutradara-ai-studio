@@ -199,13 +199,39 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
     return g
 
 
+def _lapisan_rambut(model: str, warna: str, *, profil: bool, membelakangi: bool) -> str:
+    """Rambut kepala prosedural; geometri mengikuti sudut kamera, bukan warna saja."""
+    if model == "botak":
+        return ""
+    if membelakangi:
+        bentuk = {
+            "pendek": "M-34 -5 Q-43 -48 0 -50 Q43 -48 34 -5 Q22 9 0 8 Q-22 9 -34 -5Z",
+            "ikal": "M-37 -8 Q-48 -50 -27 -43 Q-20 -58 -7 -48 Q8 -59 17 -47 Q38 -55 43 -31 Q47 -5 34 3 Q0 17 -34 3Z",
+            "panjang": "M-35 -8 Q-44 -50 0 -51 Q44 -50 35 -8 L42 55 Q20 68 14 48 L0 58 L-14 48 Q-20 68 -42 55Z",
+        }[model]
+    elif profil:
+        bentuk = {
+            "pendek": "M-31 -10 Q-38 -45 0 -49 Q25 -47 32 -20 L22 -17 Q8 -30 -8 -26 L-20 -7Z",
+            "ikal": "M-34 -10 Q-43 -38 -27 -43 Q-22 -56 -8 -46 Q5 -58 15 -45 Q35 -46 34 -20 L22 -15 Q8 -31 -8 -25 L-21 -5Z",
+            "panjang": "M-32 -9 Q-42 -45 0 -50 Q30 -46 33 -16 L25 45 Q14 52 12 28 L-18 34 L-25 6Z",
+        }[model]
+    else:
+        bentuk = {
+            "pendek": "M-34 -8 Q-42 -48 0 -51 Q42 -48 34 -8 L23 -16 Q0 -27 -23 -16Z",
+            "ikal": "M-36 -7 Q-47 -38 -31 -43 Q-25 -59 -10 -47 Q2 -61 15 -47 Q36 -55 40 -31 L34 -6 L23 -17 Q0 -28 -23 -17Z",
+            "panjang": "M-35 -8 Q-44 -48 0 -51 Q44 -48 35 -8 L39 50 Q24 59 20 38 L-20 38 Q-24 59 -39 50Z",
+        }[model]
+    return f'<path d="{bentuk}" fill="{warna}"/>'
+
+
+
 def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = None, t: float = 0.0, indeks: int = 0,
           mode: str = "pakaian", kepala: str | None = None, jenis: str = "pria", wajah="datar", bicara=None,
           rinci: bool = True, balik: bool = False, alat: str | None = None, arah='depan', usia='dewasa', zaman='arab_kuno',
           wajah_cahaya: bool = False, barang: list[dict] | None = None,
           target_tangan: dict | None = None, detail_wajah: dict | None = None, warna_kulit: str | None = None,
           warna_baju: str | None = None, warna_aksen: str | None = None,
-          rambut: str | None = None, janggut: str = "pendek",
+          rambut: str | None = None, model_rambut: str = "pendek", janggut: str = "pendek",
           warna_janggut: str | None = None, gambar_item: Callable[..., str] | None = None) -> str:
     """Satu tokoh, kaki di (x, y), tinggi ±360 px pada s=1. `gerak`/`wajah` boleh jadwal [[detik, nama], ...];
     `bicara` = daftar [mulai, akhir] (detik) saat mulut bergerak. `pose` = nama lama untuk `gerak`.
@@ -301,13 +327,33 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
     sudut_k = J["tubuh"] + J["kepala"]
     g.append(f'<g transform="translate({pk[0]:.1f},{pk[1]:.1f}) rotate({sudut_k:.2f}) scale({1.18 if usia == "anak" else 1.0:.2f})">')
     g.append(f'<rect x="-11" y="20" width="22" height="22" fill="{kulit}"/><circle r="{R_KEPALA}" fill="{kulit}"/>')
-    if membelakangi and not siluet and kepala != "kerudung":
-        g.append(f'<path d="M-33 -7 Q-42 -43 0 -47 Q42 -43 33 -7 Q20 4 0 0 Q-20 4 -33 -7Z" fill="{rambut or RAMBUT}"/>')
+    # Rambut menjadi lapisan dasar kepala: terlihat pada kepala terbuka, dan
+    # tidak menembus penutup kepala. Fitur wajah tetap dirender paling akhir.
+    if not siluet and kepala == "tanpa":
+        g.append(_lapisan_rambut(model_rambut, rambut or RAMBUT,
+                                 profil=profil, membelakangi=membelakangi))
     if kepala == "kerudung" and not siluet:
         warna_k = KERUDUNG[indeks % len(KERUDUNG)]
         g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{warna_k}"/>')
         if not membelakangi:
             g.append(f'<ellipse cx="0" cy="2" rx="28" ry="31" fill="{kulit}"/>')
+    if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
+        if wajah_cahaya:
+            # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
+            lebar_wajah = 22 if profil else 32
+            g.append(f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah}" ry="34" fill="#fff8df" opacity=".96"/>'
+                     f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah + 7}" ry="39" fill="#fff0bd" opacity=".36" filter="url(#b10)"/>')
+        else:
+            jw = G.nilai_jadwal(wajah, t, "datar")
+            if jw not in WAJAH:
+                raise ValueError(f"wajah tak dikenal: {jw} (pilihan: {', '.join(WAJAH)})")
+            bc = 0.0
+            for a, b in (bicara or []):
+                if a <= t <= b:
+                    bc = 0.5 + 0.5 * math.sin(t * 15)
+            kedip = (t + indeks * 0.9) % 3.7 < 0.12
+            g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
+                        profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
     if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
         if wajah_cahaya:
             # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
