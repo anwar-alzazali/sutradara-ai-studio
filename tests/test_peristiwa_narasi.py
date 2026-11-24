@@ -23,7 +23,8 @@ def test_peristiwa_mengenali_gerak_dan_tujuan_objek():
     hasil = analisis_peristiwa("Kamu berjalan menuju matahari.", ["kamu"])
 
     assert aksi_utama(hasil) == "jalan"
-    assert hasil[0]["sasaran"] == "matahari"
+    assert hasil[0]["sasaran"] is None
+    assert hasil[0]["tujuan"] == "matahari"
     assert hasil[0]["perubahan_keadaan"] is None
 
 
