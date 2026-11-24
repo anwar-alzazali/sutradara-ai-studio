@@ -252,6 +252,13 @@ disutradarai manual (contoh Nuh dan Ya'juj di `RESEP_SUTRADARA.md`). Baca ROADMA
 - Jika pelaku, sasaran, atau perubahan keadaan tidak dapat dipastikan dari naskah terstruktur dan aturan, jangan mengarang. Pertahankan visual aman yang tidak menyatakan fakta baru dan tandai PERIKSA dengan alasan yang jelas.
 - Bukti D2 tambahan: uji naskah dari kisah yang berbeda dengan Nuh/Ya'juj dan periksa bahwa perubahan visual mengikuti peristiwa per beat. Mahsyar 1 dipakai sebagai salah satu naskah uji lintas cerita pada D3, bukan pengganti bukti wajib Nuh dan Hud.
  
+**Implementasi awal pemetaan peristiwa ke visual (24 Nov 2026, masih perlu audit):**
+- `peristiwa.py` mengekstrak aksi eksplisit, peran beat, sasaran yang disebut, dan perubahan keadaan eksplisit beserta bukti frasa.
+- `sutradara.py` menyertakan peristiwa pada beat dan shot; aksi eksplisit dapat mengarahkan pose/gerak. Tidak ada perubahan keadaan berdasarkan persentase indeks beat pada jalur visual padang.
+- Latar padang dipilih dari deskripsi ruang (padang/tanah rata/bumi putih), bukan nama Nabi atau judul kisah.
+- `visual/peristiwa.py` dan renderer menyediakan komponen SVG untuk tanah terbelah, matahari didekatkan, kerumunan, keringat, dan jejak pelarian. Peristiwa lain belum memiliki komponen visual khusus dan tidak boleh dipaksakan menjadi objek yang tidak didukung.
+- Tes baru mencakup frasa nyata Mahsyar 1. Ini baru uji unit/pemetaan, belum render MP4 Mahsyar 1 dan belum membuktikan seluruh naskah bisa divisualkan. Pengenalan bahasa masih berbasis pola eksplisit, bukan pemahaman bahasa bebas.
+
 **Status D2: implementasi utama tersedia; belum dinyatakan selesai.** Status dibedakan antara implementasi, tes otomatis, bukti render, dan tinjauan manusia.
 
 | Poin | Implementasi | Tes otomatis | Bukti render | Batas audit |
