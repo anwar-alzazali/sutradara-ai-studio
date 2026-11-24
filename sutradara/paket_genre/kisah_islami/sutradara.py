@@ -645,6 +645,21 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         # Setiap shot hanya membawa peristiwa yang mendasari keputusan visualnya.
         for shot_jadi, peristiwa_shot in zip(shots, peristiwa_per_shot):
             shot_jadi["peristiwa_visual"] = peristiwa_shot
+        if inti == "dinding_yajuj" and shots:
+            # Ringkasan keadaan beat harus mencerminkan keadaan akhir shot,
+            # bukan snapshot awal yang dihitung sebelum peristiwa beat ini.
+            benda_akhir = shots[-1].get("benda", [])
+            dinding_akhir = next(
+                (item for item in benda_akhir if item.get("jenis") == "dinding_yajuj"),
+                None,
+            )
+            if dinding_akhir is not None:
+                lubang_akhir = float(dinding_akhir.get("lubang", 0.0))
+                keadaan = "terbuka" if lubang_akhir >= 1.0 else (
+                    "hampir_terbuka" if lubang_akhir >= .72 else (
+                        "dilubangi" if lubang_akhir > 0.0 else "utuh"
+                    )
+                )
         beat_rencana={"narasi":teks,"preset":preset,"keadaan":keadaan,"potong_di":cuts,
                       "dalil":refs,"peran_tampil":hadir,"shot":shots,
                       "resep":resep["id"],"dialog":dialog,
