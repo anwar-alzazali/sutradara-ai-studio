@@ -511,3 +511,45 @@ def test_kota_tidak_runtuh_hanya_karena_angin_disebut():
     _reduksi_keadaan_benda(status, "kota_kuno", runtuh)
     sesudah = _keadaan("kota_kuno", ["awal", "peristiwa"], "Angin datang.", 0, 1, status)
     assert sesudah[1]["runtuh"] == .7
+
+
+def test_parser_mengenali_pembangunan_dan_penyelesaian_bahtera():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan, _reduksi_keadaan_benda
+
+    status = {}
+    for narasi in ("Kaum membangun bahtera.", "Pembangunan bahtera selesai."):
+        peristiwa = analisis_peristiwa(narasi, ["kaum"])
+        assert peristiwa
+        _reduksi_keadaan_benda(status, "bahtera", peristiwa[0])
+
+    snapshot = _keadaan("bahtera", [], "Beat tanpa perubahan.", 0, 1, status)
+    assert snapshot[0] == "selamat"
+    assert snapshot[1]["jadi"] == 1.0
+
+
+def test_parser_mengenali_penggalian_dinding_tanpa_menganggapnya_terbuka():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan, _reduksi_keadaan_benda
+
+    peristiwa = analisis_peristiwa("Mereka menggali dinding.", ["mereka"])
+    assert peristiwa and peristiwa[0]["sasaran"] == "dinding"
+    status = {}
+    _reduksi_keadaan_benda(status, "dinding_yajuj", peristiwa[0])
+    snapshot = _keadaan("dinding_yajuj", [], "Tidak ada perubahan.", 0, 1, status)
+    assert snapshot[0] == "dilubangi"
+    assert snapshot[1]["lubang"] == .25
+
+
+def test_parser_mengenali_runtuhnya_kota_sebagai_perubahan_eksplisit():
+    from sutradara.paket_genre.kisah_islami.peristiwa import analisis_peristiwa
+    from sutradara.paket_genre.kisah_islami.sutradara import _keadaan, _reduksi_keadaan_benda
+
+    peristiwa = analisis_peristiwa("Kota itu runtuh.", ["penduduk"])
+    assert peristiwa and peristiwa[0]["perubahan_keadaan"] == {
+        "objek": "kota", "keadaan": "runtuh"
+    }
+    status = {}
+    _reduksi_keadaan_benda(status, "kota_kuno", peristiwa[0])
+    snapshot = _keadaan("kota_kuno", [], "Angin datang.", 0, 1, status)
+    assert snapshot[1]["runtuh"] == .7
