@@ -1,6 +1,6 @@
 """Renderer elemen adegan khusus Kisah Islami."""
 from sutradara.genre import HasilAdegan
-from .visual import akhir_zaman,benda,dajjal,kartu,malaikat,makhluk,nur
+from .visual import akhir_zaman,benda,dajjal,kartu,malaikat,makhluk,nur,peristiwa
 
 def _cahaya(n,t):
     if n.get("_kategori_peran")=="malaikat":return malaikat.berkas(n["x"],n["y"],tinggi=n.get("tinggi",620),lebar=n.get("lebar",260),t=t,seed=n.get("seed",17))
@@ -8,6 +8,8 @@ def _cahaya(n,t):
 
 def render_adegan(shot,sp,t,tg,data):
     latar=[];tengah=[];overlay=[];barang_pemilik={};target_tangan={}
+    visual_peristiwa=peristiwa.render_semua(sp.get('peristiwa_visual',[]))
+    if visual_peristiwa:latar.append(visual_peristiwa)
     for n in sp.get("nur",[]):
         if n.get("di_belakang_benda"):latar.append(_cahaya(n,tg))
     for b in sp.get("buraq",[]):latar.append(akhir_zaman.buraq(b["x"],b["y"],b.get("s",1),t=tg))
