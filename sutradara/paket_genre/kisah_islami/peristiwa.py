@@ -65,6 +65,14 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
         m = re.search(r"(?<![a-z])" + re.escape(nama) + r"(?![a-z])", teks)
         if m:
             objek.append((m.start(), jenis, id_objek, nama))
+    # Kehadiran peran dalam beat bukan bukti bahwa ia pelaku. Isi aktor hanya
+    # bila nama/peran benar-benar disebut sebagai token dalam kalimat sumber.
+    aktor_eksplisit = []
+    for nama in peran or []:
+        kunci = _normal(nama).strip()
+        if kunci and re.search(r"(?<![a-z])" + re.escape(kunci) + r"(?![a-z])", teks):
+            aktor_eksplisit.append(nama)
+
     hasil = []
     for urutan, (awal, akhir, aksi, frasa) in enumerate(sorted(temuan)):
         target = next((o for o in objek if o[0] >= akhir), None)
@@ -75,7 +83,7 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
             perubahan = {"objek": target[2], "keadaan": aksi}
         hasil.append({
             "id": f"beat-{indeks + 1}-peristiwa-{urutan + 1}",
-            "aktor": list(peran or []),
+            "aktor": list(aktor_eksplisit),
             "aksi": aksi,
             "sasaran": target[2] if target else None,
             "perubahan_keadaan": perubahan,
