@@ -137,6 +137,8 @@ Dibawa dari mesin-video (narasi_api.py, dlib.py, campur_rekaman, 47 efek `aset/s
 - **Bukti:** contoh Nuh + kartu QS Hud 38 (4 potongan), contoh Dajjal + kartu HR Muslim 2934 (3 potongan); 5 tes.
 
 ### ○ Fase 4 — Sutradara otomatis v1
+**Penegasan keputusan pemilik (24 Nov 2026):** sutradara harus membangun visual dari peristiwa yang tertulis pada setiap beat, bukan sekadar memilih ulang resep visual Nuh. Jalur produksi utama bersifat deterministik dan tidak memerlukan arahan model AI; model opsional hanya boleh membantu kasus ambigu di D3. Keadaan benda/lingkungan mengikuti peristiwa yang disebut naskah, dan keputusan shot harus dapat ditelusuri ke narasi. Nuh dan Hud tetap bukti wajib; Mahsyar 1 menjadi uji tambahan lintas cerita.
+
 Inti "kecerdasan". Masukan: naskah terstruktur. Keluaran: rencana (resep G) yang lulus penjaga.
 1. **Templat naskah** untuk AI gratis (ChatGPT/Gemini): per beat → narasi, kata kunci, dalil, suasana, peran. Templat juga
    mendorong mutu cerita: fakta terkuat di depan, cerita utuh, tanpa kalimat ulang.
