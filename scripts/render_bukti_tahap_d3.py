@@ -56,10 +56,73 @@ def buat_bukti(nama: str) -> None:
     print(f"BUKTI_D3 {nama}: {jumlah_peristiwa} peristiwa; {berkas}; {mp4}; {lembar}")
 
 
+
+def buat_bukti_dinding() -> None:
+    # Fixture sintetis untuk menguji kontrak transisi benda, bukan klaim
+    # bahwa fixture ini merupakan naskah atau riwayat kisah yang tervalidasi.
+    naskah = {
+        "judul": "Uji transisi dinding",
+        "inti": "Uji visual dinding Ya'juj: utuh, digali, lalu terbuka.",
+        "dalil": [],
+        "beat": [
+            {
+                "narasi": "Dinding berdiri utuh menutup celah di antara dua bukit.",
+                "kata_kunci": [],
+                "dalil": [],
+                "suasana": "senja",
+                "peran": ["Kaum penggali"],
+            },
+            {
+                "narasi": "Kaum penggali menggali dinding dengan alat mereka.",
+                "kata_kunci": ["menggali"],
+                "dalil": [],
+                "suasana": "senja",
+                "peran": ["Kaum penggali"],
+            },
+            {
+                "narasi": "Dinding terbuka setelah penggalian selesai.",
+                "kata_kunci": ["terbuka"],
+                "dalil": [],
+                "suasana": "fajar",
+                "peran": ["Kaum penggali"],
+            },
+        ],
+    }
+    rencana, _ = rancang(naskah)
+    status = [beat["keadaan"] for beat in rencana["beat"]]
+    assert status == ["utuh", "dilubangi", "terbuka"], (
+        f"Transisi dinding tidak sesuai peristiwa eksplisit: {status}"
+    )
+    assert rencana["beat"][1]["peristiwa"]
+    assert rencana["beat"][2]["peristiwa"]
+    for indeks, beat in enumerate(rencana["beat"]):
+        for shot in beat.get("shot", []):
+            assert shot.get("peristiwa_visual", []) == beat.get("peristiwa", []), (
+                f"Fixture dinding: peristiwa beat {indeks} tidak terbawa ke shot"
+            )
+
+    temuan = periksa(rencana)
+    gagal = [str(x) for x in temuan if x.tingkat == "GAGAL"]
+    if gagal:
+        raise SystemExit("Fixture dinding gagal pemeriksaan:\\n" + "\\n".join(gagal))
+
+    berkas = OUT / "rencana-dinding-yajuj-fixture.json"
+    mp4 = OUT / "d3-dinding-yajuj-fixture.mp4"
+    lembar = OUT / "lembar-kontak-dinding-yajuj-fixture.jpg"
+    berkas.write_text(
+        json.dumps(rencana, ensure_ascii=False, indent=2) + "\\n",
+        encoding="utf-8",
+    )
+    video.buat(rencana, mp4, fps=12, workers=1)
+    video.lembar(mp4, lembar, n=16, kolom=4)
+    print(f"BUKTI_D3 dinding fixture: {status}; {berkas}; {mp4}; {lembar}")
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     for nama in SUMBER:
         buat_bukti(nama)
+    buat_bukti_dinding()
 
 
 if __name__ == "__main__":
