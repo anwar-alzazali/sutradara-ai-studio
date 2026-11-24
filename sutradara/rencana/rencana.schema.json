@@ -691,6 +691,7 @@
         "aktor",
         "aksi",
         "sasaran",
+        "tujuan",
         "perubahan_keadaan",
         "bukti_narasi",
         "keyakinan"
@@ -713,6 +714,13 @@
             "string",
             "null"
           ]
+        },
+        "tujuan": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Tujuan gerak yang dinyatakan eksplisit; bukan pasien/sasaran aksi."
         },
         "perubahan_keadaan": {
           "type": [
