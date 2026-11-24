@@ -1,10 +1,10 @@
 {
  "id": "261124-1024-buatkan-saya-naskah-tentang",
- "judul": "Detik-Detik Penyelamatan Nabi Musa di Tepi Laut Merah",
+ "judul": "Detik-Detik Penyelamatan Nabi Musa di Tepi Laut",
  "sumber": "ide",
  "chat": 7576750901,
  "tahap": {
-  "diterima": "jalan",
+  "diterima": "selesai",
   "dalil": "selesai",
   "tinjau": "jalan",
   "narasi": "belum",
@@ -14,16 +14,16 @@
   "kirim": "belum"
  },
  "ket": {
-  "diterima": "revisi mengantre…",
+  "diterima": "5 beat, 1 dalil · Gemini",
   "dalil": "1/1",
   "tinjau": "menunggu Anda membaca naskah"
  },
  "dibuat": "2026-11-24T03:24:35.896Z",
- "diperbarui": "2026-11-24T03:29:09+00:00",
- "token_ai": 1711,
+ "diperbarui": "2026-11-24T03:40:21+00:00",
+ "token_ai": 5104,
  "penyedia_ai": "Gemini gemini-3.5-flash-lite (gratis)",
  "laporan_dalil": [
-  "✓ QS. Asy-Syu'ara: 61-63 (label disarankan: QS ASH-SHU'ARA 61-63)"
+  "✓ QS. Asy-Syu'ara: 60-63 (label disarankan: QS ASH-SHU'ARA 60-63)"
  ],
- "pesan_kartu": 408
+ "pesan_kartu": 412
 }

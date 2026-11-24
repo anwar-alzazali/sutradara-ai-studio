@@ -1,19 +1,27 @@
 {
- "judul": "Detik-Detik Penyelamatan Nabi Musa di Tepi Laut Merah",
+ "judul": "Detik-Detik Penyelamatan Nabi Musa di Tepi Laut",
  "inti": "Pertolongan Allah datang di saat genting ketika Nabi Musa dan Bani Israil terpojok di tepi laut dan hampir tersusul oleh pasukan Firaun.",
  "dalil": [
   {
-   "id": "shuara6163",
+   "id": "shuara6063",
    "jenis": "quran",
-   "label": "QS. Asy-Syu'ara: 61-63",
+   "label": "QS. Asy-Syu'ara: 60-63",
    "surah": 26,
-   "ayat": "61-63",
+   "ayat": "60-63",
    "status": "terverifikasi",
-   "teks_ar": "فَلَمَّا تَرَٰٓءَا ٱلْجَمْعَانِ قَالَ أَصْحَـٰبُ مُوسَىٰٓ إِنَّا لَمُدْرَكُونَ قَالَ كَلَّآ ۖ إِنَّ مَعِىَ رَبِّى سَيَهْدِينِ فَأَوْحَيْنَآ إِلَىٰ مُوسَىٰٓ أَنِ ٱضْرِب بِّعَصَاكَ ٱلْبَحْرَ ۖ فَٱنفَلَقَ فَكَانَ كُلُّ فِرْقٍ كَٱلطَّوْدِ ٱلْعَظِيمِ",
-   "terjemah": "Maka ketika kedua golongan itu saling melihat, berkatalah pengikut-pengikut Musa, \"Kita benar-benar akan tersusul.\" Dia (Musa) menjawab, \"Sekali-kali tidak akan (tersusul); sesungguhnya Tuhanku bersamaku, Dia akan memberi petunjuk kepadaku.\" Lalu Kami wahyukan kepada Musa, \"Pukullah laut itu dengan tongkatmu.\" Maka terbelahlah lautan itu, dan setiap belahan seperti gunung yang besar.",
+   "teks_ar": "فَأَتْبَعُوهُم مُّشْرِقِينَ فَلَمَّا تَرَٰٓءَا ٱلْجَمْعَانِ قَالَ أَصْحَـٰبُ مُوسَىٰٓ إِنَّا لَمُدْرَكُونَ قَالَ كَلَّآ ۖ إِنَّ مَعِىَ رَبِّى سَيَهْدِينِ فَأَوْحَيْنَآ إِلَىٰ مُوسَىٰٓ أَنِ ٱضْرِب بِّعَصَاكَ ٱلْبَحْرَ ۖ فَٱنفَلَقَ فَكَانَ كُلُّ فِرْقٍ كَٱلطَّوْدِ ٱلْعَظِيمِ",
+   "terjemah": "Lalu (Fir'aun dan bala tentaranya) dapat menyusul mereka pada waktu matahari terbit. Maka ketika kedua golongan itu saling melihat, berkatalah pengikut-pengikut Musa, \"Kita benar-benar akan tersusul.\" Dia (Musa) menjawab, \"Sekali-kali tidak akan (tersusul); sesungguhnya Tuhanku bersamaku, Dia akan memberi petunjuk kepadaku.\" Lalu Kami wahyukan kepada Musa, \"Pukullah laut itu dengan tongkatmu.\" Maka terbelahlah lautan itu, dan setiap belahan seperti gunung yang besar.",
    "sumber_teks": "Quran Foundation · Indonesian Islamic Affairs Ministry",
-   "rujukan": "https://quran.com/26/61",
+   "rujukan": "https://quran.com/26/60",
    "pasangan_kata": [
+    {
+     "ar": "فَأَتْبَعُوهُم",
+     "id": "maka mereka dapat menyusul (Bani Israil)"
+    },
+    {
+     "ar": "مُّشْرِقِينَ",
+     "id": "diwaktu matahari terbit"
+    },
     {
      "ar": "فَلَمَّا",
      "id": "maka setelah"
@@ -125,20 +133,25 @@
    ],
    "diverifikasi_oleh": "sutradara.dalil 2026-11-24",
    "makna": "perlu_tinjauan_pemilik",
-   "label_saran": "QS ASH-SHU'ARA 61-63"
+   "label_saran": "QS ASH-SHU'ARA 60-63"
   }
  ],
  "beat": [
   {
-   "narasi": "Pernahkah kamu merasa terjepit di antara dua pilihan yang sama sekali tidak ada jalan keluarnya? Bayangkan kepanikan saat musuh di belakang dan lautan luas di depan mata.",
+   "narasi": "Pernahkah kamu merasa terjepit di antara dua pilihan yang sama sekali tidak ada jalan keluarnya? Maka Firaun beserta pasukannya mengejar mereka di waktu matahari terbit.",
    "kata_kunci": [
     "terjepit",
-    "jalan keluar",
-    "keputusasaan"
+    "Firaun",
+    "pasukan"
    ],
-   "dalil": [],
+   "dalil": [
+    "shuara6063"
+   ],
    "suasana": "malam_merah",
-   "peran": [],
+   "peran": [
+    "pengikut Nabi Musa",
+    "Nabi Musa"
+   ],
    "dialog": []
   },
   {
@@ -149,7 +162,7 @@
     "tersusul"
    ],
    "dalil": [
-    "shuara6163"
+    "shuara6063"
    ],
    "suasana": "malam_merah",
    "peran": [
@@ -172,17 +185,16 @@
     "pertolongan"
    ],
    "dalil": [
-    "shuara6163"
+    "shuara6063"
    ],
-   "suasana": "fajar",
+   "suasana": "malam_merah",
    "peran": [
     "Nabi Musa"
    ],
    "dialog": [
     {
      "pembicara": "Nabi Musa",
-     "ucapan": "Sekali-kali tidak akan tersusul; sesungguhnya Tuhanku besertaku, kelak Dia akan memberi petunjuk kepadaku.",
-     "penjawab": ""
+     "ucapan": "Sekali-kali tidak akan tersusul; sesungguhnya Tuhanku besertaku, kelak Dia akan memberi petunjuk kepadaku."
     }
    ]
   },
@@ -194,23 +206,23 @@
     "mukjizat"
    ],
    "dalil": [
-    "shuara6163"
+    "shuara6063"
    ],
-   "suasana": "dhuha",
+   "suasana": "malam_merah",
    "peran": [
     "Nabi Musa"
    ],
    "dialog": []
   },
   {
-   "narasi": "Apapun kesulitan yang kamu hadapi hari ini, ingatlah bahwa pertolongan Allah selalu datang tepat pada waktunya bagi hamba yang bertawakal.",
+   "narasi": "Renungkanlah bagaimana kekuasaan Allah bekerja melampaui batas akal manusia saat hamba-Nya berada dalam kepungan keputusasaan.",
    "kata_kunci": [
-    "kesulitan",
-    "pertolongan",
-    "tawakal"
+    "renungan",
+    "kekuasaan Allah",
+    "batas akal"
    ],
    "dalil": [],
-   "suasana": "dhuha",
+   "suasana": "malam_merah",
    "peran": [],
    "dialog": []
   }
