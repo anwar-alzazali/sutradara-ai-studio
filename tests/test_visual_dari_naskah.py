@@ -27,7 +27,7 @@ def test_visual_peristiwa_kerumunan_dan_keringat():
 def test_rencana_menyertakan_peristiwa_yang_menjadi_dasar_visual():
     naskah = {
         "judul": "Kebangkitan",
-        "inti": "Tanah terbelah dan manusia bangkit.",
+        "inti": "Bumi putih kemerahan, rata, dengan tanah terbelah dan manusia bangkit.",
         "dalil": [],
         "beat": [
             {"narasi": "Tanah di atasmu terbelah.", "peran": ["kamu"], "dalil": []},
