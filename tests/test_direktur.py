@@ -670,3 +670,26 @@ def test_pembukaan_eksplisit_menyelesaikan_lubang_dinding():
     assert shot[0]["peristiwa_visual"][0]["aksi"] == "terbuka"
     assert shot[0]["benda"][0]["lubang"] == 1.0
 
+
+
+def test_progres_penggalian_dinding_berlanjut_antar_beat():
+    naskah = {
+        "judul": "Penggalian dinding berlanjut",
+        "inti": "Penjaga menggali dinding lalu Pengelana menggali dinding.",
+        "dalil": [],
+        "beat": [
+            {
+                "narasi": "Penjaga menggali dinding.",
+                "dalil": [], "kata_kunci": [], "suasana": "senja",
+                "peran": ["Penjaga"],
+            },
+            {
+                "narasi": "Pengelana menggali dinding.",
+                "dalil": [], "kata_kunci": [], "suasana": "senja",
+                "peran": ["Pengelana"],
+            },
+        ],
+    }
+    hasil = rancang(naskah)["beat"]
+    assert hasil[0]["shot"][0]["benda"][0]["lubang"] == 0.18
+    assert hasil[1]["shot"][0]["benda"][0]["lubang"] == 1.0
