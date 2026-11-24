@@ -41,14 +41,14 @@ def buat_bukti(nama: str) -> None:
     temuan = periksa(rencana)
     gagal = [str(x) for x in temuan if x.tingkat == "GAGAL"]
     if gagal:
-        raise SystemExit(f"{nama}: rencana gagal pemeriksaan:\\n" + "\\n".join(gagal))
+        raise SystemExit(f"{nama}: rencana gagal pemeriksaan:\n" + "\n".join(gagal))
 
     nama_dasar = Path(nama).stem
     berkas = OUT / f"rencana-{nama_dasar}.json"
     mp4 = OUT / f"d3-{nama_dasar}.mp4"
     lembar = OUT / f"lembar-kontak-{nama_dasar}.jpg"
     berkas.write_text(
-        json.dumps(rencana, ensure_ascii=False, indent=2) + "\\n",
+        json.dumps(rencana, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     video.buat(rencana, mp4, fps=12, workers=1)
