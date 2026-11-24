@@ -264,14 +264,16 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
         # mendekati sasaran, bukan berangkat dari samping benda lalu menjauh.
         dekat = {"bahtera": 45.0, "dinding_yajuj": 55.0, "kota_kuno": 50.0}.get(inti, 45.0)
         seberang = {"bahtera": -300.0, "dinding_yajuj": -250.0, "kota_kuno": -240.0}.get(inti, -240.0)
-        sisi_pelaku = (
-            max(160.0, min(420.0, visual_x - 300.0))
-            if menuju_visual else max(300.0, min(780.0, visual_x - dekat))
-        )
-        sisi_lawan = (
-            max(700.0, min(920.0, visual_x + 250.0))
-            if menuju_visual else max(260.0, min(440.0, visual_x + seberang))
-        )
+        kerja_visual = gerak in {"palu", "gali"}
+        if menuju_visual:
+            sisi_pelaku = max(160.0, min(420.0, visual_x - 300.0))
+            sisi_lawan = max(700.0, min(920.0, visual_x + 250.0))
+        elif kerja_visual:
+            sisi_pelaku = max(300.0, min(780.0, visual_x + dekat))
+            sisi_lawan = max(260.0, min(440.0, visual_x + seberang))
+        else:
+            sisi_pelaku = max(300.0, min(780.0, visual_x - dekat))
+            sisi_lawan = max(700.0, min(920.0, visual_x + 250.0))
         for pid in hadir:
             dasar = sisi_pelaku if pid in pelaku else sisi_lawan
             kelompok_ids = pelaku if pid in pelaku else [x for x in hadir if x not in pelaku]
