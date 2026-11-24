@@ -1,7 +1,7 @@
 """Ekstraksi peristiwa narasi untuk keputusan visual yang dapat ditelusuri.
 
-Parser ini sengaja konservatif: hanya mengenali pola bahasa yang eksplisit. Ia tidak
-menyimpulkan fakta, sebab-akibat, atau perubahan benda yang tidak disebut naskah.
+Parser ini konservatif: hanya mengikat pelaku, pasien, tujuan, dan perubahan keadaan
+ketika relasi bahasanya eksplisit. Peran yang sekadar hadir tidak otomatis menjadi pelaku.
 """
 from __future__ import annotations
 
@@ -14,70 +14,96 @@ def _normal(teks: str) -> str:
     return "".join(c for c in teks if not unicodedata.combining(c))
 
 
-# Urutan terpanjang lebih dulu agar "melarikan diri" tidak dipotong menjadi "lari".
 _AKSI = {
-    "melarikan diri": "lari", "berjalan": "jalan", "berlari": "lari", "lari": "lari", "bangkit": "bangkit",
-    "menjauh": "menjauh", "menjauhi": "menjauh", "mendekat": "mendekat",
-    "mendekati": "mendekat", "menghampiri": "mendekat",
+    "melarikan diri": "lari", "berjalan": "jalan", "berlari": "lari", "lari": "lari",
+    "bangkit": "bangkit", "menjauh": "menjauh", "menjauhi": "menjauh",
+    "mendekat": "mendekat", "mendekati": "mendekat", "menghampiri": "mendekat",
     "membangun": "membangun", "dibangun": "membangun", "membuat": "membangun",
-    "menggali": "menggali", "digali": "menggali",
-    "mengejek": "mengejek", "mengolok": "mengejek", "tertawa": "tertawa",
-    "berdoa": "berdoa", "memohon": "berdoa", "menyerahkan": "menyerahkan",
-    "memberikan": "menyerahkan", "mengulurkan": "menyerahkan", "menerima": "menerima",
-    "berkumpul": "berkumpul", "berhimpun": "berkumpul", "terkumpul": "berkumpul", "berkeringat": "berkeringat", "tenggelam": "tenggelam", "seluruh manusia": "berkumpul",
-    "terbelah": "terbelah", "membelah": "terbelah", "retak": "retak", "terpecah": "retak",
-    "runtuh": "runtuh", "roboh": "runtuh", "hancur": "runtuh",
-    "terbuka": "terbuka", "membuka": "terbuka", "terangkat": "terangkat",
-    "mengangkat": "terangkat", "surut": "surut", "mengering": "surut",
-    "didekatkan": "mendekat", "mendekatkan": "mendekat",
-    "terbit": "muncul", "muncul": "muncul", "datang": "datang",
-    "pergi": "pergi", "jatuh": "jatuh", "terjatuh": "jatuh",
-    "berbicara": "berbicara", "menyeru": "berbicara", "berkata": "berbicara",
-    "menjawab": "berbicara", "menunjuk": "menunjuk", "menuding": "menunjuk",
+    "menggali": "menggali", "digali": "menggali", "mengejek": "mengejek",
+    "mengolok": "mengejek", "tertawa": "tertawa", "berdoa": "berdoa",
+    "memohon": "berdoa", "menyerahkan": "menyerahkan", "memberikan": "menyerahkan",
+    "mengulurkan": "menyerahkan", "menerima": "menerima", "berkumpul": "berkumpul",
+    "berhimpun": "berkumpul", "terkumpul": "berkumpul", "berkeringat": "berkeringat",
+    "tenggelam": "tenggelam", "terbelah": "terbelah", "membelah": "terbelah",
+    "retak": "retak", "terpecah": "retak", "runtuh": "runtuh", "roboh": "runtuh",
+    "hancur": "runtuh", "terbuka": "terbuka", "membuka": "terbuka",
+    "terangkat": "terangkat", "mengangkat": "terangkat", "surut": "surut",
+    "mengering": "surut", "didekatkan": "mendekat", "mendekatkan": "mendekat",
+    "terbit": "muncul", "muncul": "muncul", "datang": "datang", "pergi": "pergi",
+    "jatuh": "jatuh", "terjatuh": "jatuh", "berbicara": "berbicara",
+    "menyeru": "berbicara", "berkata": "berbicara", "menjawab": "berbicara",
+    "menunjuk": "menunjuk", "menuding": "menunjuk",
 }
 _OBJEK = {
-    "bahtera": ("bahtera", "bahtera"), "kapal": ("bahtera", "bahtera"),
-    "dinding": ("dinding", "dinding"), "bumi": ("bumi", "bumi"),
-    "tanah": ("bumi", "bumi"), "matahari": ("matahari", "matahari"),
-    "manusia": ("kerumunan", "kerumunan"), "kerumunan": ("kerumunan", "kerumunan"),
-    "keringat": ("keringat", "keringat"), "keringatnya": ("keringat", "keringat"), "danau": ("danau", "danau"),
-    "sungai": ("sungai", "sungai"), "pintu": ("pintu", "pintu"),
-    "langit": ("langit", "langit"), "gunung": ("gunung", "gunung"),
-    "air": ("air", "air"), "api": ("api", "api"),
+    "bahtera": "bahtera", "kapal": "bahtera", "dinding": "dinding",
+    "bumi": "bumi", "tanah": "bumi", "matahari": "matahari",
+    "manusia": "kerumunan", "kerumunan": "kerumunan", "keringat": "keringat",
+    "keringatnya": "keringat", "danau": "danau", "sungai": "sungai",
+    "pintu": "pintu", "langit": "langit", "gunung": "gunung", "air": "air", "api": "api",
 }
-_NEGASI = re.compile(r"\b(?:tidak|tak|belum|bukan|jangan)\s+$")
+_NEGASI = re.compile(r"\\b(?:tidak|tak|belum|bukan|jangan)\\b")
+_TUJUAN = re.compile(r"\\b(?:menuju|ke arah|menghampiri|mendekati)\\s+(?:ke\\s+)?([a-z ]+?)(?=[,.!?;]|$)")
+_PERUBAHAN = {"terbelah", "retak", "runtuh", "terbuka", "surut", "terangkat", "muncul", "jatuh"}
+
+
+def _batas_klausa(teks: str, posisi: int) -> tuple[int, int]:
+    kiri = max(teks.rfind(x, 0, posisi) for x in (".", ",", ";", ":", " lalu "))
+    kanan = min((p for x in (".", ",", ";", ":") if (p := teks.find(x, posisi)) >= 0), default=len(teks))
+    return kiri + 1, kanan
+
+
+def _cocok_objek(teks: str, awal: int, akhir: int):
+    kandidat = []
+    for nama, jenis in _OBJEK.items():
+        for m in re.finditer(r"(?<![a-z])" + re.escape(nama) + r"(?![a-z])", teks):
+            if awal <= m.start() < akhir:
+                kandidat.append((m.start(), m.end(), jenis, nama))
+    return sorted(kandidat)
 
 
 def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int = 0) -> list[dict]:
-    """Kembalikan peristiwa eksplisit dari satu beat, beserta bukti teks sumber."""
+    """Ekstrak relasi eksplisit; nama peran yang tidak disebut bukan pelaku."""
     teks = _normal(narasi)
-    temuan: list[tuple[int, int, str, str]] = []
+    temuan = []
     for frasa, aksi in sorted(_AKSI.items(), key=lambda item: len(item[0]), reverse=True):
-        pola = re.compile(r"(?<![a-z])" + re.escape(frasa) + r"(?![a-z])")
-        for cocok in pola.finditer(teks):
-            if _NEGASI.search(teks[max(0, cocok.start() - 18):cocok.start()]):
+        for m in re.finditer(r"(?<![a-z])" + re.escape(frasa) + r"(?![a-z])", teks):
+            if any(not (m.end() <= a or m.start() >= b) for a, b, _, _ in temuan):
                 continue
-            if any(not (cocok.end() <= a or cocok.start() >= b) for a, b, _, _ in temuan):
+            kiri, kanan = _batas_klausa(teks, m.start())
+            if _NEGASI.search(teks[kiri:m.start()]):
                 continue
-            temuan.append((cocok.start(), cocok.end(), aksi, frasa))
-    objek = []
-    for nama, (jenis, id_objek) in sorted(_OBJEK.items(), key=lambda item: len(item[0]), reverse=True):
-        m = re.search(r"(?<![a-z])" + re.escape(nama) + r"(?![a-z])", teks)
-        if m:
-            objek.append((m.start(), jenis, id_objek, nama))
+            temuan.append((m.start(), m.end(), aksi, frasa, kiri, kanan))
     hasil = []
-    for urutan, (awal, akhir, aksi, frasa) in enumerate(sorted(temuan)):
-        target = next((o for o in objek if o[0] >= akhir), None)
-        if target is None and objek:
-            target = min(objek, key=lambda o: abs(o[0] - awal))
+    for urutan, (awal, akhir, aksi, frasa, kiri, kanan) in enumerate(sorted(temuan)):
+        lokal = _cocok_objek(teks, kiri, kanan)
+        tujuan = None
+        mt = _TUJUAN.search(teks, akhir, kanan)
+        if mt:
+            nama_tujuan = mt.group(1).strip()
+            tujuan = _OBJEK.get(nama_tujuan)
+            if tujuan is None:
+                tujuan = nama_tujuan.replace(" ", "_") or None
+        # Pasien eksplisit: objek sebelum verba pasif/perubahan, atau setelah
+        # verba aktif yang memang memiliki objek. Tujuan perjalanan bukan pasien.
+        pasien = next((o for o in reversed(lokal) if o[1] <= awal), None)
+        if pasien is None and tujuan is None:
+            pasien = next((o for o in lokal if o[0] >= akhir), None)
+        pelaku = []
+        if peran:
+            sebelum = teks[kiri:awal]
+            for nama in peran:
+                kunci = _normal(nama).strip()
+                if kunci and re.search(r"(?<![a-z])" + re.escape(kunci) + r"(?![a-z])", sebelum):
+                    pelaku.append(nama)
         perubahan = None
-        if aksi in {"terbelah", "retak", "runtuh", "terbuka", "surut", "terangkat", "muncul", "jatuh"} and target:
-            perubahan = {"objek": target[2], "keadaan": aksi}
+        if aksi in _PERUBAHAN and pasien:
+            perubahan = {"objek": pasien[2], "keadaan": aksi}
         hasil.append({
             "id": f"beat-{indeks + 1}-peristiwa-{urutan + 1}",
-            "aktor": list(peran or []),
+            "aktor": pelaku,
             "aksi": aksi,
-            "sasaran": target[2] if target else None,
+            "sasaran": pasien[2] if pasien else None,
+            "tujuan": tujuan,
             "perubahan_keadaan": perubahan,
             "bukti_narasi": narasi[awal:akhir],
             "keyakinan": "pola_eksplisit",
