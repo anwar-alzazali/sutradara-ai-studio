@@ -23,7 +23,7 @@ def render(peristiwa: dict) -> str:
             '<circle cx="540" cy="430" r="82" fill="#ffe8b0" opacity=".92"/>'
             '</g>'
         )
-    if aksi == "berkumpul" and sasaran == "kerumunan":
+    if aksi in {"berkumpul", "hadir"} and sasaran == "kerumunan":
         return (
             '<g class="peristiwa-kerumunan" fill="#40303a" stroke="#17121a" stroke-width="5">'
             + "".join(
@@ -33,7 +33,7 @@ def render(peristiwa: dict) -> str:
                 for x in xs
             ) + '</g>'
         )
-    if aksi == "berkeringat" and sasaran in {"kerumunan", "keringat"}:
+    if aksi in {"berkeringat", "tenggelam"} and sasaran == "keringat":
         return (
             '<g class="peristiwa-keringat" fill="none" stroke="#9ed8ee" stroke-width="7" opacity=".8">'
             + "".join(f'<path d="M{x} {y} q -13 20 0 28 q 13 -8 0 -28Z" fill="#9ed8ee"/>'
