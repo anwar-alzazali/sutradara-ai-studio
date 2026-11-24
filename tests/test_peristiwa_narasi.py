@@ -62,3 +62,16 @@ def test_peristiwa_mengekspos_token_aksi_untuk_jangkar_shot():
     assert [x["aksi"] for x in hasil] == ["jalan", "membangun"]
     assert [x["kata_aksi"] for x in hasil] == ["berjalan", "membangun"]
     assert all(x["kata_aksi"] in x["bukti_narasi"] for x in hasil)
+
+
+def test_batas_lalu_memisahkan_tujuan_dan_aktor_peristiwa_berikutnya():
+    hasil = analisis_peristiwa(
+        "Pengelana berjalan menuju bahtera lalu Penjaga membangun dinding.",
+        ["Pengelana", "Penjaga"],
+    )
+    assert [x["aksi"] for x in hasil] == ["jalan", "membangun"]
+    assert hasil[0]["tujuan"] == "bahtera"
+    assert hasil[0]["sasaran"] is None
+    assert hasil[0]["aktor"] == ["Pengelana"]
+    assert hasil[1]["sasaran"] == "dinding"
+    assert hasil[1]["aktor"] == ["Penjaga"]
