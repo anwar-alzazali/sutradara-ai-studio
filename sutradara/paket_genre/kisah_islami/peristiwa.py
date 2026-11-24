@@ -41,7 +41,7 @@ _OBJEK = {
     "keringatnya": "keringat", "danau": "danau", "sungai": "sungai",
     "pintu": "pintu", "langit": "langit", "gunung": "gunung", "air": "air", "api": "api",
 }
-_NEGASI = re.compile(r"\b(?:tidak|tak|belum|bukan|jangan)\\b")
+_NEGASI = re.compile(r"\b(?:tidak|tak|belum|bukan|jangan)\b")
 _TUJUAN = re.compile(r"\b(?:menuju|ke arah|menghampiri|mendekati)\s+(?:ke\s+)?([a-z ]+?)(?=[,.!?;]|$)")
 _PERUBAHAN = {"terbelah", "retak", "runtuh", "terbuka", "surut", "terangkat", "muncul", "jatuh"}
 
