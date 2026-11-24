@@ -39,7 +39,7 @@
               "jenis": "pria",
               "usia": "dewasa",
               "zaman": "umum",
-              "mode": "siluet",
+              "mode": "pakaian",
               "arah": "belakang",
               "gerak": [[0, "duduk"], [2.8, "berdiri"]],
               "wajah": "datar",
