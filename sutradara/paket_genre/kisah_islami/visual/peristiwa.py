@@ -33,14 +33,6 @@ def render(peristiwa: dict) -> str:
                 for x in xs
             ) + '</g>'
         )
-    if aksi == "berk汗at":
-        return ""
-    if aksi == "berk汗at":
-        return ""
-    if aksi == "berk汗at":
-        return ""
-    if aksi == "berk汗at":
-        return ""
     if aksi == "berkeringat" and sasaran in {"kerumunan", "keringat"}:
         return (
             '<g class="peristiwa-keringat" fill="none" stroke="#9ed8ee" stroke-width="7" opacity=".8">'
