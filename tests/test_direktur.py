@@ -576,6 +576,25 @@ def test_pembangunan_dinding_tidak_dihitung_sebagai_progres_bahtera():
     # pembangunan bahtera juga belum cukup untuk menyatakan konstruksi selesai.
     assert [item["benda"][0]["jadi"] for item in shot] == [0.18, 0.18]
 
+def test_dua_peristiwa_pembangunan_bahtera_memajukan_progres_bertahap():
+    naskah = {
+        "judul": "Pembangunan bahtera bertahap",
+        "inti": "Penjaga membangun bahtera lalu Pengelana membangun bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penjaga membangun bahtera lalu Pengelana membangun bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga", "Pengelana"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 2
+    assert [item["peristiwa_visual"][0]["sasaran"] for item in shot] == [
+        "bahtera", "bahtera",
+    ]
+    assert [item["benda"][0]["jadi"] for item in shot] == [0.18, 1.0]
+
+
 def test_progres_keadaan_benda_tidak_melampaui_batas_pada_beat_terakhir():
     naskah = {
         "judul": "Pembangunan dan perjalanan",
