@@ -166,13 +166,13 @@ def _keadaan(
     if inti == "padang":
         return "lapang", {}
     if inti == "bahtera":
-        if any(k in polos for k in ("banjir", "badai", "gelombang")):
-            return "badai", {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78, "jadi": 1.0,
-                              "goyang": .65, "cahaya": .15, "darat": False}
         selesai = bool(status.get("selesai"))
         dibangun = bool(status.get("dibangun"))
         jadi = 1.0 if selesai else (.55 if dibangun else .18)
-        state = "selamat" if selesai else ("dibangun" if dibangun else "rangka")
+        if any(k in polos for k in ("banjir", "badai", "gelombang")):
+            return "badai", {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78, "jadi": jadi,
+                              "goyang": .65, "cahaya": .15, "darat": False}
+        state = "jadi" if selesai else ("dibangun" if dibangun else "rangka")
         return state, {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78,
                        "jadi": jadi, "goyang": 0, "cahaya": .25 + .45*jadi, "darat": True}
     if inti == "dinding_yajuj":
