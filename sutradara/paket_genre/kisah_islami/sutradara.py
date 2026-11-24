@@ -355,10 +355,10 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
             )
             if pelaku and pid in pelaku:
                 # Pelaku aksi menghadap visual inti yang sedang dikerjakan.
-                arah = "samping"
+                arah = "tiga_perempat" if dialog else "samping"
                 balik = x > float(keadaan.get("x", 540))
             elif lawan:
-                arah = "samping"
+                arah = "tiga_perempat" if dialog else "samping"
                 balik = x > posisi.get(lawan, x)
             elif menunjuk_visual:
                 arah = "samping"
