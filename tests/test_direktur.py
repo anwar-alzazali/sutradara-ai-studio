@@ -446,19 +446,18 @@ def test_interaksi_tanpa_nama_tokoh_hanya_diinferensikan_jika_tepat_dua_peran():
 
 def test_aksi_hanya_dilakukan_pelaku_bukan_semua_tokoh_dalam_shot():
     naskah = {
-        "judul": "Pengejaran",
-        "inti": "Penjaga mengejar pengelana.",
+        "judul": "Pembangunan",
+        "inti": "Pengelana membangun bahtera sementara penjaga menunggu.",
         "dalil": [],
         "beat": [{
-            "narasi": "Penjaga berlari mengejar pengelana.",
+            "narasi": "Pengelana membangun bahtera. Penjaga menunggu.",
             "dalil": [], "kata_kunci": [], "suasana": "senja",
-            "peran": ["Penjaga", "Pengelana"],
+            "peran": ["Pengelana", "Penjaga"],
         }],
     }
     tokoh = rancang(naskah)["beat"][0]["shot"][0]["tokoh"]
-    penjaga = next(t for t in tokoh if t["peran"] == "penjaga")
     pengelana = next(t for t in tokoh if t["peran"] == "pengelana")
+    penjaga = next(t for t in tokoh if t["peran"] == "penjaga")
 
-    assert penjaga["gerak"] == "lari"
-    assert pengelana["gerak"] == "lari"
-    assert penjaga["lintasan"] and pengelana["lintasan"]
+    assert pengelana["gerak"] == "palu"
+    assert penjaga["gerak"] == "berdiri"
