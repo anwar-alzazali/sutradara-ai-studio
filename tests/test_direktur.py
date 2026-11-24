@@ -610,7 +610,9 @@ def test_progres_keadaan_benda_tidak_melampaui_batas_pada_beat_terakhir():
     }
     shot_akhir = rancang(naskah)["beat"][-1]["shot"]
     nilai_jadi = [item["benda"][0]["jadi"] for item in shot_akhir]
-    assert nilai_jadi == [1.0, 1.0]
+    # Shot perjalanan tidak memajukan konstruksi; hanya event membangun
+    # kedua yang menyelesaikan bahtera.
+    assert nilai_jadi == [.18, 1.0]
     assert all(0.0 <= nilai <= 1.0 for nilai in nilai_jadi)
 
 
