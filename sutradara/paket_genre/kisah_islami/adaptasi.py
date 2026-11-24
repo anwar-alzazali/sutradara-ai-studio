@@ -1,7 +1,14 @@
 """Adapter aturan Kisah Islami ke atribut renderer karakter yang netral."""
 import copy
 
+from .peristiwa import analisis_peristiwa
+
 def adaptasi_shot(rencana,shot):
+    narasi=shot.pop("_narasi_visual","")
+    peran_visual=shot.pop("_peran_visual",[])
+    if narasi:
+        # Renderer khusus hanya menerima peristiwa yang benar-benar disebut narasi.
+        shot["peristiwa_visual"]=analisis_peristiwa(narasi,peran_visual)
     peran={p["id"]:p for p in rencana.get("peran",[])};pemeran={p["id"]:p for p in rencana.get("pemeran",[])}
     for tokoh in shot.get("tokoh",[]):
         p=peran.get(tokoh.get("peran"))
