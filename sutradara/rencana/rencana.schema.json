@@ -721,6 +721,13 @@
           ],
           "description": "Tujuan gerak yang dinyatakan eksplisit; bukan pasien/sasaran aksi."
         },
+        "kata_aksi": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Token verba asli yang cocok dengan parser; menjadi jangkar narasi untuk urutan shot."
+        },
         "perubahan_keadaan": {
           "type": [
             "object",

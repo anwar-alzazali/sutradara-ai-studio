@@ -51,3 +51,39 @@ def test_pasien_dipilih_dari_frasa_sebelum_aksi():
     hasil = analisis_peristiwa("Dinding itu runtuh setelah digali.", [])
     assert hasil[0]["sasaran"] == "dinding"
     assert hasil[0]["perubahan_keadaan"] == {"objek": "dinding", "keadaan": "runtuh"}
+
+
+
+def test_peristiwa_mengekspos_token_aksi_untuk_jangkar_shot():
+    hasil = analisis_peristiwa(
+        "Pengelana berjalan menuju bahtera lalu membangun bahtera.",
+        ["Pengelana"],
+    )
+    assert [x["aksi"] for x in hasil] == ["jalan", "membangun"]
+    assert [x["kata_aksi"] for x in hasil] == ["berjalan", "membangun"]
+    assert all(x["kata_aksi"] in x["bukti_narasi"] for x in hasil)
+
+
+def test_batas_lalu_memisahkan_tujuan_dan_aktor_peristiwa_berikutnya():
+    hasil = analisis_peristiwa(
+        "Pengelana berjalan menuju bahtera lalu Penjaga membangun dinding.",
+        ["Pengelana", "Penjaga"],
+    )
+    assert [x["aksi"] for x in hasil] == ["jalan", "membangun"]
+    assert hasil[0]["tujuan"] == "bahtera"
+    assert hasil[0]["sasaran"] is None
+    assert hasil[0]["aktor"] == ["Pengelana"]
+    assert hasil[1]["sasaran"] == "dinding"
+    assert hasil[1]["aktor"] == ["Penjaga"]
+
+
+def test_saksi_yang_disebut_sebelum_perubahan_keadaan_bukan_pelaku():
+    hasil = analisis_peristiwa(
+        "Penjaga menyaksikan dinding runtuh.",
+        ["Penjaga"],
+    )
+    assert len(hasil) == 1
+    assert hasil[0]["aksi"] == "runtuh"
+    assert hasil[0]["sasaran"] == "dinding"
+    assert hasil[0]["perubahan_keadaan"] == {"objek": "dinding", "keadaan": "runtuh"}
+    assert hasil[0]["aktor"] == []

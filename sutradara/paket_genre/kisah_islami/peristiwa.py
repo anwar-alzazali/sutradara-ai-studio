@@ -10,7 +10,9 @@ import unicodedata
 
 
 def _normal(teks: str) -> str:
-    teks = unicodedata.normalize("NFKD", str(teks).lower())
+    # Ellipsis sering menjadi jeda retoris, bukan batas klausa; NFKD dapat
+    # mengubahnya menjadi tiga titik yang keliru memisahkan objek dari verba.
+    teks = unicodedata.normalize("NFKD", str(teks).replace("…", " ").lower())
     return "".join(c for c in teks if not unicodedata.combining(c))
 
 
@@ -44,11 +46,20 @@ _OBJEK = {
 _NEGASI = re.compile(r"\b(?:tidak|tak|belum|bukan|jangan)\b")
 _TUJUAN = re.compile(r"\b(?:menuju|ke arah|menghampiri|mendekati)\s+(?:ke\s+)?([a-z ]+?)(?=[,.!?;]|$)")
 _PERUBAHAN = {"terbelah", "retak", "runtuh", "terbuka", "surut", "terangkat", "muncul", "jatuh"}
+# Bentuk keadaan/pasif ini menyatakan perubahan pada pasien, bukan aksi
+# yang dilakukan oleh peran yang kebetulan disebut sebelumnya.
+_AKSI_KEADAAN_PASIEN = {
+    "terbelah", "retak", "terpecah", "runtuh", "roboh", "hancur",
+    "terbuka", "terangkat", "surut", "mengering", "terbit", "muncul",
+    "jatuh", "terjatuh", "tenggelam", "terkumpul", "dibangun", "digali",
+    "didekatkan",
+}
 
 
 def _batas_klausa(teks: str, posisi: int) -> tuple[int, int]:
-    kiri = max(teks.rfind(x, 0, posisi) for x in (".", ",", ";", ":", " lalu "))
-    kanan = min((p for x in (".", ",", ";", ":") if (p := teks.find(x, posisi)) >= 0), default=len(teks))
+    pemisah = (".", ",", ";", ":", " lalu ")
+    kiri = max(teks.rfind(x, 0, posisi) for x in pemisah)
+    kanan = min((p for x in pemisah if (p := teks.find(x, posisi)) >= 0), default=len(teks))
     return kiri + 1, kanan
 
 
@@ -80,8 +91,8 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
         return [{
             "id": f"beat-{indeks + 1}-peristiwa-1", "aktor": [],
             "aksi": "hadir", "sasaran": "kerumunan", "tujuan": None,
-            "perubahan_keadaan": None, "bukti_narasi": narasi,
-            "keyakinan": "pola_eksplisit",
+            "perubahan_keadaan": None, "kata_aksi": None,
+            "bukti_narasi": narasi, "keyakinan": "pola_eksplisit",
         }]
     for urutan, (awal, akhir, aksi, frasa, kiri, kanan) in enumerate(sorted(temuan)):
         lokal = _cocok_objek(teks, kiri, kanan)
@@ -103,7 +114,7 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
         elif pasien is None and tujuan is None:
             pasien = next((o for o in lokal if o[0] >= akhir), None)
         pelaku = []
-        if peran:
+        if peran and frasa not in _AKSI_KEADAAN_PASIEN:
             sebelum = teks[kiri:awal]
             for nama in peran:
                 kunci = _normal(nama).strip()
@@ -119,6 +130,9 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
             "sasaran": pasien[2] if pasien else None,
             "tujuan": tujuan,
             "perubahan_keadaan": perubahan,
+            # Token verba hasil pencocokan; dipakai sutradara sebagai jangkar
+            # potongan shot, bukan ditebak ulang dari kata_kunci naskah.
+            "kata_aksi": frasa,
             "bukti_narasi": narasi[awal:akhir],
             "keyakinan": "pola_eksplisit",
         })

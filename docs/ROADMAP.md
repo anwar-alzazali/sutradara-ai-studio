@@ -372,3 +372,94 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 
 
 - 23 Nov 2026 — Audit ulang PR #48: status D2 dipisah antara implementasi, tes otomatis, render, dan tinjauan pemilik. 320 tes Python + 10 tes bot dan render 14 shot pada SHA 660ea9a tercatat; uji audio-cache pada HEAD masih wajib. Catatan PERIKSA B2/Tirmidzi 3153 dan kebutuhan tinjauan gerak kontinu dipertahankan.
+
+
+## Audit Fase 4 — 24 Nov 2026 (lanjutan pada rantai D2/D3)
+
+Audit ini diselaraskan dengan HEAD PR #52 (`tahap-d3-peristiwa-visual`), bukan hanya `main`.
+Cakupan: `antrean.py`, kontrak genre, `direktur.py`, sutradara Kisah Islami, parser peristiwa,
+selector resep, blocking, renderer peristiwa, validator, CLI, dan tes. Tidak membuat parser/skema/renderer
+alternatif; batas wajib `AGENTS.md` dan penjaga domain tetap tidak disentuh.
+
+**Baseline CI PR #52 sebelum perbaikan:** workflow #568 gagal pada `pytest` dengan 4 gagal dan 329 lulus:
+1. `test_interaksi_otomatis_menghadapkan_pemberi_dan_penerima`: penerima tidak melakukan gestur ulurkan.
+2. `test_perjalanan_otomatis_mengenali_tujuan_benda_dan_kedalaman`: posisi awal pelaku sudah di sisi yang salah sehingga lintasan menjauh dari bahtera.
+3. `test_menunjuk_visual_inti_menghadap_ke_benda`: posisi pelaku dan arah hadap tidak konsisten terhadap benda.
+4. `test_frasa_mahyar_menghasilkan_peristiwa_dan_visual_yang_relevan`: elipsis Unicode dinormalisasi menjadi titik-titik dan memutus relasi objek-verba untuk matahari.
+
+**Perbaikan terukur pada branch audit:**
+- Parser menetralkan elipsis sebelum normalisasi NFKD agar jeda retoris tidak menjadi batas klausa palsu.
+- Blocking membedakan perjalanan menuju benda (mulai dari sisi jauh dan bergerak mendekati sasaran) dari aksi kerja/menunjuk (mulai dekat visual inti).
+- Kedua pihak pada interaksi eksplisit menerima gestur interaksi, bukan hanya pelaku gramatikal.
+- Regression test yang sudah ada menjadi verifikasi atas empat kegagalan baseline; hasil CI ulang tetap menjadi gerbang sebelum merge.
+
+**Temuan arsitektur yang masih terbuka:**
+- `peristiwa.py` adalah pemilik parser yang benar, tetapi ekstraksi masih berbasis pola leksikal/regex dan satu relasi per frasa. Klausa kompleks, negasi lintas klausa, pronomina, pelaku implisit, dan frasa tujuan yang lebih kaya perlu diuji sebelum memperluas kamus.
+- `rancang()` sudah menyimpan `peristiwa` dan bukti frasa ke beat/shot, tetapi keadaan benda utama masih sebagian dihitung melalui indeks beat di `_keadaan()`. Belum ada reducer transisi tunggal yang menghubungkan `perubahan_keadaan` peristiwa dengan state awal, transisi, dan kontinuitas lintas-shot.
+- Renderer peristiwa hanya menghasilkan SVG untuk pasangan aksi–sasaran yang dikenali. Peristiwa yang berhasil diparse tetapi tidak memiliki renderer harus tetap terlihat dalam laporan/tinjauan, bukan diam-diam dianggap sudah divisualkan.
+- Hook saat ini memilih beat dramatis lalu menempatkan judul pada shot pertama beat tersebut; beat belum dipindahkan menjadi cold-open. Ini perlu diselaraskan secara eksplisit dengan resep A3 sebelum mengubah urutan, karena pengurutan ulang dapat memengaruhi kronologi dan jalur state.
+- Selector resep masih memakai hitungan substring dan tie-break ID; belum memberikan alasan pemilihan, konflik antar-resep, atau skor cakupan.
+- Blocking memakai posisi berbasis aturan dan beberapa nilai tetap. Tes koordinat lulus bukan bukti bahwa komposisi, overlap, ruang subtitle, kedalaman, dan gerak kontinu sudah layak tayang.
+- Jalur model tetap opsional, tetapi kontrak keluaran adapter, validasi metadata biaya, dan batas penggunaan perlu diuji sebagai satu antarmuka; hasil model tidak boleh melewati penjaga yang sama.
+
+**Urutan optimalisasi berikutnya (tetap satu rantai Fase 4):**
+1. Tutup empat kegagalan baseline di atas; jalankan seluruh `pytest` dan verifikasi contoh final.
+2. D4.1 — Perkuat parser yang sudah ada: tes tabel klausa, negasi, pelaku/pasien/tujuan, pronomina, elipsis, dan bukti frasa; jangan membuat parser kedua.
+3. D4.2 — Bangun reducer event-to-state di pemilik sutradara yang sama; satu sumber kebenaran untuk state benda/lingkungan dan kontinuitas lintas beat/shot.
+4. D4.3 — Pastikan setiap event memiliki pemetaan visual atau temuan eksplisit untuk tinjauan; jangan mengklaim event tervisualkan hanya karena data event menempel pada shot.
+5. D4.4 — Selesaikan blocking dan arah gerak dari relasi event, termasuk tujuan benda/tokoh, sisi pendekatan, interaksi dua pihak, overlap, dan kaidah 180 derajat.
+6. D4.5 — Selaraskan kebijakan hook A3 (cold-open vs judul overlay) dengan urutan state dan narasi; keputusan perubahan harus diuji pada Nuh/Hud.
+7. D4.6 — Tingkatkan selector resep dengan skor kecocokan, konflik, alasan, dan cakupan; resep tetap data paket genre.
+8. D4.7 — Validasi kontrak adapter model dan biaya; model tetap mati secara bawaan dan seluruh hasil tetap melewati penjaga.
+9. D4.8 — Render Nuh, Hud, dan Mahsyar 1; inspeksi MP4/lembar kontak serta penilaian layak tayang oleh pemilik. Tes unit/CI tidak menggantikan bukti visual.
+
+Jangan mengubah `sutradara/rencana/penjaga.py`, aturan adab, standar dalil, workflow ber-rahasia,
+atau membuka genre lain sebagai bagian audit ini. Fase 4 tetap belum selesai sampai bukti render lintas cerita
+dan persetujuan pemilik tersedia.
+
+
+**Validasi audit pada HEAD `3783da6` (24 Nov 2026):** CI #45347039365 lulus: 333 tes Python, 10 tes bot, dan pemeriksaan final seluruh contoh tanpa GAGAL. Satu catatan yang tetap ada pada contoh Ya'juj adalah `DERAJAT_DIPERSELISIHKAN` untuk HR Tirmidzi 3153; tidak diubah karena merupakan catatan domain yang memerlukan keputusan/bukti pemilik. Render khusus D3 tidak dijalankan oleh workflow pada branch ini, sehingga bukti visual dan keputusan layak tayang masih terbuka. CI antara #45346837952 menangkap satu regresi posisi pelaku saat membangun bahtera; aturan blocking kemudian dibedakan menurut perjalanan, kerja visual, dan aksi lain sebelum CI terbaru lulus.
+
+
+## Standar penyutradaraan visual dari tinjauan video pemilik — 24 Nov 2026
+
+Tinjauan terhadap tiga video yang diberikan pemilik (Ya'juj–Majuj, Nuh, Mahsyar 1) menegaskan dua dimensi yang harus dinilai terpisah: kedalaman ruang dan kehidupan gerak tokoh. Penilaian ini bersifat kualitatif dari sampel bingkai; belum merupakan audit penuh setiap frame, gerak kontinu, atau audio.
+
+**Temuan visual:**
+- Ya'juj–Majuj dan Nuh memberi kesan kedalaman yang lebih kuat melalui susunan bidang, skala lingkungan, siluet/objek depan, aksi utama, dan latar.
+- Mahsyar 1 lebih sering terbaca sebagai ilustrasi/informasi pada satu bidang; beberapa komposisi tokoh/kerumunan/latar bertahan sementara informasi berubah.
+- Kekurangan yang paling perlu ditangani bukan hanya kedalaman: tokoh kerap statis. Kamera atau pergantian gambar tidak dapat menggantikan akting tokoh.
+- Teknik dari Nuh dan Ya'juj diambil sebagai prinsip lintas cerita, bukan menyalin desain, aset, atau resep adegan secara utuh.
+
+**Kriteria penyutradaraan gerak per shot (tambahan untuk D4.4 dan D4.8):**
+1. Setiap shot menetapkan aksi dramatik yang dapat diamati: siapa melakukan apa, kepada siapa/apa, untuk tujuan apa, dan akibat apa yang berubah.
+2. Tokoh yang relevan memiliki blocking dan jadwal aksi/gestur/reaksi yang sesuai peristiwa; hindari pose diam berkepanjangan ketika narasi menyatakan tindakan, konflik, atau perubahan emosi.
+3. Interaksi dua pihak harus memuat hubungan aksi–reaksi yang terbaca (mis. memanggil → menoleh/merespons; mendekat → menghindar/menunggu), bukan sekadar dua tokoh berada dalam satu frame.
+4. Aksi fisik harus berhubungan dengan lingkungan/benda: kontak, perpindahan, perubahan keadaan, atau respons lingkungan terlihat dan berkesinambungan antar-shot.
+5. Gerak kolektif digunakan saat naskah menyatakan respons kelompok; kerumunan tidak otomatis dianggap hidup hanya karena jumlah figur banyak.
+6. Setiap shot juga menetapkan gerak kamera dan gerak lingkungan bila relevan, tetapi keduanya tidak boleh dihitung sebagai pengganti gerak tokoh.
+7. Bila suatu tokoh memang harus diam (mendengar, berdoa, menunggu, terkejut), diam harus menjadi pilihan dramatik yang disengaja dan disertai tanda hidup yang sesuai—mis. arah pandang, napas, gestur kecil, atau reaksi lingkungan—bukan akibat tidak adanya arahan.
+
+**Kriteria kedalaman ruang per shot:**
+- Rencana komposisi mengidentifikasi foreground, midground, dan background bila ruang cerita memungkinkan; tidak wajib memaksakan tiga lapisan pada close-up atau ruang minimal.
+- Perspektif, ukuran relatif, oklusi, pencahayaan, kabut/kontras, dan jarak antarlapisan harus mendukung skala serta fokus aksi.
+- Gerak kamera/parallax hanya digunakan bila membantu membaca ruang atau emosi; tidak menjadi efek dekoratif yang mengaburkan aksi.
+
+**Pemeriksaan dan bukti:**
+- Tambahkan pemeriksaan/ringkasan per shot untuk aksi tokoh, reaksi, interaksi, gerak kamera, gerak lingkungan, serta lapisan kedalaman. Temuan yang tidak dapat dipenuhi renderer harus dinyatakan eksplisit untuk tinjauan, bukan diberi status berhasil.
+- Uji gerak kontinu dengan render MP4 dan lembar kontak berurutan; inspeksi koordinat/keyframe saja tidak cukup. Periksa apakah aksi dimulai, berkembang, berakhir, dan berkesinambungan pada potongan shot.
+- Bandingkan Nuh dan Ya'juj sebagai referensi kedalaman/aksi; Mahsyar 1 sebagai uji apakah prinsip yang sama dapat diterapkan pada cerita dan komposisi berbeda tanpa membuat semua video seragam.
+- Kriteria layak tinjau: tidak ada tokoh pelaku yang tetap menjadi pose statis sepanjang aksi yang dinarasikan; hubungan aksi–reaksi terbaca; ruang tidak datar tanpa alasan artistik; semua batas AGENTS.md dan penjaga domain tetap dipatuhi.
+- Kriteria selesai Fase 4 tetap memerlukan render lintas cerita dan persetujuan pemilik. Standar ini tidak mengubah aturan penggambaran nabi, malaikat, sahabat, atau ketentuan dalil.
+
+**Implementasi awal kontrol aksi tokoh (24 Nov 2026):** audit menemukan bahwa pemilihan gerak sudah berada di sutradara/paket_genre/kisah_islami/sutradara.py, sedangkan animasi sendi sudah menjadi tanggung jawab sutradara/gerak.py dan renderer tokoh. Tidak ditambahkan pustaka gerak, parser, atau pengendali animasi baru. Perbaikan awal membatasi gerak resep pada pelaku peristiwa (atau subjek fokus bila pelaku belum dapat diikat); tokoh lain tidak otomatis meniru aksi. Tes regresi ditambahkan di tests/test_direktur.py. Ini baru menutup kebocoran tanggung jawab aksi dalam satu shot; belum menyelesaikan koreografi aksi–reaksi multi-beat, gerak kelompok yang lebih kaya, atau penilaian kedalaman render. CI dan render visual pada HEAD terbaru masih wajib diverifikasi.
+
+**Peta tanggung jawab implementasi visual (penegasan anti-duplikasi):**
+- peristiwa.py: satu-satunya pemilik ekstraksi relasi narasi (aktor/aksi/sasaran/tujuan/perubahan); tidak memilih pose, koordinat, atau SVG.
+- sutradara.py: satu-satunya pemilik keputusan kreatif paket Kisah Islami (siapa beraksi, blocking, shot, jadwal aksi, kamera, dan keputusan komposisi); tidak menghitung sudut sendi atau menggambar SVG.
+- gerak.py: satu-satunya pemilik kosakata gerak dan fungsi animasi sendi; tidak membaca naskah atau memilih pelaku.
+- gaya/tokoh.py: satu-satunya pemilik rig, anatomi, ekspresi, dan penerjemahan sudut sendi menjadi visual tokoh; tidak memutuskan aksi cerita.
+- adegan.py dan paket_genre/kisah_islami/renderer.py + visual/: pemilik komposisi/rendering; tidak menafsirkan ulang peristiwa atau memilih aksi.
+- kamera.py/waktu.py/garis_waktu.py: pemilik interpolasi kamera/keyframe/timing; tidak menjadi sutradara aksi tokoh.
+
+Perubahan berikutnya harus memperluas kontrak dan pemilik yang sudah tercantum di atas. Bila kebutuhan tidak memiliki pemilik jelas, audit pemilik terlebih dahulu; jangan membuat modul atau field paralel hanya untuk menghindari memperbaiki kontrak yang ada.

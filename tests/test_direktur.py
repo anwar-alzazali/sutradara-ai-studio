@@ -443,3 +443,92 @@ def test_interaksi_tanpa_nama_tokoh_hanya_diinferensikan_jika_tepat_dua_peran():
     }
     assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b"], peta) == ("a", "b")
     assert _pasangan_interaksi("Seseorang menyapa orang lain.", ["a", "b", "c"], peta) is None
+
+def test_aksi_hanya_dilakukan_pelaku_bukan_semua_tokoh_dalam_shot():
+    naskah = {
+        "judul": "Pembangunan",
+        "inti": "Pengelana membangun bahtera sementara penjaga menunggu.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana membangun bahtera. Penjaga menunggu.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Penjaga"],
+        }],
+    }
+    tokoh = rancang(naskah)["beat"][0]["shot"][0]["tokoh"]
+    pengelana = next(t for t in tokoh if t["peran"] == "pengelana")
+    penjaga = next(t for t in tokoh if t["peran"] == "penjaga")
+
+    assert pengelana["gerak"] == "palu"
+    assert penjaga["gerak"] == "berdiri"
+
+def test_setiap_peristiwa_menjadi_shot_dengan_aktor_dan_gerak_spesifik():
+    naskah = {
+        "judul": "Perjalanan dan pembangunan",
+        "inti": "Pengelana berjalan menuju bahtera lalu Penjaga membangun bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan menuju bahtera lalu Penjaga membangun bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Penjaga"],
+        }],
+    }
+    beat = rancang(naskah)["beat"][0]
+    assert len(beat["shot"]) == 2
+    assert beat["potong_di"] == ["membangun"]
+    pertama, kedua = beat["shot"]
+    assert pertama["peristiwa_visual"][0]["aksi"] == "jalan"
+    assert kedua["peristiwa_visual"][0]["aksi"] == "membangun"
+    tokoh_pertama = {t["peran"]: t for t in pertama["tokoh"]}
+    tokoh_kedua = {t["peran"]: t for t in kedua["tokoh"]}
+    assert tokoh_pertama["pengelana"]["gerak"] == "jalan"
+    assert tokoh_pertama["penjaga"]["gerak"] == "berdiri"
+    assert tokoh_kedua["pengelana"]["gerak"] == "berdiri"
+    assert tokoh_kedua["penjaga"]["gerak"] == "palu"
+    assert pertama["pelaku"] == ["pengelana"]
+    assert kedua["pelaku"] == ["penjaga"]
+
+
+def test_peristiwa_pasif_tanpa_aktor_tidak_menggerakkan_tokoh_hadir():
+    naskah = {
+        "judul": "Dinding runtuh",
+        "inti": "Dinding runtuh di hadapan Penjaga.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Dinding runtuh di hadapan Penjaga.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"][0]
+    assert shot["peristiwa_visual"][0]["aksi"] == "runtuh"
+    assert shot["peristiwa_visual"][0]["aktor"] == []
+    assert "pelaku" not in shot
+    assert all(tokoh["gerak"] == "berdiri" for tokoh in shot["tokoh"])
+
+
+
+def test_peristiwa_pasif_di_antara_aksi_aktif_tetap_menjadi_shot_netral():
+    naskah = {
+        "judul": "Perjalanan, dinding runtuh, pembangunan",
+        "inti": "Pengelana berjalan menuju bahtera lalu dinding runtuh lalu Penjaga membangun bahtera.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan menuju bahtera lalu dinding runtuh lalu Penjaga membangun bahtera.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Penjaga"],
+        }],
+    }
+    beat = rancang(naskah)["beat"][0]
+    assert [shot["peristiwa_visual"][0]["aksi"] for shot in beat["shot"]] == [
+        "jalan", "runtuh", "membangun",
+    ]
+    pertama, pasif, terakhir = beat["shot"]
+    assert pertama["pelaku"] == ["pengelana"]
+    assert "pelaku" not in pasif
+    assert pasif["peristiwa_visual"][0]["aktor"] == []
+    assert all(tokoh["gerak"] == "berdiri" for tokoh in pasif["tokoh"])
+    assert terakhir["pelaku"] == ["penjaga"]
+    tokoh_terakhir = {tokoh["peran"]: tokoh for tokoh in terakhir["tokoh"]}
+    assert tokoh_terakhir["penjaga"]["gerak"] == "palu"
+    assert tokoh_terakhir["pengelana"]["gerak"] == "berdiri"
