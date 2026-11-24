@@ -416,3 +416,6 @@ alternatif; batas wajib `AGENTS.md` dan penjaga domain tetap tidak disentuh.
 Jangan mengubah `sutradara/rencana/penjaga.py`, aturan adab, standar dalil, workflow ber-rahasia,
 atau membuka genre lain sebagai bagian audit ini. Fase 4 tetap belum selesai sampai bukti render lintas cerita
 dan persetujuan pemilik tersedia.
+
+
+**Validasi audit pada HEAD `3783da6` (24 Nov 2026):** CI #45347039365 lulus: 333 tes Python, 10 tes bot, dan pemeriksaan final seluruh contoh tanpa GAGAL. Satu catatan yang tetap ada pada contoh Ya'juj adalah `DERAJAT_DIPERSELISIHKAN` untuk HR Tirmidzi 3153; tidak diubah karena merupakan catatan domain yang memerlukan keputusan/bukti pemilik. Render khusus D3 tidak dijalankan oleh workflow pada branch ini, sehingga bukti visual dan keputusan layak tayang masih terbuka. CI antara #45346837952 menangkap satu regresi posisi pelaku saat membangun bahtera; aturan blocking kemudian dibedakan menurut perjalanan, kerja visual, dan aksi lain sebelum CI terbaru lulus.
