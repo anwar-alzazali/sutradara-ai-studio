@@ -42,7 +42,7 @@ _OBJEK = {
     "pintu": "pintu", "langit": "langit", "gunung": "gunung", "air": "air", "api": "api",
 }
 _NEGASI = re.compile(r"\b(?:tidak|tak|belum|bukan|jangan)\\b")
-_TUJUAN = re.compile(r"\b(?:menuju|ke arah|menghampiri|mendekati)\\s+(?:ke\\s+)?([a-z ]+?)(?=[,.!?;]|$)")
+_TUJUAN = re.compile(r"\b(?:menuju|ke arah|menghampiri|mendekati)\s+(?:ke\s+)?([a-z ]+?)(?=[,.!?;]|$)")
 _PERUBAHAN = {"terbelah", "retak", "runtuh", "terbuka", "surut", "terangkat", "muncul", "jatuh"}
 
 
@@ -74,6 +74,15 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
                 continue
             temuan.append((m.start(), m.end(), aksi, frasa, kiri, kanan))
     hasil = []
+    # Penyebutan eksplisit seluruh manusia adalah fakta visual kerumunan,
+    # bukan klaim bahwa mereka sedang berkumpul.
+    if not temuan and re.search(r"\bseluruh manusia\b|\bmanusia,? dari yang pertama sampai yang terakhir\b", teks):
+        return [{
+            "id": f"beat-{indeks + 1}-peristiwa-1", "aktor": [],
+            "aksi": "hadir", "sasaran": "kerumunan", "tujuan": None,
+            "perubahan_keadaan": None, "bukti_narasi": narasi,
+            "keyakinan": "pola_eksplisit",
+        }]
     for urutan, (awal, akhir, aksi, frasa, kiri, kanan) in enumerate(sorted(temuan)):
         lokal = _cocok_objek(teks, kiri, kanan)
         tujuan = None
@@ -86,7 +95,12 @@ def analisis_peristiwa(narasi: str, peran: list[str] | None = None, indeks: int 
         # Pasien eksplisit: objek sebelum verba pasif/perubahan, atau setelah
         # verba aktif yang memang memiliki objek. Tujuan perjalanan bukan pasien.
         pasien = next((o for o in reversed(lokal) if o[1] <= awal), None)
-        if pasien is None and tujuan is None:
+        # "Tenggelam dalam keringat" adalah ungkapan keadaan berkeringat,
+        # bukan peristiwa tenggelam di air.
+        objek_keringat = next((o for o in lokal if o[2] == "keringat"), None)
+        if aksi == "tenggelam" and objek_keringat:
+            aksi, pasien = "berkeringat", objek_keringat
+        elif pasien is None and tujuan is None:
             pasien = next((o for o in lokal if o[0] >= akhir), None)
         pelaku = []
         if peran:
