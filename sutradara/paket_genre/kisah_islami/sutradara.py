@@ -71,14 +71,16 @@ def _kategori_peran(nama: str) -> tuple[str, str]:
 
 
 def _inti(naskah: dict, semua: str) -> tuple[str, list[str], float]:
+    # Pilih latar berdasarkan deskripsi ruang, bukan nama kisah atau tokoh.
+    if any(x in semua for x in ("padang", "tanah rata", "bumi putih", "tanpa satu pun tanda")):
+        return "padang", ["lapang", "peristiwa", "akibat", "pelajaran"], .82
     if any(x in semua for x in ("nabi nuh", "bahtera", "kapal nuh")):
         return "bahtera", ["rangka", "dibangun", "badai", "selamat"], .96
     if any(x in semua for x in ("yajuj", "ya juj", "majuj", "dinding")):
         return "dinding_yajuj", ["utuh", "dilubangi", "hampir_terbuka", "terbuka"], .90
     if any(x in semua for x in ("nabi hud", "kaum 'ad", "kaum ad", "hud 50", "hud50")):
         return "kota_kuno", ["seruan", "penolakan", "angin", "selamat"], .94
-    # Latar kota adalah jangkar visual yang netral. Ambiguitas rendah keyakinan
-    # meminta tinjauan model opsional; jalur aturan tetap dapat menghasilkan rencana.
+    # Latar netral hanya menjadi panggung; aksi dan objek diputuskan per beat.
     return "kota_kuno", ["awal", "peristiwa", "akibat", "pelajaran"], .42
 
 
@@ -121,6 +123,8 @@ def _resep_untuk(teks: str) -> dict:
 def _keadaan(inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int) -> tuple[str, dict]:
     polos = _polos(teks)
     p = indeks / max(1, jumlah - 1)
+    if inti == "padang":
+        return "lapang", {}
     if inti == "bahtera":
         if any(k in polos for k in ("banjir", "badai", "gelombang")):
             return "badai", {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78, "jadi": 1.0,
@@ -217,10 +221,10 @@ def _shot(inti: str, keadaan: dict, preset: str, judul: list[str], narasi: str,
           durasi: float = 3.8, perjalanan: bool = False, perjalanan_semua: bool = False,
           arah_perjalanan: int | None = None, reaksi: bool = False) -> dict:
     peta = {p["id"]: p for p in semua_peran}
-    benda = [dict(keadaan)]
+    benda = [] if inti == "padang" else [dict(keadaan)]
     if inti == "kota_kuno" and resep.get("id") == "azab_datang":
         benda.append({"jenis":"angin", "x":0, "y":1280, "kuat":.8, "seed":19})
-    shot = {"preset": preset, "belakang": ["kota"] if inti == "kota_kuno" else ["gunung"],
+    shot = {"preset": preset, "belakang": [] if inti == "padang" else (["kota"] if inti == "kota_kuno" else ["gunung"]),
             "benda": benda, "tokoh": [], "nur": [], "durasi": durasi,
             "kamera": {"zoom": 1.42 if fokus else 1.08, "x": 540, "y": 1240},
             "teks": {"judul": judul[:2], "warna": "kuning", "subtitle": narasi,
@@ -542,7 +546,7 @@ def rancang(naskah: dict) -> tuple[dict, float]:
                 teks_shot["judul"] = hook[2][:2]
             else:
                 teks_shot.pop("judul", None)
-    visual={"bahtera":"bahtera","kota_kuno":"kota_kuno","dinding_yajuj":"dinding_yajuj"}[inti]
+    visual={"bahtera":"bahtera","kota_kuno":"kota_kuno","dinding_yajuj":"dinding_yajuj","padang":"padang"}[inti]
     hasil={"judul":naskah["judul"],"catatan":"Disusun otomatis dari naskah antrean dengan resep aturan lokal; periksa makna dalil dan kelayakan artistik.",
            "genre":"kisah_islami","dibuat_otomatis":True,
            "visual_inti":{"benda":visual,"jalur_keadaan":jalur},"peran":peran,
