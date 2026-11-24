@@ -129,7 +129,8 @@ def _resep_untuk(teks: str) -> dict:
         "id": "adegan_umum", "suasana": "senja", "gerak": "berdiri", "wajah": "datar", "fokus": "visual_inti"}
 
 
-def _keadaan(inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int) -> tuple[str, dict]:
+def _keadaan(inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int,
+             progres_dinding: float | None = None) -> tuple[str, dict]:
     polos = _polos(teks)
     # Progres lokal boleh pecahan untuk beberapa peristiwa dalam satu beat,
     # tetapi tidak boleh melampaui rentang keadaan 0..1 pada beat terakhir.
@@ -144,8 +145,14 @@ def _keadaan(inti: str, jalur: list[str], teks: str, indeks: int, jumlah: int) -
         return state, {"jenis": "bahtera", "x": 650, "y": 1260, "s": .78,
                        "jadi": .18 + .82*p, "goyang": 0, "cahaya": .25 + .45*p, "darat": True}
     if inti == "dinding_yajuj":
-        lubang = min(1.0, p)
-        state = jalur[min(len(jalur)-1, round(p*(len(jalur)-1)))]
+        # Jumlah cut atau beat tidak membuktikan dinding terkikis. Keadaan
+        # fisik hanya berubah dari peristiwa penggalian/pembukaan yang eksplisit.
+        lubang = max(0.0, min(1.0, progres_dinding or 0.0))
+        state = "terbuka" if lubang >= 1.0 else (
+            "hampir_terbuka" if lubang >= .72 else (
+                "dilubangi" if lubang > 0.0 else "utuh"
+            )
+        )
         return state, {"jenis": "dinding_yajuj", "x": 540, "y": 1120, "s": 1.0, "lubang": lubang}
     if any(k in polos for k in ("angin", "badai", "azab")):
         return "angin", {"jenis": "kota_kuno", "x": 540, "y": 1300, "s": .72, "runtuh": min(.7, .18+p*.55)}
@@ -537,6 +544,21 @@ def rancang(naskah: dict) -> tuple[dict, float]:
                 # Perkembangan konstruksi bahtera dapat berlangsung di antara
                 # peristiwa dalam satu beat. Tahap dinding dan kota tetap
                 # mengikuti beat narasi; jumlah cut bukan bukti perubahan fisik.
+                progres_dinding = None
+                if inti == "dinding_yajuj":
+                    indeks_gali = [
+                        j for j, item in enumerate(peristiwa)
+                        if item.get("sasaran") == "dinding"
+                        and item.get("aksi") in {"menggali", "terbuka"}
+                    ]
+                    jumlah_gali = len(indeks_gali)
+                    selesai_gali = sum(1 for j in indeks_gali if j <= urutan_peristiwa)
+                    progres_dinding = (
+                        1.0 if peristiwa_i.get("aksi") == "terbuka"
+                        and peristiwa_i.get("sasaran") == "dinding"
+                        else (.18 + .82 * (selesai_gali - 1) / max(1, jumlah_gali - 1)
+                              if selesai_gali else 0.0)
+                    )
                 if inti == "bahtera":
                     # Hanya peristiwa yang benar-benar membangun bahtera
                     # boleh memajukan konstruksi. Cut perjalanan/reaksi tidak
@@ -558,7 +580,8 @@ def rancang(naskah: dict) -> tuple[dict, float]:
                 else:
                     progres_shot = i
                 _keadaan_shot, objek_shot = _keadaan(
-                    inti, jalur, teks, progres_shot, len(naskah["beat"])
+                    inti, jalur, teks, progres_shot, len(naskah["beat"]),
+                    progres_dinding=progres_dinding,
                 )
                 aktor_i = [
                     nama_ke_id[nama] for nama in peristiwa_i.get("aktor", [])
