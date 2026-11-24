@@ -372,3 +372,6 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 
 
 - 23 Nov 2026 — Audit ulang PR #48: status D2 dipisah antara implementasi, tes otomatis, render, dan tinjauan pemilik. 320 tes Python + 10 tes bot dan render 14 shot pada SHA 660ea9a tercatat; uji audio-cache pada HEAD masih wajib. Catatan PERIKSA B2/Tirmidzi 3153 dan kebutuhan tinjauan gerak kontinu dipertahankan.
+
+
+**Catatan penutupan D2 — 24 Nov 2026:** audit visual dan suara telah dinyatakan lulus oleh pemilik. Perbaikan lapisan wajah/penutup kepala dari PR #50 dipindahkan ke cabang PR #48; regresi SVG dan model rambut ditambahkan. Pemetaan visual `tenggelam` tidak lagi memakai komponen keringat. Ekstraksi aktor kini hanya mengisi aktor yang disebut eksplisit; kontrak peristiwa memisahkan `tujuan` perpindahan dari `sasaran` aksi. Perubahan ini menambah field wajib `tujuan` pada skema peristiwa. **Belum dinyatakan selesai/siap merge:** CI pada HEAD final terbaru belum tersedia karena pembaruan melalui API tidak memicu workflow PR pada integrasi ini; uji lengkap dan render harus dijalankan pada HEAD akhir. Cabang masih 6 commit di belakang `main`; enam commit di main hanya menambah empat berkas antrean, yang harus tetap dipertahankan saat integrasi.
