@@ -10,11 +10,63 @@ def render(peristiwa: dict) -> str:
     aksi = peristiwa.get("aksi")
     sasaran = peristiwa.get("sasaran")
     if aksi == "terbelah" and sasaran == "bumi":
+        # Retakan utama membelah bidang tanah secara diagonal dan bercabang.
+        # Dua lempeng tanah terangkat sedikit; debu dan serpihan memperjelas
+        # pergeseran tanpa menambahkan gambaran alam gaib yang tidak ada di dalil.
         return (
             '<g class="peristiwa-bumi-terbelah">'
-            '<path d="M0 1280 Q180 1250 350 1280 L500 1280 L470 1320 L390 1300 L330 1370 L270 1310 L190 1390 L120 1310 L0 1340Z" fill="#17121a"/>'
-            '<path d="M540 1280 Q720 1250 1080 1280 L1080 1340 L930 1310 L850 1390 L770 1310 L690 1370 L610 1300 L570 1320Z" fill="#17121a"/>'
-            '<path d="M540 1270 L505 1320 L548 1350 L510 1400" stroke="#f4d39a" stroke-width="9" fill="none" stroke-linecap="round"/>'
+            '<defs>'
+            '<linearGradient id="bumi-retak-kiri" x1="0" y1="0" x2="0" y2="1">'
+            '<stop offset="0" stop-color="#b88f8d"/><stop offset="1" stop-color="#76545e"/>'
+            '</linearGradient>'
+            '<linearGradient id="bumi-retak-kanan" x1="0" y1="0" x2="0" y2="1">'
+            '<stop offset="0" stop-color="#c39a94"/><stop offset="1" stop-color="#805c63"/>'
+            '</linearGradient>'
+            '</defs>'
+            # Lempeng kiri dan kanan, dengan tepi patahan bergerigi.
+            '<path d="M0 1260 Q150 1235 300 1260 L430 1245 L485 1218 L465 1270 '
+            'L420 1290 L455 1330 L395 1310 L350 1360 L315 1315 L260 1350 '
+            'L220 1305 L150 1335 L105 1295 L0 1325Z" fill="url(#bumi-retak-kiri)" '
+            'stroke="#49333f" stroke-width="10" stroke-linejoin="round"/>'
+            '<path d="M1080 1250 Q930 1228 790 1252 L650 1238 L575 1212 L590 1270 '
+            'L640 1290 L605 1330 L665 1310 L710 1360 L745 1315 L800 1350 '
+            'L840 1305 L910 1335 L955 1295 L1080 1325Z" fill="url(#bumi-retak-kanan)" '
+            'stroke="#49333f" stroke-width="10" stroke-linejoin="round"/>'
+            # Celah gelap yang lebar di pusat, bukan garis tipis dekoratif.
+            '<path d="M485 1218 L540 1248 L575 1212 L590 1270 L548 1300 '
+            'L605 1330 L548 1368 L510 1330 L465 1270Z" fill="#211722"/>'
+            '<path d="M540 1240 L510 1285 L552 1312 L520 1350 L548 1382" '
+            'fill="none" stroke="#f2c98d" stroke-width="11" stroke-linecap="round" '
+            'stroke-linejoin="round" opacity=".95"/>'
+            # Cabang retakan menjalar ke kedua sisi permukaan.
+            '<g fill="none" stroke="#382833" stroke-width="13" stroke-linecap="round" '
+            'stroke-linejoin="round">'
+            '<path d="M500 1260 L440 1240 L405 1205 L350 1195 L315 1165"/>'
+            '<path d="M485 1290 L420 1310 L390 1350 L335 1370 L300 1410"/>'
+            '<path d="M580 1260 L650 1235 L690 1195 L755 1185 L795 1150"/>'
+            '<path d="M595 1290 L660 1310 L700 1350 L760 1370 L805 1410"/>'
+            '<path d="M350 1260 L300 1235 L260 1245 L220 1215"/>'
+            '<path d="M730 1260 L790 1230 L840 1245 L890 1210"/>'
+            '</g>'
+            '<g fill="none" stroke="#e7b985" stroke-width="5" opacity=".8">'
+            '<path d="M500 1260 L440 1240 L405 1205"/>'
+            '<path d="M580 1260 L650 1235 L690 1195"/>'
+            '<path d="M485 1290 L420 1310 L390 1350"/>'
+            '<path d="M595 1290 L660 1310 L700 1350"/>'
+            '</g>'
+            # Serpihan kecil di sekitar garis patahan.
+            '<g fill="#d2a18d" stroke="#49333f" stroke-width="4">'
+            '<path d="M390 1175 l24 -22 18 28 -26 13Z"/>'
+            '<path d="M690 1168 l28 -18 12 30 -27 12Z"/>'
+            '<path d="M440 1380 l22 -16 16 24 -24 12Z"/>'
+            '<path d="M635 1390 l18 -22 24 20 -22 17Z"/>'
+            '</g>'
+            # Debu lembut di sepanjang celah; tetap dalam palet ilustrasi referensi.
+            '<g fill="#ead0b0" opacity=".42">'
+            '<circle cx="455" cy="1198" r="13"/><circle cx="620" cy="1188" r="10"/>'
+            '<circle cx="470" cy="1370" r="9"/><circle cx="610" cy="1378" r="12"/>'
+            '<circle cx="540" cy="1175" r="7"/><circle cx="540" cy="1410" r="8"/>'
+            '</g>'
             '</g>'
         )
     if aksi == "mendekat" and sasaran == "matahari":
