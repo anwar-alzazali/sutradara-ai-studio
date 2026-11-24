@@ -51,3 +51,14 @@ def test_pasien_dipilih_dari_frasa_sebelum_aksi():
     hasil = analisis_peristiwa("Dinding itu runtuh setelah digali.", [])
     assert hasil[0]["sasaran"] == "dinding"
     assert hasil[0]["perubahan_keadaan"] == {"objek": "dinding", "keadaan": "runtuh"}
+
+
+
+def test_peristiwa_mengekspos_token_aksi_untuk_jangkar_shot():
+    hasil = analisis_peristiwa(
+        "Pengelana berjalan menuju bahtera lalu membangun bahtera.",
+        ["Pengelana"],
+    )
+    assert [x["aksi"] for x in hasil] == ["jalan", "membangun"]
+    assert [x["kata_aksi"] for x in hasil] == ["berjalan", "membangun"]
+    assert all(x["kata_aksi"] in x["bukti_narasi"] for x in hasil)
