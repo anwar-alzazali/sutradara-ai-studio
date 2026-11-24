@@ -631,3 +631,42 @@ def test_cut_tambahan_tidak_memperbesar_lubang_dinding_tanpa_peristiwa_pembukaan
         "dinding_yajuj", "dinding_yajuj",
     ]
     assert [item["benda"][0]["lubang"] for item in shot] == [0.0, 0.0]
+
+def test_penggalian_eksplisit_memajukan_lubang_dinding_bukan_cut():
+    naskah = {
+        "judul": "Penggalian dinding bertahap",
+        "inti": "Pengelana berjalan ke kiri lalu Penjaga menggali dinding.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Pengelana berjalan ke kiri lalu Penjaga menggali dinding.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Pengelana", "Penjaga"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 2
+    assert [item["peristiwa_visual"][0]["aksi"] for item in shot] == [
+        "jalan", "menggali",
+    ]
+    assert [item["benda"][0]["lubang"] for item in shot] == [0.0, 0.18]
+    assert [item["benda"][0]["jenis"] for item in shot] == [
+        "dinding_yajuj", "dinding_yajuj",
+    ]
+
+
+def test_pembukaan_eksplisit_menyelesaikan_lubang_dinding():
+    naskah = {
+        "judul": "Dinding terbuka",
+        "inti": "Penjaga membuka dinding.",
+        "dalil": [],
+        "beat": [{
+            "narasi": "Penjaga membuka dinding.",
+            "dalil": [], "kata_kunci": [], "suasana": "senja",
+            "peran": ["Penjaga"],
+        }],
+    }
+    shot = rancang(naskah)["beat"][0]["shot"]
+    assert len(shot) == 1
+    assert shot[0]["peristiwa_visual"][0]["aksi"] == "terbuka"
+    assert shot[0]["benda"][0]["lubang"] == 1.0
+
