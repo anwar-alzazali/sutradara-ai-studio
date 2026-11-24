@@ -474,12 +474,11 @@ def rancang(naskah: dict) -> tuple[dict, float]:
         keadaan,_obj=_keadaan(inti,jalur,teks,i,len(naskah["beat"]))
         jdl=_JUDUL.get(keadaan, " ".join((cuts or b.get("kata_kunci",[]) or [keadaan])[:2]).upper())
         judul=[w for w in re.sub(r"[^A-Z0-9' ]"," ",jdl.upper()).split()[:3]]
-        kata_lawan = ("penentang", "penolak", "pengejek", "musuh", "lawan")
-        pelaku = [
-            pid for pid in hadir
-            if peran_map[pid]["kategori"] in {"manusia", "nabi"}
-            and not any(k in _polos(peran_map[pid]["nama"]) for k in kata_lawan)
-        ] if any(v in tindakan for v in ("membangun", "membuat", "menggali")) else None
+        # Blocking pelaku mengikuti relasi yang benar-benar diekstrak parser.
+        # Peran yang sekadar tercantum di beat tidak otomatis melakukan aksi.
+        nama_pelaku = {nama: nama_ke_id[nama] for nama in (peristiwa[0].get("aktor", []) if peristiwa else [])
+                       if nama in nama_ke_id}
+        pelaku = list(nama_pelaku.values()) or None
         interaksi = _pasangan_interaksi(teks, hadir, peran_map) if not dialog else None
         shots=[]
         if dialog:
