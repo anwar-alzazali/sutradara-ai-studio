@@ -710,3 +710,43 @@ def test_dinding_tetap_terbuka_setelah_peristiwa_penggalian_berikutnya():
     beat = rancang(naskah)["beat"][0]
     assert [shot["benda"][0]["lubang"] for shot in beat["shot"]] == [1.0, 1.0]
     assert beat["keadaan"] == "terbuka"
+
+
+def test_progres_bahtera_hanya_berubah_oleh_event_membangun_lintas_beat():
+    naskah = {
+        "judul": "Pembangunan bahtera lintas beat",
+        "inti": "Penjaga membangun bahtera lalu Pengelana berjalan lalu Musafir membangun bahtera.",
+        "dalil": [],
+        "beat": [
+            {"narasi": "Penjaga membangun bahtera.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Penjaga"]},
+            {"narasi": "Pengelana berjalan ke kiri.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+            {"narasi": "Musafir membangun bahtera.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Musafir"]},
+        ],
+    }
+    hasil = rancang(naskah)["beat"]
+    progres = [
+        beat["shot"][-1]["benda"][0]["jadi"]
+        for beat in hasil
+    ]
+    assert progres == [.18, .18, 1.0]
+    assert hasil[1]["keadaan"] == "rangka"
+
+
+def test_cut_tanpa_event_pembangunan_tidak_memajukan_bahtera():
+    naskah = {
+        "judul": "Bahtera dan perjalanan",
+        "inti": "Penjaga membangun bahtera lalu Pengelana berjalan.",
+        "dalil": [],
+        "beat": [
+            {"narasi": "Penjaga membangun bahtera.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Penjaga"]},
+            {"narasi": "Pengelana berjalan ke kiri.", "dalil": [], "kata_kunci": [],
+             "suasana": "senja", "peran": ["Pengelana"]},
+        ],
+    }
+    hasil = rancang(naskah)["beat"]
+    assert hasil[0]["shot"][0]["benda"][0]["jadi"] == .18
+    assert hasil[1]["shot"][0]["benda"][0]["jadi"] == .18
