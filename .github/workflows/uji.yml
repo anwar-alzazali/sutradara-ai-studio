@@ -14,6 +14,8 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - name: Pasang dependensi
@@ -35,6 +37,16 @@ jobs:
           name: bukti-visual-tahap-d2
           path: keluaran-bukti/tahap-d2/
           if-no-files-found: warn
+      - name: Render perbandingan PNG wajah sebelum dan sesudah
+        if: github.head_ref == 'improve/renderer-detail-wajah'
+        run: python scripts/render_bukti_wajah.py --base "${{ github.event.pull_request.base.sha }}"
+      - name: Unggah bukti PNG wajah
+        if: always() && github.head_ref == 'improve/renderer-detail-wajah'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bukti-png-wajah-before-after
+          path: keluaran-bukti/wajah/
+          if-no-files-found: error
       - name: Periksa final semua contoh
         run: |
           set -e
