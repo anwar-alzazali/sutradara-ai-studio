@@ -30,7 +30,7 @@ def renderer_svg(cwd: Path, env: dict[str, str], kwargs: dict) -> str:
         "import json; from sutradara.gaya import tokoh; "
         "print(json.dumps(tokoh.orang(500, 1500, kepala='tanpa', "
         "jenis='pria', janggut='tanpa', model_rambut='pendek', "
-        "t=0.5, **json.loads(" + repr(json.dumps(kwargs)) + ")))"
+        "t=0.5, **json.loads(" + repr(json.dumps(kwargs)) + "))))"
     )
     result = subprocess.run(
         [sys.executable, "-c", code], cwd=cwd, env=env,
