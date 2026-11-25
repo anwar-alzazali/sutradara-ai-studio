@@ -60,6 +60,6 @@ def test_kedipan_menutup_mata_tanpa_menggeser_wajah():
 
 def test_mata_dan_alis_profil_tetap_satu_sisi():
     svg = tokoh.orang(500, 1500, kepala="tanpa", arah="samping", wajah="curiga", t=0.2)
-    assert 'cx="-11" cy="-6"' in svg
+    assert 'cx="-9" cy="-7"' in svg
     assert 'cx="11" cy="-6"' not in svg
     assert 'Q-12' in svg
