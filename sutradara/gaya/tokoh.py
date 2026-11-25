@@ -191,7 +191,7 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
         px = cx + 3.0 * lirikan
         py = pusat_y + 2.4 * lirikan_y
         mata_svg.append(
-            f'<ellipse cx="{cx:.1f}" cy="{pusat_y:.1f}" rx="8.1" ry="{tinggi:.1f}" '
+            f'<ellipse cx="{cx:g}" cy="{pusat_y:g}" rx="8.1" ry="{tinggi:.1f}" '
             'fill="#fffdf8" stroke="#704631" stroke-width="1.15"/>'
             f'<ellipse cx="{px:.1f}" cy="{py:.1f}" rx="3.5" ry="4.0" fill="{iris}"/>'
             f'<ellipse cx="{px:.1f}" cy="{py+0.2:.1f}" rx="1.9" ry="2.8" fill="#171319"/>'
@@ -214,8 +214,8 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
             y_luar = -17 + luar * 4 + rapat * 2
             y_dalam = -17 + dalam * 4 + rapat * 2
             alis_svg.append(
-                f'<path d="M{sisi*19:.1f} {y_luar:.1f} Q{sisi*13:.1f} {((y_luar+y_dalam)/2-1.5):.1f} '
-                f'{sisi*6:.1f} {y_dalam:.1f}" fill="none" stroke="{garis}" '
+                f'<path d="M{sisi*18:g} {y_luar:g} Q{sisi*12:g} {((y_luar+y_dalam)/2-1.5):.1f} '
+                f'{sisi*6:g} {y_dalam:.1f}" fill="none" stroke="{garis}" '
                 'stroke-width="3.3" stroke-linecap="round"/>'
             )
 
