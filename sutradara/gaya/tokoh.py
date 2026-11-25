@@ -429,7 +429,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
             for a, b in (bicara or []):
                 if a <= t <= b:
                     bc = 0.5 + 0.5 * math.sin(t * 15)
-            kedip = (t + indeks * 0.9) % 3.7 < 0.12
+            kedip = (t + indeks * 0.9) % 3.7 > 3.58
             g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
                         profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
     g.append("</g>")
