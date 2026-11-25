@@ -106,7 +106,7 @@ def _putar(dx, dy, derajat):
 def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: float,
            profil: bool = False, janggut: str = "pendek", warna_janggut: str | None = None,
            detail_wajah: dict | None = None) -> list[str]:
-    # Peta lokal menjaga renderer tetap mandiri saat dipanggil dari jalur impor alternatif.
+    """Wajah vektor berlapis; semua fitur berada pada koordinat lokal kepala."""
     preset_detail = {
         "kepergok_panik": {"kelopak": -0.9, "lirikan": 0.0, "alis_dalam": -1.0, "alis_luar": 0.15, "alis_rapat": 0.15, "kerut_hidung": 0.65, "mulut_bulat": 0.9},
         "jijik_ilfil": {"kelopak": 0.35, "lirikan": -0.2, "alis_dalam": 0.65, "alis_luar": 0.35, "alis_rapat": 0.9, "kerut_hidung": 1.0, "mulut_bulat": 0.0},
@@ -116,88 +116,155 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
     }
     detail = dict(preset_detail.get(jenis, {}))
     detail.update(detail_wajah or {})
+    ekspresi_asli = jenis
     jenis = {"kepergok_panik": "takut", "jijik_ilfil": "cemberut", "sinis": "ejek",
              "curiga": "datar", "heran": "datar"}.get(jenis, jenis)
-    W, M = RAMBUT, "#5a1e1e"
-    warna_janggut = warna_janggut or W
+    garis, iris, mulut_warna = RAMBUT, "#3a241b", "#5a1e1e"
+    warna_janggut = warna_janggut or garis
     bentuk_janggut = {
         "tanpa": "",
-        "tipis": f'<path d="M-24 16 Q 0 45 24 16 Q 18 31 0 33 Q -18 31 -24 16Z" fill="{warna_janggut}" opacity=".72"/>',
-        "pendek": f'<path d="M-30 14 Q 0 60 30 14 Q 26 36 0 42 Q -26 36 -30 14Z" fill="{warna_janggut}"/>',
-        "panjang": f'<path d="M-30 14 Q 0 60 30 14 L24 48 Q 0 72 -24 48Z" fill="{warna_janggut}"/>',
+        "tipis": f'<path d="M-24 15 Q0 39 24 15 Q17 31 0 33 Q-17 31 -24 15Z" fill="{warna_janggut}" opacity=".72"/>',
+        "pendek": f'<path d="M-29 13 Q0 52 29 13 Q24 36 0 43 Q-24 36 -29 13Z" fill="{warna_janggut}"/>',
+        "panjang": f'<path d="M-29 13 Q0 52 29 13 L23 49 Q0 70 -23 49Z" fill="{warna_janggut}"/>',
     }
     if janggut not in bentuk_janggut:
         raise ValueError("janggut harus tanpa, tipis, pendek, atau panjang")
-    g = [] if wanita else ([bentuk_janggut[janggut]] if bentuk_janggut[janggut] else [])
+    fitur = []
+    if not wanita and bentuk_janggut[janggut]:
+        fitur.append(bentuk_janggut[janggut])
     if wanita:
-        g.append('<ellipse cx="-17" cy="10" rx="6" ry="3.5" fill="#e07a6a" opacity=".35"/><ellipse cx="17" cy="10" rx="6" ry="3.5" fill="#e07a6a" opacity=".35"/>')
-    e = lambda s: f'<g transform="translate({ox:.1f},{oy:.1f})">{s}</g>'
-    mata_tutup = '<path d="M-17 -6 q 6 4 12 0 M5 -6 q 6 4 12 0" stroke="{W}" stroke-width="3.5" fill="none" stroke-linecap="round"/>'.replace("{W}", W)
-    mata_titik = f'<circle cx="-11" cy="-6" r="4.5" fill="{W}"/><circle cx="11" cy="-6" r="4.5" fill="{W}"/>'
-    mata_besar = (f'<circle cx="-12" cy="-6" r="7" fill="#fff"/><circle cx="12" cy="-6" r="7" fill="#fff"/>'
-                  f'<circle cx="-12" cy="-5" r="3.5" fill="{W}"/><circle cx="12" cy="-5" r="3.5" fill="{W}"/>')
-    alis = {
-        "datar": "M-18 -17 h12 M18 -17 h-12", "senyum": "M-18 -17 q 6 -3 12 0 M18 -17 q -6 -3 -12 0",
-        "tertawa": "M-18 -18 q 6 -4 12 0 M18 -18 q -6 -4 -12 0", "ejek": "M-18 -15 l 12 3 M18 -21 l -12 3",
-        "cemberut": "M-18 -19 l 12 4 M18 -19 l -12 4", "sedih": "M-18 -14 l 12 -5 M18 -14 l -12 -5",
-        "marah": "M-19 -22 l 13 8 M19 -22 l -13 8", "takut": "M-18 -18 l 12 -4 M18 -18 l -12 -4",
-        "kaget": "M-18 -24 q 6 -4 12 0 M18 -24 q -6 -4 -12 0", "pejam": "M-18 -16 h12 M18 -16 h-12",
-    }[jenis]
-    if jenis in ("tertawa", "pejam"):
-        mata = mata_tutup if jenis == "pejam" else f'<path d="M-17 -5 q 6 -7 12 0 M5 -5 q 6 -7 12 0" stroke="{W}" stroke-width="4" fill="none" stroke-linecap="round"/>'
-    elif jenis in ("takut", "kaget"):
-        mata = mata_besar if not kedip else mata_tutup
-    elif jenis == "marah":
-        mata = mata_tutup.replace("q 6 4 12 0", "h12") if kedip else f'<path d="M-17 -6 h11 M6 -6 h11" stroke="{W}" stroke-width="5" stroke-linecap="round"/>'
-    else:
-        mata = mata_tutup if kedip else mata_titik
-    if profil:
-        mata = f'<path d="M-17 -7 Q -9 -14 -2 -7 Q -9 0 -17 -7Z" fill="#fff"/><circle cx="-9" cy="-7" r="3" fill="{W}"/>'
-        alis = "M-19 -18 Q -10 -23 -2 -17"
-    buka = max(0.0, min(1.0, bicara))
-    mulut = {
-        "datar": f'<path d="M-9 16 h18" stroke="{M}" stroke-width="3.5" stroke-linecap="round"/>',
-        "senyum": f'<path d="M-12 13 Q 0 24 12 13" stroke="{M}" stroke-width="3.5" fill="none" stroke-linecap="round"/>',
-        "tertawa": f'<path d="M-14 12 Q 0 32 14 12Z" fill="{M}"/><path d="M-10 13 h20" stroke="#fff" stroke-width="3"/>',
-        "ejek": f'<path d="M-11 17 Q 2 22 14 11" stroke="{M}" stroke-width="3.5" fill="none" stroke-linecap="round"/>',
-        "cemberut": f'<path d="M-10 20 Q 0 13 10 20" stroke="{M}" stroke-width="3.5" fill="none" stroke-linecap="round"/>',
-        "sedih": f'<path d="M-11 21 Q 0 12 11 21" stroke="{M}" stroke-width="3.5" fill="none" stroke-linecap="round"/>'
-                 '<path d="M-14 0 q -2 8 0 10" stroke="#8fc0f0" stroke-width="3" fill="none"/>',
-        "marah": f'<path d="M-13 18 h26 v4 h-26Z" fill="{M}"/><path d="M-12 19.5 h24" stroke="#fff" stroke-width="2"/>',
-        "takut": f'<ellipse cx="0" cy="18" rx="7" ry="9" fill="{M}"/>',
-        "kaget": f'<ellipse cx="0" cy="19" rx="9" ry="11" fill="{M}"/>',
-        "pejam": f'<path d="M-8 16 h16" stroke="{M}" stroke-width="3.5" stroke-linecap="round"/>',
-    }[jenis]
-    if buka > 0.05 and jenis not in ("tertawa", "takut", "kaget"):
-        mulut = f'<ellipse cx="0" cy="17" rx="{8 + 2 * buka:.1f}" ry="{1.5 + 7 * buka:.1f}" fill="{M}"/>'
-    hidung = '<path d="M1 -5 L10 4 L2 7" stroke="#704631" stroke-width="2.5" fill="none" stroke-linecap="round"/>' if profil else ""
-    g.append(e(mata + f'<path d="{alis}" stroke="{W}" stroke-width="3.5" fill="none" stroke-linecap="round"/>' + hidung + mulut))
-    if detail:
-        # Lapisan mikro menambah kendali mata dan alis tanpa mengubah ekspresi lama.
-        kelopak = max(-1.0, min(1.0, float(detail.get("kelopak", 0.0))))
-        lirikan = max(-1.0, min(1.0, float(detail.get("lirikan", 0.0))))
-        dalam = max(-1.0, min(1.0, float(detail.get("alis_dalam", 0.0))))
-        luar = max(-1.0, min(1.0, float(detail.get("alis_luar", 0.0))))
-        rapat = max(0.0, min(1.0, float(detail.get("alis_rapat", 0.0))))
-        kerut = max(0.0, min(1.0, float(detail.get("kerut_hidung", 0.0))))
-        bulat = max(0.0, min(1.0, float(detail.get("mulut_bulat", 0.0))))
-        tinggi_mata = 5.0 + (1.0 - kelopak) * 3.0
-        pupil_x = 3.5 * lirikan
-        mata_halus = (f'<ellipse cx="-11" cy="-6" rx="7.5" ry="{tinggi_mata:.1f}" fill="#fff"/>'
-                      f'<ellipse cx="11" cy="-6" rx="7.5" ry="{tinggi_mata:.1f}" fill="#fff"/>'
-                      f'<circle cx="{-11 + pupil_x:.1f}" cy="-6" r="3.4" fill="{W}"/>'
-                      f'<circle cx="{11 + pupil_x:.1f}" cy="-6" r="3.4" fill="{W}"/>')
-        rapat_y = rapat * 3.5
-        alis_halus = (f'<path d="M-19 {-17 + luar * 5 + rapat_y:.1f} L-6 {-17 + dalam * 5 + rapat_y:.1f} '
-                      f'M6 {-17 + dalam * 5 + rapat_y:.1f} L19 {-17 + luar * 5 + rapat_y:.1f}" '
-                      f'stroke="{W}" stroke-width="3.8" fill="none" stroke-linecap="round"/>')
-        kerut_svg = (f'<path d="M-7 2 l-4 5 M0 1 l0 6 M7 2 l4 5" stroke="#704631" '
-                     f'stroke-width="{1.2 + 1.8 * kerut:.1f}" opacity="{kerut:.2f}" stroke-linecap="round"/>')
-        mulut_svg = (f'<ellipse cx="0" cy="17" rx="{3 + 6 * bulat:.1f}" ry="{2 + 7 * bulat:.1f}" '
-                     f'fill="{M}" opacity="{max(bulat, buka):.2f}"/>') if bulat > 0 else ""
-        g.append(e(mata_halus + alis_halus + kerut_svg + mulut_svg))
-    return g
+        fitur.append(
+            '<ellipse cx="-18" cy="9" rx="5.5" ry="3" fill="#d97970" opacity=".22"/>'
+            '<ellipse cx="18" cy="9" rx="5.5" ry="3" fill="#d97970" opacity=".22"/>'
+        )
 
+    # Telinga dan lipatan sederhana; satu telinga pada profil agar tidak menumpuk.
+    if profil:
+        fitur.append(
+            '<path d="M-29 -8 Q-39 -13 -39 1 Q-38 14 -28 12 Q-23 7 -27 1" '
+            'fill="#b97955" stroke="#704631" stroke-width="1.7"/>'
+            '<path d="M-33 -3 Q-28 -7 -28 2" fill="none" stroke="#8d5a3b" stroke-width="1.4"/>'
+        )
+    else:
+        for sisi in (-1, 1):
+            fitur.append(
+                f'<path d="M{29*sisi} -8 Q{39*sisi} -13 {39*sisi} 1 '
+                f'Q{38*sisi} 14 {28*sisi} 12 Q{23*sisi} 7 {27*sisi} 1Z" '
+                'fill="#b97955" stroke="#704631" stroke-width="1.5"/>'
+                f'<path d="M{33*sisi} -3 Q{28*sisi} -7 {28*sisi} 2" '
+                'fill="none" stroke="#8d5a3b" stroke-width="1.3"/>'
+            )
+
+    kelopak = max(-1.0, min(1.0, float(detail.get("kelopak", 0.0))))
+    lirikan = max(-1.0, min(1.0, float(detail.get("lirikan", 0.0))))
+    lirikan_y = max(-1.0, min(1.0, float(detail.get("lirikan_y", 0.0))))
+    dalam = max(-1.0, min(1.0, float(detail.get("alis_dalam", 0.0))))
+    luar = max(-1.0, min(1.0, float(detail.get("alis_luar", 0.0))))
+    rapat = max(0.0, min(1.0, float(detail.get("alis_rapat", 0.0))))
+    kerut = max(0.0, min(1.0, float(detail.get("kerut_hidung", 0.0))))
+    bulat = max(0.0, min(1.0, float(detail.get("mulut_bulat", 0.0))))
+    buka = max(0.0, min(1.0, max(float(bicara), bulat)))
+
+    # Kelopak mengikuti ekspresi; kedipan menutup sclera tanpa menggeser posisi mata.
+    tinggi = max(1.2, 5.2 + (1.0 - kelopak) * 1.6)
+    if jenis in ("takut", "kaget"):
+        tinggi = max(tinggi, 6.4)
+    if jenis == "marah":
+        tinggi *= .78
+    tutup = bool(kedip or jenis == "pejam")
+    pusat_y = -7.0 if profil else -6.0
+    mata_svg = []
+    jumlah_mata = [(-9.0, 1)] if profil else [(-11.0, 1), (11.0, -1)]
+    for cx, sisi in jumlah_mata:
+        if tutup or jenis == "tertawa":
+            if jenis == "tertawa" and not tutup:
+                path = f"M{cx-7:g} -5 Q{cx:g} -12 {cx+7:g} -5"
+            else:
+                path = f"M{cx-7:g} -6 Q{cx:g} -2.5 {cx+7:g} -6"
+            mata_svg.append(
+                f'<path d="{path}" fill="none" stroke="{garis}" stroke-width="2.8" '
+                'stroke-linecap="round"/>'
+                f'<path d="M{cx-5:.1f} -8 Q{cx:.1f} -10 {cx+5:.1f} -8" '
+                f'fill="none" stroke="#704631" stroke-width="1.1" opacity=".55"/>'
+            )
+            continue
+        px = cx + 3.0 * lirikan
+        py = pusat_y + 2.4 * lirikan_y
+        mata_svg.append(
+            f'<ellipse cx="{cx:g}" cy="{pusat_y:g}" rx="8.1" ry="{tinggi:.1f}" '
+            'fill="#fffdf8" stroke="#704631" stroke-width="1.15"/>'
+            f'<ellipse cx="{px:.1f}" cy="{py:.1f}" rx="3.5" ry="4.0" fill="{iris}"/>'
+            f'<ellipse cx="{px:.1f}" cy="{py+0.2:.1f}" rx="1.9" ry="2.8" fill="#171319"/>'
+            f'<circle cx="{px-1.0:.1f}" cy="{py-1.5:.1f}" r="1.05" fill="#fff" opacity=".92"/>'
+            f'<path d="M{cx-8:.1f} -6 Q{cx:.1f} {-13.0-tinggi*.18:.1f} {cx+8:.1f} -6" '
+            f'fill="none" stroke="{garis}" stroke-width="1.9" stroke-linecap="round"/>'
+            f'<path d="M{cx-7:.1f} -2 Q{cx:.1f} {1.0+tinggi*.08:.1f} {cx+7:.1f} -2" '
+            'fill="none" stroke="#8d5a3b" stroke-width="1.0" opacity=".65"/>'
+        )
+
+    # Alis dibentuk per sisi, dengan kontrol tinggi bagian dalam/luar untuk tiap emosi.
+    alis_svg = []
+    if profil:
+        alis_svg.append(
+            f'<path d="M-20 {-17+luar*4:.1f} Q-12 {-22+dalam*4:.1f} -3 {-17+rapat*2:.1f}" '
+            f'fill="none" stroke="{garis}" stroke-width="3.8" stroke-linecap="round"/>'
+        )
+    else:
+        for sisi in (-1, 1):
+            y_luar = -17 + luar * 4 + rapat * 2
+            y_dalam = -17 + dalam * 4 + rapat * 2
+            alis_svg.append(
+                f'<path d="M{sisi*18:g} {y_luar:g} Q{sisi*12:g} {((y_luar+y_dalam)/2-1.5):.1f} '
+                f'{sisi*6:g} {y_dalam:.1f}" fill="none" stroke="{garis}" '
+                'stroke-width="3.8" stroke-linecap="round"/>'
+            )
+
+    # Hidung tetap minimal: bayangan lembut dari depan, kontur kecil pada profil.
+    if profil:
+        hidung = '<path d="M-1 -5 Q4 0 9 3 Q5 6 1 5" fill="none" stroke="#704631" stroke-width="2.2" stroke-linecap="round"/>'
+    else:
+        hidung = (
+            '<path d="M0 -1 Q-1 4 0 6" fill="none" stroke="#9b6548" stroke-width="1.5" opacity=".7"/>'
+            '<path d="M-3 7 Q0 9 3 7" fill="none" stroke="#704631" stroke-width="1.5" stroke-linecap="round"/>'
+            '<path d="M-7 2 l-4 5" fill="none" stroke="#704631" stroke-width="1.2" stroke-linecap="round"/>'
+        )
+    kerut_svg = (
+        f'<path d="M-5 1 l-2 4 M0 0 v5 M5 1 l2 4" stroke="#704631" '
+        f'stroke-width="{1.0+1.5*kerut:.1f}" opacity="{kerut*.72:.2f}" stroke-linecap="round"/>'
+    )
+
+    # Bentuk mulut ekspresif; artikulasi narasi hanya mengubah bukaan, bukan posisi mulut.
+    bentuk_mulut = {
+        "datar": '<path d="M-8 17 Q0 17 8 17" fill="none" stroke="{c}" stroke-width="2.8" stroke-linecap="round"/>',
+        "senyum": '<path d="M-11 14 Q0 25 11 14" fill="none" stroke="{c}" stroke-width="2.9" stroke-linecap="round"/>',
+        "tertawa": '<path d="M-13 12 Q0 32 13 12 Q0 17 -13 12Z" fill="{c}"/><path d="M-9 14 Q0 17 9 14" stroke="#fff" stroke-width="2" fill="none"/>',
+        "ejek": '<path d="M-10 17 Q1 22 12 12" fill="none" stroke="{c}" stroke-width="2.8" stroke-linecap="round"/>',
+        "cemberut": '<path d="M-10 20 Q0 12 10 20" fill="none" stroke="{c}" stroke-width="2.9" stroke-linecap="round"/>',
+        "sedih": '<path d="M-10 21 Q0 12 10 21" fill="none" stroke="{c}" stroke-width="2.9" stroke-linecap="round"/>',
+        "marah": '<path d="M-11 17 Q0 20 11 17 L10 21 Q0 23 -10 21Z" fill="{c}"/>',
+        "takut": '<ellipse cx="0" cy="18" rx="6.5" ry="8" fill="{c}"/>',
+        "kaget": '<ellipse cx="0" cy="18" rx="9" ry="11" fill="{c}"/>',
+        "pejam": '<path d="M-7 17 h14" fill="none" stroke="{c}" stroke-width="2.8" stroke-linecap="round"/>',
+    }[jenis].format(c=mulut_warna)
+    if buka > .05 and jenis not in ("tertawa", "takut", "kaget"):
+        if ekspresi_asli == "heran":
+            rx, ry = 5.7, 5.2
+        else:
+            rx = 5.5 + 3.5 * bulat
+            ry = 1.8 + 7.2 * bulat
+        bentuk_mulut = (
+            f'<ellipse cx="0" cy="18" rx="{rx:.1f}" ry="{ry:.1f}" fill="{mulut_warna}"/>'
+            f'<path d="M-3 15 Q0 14 3 15" stroke="#f5d9cb" stroke-width="1" opacity=".65" fill="none"/>'
+        )
+    elif buka > .05 and jenis in ("takut", "kaget"):
+        bentuk_mulut = f'<ellipse cx="0" cy="18" rx="{7+buka:.1f}" ry="{8+3*buka:.1f}" fill="{mulut_warna}"/>'
+    if ekspresi_asli == "heran":
+        bentuk_mulut += '<path d="M-9 16 h18" fill="none" stroke="{c}" stroke-width="2.8" stroke-linecap="round"/>'.format(c=mulut_warna)
+    fitur.extend(mata_svg)
+    fitur.extend(alis_svg)
+    fitur.extend([hidung, kerut_svg, bentuk_mulut])
+    e = lambda s: f'<g transform="translate({ox:.1f},{oy:.1f})">{s}</g>'
+    return [e("".join(fitur))]
 
 def _lapisan_rambut(model: str, warna: str, *, profil: bool, membelakangi: bool) -> str:
     """Rambut kepala prosedural; geometri mengikuti sudut kamera, bukan warna saja."""
@@ -362,24 +429,7 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
             for a, b in (bicara or []):
                 if a <= t <= b:
                     bc = 0.5 + 0.5 * math.sin(t * 15)
-            kedip = (t + indeks * 0.9) % 3.7 < 0.12
-            g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
-                        profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
-    if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
-        if wajah_cahaya:
-            # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
-            lebar_wajah = 22 if profil else 32
-            g.append(f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah}" ry="34" fill="#fff8df" opacity=".96"/>'
-                     f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah + 7}" ry="39" fill="#fff0bd" opacity=".36" filter="url(#b10)"/>')
-        else:
-            jw = G.nilai_jadwal(wajah, t, "datar")
-            if jw not in WAJAH:
-                raise ValueError(f"wajah tak dikenal: {jw} (pilihan: {', '.join(WAJAH)})")
-            bc = 0.0
-            for a, b in (bicara or []):
-                if a <= t <= b:
-                    bc = 0.5 + 0.5 * math.sin(t * 15)
-            kedip = (t + indeks * 0.9) % 3.7 < 0.12
+            kedip = (t + indeks * 0.9) % 3.7 > 3.58
             g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
                         profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
     g.append("</g>")

@@ -26,7 +26,7 @@ def test_semua_gerak_bisa_digambar(nama):
 
 def test_gerak_berulang_benar_benar_bergerak():
     for nama in ("jalan", "lari", "joget", "lompat", "melambai", "palu"):
-        assert TK.orang(0, 0, gerak=nama, t=0.1) != TK.orang(0, 0, gerak=nama, t=0.4)
+        assert TK.orang(0, 0, gerak=nama, t=0.1) != TK.orang(0, 0, gerak=nama, t=0.25)
 
 
 def test_jadwal_bercampur_halus():
