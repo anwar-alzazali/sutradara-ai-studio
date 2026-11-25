@@ -52,7 +52,7 @@ def test_mata_memiliki_sklera_iris_pupil_dan_highlight():
 
 def test_kedipan_menutup_mata_tanpa_menggeser_wajah():
     terbuka = tokoh.orang(500, 1500, kepala="tanpa", arah="depan", wajah="datar", t=0.2)
-    tertutup = tokoh.orang(500, 1500, kepala="tanpa", arah="depan", wajah="datar", t=0.0)
+    tertutup = tokoh.orang(500, 1500, kepala="tanpa", arah="depan", wajah="datar", t=3.65)
     assert 'fill="#fffdf8"' in terbuka
     assert 'fill="#fffdf8"' not in tertutup
     assert 'M-18 -6 Q-11 -2.5 -4 -6' in tertutup
