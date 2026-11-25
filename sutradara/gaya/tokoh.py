@@ -178,9 +178,9 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
     for cx, sisi in jumlah_mata:
         if tutup or jenis == "tertawa":
             if jenis == "tertawa" and not tutup:
-                path = f"M{cx-7:.1f} -5 Q{cx:.1f} -12 {cx+7:.1f} -5"
+                path = f"M{cx-7:g} -5 Q{cx:g} -12 {cx+7:g} -5"
             else:
-                path = f"M{cx-7:.1f} -6 Q{cx:.1f} -2.5 {cx+7:.1f} -6"
+                path = f"M{cx-7:g} -6 Q{cx:g} -2.5 {cx+7:g} -6"
             mata_svg.append(
                 f'<path d="{path}" fill="none" stroke="{garis}" stroke-width="2.8" '
                 'stroke-linecap="round"/>'
