@@ -207,7 +207,7 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
     if profil:
         alis_svg.append(
             f'<path d="M-20 {-17+luar*4:.1f} Q-12 {-22+dalam*4:.1f} -3 {-17+rapat*2:.1f}" '
-            f'fill="none" stroke="{garis}" stroke-width="3.2" stroke-linecap="round"/>'
+            f'fill="none" stroke="{garis}" stroke-width="3.8" stroke-linecap="round"/>'
         )
     else:
         for sisi in (-1, 1):
@@ -216,7 +216,7 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
             alis_svg.append(
                 f'<path d="M{sisi*18:g} {y_luar:g} Q{sisi*12:g} {((y_luar+y_dalam)/2-1.5):.1f} '
                 f'{sisi*6:g} {y_dalam:.1f}" fill="none" stroke="{garis}" '
-                'stroke-width="3.3" stroke-linecap="round"/>'
+                'stroke-width="3.8" stroke-linecap="round"/>'
             )
 
     # Hidung tetap minimal: bayangan lembut dari depan, kontur kecil pada profil.
@@ -226,6 +226,7 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
         hidung = (
             '<path d="M0 -1 Q-1 4 0 6" fill="none" stroke="#9b6548" stroke-width="1.5" opacity=".7"/>'
             '<path d="M-3 7 Q0 9 3 7" fill="none" stroke="#704631" stroke-width="1.5" stroke-linecap="round"/>'
+            '<path d="M-7 2 l-4 5" fill="none" stroke="#704631" stroke-width="1.2" stroke-linecap="round"/>'
         )
     kerut_svg = (
         f'<path d="M-5 1 l-2 4 M0 0 v5 M5 1 l2 4" stroke="#704631" '
