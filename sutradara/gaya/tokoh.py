@@ -243,7 +243,7 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
         "sedih": '<path d="M-10 21 Q0 12 10 21" fill="none" stroke="{c}" stroke-width="2.9" stroke-linecap="round"/>',
         "marah": '<path d="M-11 17 Q0 20 11 17 L10 21 Q0 23 -10 21Z" fill="{c}"/>',
         "takut": '<ellipse cx="0" cy="18" rx="6.5" ry="8" fill="{c}"/>',
-        "kaget": '<ellipse cx="0" cy="18" rx="8" ry="10" fill="{c}"/>',
+        "kaget": '<ellipse cx="0" cy="18" rx="9" ry="11" fill="{c}"/>',
         "pejam": '<path d="M-7 17 h14" fill="none" stroke="{c}" stroke-width="2.8" stroke-linecap="round"/>',
     }[jenis].format(c=mulut_warna)
     if buka > .05 and jenis not in ("tertawa", "takut", "kaget"):
