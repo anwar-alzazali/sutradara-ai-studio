@@ -116,6 +116,7 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
     }
     detail = dict(preset_detail.get(jenis, {}))
     detail.update(detail_wajah or {})
+    ekspresi_asli = jenis
     jenis = {"kepergok_panik": "takut", "jijik_ilfil": "cemberut", "sinis": "ejek",
              "curiga": "datar", "heran": "datar"}.get(jenis, jenis)
     garis, iris, mulut_warna = RAMBUT, "#3a241b", "#5a1e1e"
@@ -171,10 +172,9 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
     if jenis == "marah":
         tinggi *= .78
     tutup = bool(kedip or jenis == "pejam")
-    pusat_y = -6.0
-    pusat_x = -11.0
+    pusat_y = -7.0 if profil else -6.0
     mata_svg = []
-    jumlah_mata = [(-11.0, 1)] if profil else [(-11.0, 1), (11.0, -1)]
+    jumlah_mata = [(-9.0, 1)] if profil else [(-11.0, 1), (11.0, -1)]
     for cx, sisi in jumlah_mata:
         if tutup or jenis == "tertawa":
             if jenis == "tertawa" and not tutup:
@@ -246,8 +246,11 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
         "pejam": '<path d="M-7 17 h14" fill="none" stroke="{c}" stroke-width="2.8" stroke-linecap="round"/>',
     }[jenis].format(c=mulut_warna)
     if buka > .05 and jenis not in ("tertawa", "takut", "kaget"):
-        rx = 5.5 + 2.2 * buka
-        ry = 1.8 + 5.8 * buka
+        if ekspresi_asli == "heran":
+            rx, ry = 5.7, 5.2
+        else:
+            rx = 5.5 + 3.5 * bulat
+            ry = 1.8 + 7.2 * bulat
         bentuk_mulut = (
             f'<ellipse cx="0" cy="18" rx="{rx:.1f}" ry="{ry:.1f}" fill="{mulut_warna}"/>'
             f'<path d="M-3 15 Q0 14 3 15" stroke="#f5d9cb" stroke-width="1" opacity=".65" fill="none"/>'
@@ -409,23 +412,6 @@ def orang(x: float, y: float, s: float = 1.0, *, gerak=None, pose: str | None = 
         g.append(f'<path d="M-30 -20 Q -30 -44 0 -44 Q 30 -44 30 -20Z" fill="{tutup}"/>')
     elif kepala == "kerudung" and siluet:
         g.append(f'<path d="M-40 6 Q -46 -44 0 -46 Q 46 -44 40 6 L 50 62 Q 0 74 -50 62Z" fill="{GELAP}"/>')
-    if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
-        if wajah_cahaya:
-            # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
-            lebar_wajah = 22 if profil else 32
-            g.append(f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah}" ry="34" fill="#fff8df" opacity=".96"/>'
-                     f'<ellipse cx="{J["toleh"] * 4:.1f}" cy="2" rx="{lebar_wajah + 7}" ry="39" fill="#fff0bd" opacity=".36" filter="url(#b10)"/>')
-        else:
-            jw = G.nilai_jadwal(wajah, t, "datar")
-            if jw not in WAJAH:
-                raise ValueError(f"wajah tak dikenal: {jw} (pilihan: {', '.join(WAJAH)})")
-            bc = 0.0
-            for a, b in (bicara or []):
-                if a <= t <= b:
-                    bc = 0.5 + 0.5 * math.sin(t * 15)
-            kedip = (t + indeks * 0.9) % 3.7 < 0.12
-            g += _wajah(jw, bc, kedip, wanita, J["toleh"] * 8, J["angguk"] * 7,
-                        profil=profil, janggut=janggut, warna_janggut=warna_janggut, detail_wajah=detail_wajah)
     if not siluet and rinci and tampak_wajah > 0.02 and not membelakangi:
         if wajah_cahaya:
             # Mode bercahaya menutup bidang wajah dari depan maupun profil tanpa mengubah rig tubuh.
