@@ -258,6 +258,8 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
         )
     elif buka > .05 and jenis in ("takut", "kaget"):
         bentuk_mulut = f'<ellipse cx="0" cy="18" rx="{7+buka:.1f}" ry="{8+3*buka:.1f}" fill="{mulut_warna}"/>'
+    if ekspresi_asli == "heran":
+        bentuk_mulut += '<path d="M-9 16 h18" fill="none" stroke="{c}" stroke-width="2.8" stroke-linecap="round"/>'.format(c=mulut_warna)
     fitur.extend(mata_svg)
     fitur.extend(alis_svg)
     fitur.extend([hidung, kerut_svg, bentuk_mulut])
