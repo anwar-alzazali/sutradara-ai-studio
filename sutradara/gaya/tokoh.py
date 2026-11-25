@@ -163,7 +163,7 @@ def _wajah(jenis: str, bicara: float, kedip: bool, wanita: bool, ox: float, oy: 
     rapat = max(0.0, min(1.0, float(detail.get("alis_rapat", 0.0))))
     kerut = max(0.0, min(1.0, float(detail.get("kerut_hidung", 0.0))))
     bulat = max(0.0, min(1.0, float(detail.get("mulut_bulat", 0.0))))
-    buka = max(0.0, min(1.0, float(bicara)))
+    buka = max(0.0, min(1.0, max(float(bicara), bulat)))
 
     # Kelopak mengikuti ekspresi; kedipan menutup sclera tanpa menggeser posisi mata.
     tinggi = max(1.2, 5.2 + (1.0 - kelopak) * 1.6)
