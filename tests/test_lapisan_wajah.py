@@ -42,7 +42,7 @@ def test_model_rambut_botak_tidak_menggambar_lapisan_rambut():
 
 
 def test_mata_memiliki_sklera_iris_pupil_dan_highlight():
-    svg = tokoh.orang(500, 1500, kepala="tanpa", arah="depan", wajah="datar")
+    svg = tokoh.orang(500, 1500, kepala="tanpa", arah="depan", wajah="datar", t=0.2)
     assert 'fill="#fffdf8"' in svg
     assert 'fill="#3a241b"' in svg
     assert 'fill="#171319"' in svg
