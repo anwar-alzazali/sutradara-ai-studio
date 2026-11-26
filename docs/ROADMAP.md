@@ -219,7 +219,16 @@ tiga-perempat, serta samping; jangan membuat modul mata baru sebelum penyebab di
 - **Kriteria selesai:** cacat yang disengaja (teks bertumpuk, shot kosong) tertangkap dan diperbaiki otomatis pada video uji.
 
 ### ○ Fase 6 — Otomatisasi penuh
-1. Workflow `buat_video.yml` (`workflow_dispatch`, input: naskah) menjalankan fase 2–5 lalu mengirim ke Telegram (salin konsep cabang `kiriman`).
+1. Workflow `buat_video.yml` (`workflow_dispatch`, input: naskah) menjalankan verifikasi dalil → sutradara → pratinjau
+   visual dan persetujuan pra-produksi → narasi → render final → campur suara → periksa/kritikus Tahap 5 → kirim video
+   final ke Telegram untuk persetujuan akhir.
+   - Pratinjau visual memakai WebApp yang diadaptasi dari prototipe `mesin-video/web/studio/app/app.html`, dengan
+     rencana adegan dari Sutradara AI Studio sebagai sumber data tunggal. Tautan pratinjau dikirim ke Telegram untuk
+     persetujuan atau revisi visual.
+   - Persetujuan pratinjau wajib terjadi sebelum narasi ElevenLabs atau langkah produksi berbayar. Ini gerbang
+     pra-produksi; tidak menggantikan pemeriksaan/kritikus Tahap 5 atau persetujuan video final.
+   - Ambil mesin pratinjau yang terbukti berguna saja; pembayaran dan render simulasi prototipe lama bukan fitur
+     produksi. Kode salinan wajib mencantumkan baris `Asal:`.
 2. Antrean naskah + tugas terjadwal (satu video per hari) yang hanya mengirim untuk disetujui; tidak pernah mengunggah sendiri.
 3. Laporan biaya per video (ElevenLabs, model AI).
 - **Kriteria selesai:** 5 hari berturut-turut video harian sampai ke Telegram tanpa sentuhan manual, ≥3 disetujui pemilik.
@@ -351,6 +360,7 @@ Semua yang sudah disebut pemilik/sesi tetapi BELUM dikerjakan. Centang di PR yan
 - Hadith References memetakan hubungan hadis↔ayat, bukan endpoint pencarian kitab+nomor. Pemeriksa kedua hanya berlaku bila peta mengembalikan referensi yang cocok; tidak ditemukan bukan lulus dan dataset lokal tetap menjadi jalur untuk hadis di luar peta. Uji live harus diulang melalui workflow dispatch `verifikasi dalil`.
 - Persetujuan pemilik Muslim 2934b tercatat pada commit `c05926c`: frasa lengkap `mendatangi surga yang ia lihat berupa api` dikoreksi menjadi `mendatangi sungai yang ia lihat berupa api`; status `disetujui_pemilik`. Perubahan berikutnya tidak mengubah berkas koreksi yang disetujui.
 
+- 23 Nov 2026 — Tambahan Tahap F: pratinjau visual pra-produksi ditempatkan setelah verifikasi dalil dan rencana adegan sutradara, tetapi sebelum narasi ElevenLabs/produksi berbayar. Persetujuan pratinjau lewat Telegram menjadi gerbang revisi visual; tetap terpisah dari pemeriksaan Tahap E dan persetujuan video final.
 - 22 Nov 2026 — Tahap D0: pemeriksaan kontinuitas identitas stabil (kartu pemeran vs atribut per shot, termasuk pemeran individu dalam kerumunan) dipindahkan ke `sutradara/rencana/pemeriksaan_umum.py`. Pemeriksaan mode tampil tetap berada di paket Kisah Islami; tidak mengubah kategori adab atau aturan visual genre.
 
 - 22 Nov 2026 — Tahap D0 pemisahan renderer: komponen visual dan data dalil khusus Kisah Islami dipindahkan ke `sutradara/paket_genre/kisah_islami/`; jalur impor lama dipertahankan sebagai shim. Renderer inti menerima hasil lapisan netral melalui kontrak paket. Skema dalil menjadi ekstensi paket, bukan properti inti.

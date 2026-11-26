@@ -390,14 +390,25 @@ Tidak ada fitur baru atau modul paralel yang dibuat dalam audit ini. PR #48 teta
    Semua cacat itu harus tertangkap, dan yang bisa diperbaiki harus benar-benar terperbaiki.
 
 ## Tahap F — Otomatisasi penuh (Fase 6)
-1. **Workflow `buat_video.yml`** (`workflow_dispatch`, masukan naskah) menjalankan berurutan: verifikasi dalil,
-   narasi, sutradara, render, campur suara, periksa/kritikus, lalu kirim ke Telegram untuk disetujui.
+1. **Workflow `buat_video.yml`** (`workflow_dispatch`, masukan naskah) menjalankan alur produksi secara
+   berurutan: verifikasi dalil → sutradara menyusun rencana adegan → pratinjau visual dan persetujuan pra-produksi
+   (poin 1a) → narasi → render final → campur suara → periksa/kritikus → kirim video final ke Telegram untuk
+   persetujuan akhir. Langkah berbayar tidak dijalankan sebelum pemilik menyetujui pratinjau visual.
    - Nama rahasia Telegram diusulkan di PR. Pemilik yang mengisinya; jangan meminta nilainya.
-1b. **Persetujuan lewat Telegram: SUDAH dikerjakan Claude (F1, 21 Nov 2026).** Bot Mesin KONTEN dipindah ke `bot/`
-   (lihat `bot/README.md`): persetujuan Setujui/Tolak + alasan → `data/persetujuan/<id>.json`, balas komentar, chat
-   pribadi. Di tahap ini cukup: kirim video ke Telegram dengan tombol `st:<id>`/`tl:<id>` (seperti workflow
-   `tes telegram`), dan baca `data/persetujuan/` sebagai masukan antrean & Tahap G. Workflow pengirim memakai Secret
-   `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` repo ini (sudah terisi dan teruji).
+1a. **Pratinjau visual pra-produksi (tambahan).** Setelah verifikasi dalil dan sutradara menghasilkan rencana adegan,
+   buat pratinjau visual ringan melalui WebApp yang diadaptasi dari prototipe `mesin-video/web/studio/app/app.html`.
+   Pratinjau harus memakai rencana adegan Sutradara AI Studio, bukan naskah atau format produksi kedua. Kirim tautan
+   pratinjau ke Telegram agar pemilik dapat menyetujui atau meminta revisi visual. Hanya setelah disetujui, lanjutkan
+   ke narasi ElevenLabs dan produksi final. Persetujuan ini adalah gerbang pra-produksi dan tidak menggantikan
+   pemeriksaan/kritikus Tahap E maupun persetujuan video final. Adaptasi hanya membawa mesin pratinjau yang terbukti
+   berguna; pembayaran dan render simulasi prototipe lama tidak dianggap fitur produksi. Kode yang disalin wajib
+   mencantumkan baris `Asal:` sesuai aturan umum.
+1b. **Persetujuan video final lewat Telegram: SUDAH dikerjakan Claude (F1, 21 Nov 2026).** Bot Mesin KONTEN dipindah
+   ke `bot/` (lihat `bot/README.md`): persetujuan Setujui/Tolak + alasan → `data/persetujuan/<id>.json`, balas
+   komentar, chat pribadi. Setelah video final lolos pemeriksaan/kritikus, kirim video ke Telegram dengan tombol
+   `st:<id>`/`tl:<id>` (seperti workflow `tes telegram`), dan baca `data/persetujuan/` sebagai masukan antrean
+   & Tahap G. Workflow pengirim memakai Secret `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` repo ini (sudah terisi
+   dan teruji).
    - **Syarat sebelum mesin-video boleh dihapus:** bot sudah berjalan dari repo ini dan teruji, dan `periksa.py` sudah
      dipindah di Tahap E.
 2. **Antrean naskah dan tugas terjadwal** (satu video per hari):
