@@ -17,6 +17,27 @@ class QuranTiruan:
         return None
 
 
+def test_prompt_ide_mengutamakan_alur_naskah_dan_bukan_rangkuman():
+    aturan = A.SISTEM["ide"]
+    for petunjuk in (
+        "pahami diam-diam ide pemilik",
+        "hook yang spesifik",
+        "hubungan sebab-akibat hanya jika sumber mendukungnya",
+        "penutup yang menjawab hook",
+        "Tulis untuk didengar",
+        "Setiap beat harus punya fungsi cerita yang berbeda",
+        "jangan mengisi kekosongan dengan rekaan",
+    ):
+        assert petunjuk in aturan
+
+
+def test_prompt_ide_melarang_dialog_dan_detail_faktual_rekaan():
+    aturan = A.SISTEM["ide"]
+    assert "Jangan membuat dialog langsung kecuali ucapan itu benar-benar didukung sumber" in aturan
+    assert "JANGAN menulis teks Arab atau terjemah dalil" in aturan
+    assert "Ragu nomornya = jangan dicantumkan" in aturan
+
+
 def test_kartu_sama_dengan_fixture_bersama_bot():
     f = json.loads((DATA / "kartu_status.json").read_text(encoding="utf-8"))
     assert A.kartu(f["status"]) == f["teks"]
